@@ -1,0 +1,264 @@
+.patient-dashboard {
+  position: relative;
+  padding: 2rem;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.dashboard-title {
+  color: #333;
+  /* margin-bottom: 2rem; */
+  font-weight: 600;
+  /* text-align: center; */
+}
+
+.fitness-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.fitness-card {
+  background: white;
+  border-radius: 16px;
+  padding: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #e9ecef;
+  height: 225px;
+  display: flex;
+  flex-direction: column;
+}
+
+.fitness-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.card-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.card-header i {
+  font-size: 1.5rem;
+  color: #52C3BF;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex-grow: 1;
+  justify-content: center;
+}
+
+.card-content.flipped {
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0;
+}
+
+.fitness-data {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.fitness-data .current {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  line-height: 1;
+}
+
+.fitness-data .goal {
+  font-size: 0.7rem;
+  color: #6c757d;
+  margin-top: 0.1rem;
+}
+
+
+
+@media (max-width: 768px) {
+  .patient-dashboard {
+    padding: 1rem;
+  }
+
+  .fitness-cards {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .fitness-card {
+    padding: 1.5rem;
+  }
+}
+
+.back-arrow {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  cursor: pointer;
+  color: #52C3BF;
+  font-size: 18px;
+  z-index: 10;
+}
+
+@media (max-width: 480px) {
+  .fitness-card {
+    padding: 1rem;
+  }
+
+  .card-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .progress-text .current {
+    font-size: 1.2rem;
+  }
+}
+
+/* Patient Report Styles */
+.monthly-table-container ::-webkit-scrollbar {
+  display: none;
+}
+
+.monthly-table-container table {
+  table-layout: fixed;
+  border-collapse: collapse;
+  border: 1px solid #dee2e6;
+}
+
+.monthly-table-container th,
+.monthly-table-container td {
+  padding: 6px 8px !important;
+  border-right: 1px solid #dee2e6 !important;
+  border-bottom: 1px solid #dee2e6 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 11px;
+}
+
+.monthly-table-container th:last-child,
+.monthly-table-container td:last-child {
+  border-right: none !important;
+}
+
+.monthly-table-container tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+.monthly-table-container tbody tr:nth-child(even) {
+  background-color: #E0ECF8 !important;
+}
+
+.monthly-table-container tbody tr:nth-child(odd) {
+  background-color: #ffffff !important;
+}
+
+.monthly-table-container tbody tr:hover {
+  background-color: #e3f2fd !important;
+}
+
+.month-navigation {
+  background-color: #F9FAFB;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.month-navigation h6 {
+  font-size: 14px;
+}
+
+.month-navigation span {
+  cursor: pointer;
+}
+
+.table-scroll-container {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 70vh;
+}
+
+.patient-report-table {
+  font-size: 11px;
+}
+
+.table-header {
+  background-color: #E0ECF8 !important;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.sticky-metrics {
+  width: 150px;
+  background-color: #E0ECF8 !important;
+  position: sticky;
+  left: 0;
+  z-index: 11;
+}
+
+.sticky-normal-range {
+  width: 300px;
+  background-color: #E0ECF8 !important;
+  position: sticky;
+  left: 150px;
+  z-index: 11;
+}
+
+.day-header {
+  width: 60px;
+  text-align: center;
+  background-color: #E0ECF8 !important;
+}
+
+.metrics-cell {
+  width: 150px;
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  background-color: inherit;
+  color: #003465 !important;
+  font-size: 10px !important;
+}
+
+.normal-range-cell {
+  width: 300px;
+  position: sticky;
+  left: 150px;
+  z-index: 5;
+  background-color: inherit;
+  font-size: 10px !important;
+
+}
+
+.day-data-cell {
+  width: 70px;
+  font-size: 10px !important;
+
+}
+
+.metric-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+}

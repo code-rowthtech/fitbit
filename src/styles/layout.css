@@ -1,0 +1,48 @@
+/* Sidebar Styles */
+.sidebar {
+  background-color: #16213D !important;
+  /* border-right: 1px solid var(--medium-gray); */
+}
+
+.sidebar-expanded {
+  width: 250px;
+}
+
+.sidebar-collapsed {
+  width: 60px;
+}
+
+/* TopBar Styles */
+.topbar {
+  /* background: linear-gradient(135deg, #02243F, #003A70); */
+  background-color: white;
+  border-bottom: 1px solid var(--medium-gray);
+}
+
+/* Navigation Link Hover Effects */
+.sidebar .nav-link:hover {
+  background-color: #003465 !important;
+  border-radius: 4px;
+  margin: 0 8px;
+}
+
+.sidebar .nav-link {
+  transition: all 0.2s ease;
+}
+
+/* Button Styles in Sidebar */
+.sidebar .btn-outline-light {
+  border-color: var(--medium-gray);
+  color: var(--white);
+}
+
+.sidebar .btn-outline-light:hover {
+  background-color:#003465;
+  border-color: #003465;
+  color: var(--white);
+}
+
+/* Main Content Area */
+.main-content {
+  background-color: var(--light-gray);
+}

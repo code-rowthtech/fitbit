@@ -1,0 +1,201 @@
+:root {
+  /* Fitbit Color Palette */
+  --primary-blue: #0071ce;
+  --dark-blue: #003a70;
+  --light-blue: #e6f2ff;
+  --white: #ffffff;
+  --light-gray: #f5f5f5;
+  --medium-gray: #e0e0e0;
+  --dark-gray: #333333;
+  --medium-text-gray: #666666;
+
+  color-scheme: light;
+  color: var(--dark-gray);
+  background-color: var(--white);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: var(--primary-blue);
+  text-decoration: inherit;
+}
+
+a:hover {
+  color: #52C3BF;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: "Proxima Nova Regular", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+.button-primary {
+  border-radius: 4px;
+  border: 1px solid transparent;
+  padding: 4px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  background-color: #003465;
+  color: var(--white);
+  cursor: pointer;
+  transition: all 0.25s;
+  height: 32px;
+}
+
+/* .button-primary:hover {
+  border-color: var(--primary-blue);
+  background-color: var(--white);
+  color: var(--primary-blue);
+}
+
+.button-primary:focus,
+.button-primary:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+} */
+
+
+
+.table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+.table .thead-custom {
+  background-color: #E0ECF8 !important;
+  border-top-left-radius: 8px !important;
+  border-top-right-radius: 8px !important;
+}
+
+.table .thead-custom th {
+  background-color: #E0ECF8 !important;
+  color: #003465 !important;
+  border: none !important;
+}
+
+.table .thead-custom th:first-child {
+  border-top-left-radius: 8px !important;
+}
+
+.table .thead-custom th:last-child {
+  border-top-right-radius: 8px !important;
+}
+
+.badge-active {
+  background-color: #C3F8DB !important;
+  color: #10B95C !important;
+}
+
+/* Patient Details Tabs */
+.patient-tabs {
+  display: flex;
+  position: relative;
+  margin-bottom: 0;
+}
+
+.patient-tab {
+  position: relative;
+  padding: 8px 10px;
+  font-size: 14px;
+  padding-left: -10;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-bottom: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  transform: skewX(-20deg);
+  margin-right: -1px;
+  min-width: 120px;
+  text-align: center;
+  /* z-index: 1; */
+}
+
+.patient-tab span {
+  display: inline-block;
+}
+
+.patient-tab-content {
+  transform: skewX(20deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.patient-tab.active {
+  background: #003465;
+  border-color: transparent;
+  border-bottom: 1px solid #ffffff;
+  color: white;
+  z-index: 0;
+  transform: skewX(-20deg);
+  /* box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15); */
+}
+
+.patient-tab.inactive {
+  background: #e9ecef;
+  color: #6c757d;
+  border-color: #dee2e6;
+}
+
+/* .patient-tab.inactive:hover {
+  background: #f1f3f4;
+  transform: skewX(-20deg) ;
+} */
+
+.patient-tab-arrow {
+  margin-left: 8px;
+  font-size: 10px;
+  transition: transform 0.3s ease;
+}
+
+/* .patient-tab.active .patient-tab-arrow {
+  transform: skewX(20deg) rotate(180deg);
+}
+
+.patient-tab.inactive .patient-tab-arrow {
+  transform: skewX(20deg);
+} */
+
+.patient-tab:first-child {
+  border-top-left-radius: 10px !important;
+  border-bottom-left-radius: 0;
+  margin-right: -8px;
+  transform: none;
+  clip-path: polygon(0 0, calc(100% - 0) 0, 100% 100%, 0 100%);
+}
+
+.patient-tab:last-child {
+  border-top-right-radius: 10px !important;
+  border-bottom-right-radius: 0;
+  margin-left: -10px;
+  transform: none;
+  clip-path: polygon(15px 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.patient-tab-content.straight {
+  transform: none !important;
+}
+
+.patient-tab:first-child span,
+.patient-tab:last-child span {
+  transform: none;
+}
