@@ -25,8 +25,9 @@ import GPSTracking_Icon from '../../../assets/images/PatientDashboard/GPS tracki
 import Elevation_Icon from '../../../assets/images/PatientDashboard/elevation.png';
 import CaloriesConsumed_Icon from '../../../assets/images/PatientDashboard/Calories Burned.png';
 import WaterIntake_Icon from '../../../assets/images/PatientDashboard/water intake.png';
+import { IoIosExpand } from 'react-icons/io';
 
-const PatientReport = () => {
+const PatientReport = ({ isExpanded, onExpand }) => {
   const [currentMonth, setCurrentMonth] = useState(moment());
   const daysInMonth = currentMonth.daysInMonth();
   const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
@@ -45,6 +46,7 @@ const PatientReport = () => {
           </span>
         </h6>
         <div>
+          <IoIosExpand title='Expand Report' className='me-3 p-0 fs-4' style={{ color: '#003465', cursor: 'pointer' }} onClick={onExpand} />
           <MdSimCardDownload title='Export Report' className='me-3 p-0 fs-4' style={{ color: '#003465', cursor: 'pointer' }} />
           <FaAngleRight style={{ color: '#003465', cursor: 'pointer' }} onClick={() => setCurrentMonth(currentMonth.clone().add(1, 'month'))} />
         </div>

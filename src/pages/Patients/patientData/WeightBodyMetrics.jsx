@@ -117,7 +117,7 @@ const WeightBodyMetrics = ({ isExpanded, onExpand }) => {
                                         />
                                     </div>
                                 </div>
-                                <div className='p-2 pt-0'>
+                                <div className='p-1 pt-0'>
                                     {expandedCard === 'weight' ? (
                                         <div className='row p-3'>
                                             <div className='col-8 pe-2'>
@@ -245,7 +245,7 @@ const WeightBodyMetrics = ({ isExpanded, onExpand }) => {
                                         />
                                     </div>
                                 </div>
-                                <div className='p-2 pt-0'>
+                                <div className='p-1 pt-0'>
                                     {expandedCard === 'bmi' ? (
                                         <div className='row p-3'>
                                             <div className='col-8 pe-2'>
@@ -375,7 +375,7 @@ const WeightBodyMetrics = ({ isExpanded, onExpand }) => {
                                         />
                                     </div>
                                 </div>
-                                <div className='p-2 pt-0'>
+                                <div className='p-1 pt-0'>
                                     {expandedCard === 'bodyFat' ? (
                                         <div className='row p-3'>
                                             <div className='col-8 pe-2'>

@@ -14,9 +14,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { connectToFitbit, getPatientProfile } from '../../../redux/patientsDashboard/action';
 import { toast } from 'react-toastify';
-const PatientDetails = ({ patientData, onShowReports, showReports }) => {
+const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, setActiveTab }) => {
   const dispatch = useDispatch();
-  const [activeTab, setActiveTab] = useState('Activity Data');
+
   const [accordionOpen, setAccordionOpen] = useState(true);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const Metrics = patientData?.metrics;
@@ -51,6 +51,8 @@ const PatientDetails = ({ patientData, onShowReports, showReports }) => {
     'Exercise Data',
     'Nutrition'
   ]
+
+
 
   useEffect(() => {
     dispatch(getPatientById(id))
@@ -129,31 +131,30 @@ const PatientDetails = ({ patientData, onShowReports, showReports }) => {
                   </div>
                 </div>
                 <div className="d-flex align-items-center">
-                  {PatientData?.fitbitAuthState && PatientData?.fitbitCodeVerifier ?
-                    <>
-                      <span className='me-3 fw-bold p-1 rounded-1' style={{ color: '#003465', fontSize: '12px', border: '1px solid #003465' }}>Connection Pending</span>
-                    </>
-                    :
-                    FitbitConnection === 203 && (
-                      <button
-                        className='btn btn-sm me-3 fw-bold'
-                        style={{
-                          fontSize: '12px',
-                          padding: '4px 12px',
-                          borderRadius: '4px',
-                          backgroundColor: '#003465',
-                          color: 'white',
-                          border: '1px solid #003465'
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          dispatch(connectToFitbit({ patientId: id }))
-                        }}
-                        disabled={connectionLoading}
-                      >
-                        Connect to Fitbit
-                      </button>
-                    )}
+                  {PatientData?.fitbitAuthState && PatientData?.fitbitCodeVerifier ? (
+                    <span className='me-3 fw-bold p-1 rounded-1' style={{ color: '#003465', fontSize: '12px', border: '1px solid #003465' }}>Connection Pending</span>
+                  ) : FitbitConnection === 203 ? (
+                    <button
+                      className='btn btn-sm me-3 fw-bold'
+                      style={{
+                        fontSize: '12px',
+                        padding: '4px 12px',
+                        borderRadius: '4px',
+                        backgroundColor: '#003465',
+                        color: 'white',
+                        border: '1px solid #003465'
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        dispatch(connectToFitbit({ patientId: id }))
+                      }}
+                      disabled={connectionLoading}
+                    >
+                      {connectionLoading ? "Connecting" : "Connect to Fitbit"}
+                    </button>
+                  ) : FitbitConnection === 200 ? (
+                    <span className='me-3 fw-bold p-1 rounded-1' style={{ color: '#003465', fontSize: '12px', border: '1px solid #003465' }}>Connected</span>
+                  ) : null}
                   <TbUserEdit
                     className='border rounded-2 p-1'
                     title='Edit Patient'

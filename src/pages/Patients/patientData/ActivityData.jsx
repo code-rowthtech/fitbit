@@ -119,7 +119,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                                             />
                                         </div>
                                     </div>
-                                    <div className='p-2 pt-0'>
+                                    <div className='p-1 pt-0'>
                                         {expandedCard === 'steps' ? (
                                             <div className='row p-3'>
                                                 <div className='col-8 pe-2'>
@@ -250,7 +250,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                                             />
                                         </div>
                                     </div>
-                                    <div className='p-2 pt-0'>
+                                    <div className='p-1 pt-0'>
                                         {expandedCard === 'activeMins' ? (
                                             <div className='row p-3'>
                                                 <div className='col-8 pe-2'>
@@ -378,7 +378,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                                             />
                                         </div>
                                     </div>
-                                    <div className='p-2 pt-0'>
+                                    <div className='p-1 pt-0'>
                                         {expandedCard === 'calories' ? (
                                             <div className='row p-3'>
                                                 <div className='col-8 pe-2'>
@@ -504,7 +504,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                                             />
                                         </div>
                                     </div>
-                                    <div className='p-2 pt-0'>
+                                    <div className='p-1 pt-0'>
                                         {expandedCard === 'heartRate' ? (
                                             <div className='row p-3'>
                                                 <div className='col-8 pe-2'>
@@ -632,7 +632,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                                             />
                                         </div>
                                     </div>
-                                    <div className='p-2 pt-0'>
+                                    <div className='p-1 pt-0'>
                                         {expandedCard === 'distance' ? (
                                             <div className='row p-3'>
                                                 <div className='col-8 pe-2'>

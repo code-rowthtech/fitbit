@@ -62,7 +62,9 @@ function* createPatientFunction(data) {
             payload: {},
         });
         const response = yield call(createPatientApi, data);
-        if (response?.data?.patient?.status === 201) {
+        console.log(response,'responseresponse')
+        if (response?.data?.status === 201) {
+            console.log('responseresponse Inside te condition')
             yield put({
                 type: PATIENT_TYPES.CREATE_PATIENT_SUCCESS,
                 payload: response.data,
