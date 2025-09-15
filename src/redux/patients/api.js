@@ -3,7 +3,7 @@ import { APICore } from "../../helpers/api/apiCore"
 const api = new APICore()
 
 export function getAllPatientsApi(data) {
-    const url = data.payload.doctorId 
+    const url = data?.payload?.doctorId 
         ? `${URL.GET_PATIENTS}?doctorId=${data.payload.doctorId}`
         : URL.GET_PATIENTS;
     return api.get(url);

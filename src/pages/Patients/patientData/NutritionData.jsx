@@ -116,7 +116,7 @@ const NutritionData = ({ isExpanded, onExpand }) => {
                                         />
                                     </div>
                                 </div>
-                                <div className='p-2 pt-0'>
+                                <div className='p-1 pt-0'>
                                     {expandedCard === 'calories' ? (
                                         <div className='row p-3'>
                                             <div className='col-8 pe-2'>
@@ -246,7 +246,7 @@ const NutritionData = ({ isExpanded, onExpand }) => {
                                         />
                                     </div>
                                 </div>
-                                <div className='p-2 pt-0'>
+                                <div className='p-1 pt-0'>
                                     {expandedCard === 'water' ? (
                                         <div className='row p-3'>
                                             <div className='col-8 pe-2'>

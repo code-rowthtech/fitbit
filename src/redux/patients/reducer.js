@@ -88,7 +88,7 @@ export const createPatientReducer = (state = CREATE_PATIENT_INITIAL_STATE, actio
             }
         case PATIENT_TYPES.CREATE_PATIENT_RESET:
             return {
-                data: [],
+                data: {},
                 loading: false
             }
         case PATIENT_TYPES.CREATE_PATIENT_ERROR:
@@ -96,7 +96,7 @@ export const createPatientReducer = (state = CREATE_PATIENT_INITIAL_STATE, actio
                 data: action.payload,
                 loading: false
             }
-        default: return  state 
+        default: return  {...state} 
     }
 }
 

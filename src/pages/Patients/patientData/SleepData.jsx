@@ -118,7 +118,7 @@ const SleepData = ({ isExpanded, onExpand }) => {
                                         />
                                     </div>
                                 </div>
-                                <div className='p-2 pt-0'>
+                                <div className='p-1 pt-0'>
                                     {expandedCard === 'sleepStages' ? (
                                         <div className='row p-3'>
                                             <div className='col-8 pe-2'>
@@ -244,7 +244,7 @@ const SleepData = ({ isExpanded, onExpand }) => {
                                         />
                                     </div>
                                 </div>
-                                <div className='p-2 pt-0'>
+                                <div className='p-1 pt-0'>
                                     {expandedCard === 'duration' ? (
                                         <div className='row p-3'>
                                             <div className='col-8 pe-2'>
@@ -372,7 +372,7 @@ const SleepData = ({ isExpanded, onExpand }) => {
                                         />
                                     </div>
                                 </div>
-                                <div className='p-2 pt-0'>
+                                <div className='p-1 pt-0'>
                                     {expandedCard === 'efficiency' ? (
                                         <div className='row p-3'>
                                             <div className='col-8 pe-2'>
@@ -500,7 +500,7 @@ const SleepData = ({ isExpanded, onExpand }) => {
                                         />
                                     </div>
                                 </div>
-                                <div className='p-2 pt-0'>
+                                <div className='p-1 pt-0'>
                                     {expandedCard === 'awakenings' ? (
                                         <div className='row p-3'>
                                             <div className='col-8 pe-2'>

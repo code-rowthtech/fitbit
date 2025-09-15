@@ -118,7 +118,7 @@ const Sidebar = () => {
                 placeholder="Search Doctor"
                 options={[
                   // { value: '', label: 'Search Doctor' },
-                  { value: 'all', label: 'All' },
+                  // { value: 'all', label: 'All' },
                   ...DoctorData?.map((doctor) => ({
                     value: doctor._id,
                     label: `${doctor.firstName} ${doctor.lastName}`

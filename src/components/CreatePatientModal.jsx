@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Modal, Form, Row, Col, Button } from 'react-bootstrap';
 import { useForm, Controller } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
@@ -6,6 +6,7 @@ import { createPatient, resetCreatePatient, getAllDoctors, getAllergies, getStat
 import { FaTimes } from 'react-icons/fa';
 import { MdDone } from "react-icons/md";
 import Select from 'react-select';
+import { connectToFitbit } from '../redux/patientsDashboard/action';
 
 // CSS for custom radio label styling
 const customRadioStyle = `
@@ -19,17 +20,23 @@ const customRadioStyle = `
 const CreatePatientModal = ({ show, onHide }) => {
     const dispatch = useDispatch();
     const [currentStep, setCurrentStep] = useState(1);
+    const fitbitConnected = useRef(false);
     const userInfo = JSON.parse(localStorage.getItem('user'));
     const UserRole = userInfo?.role
+    const store = useSelector((state) => state);
     const CreateResponse = useSelector((state) => state?.createPatientReducer?.data?.status);
+    const FitbitConcent = useSelector((state) => state?.createPatientReducer?.data?.patient)
+    console.log('FitbitConcent :', CreateResponse, store?.createPatientReducer)
     const DoctorData = useSelector((state) => state?.getAllDoctors?.data?.doctors);
     const AllergiesList = useSelector((state) => state?.getAllergiesReducer?.data?.allergies);
     const StatesData = useSelector((state) => state?.getStatesReducer?.data?.data);
     const CitiesData = useSelector((state) => state?.getCitiesReducer?.data?.data);
-
+    const processedResponse = useRef(null);
     const { register, handleSubmit, reset, setValue, formState: { errors }, trigger, getValues, watch, control } = useForm({
         mode: 'onChange'
     });
+
+    console.log(store?.createPatientReducer, 'store')
 
     const stateOptions = StatesData?.map(state => ({
         value: state?.code,
@@ -111,9 +118,14 @@ const CreatePatientModal = ({ show, onHide }) => {
         dispatch(getStates())
     }, [dispatch]);
 
-
     useEffect(() => {
-        if (CreateResponse === 201) {
+        if (CreateResponse === 201 && FitbitConcent?._id && processedResponse.current !== FitbitConcent._id) {
+            processedResponse.current = FitbitConcent._id;
+
+            if (FitbitConcent?.fitbitConsent === true) {
+                dispatch(connectToFitbit({ patientId: FitbitConcent._id }));
+            }
+
             reset();
             setCurrentStep(1);
             onHide();
@@ -183,13 +195,16 @@ const CreatePatientModal = ({ show, onHide }) => {
             lastName: data.lastName || "",
             gender: data.gender || "prefer-not-to-say",
             doctorId: data.doctorId || undefined,
+            fitbitConsent: data.fitbitConsent || '',
         };
 
         dispatch(createPatient(patientData));
     };
+
     const handleClose = useCallback(() => {
         reset();
         setCurrentStep(1);
+        processedResponse.current = null;
         onHide();
     }, [reset, onHide]);
 
@@ -543,14 +558,14 @@ const CreatePatientModal = ({ show, onHide }) => {
                                         <Form.Check
                                             type="radio"
                                             label="Yes"
-                                            value="yes"
+                                            value="true"
                                             className="custom-radio-label"
                                             {...register('fitbitConsent')}
                                         />
                                         <Form.Check
                                             type="radio"
                                             label="No"
-                                            value="no"
+                                            value="false"
                                             className="custom-radio-label"
                                             {...register('fitbitConsent')}
                                         />

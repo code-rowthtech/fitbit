@@ -117,7 +117,7 @@ const ExerciseData = ({ isExpanded, onExpand }) => {
                                         />
                                     </div>
                                 </div>
-                                <div className='p-2 pt-0'>
+                                <div className='p-1 pt-0'>
                                     {expandedCard === 'sessions' ? (
                                         <div className='row p-3'>
                                             <div className='col-8 pe-2'>
@@ -246,7 +246,7 @@ const ExerciseData = ({ isExpanded, onExpand }) => {
                                         />
                                     </div>
                                 </div>
-                                <div className='p-2 pt-0'>
+                                <div className='p-1 pt-0'>
                                     {expandedCard === 'gps' ? (
                                         <div className='row p-3'>
                                             <div className='col-8 pe-2'>
@@ -375,7 +375,7 @@ const ExerciseData = ({ isExpanded, onExpand }) => {
                                         />
                                     </div>
                                 </div>
-                                <div className='p-2 pt-0'>
+                                <div className='p-1 pt-0'>
                                     {expandedCard === 'elevation' ? (
                                         <div className='row p-3'>
                                             <div className='col-8 pe-2'>
