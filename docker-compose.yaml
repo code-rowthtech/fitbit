@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  fitbit:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: fitbit
+    ports:
+      - "5078:5078"
+    restart: always
+    environment:
+      - NODE_ENV=production
