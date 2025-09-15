@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: fitbit
     ports:
-      - "5078:5078"
+      - "5078:80"
     restart: always
     environment:
       - NODE_ENV=production
