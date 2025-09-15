@@ -1,0 +1,25 @@
+name: fitbit server CI
+
+on:
+  push:
+    branches: [ "main"]
+
+jobs:
+
+  build:
+
+    runs-on: self-hosted
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Copy .env file from backup
+      run: |
+        cp /var/www/env-backups/.env.fitbit /var/www/fitbit-runner/_work/fitbit/fitbit/.env
+        echo ".env file copied from backup."
+
+    - name: Run deploy command
+      run: docker-compose -f docker-compose.yaml up -d --build
+
+    - name: Remove build cache
+      run: docker system prune -a -f
