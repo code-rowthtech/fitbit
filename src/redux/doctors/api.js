@@ -22,11 +22,25 @@ export function updateDoctorApi(data) {
     return api.update(`${URL.UPDATE_DOCTOR}/${data.payload.doctorId}`, data.payload.body)
 }
 
-export function getStatesApi() {
-    return api.get(URL.GET_STATES)
+export function getStatesApi(data) {
+    return api.get(`${URL.GET_STATES}?search=${data?.search||''}&limit=${data?.limit||40}`)
+
 }
 
 export function getCitiesApi(data) {
-    return api.get(`${URL.GET_CITIES}/${data?.stateCode?.value}/cities`)
+    return api.get(`${URL.GET_CITIES}/${data?.stateCode?.value}/cities?search=${data?.search||''}`)
+}
+
+export function getSkillsApi(data) {
+    return api.get(`${URL.GET_SKILLS}`)
+}
+
+export function createSkillsApi(data) {
+    console.log(data,'dtaa238')
+    return api.create(URL.CREATE_SKILLS, data.payload)
+}
+
+export function getCategoryApi() {
+    return api.get(`${URL.GET_CATEGORY}?type=category`)
 }
 

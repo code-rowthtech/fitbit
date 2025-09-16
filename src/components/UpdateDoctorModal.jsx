@@ -2,10 +2,12 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Modal, Form, Row, Col, Button, InputGroup } from 'react-bootstrap';
 import { useForm, Controller } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { resetUpdateDoctor, updateDoctor, getStates, getCities } from '../redux/actions';
+import { resetUpdateDoctor, updateDoctor, getStates, getCities, getSkills } from '../redux/actions';
 import { FaTimes, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { MdDone } from "react-icons/md";
+import { RiAddLine } from "react-icons/ri";
 import Select from 'react-select';
+import AddSpecialSkillModal from './SpecialSkill/AddSpecialSkillModal';
 
 // CSS for custom radio label styling
 const customRadioStyle = `
@@ -20,11 +22,15 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
     const dispatch = useDispatch();
     const [currentStep, setCurrentStep] = useState(1);
     const [showPassword, setShowPassword] = useState(false);
+    const [showSpecialSkillModal, setShowSpecialSkillModal] = useState(false);
+
     const doctorId = doctor?._id
     const UpdateResponse = useSelector((state) => state?.updateDoctor?.data?.status);
     const Loading = useSelector((state) => state?.updateDoctor?.loading);
     const StatesData = useSelector((state) => state?.getStatesReducer?.data?.data);
     const CitiesData = useSelector((state) => state?.getCitiesReducer?.data?.data);
+    const SkillsData = useSelector((state) => state?.getSkillsReducer?.data?.data);
+    console.log(SkillsData,'SkillsData')
 
     const { register, handleSubmit, reset, setValue, formState: { errors }, trigger, watch, control } = useForm({
         mode: 'onChange'
@@ -39,6 +45,14 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
     const cityOptions = CitiesData?.map(city => ({
         value: city?._id,
         label: city?.name
+    })) || [];
+
+    const groupedSkillOptions = SkillsData?.map(categoryData => ({
+        label: categoryData?.category,
+        options: categoryData?.skills?.map(skill => ({
+            value: skill?._id,
+            label: skill?.name
+        })) || []
     })) || [];
 
     const customSelectStyles = {
@@ -63,7 +77,19 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
         }),
         option: (provided) => ({
             ...provided,
-            fontSize: '12px'
+            fontSize: '11px',
+            padding: '8px 12px'
+        }),
+        groupHeading: (provided) => ({
+            ...provided,
+            fontSize: '11px',
+            fontWeight: '600',
+            padding: '6px 12px',
+            backgroundColor: '#f8f9fa'
+        }),
+        menuList: (provided) => ({
+            ...provided,
+            maxHeight: '200px'
         })
     };
 
@@ -91,6 +117,8 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
         }
     }, [watchedDateOfBirth, setValue]);
 
+
+
     const steps = [
         { id: 1, title: 'Basic Information', completed: currentStep > 1 },
         { id: 2, title: 'Professional Details', completed: currentStep > 2 },
@@ -106,7 +134,8 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
     }, [show, reset]);
 
     useEffect(() => {
-        dispatch(getStates());
+        dispatch(getStates({ search: '' }))
+        dispatch(getSkills())
     }, [dispatch]);
 
     useEffect(() => {
@@ -128,29 +157,26 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
             setValue('clinicName', doctor.clinicName || '');
             setValue('fees', doctor.feePerConsultation || '');
             setValue('street', doctor.clinicAddress?.street || '');
-            
+
             // Load cities if state exists and not already loaded
             if (doctor.clinicAddress?.state && !citiesLoadedRef.current) {
-                const stateCode = StatesData.find(state => 
-                    state?.name === doctor.clinicAddress.state?.name ||
-                    state?._id === doctor.clinicAddress.state?._id ||
-                    state?.code === doctor.clinicAddress.state
+                const stateCode = StatesData.find(state =>
+                    state.name === doctor.clinicAddress.state.name
                 )?.code;
+                const doctorState = stateOptions?.find((stateData) => stateData?.value === stateCode);
                 if (stateCode) {
-                    dispatch(getCities({ stateCode: { value: stateCode } }));
+                    dispatch(getCities({ stateCode: doctorState, search: doctor?.clinicAddress?.city?.name }));
                     citiesLoadedRef.current = true;
                 }
             }
-            
-            const stateValue = doctor.clinicAddress?.state ? StatesData.find(state => 
-                state?.name === doctor.clinicAddress.state?.name ||
-                state?._id === doctor.clinicAddress.state?._id ||
-                state?.code === doctor.clinicAddress.state
+
+            const stateValue = doctor.clinicAddress?.state?._id ? StatesData.find(state =>
+                state.name === doctor.clinicAddress.state.name
             ) : null;
             if (stateValue) {
                 setValue('state', { value: stateValue.code, label: stateValue.name, data: stateValue });
             }
-            
+
             setValue('pincode', doctor.clinicAddress?.zip || '');
             setValue('fullAddress', doctor.fullAddress || '');
             setValue('registrationDate', doctor.registrationDate ? new Date(doctor.registrationDate).toISOString().split('T')[0] : '');
@@ -162,10 +188,9 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
     // Set city value after cities are loaded
     useEffect(() => {
         if (doctor?.clinicAddress?.city && CitiesData?.length > 0 && !citySetRef.current) {
-            const cityValue = CitiesData.find(city => 
-                city._id === doctor.clinicAddress.city._id || 
-                city.name === doctor.clinicAddress.city.name ||
-                city._id === doctor.clinicAddress.city
+            const cityValue = CitiesData.find(city =>
+                city._id === doctor.clinicAddress.city._id ||
+                city.name === doctor.clinicAddress.city.name
             );
             if (cityValue) {
                 setValue('city', { value: cityValue._id, label: cityValue.name });
@@ -226,6 +251,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                 dateOfBirth: data.dateOfBirth || undefined,
                 fullAddress: data.fullAddress || "",
                 specializations: data.specialization ? [data.specialization] : [],
+                ...(data.specialSkill && { skills: [data.specialSkill.value] }),
                 yearOfExperience: data.experience || undefined,
                 feePerConsultation: data.fees || undefined,
                 consultationType: data.consultationType || undefined,
@@ -511,7 +537,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                                 </Form.Group>
                             </Col>
                             <Col md={12}>
-                            <h4 className='fw-bold mb-3 mt-2' style={{fontSize:'16px', color:'#16213D'}}>Clinic Address</h4>
+                                <h4 className='fw-bold mb-3 mt-2' style={{ fontSize: '16px', color: '#16213D' }}>Clinic Address</h4>
                             </Col>
                             <Col md={3}>
                                 <Form.Group className="mb-3">
@@ -538,6 +564,9 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                                                 options={stateOptions}
                                                 placeholder="Select State"
                                                 styles={customSelectStyles}
+                                                onInputChange={(data) => {
+                                                    dispatch(getStates({ search: data }))
+                                                }}
                                                 onChange={(e) => {
                                                     field.onChange(e);
                                                     dispatch(getCities({ stateCode: e }));
@@ -616,13 +645,26 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                             </Col>
                             <Col md={6}>
                                 <Form.Group className="mb-3">
-                                    <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Special Skills</Form.Label>
-                                    <Form.Select style={{ fontSize: '12px', backgroundColor: '#F9FAFB' }} className='py-3' {...register('specialSkills')}>
-                                        <option value="">Choose Your Skills</option>
-                                        <option value="surgery">Surgery</option>
-                                        <option value="diagnosis">Diagnosis</option>
-                                        <option value="research">Research</option>
-                                    </Form.Select>
+                                    <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Special Skills
+                                        <span className='ms-2' style={{ cursor: 'pointer' }} onClick={() => setShowSpecialSkillModal(true)}>
+                                            <RiAddLine title='Add Special Skill' className='text-danger border border-1 rounded-1' />
+                                        </span>
+                                    </Form.Label>
+                                    <Controller
+                                        name="specialSkill"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Select
+                                                {...field}
+                                                options={groupedSkillOptions}
+                                                placeholder="Select Skill"
+                                                styles={customSelectStyles}
+                                                isClearable
+                                                isSearchable
+                                                maxMenuHeight={200}
+                                            />
+                                        )}
+                                    />
                                 </Form.Group>
                             </Col>
                             <Col md={12}>
@@ -650,7 +692,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
     return (
         <>
             <style>{customRadioStyle}</style>
-            <Modal show={show} onHide={handleClose} size="xl">
+            <Modal show={show && !showSpecialSkillModal} onHide={handleClose} size="xl">
                 <Modal.Body className="p-3" style={{ borderRadius: '15px' }}>
                     <div className="position-relative">
                         <div
@@ -684,9 +726,8 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                                     <div key={step.id} className="position-relative mb-5 pb-2">
                                         <div className="d-flex align-items-center">
                                             <div
-                                                className={`rounded-circle d-flex align-items-center justify-content-center me-3 ${
-                                                    step.completed || currentStep === step.id ? 'text-white' : 'bg-light text-muted'
-                                                }`}
+                                                className={`rounded-circle d-flex align-items-center justify-content-center me-3 ${step.completed || currentStep === step.id ? 'text-white' : 'bg-light text-muted'
+                                                    }`}
                                                 style={{
                                                     width: '40px',
                                                     height: '40px',
@@ -781,6 +822,10 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                     </div>
                 </Modal.Body>
             </Modal>
+            <AddSpecialSkillModal
+                show={showSpecialSkillModal}
+                onHide={() => setShowSpecialSkillModal(false)}
+            />
         </>
     );
 };

@@ -2,10 +2,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Modal, Form, Row, Col, Button, InputGroup } from 'react-bootstrap';
 import { useForm, Controller } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { createDoctor, resetCreateDoctor, getStates, getCities } from '../redux/actions';
+import { createDoctor, resetCreateDoctor, getStates, getCities, getSkills } from '../redux/actions';
 import { FaTimes, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { RiAddLine } from "react-icons/ri";
 import Select from 'react-select';
 import { MdDone } from "react-icons/md";
+import AddSpecialSkillModal from './SpecialSkill/AddSpecialSkillModal';
 
 // CSS for custom radio label styling
 const customRadioStyle = `
@@ -20,10 +22,12 @@ const CreateDoctorModal = ({ show, onHide }) => {
     const dispatch = useDispatch();
     const [currentStep, setCurrentStep] = useState(1);
     const [showPassword, setShowPassword] = useState(false);
+    const [showSpecialSkillModal, setShowSpecialSkillModal] = useState(false);
     const CreateResponse = useSelector((state) => state?.createDoctorReducer?.data?.status);
     const Loading = useSelector((state) => state?.createDoctorReducer?.loading)
     const StatesData = useSelector((state) => state?.getStatesReducer?.data?.data);
     const CitiesData = useSelector((state) => state?.getCitiesReducer?.data?.data);
+    const SkillsData = useSelector((state) => state?.getSkillsReducer?.data?.data);
     const userInfo = JSON.parse(localStorage.getItem('user'));
     const UserRole = userInfo?.role;
     console.log(UserRole, 'UserRoleUserRole')
@@ -40,6 +44,14 @@ const CreateDoctorModal = ({ show, onHide }) => {
     const cityOptions = CitiesData?.map(city => ({
         value: city?._id,
         label: city?.name
+    })) || [];
+
+    const groupedSkillOptions = SkillsData?.map(categoryData => ({
+        label: categoryData?.category,
+        options: categoryData?.skills?.map(skill => ({
+            value: skill?._id,
+            label: skill?.name
+        })) || []
     })) || [];
 
     const customSelectStyles = {
@@ -64,7 +76,19 @@ const CreateDoctorModal = ({ show, onHide }) => {
         }),
         option: (provided) => ({
             ...provided,
-            fontSize: '12px'
+            fontSize: '11px',
+            padding: '8px 12px'
+        }),
+        groupHeading: (provided) => ({
+            ...provided,
+            fontSize: '11px',
+            fontWeight: '600',
+            padding: '6px 12px',
+            backgroundColor: '#f8f9fa'
+        }),
+        menuList: (provided) => ({
+            ...provided,
+            maxHeight: '200px'
         })
     };
 
@@ -104,7 +128,8 @@ const CreateDoctorModal = ({ show, onHide }) => {
     }, [show]);
 
     useEffect(() => {
-        dispatch(getStates());
+        dispatch(getStates({ search: '' }))
+        dispatch(getSkills())
     }, [dispatch]);
 
     useEffect(() => {
@@ -154,15 +179,16 @@ const CreateDoctorModal = ({ show, onHide }) => {
             ...(data.profilePhoto && data.profilePhoto.length > 0 && { profilePhoto: data.profilePhoto }),
             dateOfBirth: data.dateOfBirth || undefined,
             fullAddress: data.fullAddress || "",
-            specializations: data.specializations || [], // expects array of ObjectIds
+            specializations: data.specialization ? [data.specialization] : [],
+            ...(data.specialSkill && { skills: [data.specialSkill.value] }),
             yearOfExperience: data.experience || undefined,
             feePerConsultation: data.fees || undefined,
             consultationType: data.consultationType || undefined,
             patients: [], // optional: start empty
             timings: data.timings || undefined,
-            languageKnown: data.languages || [],
+            languageKnown: data.languages ? [data.languages] : [],
             medicalLicenseNumber: data.licenseNumber || undefined,
-            qualifications: data.qualifications || [], // expects array of ObjectIds
+            qualifications: data.qualification ? [data.qualification] : [],
             hospitalName: data.hospitalName || undefined,
             clinicName: data.clinicName || undefined,
             clinicAddress: {
@@ -473,6 +499,9 @@ const CreateDoctorModal = ({ show, onHide }) => {
                                                 options={stateOptions}
                                                 placeholder="Select State"
                                                 styles={customSelectStyles}
+                                                onInputChange={(data) => {
+                                                    dispatch(getStates({ search: data }))
+                                                }}
                                                 onChange={(e) => {
                                                     field.onChange(e);
                                                     dispatch(getCities({ stateCode: e }));
@@ -564,13 +593,26 @@ const CreateDoctorModal = ({ show, onHide }) => {
                             </Col> */}
                             <Col md={6}>
                                 <Form.Group className="mb-3">
-                                    <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Special Skills</Form.Label>
-                                    <Form.Select style={{ fontSize: '12px', backgroundColor: '#F9FAFB' }} className='py-3' {...register('specialSkills')}>
-                                        <option value="">Choose Your Skills</option>
-                                        <option value="surgery">Surgery</option>
-                                        <option value="diagnosis">Diagnosis</option>
-                                        <option value="research">Research</option>
-                                    </Form.Select>
+                                    <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Special Skills
+                                        <span className='ms-2' style={{ cursor: 'pointer' }} onClick={() => setShowSpecialSkillModal(true)}>
+                                            <RiAddLine title='Add Special Skill' className='text-danger border border-1 rounded-1' />
+                                        </span>
+                                    </Form.Label>
+                                    <Controller
+                                        name="specialSkill"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Select
+                                                {...field}
+                                                options={groupedSkillOptions}
+                                                placeholder="Select Skill"
+                                                styles={customSelectStyles}
+                                                isClearable
+                                                isSearchable
+                                                maxMenuHeight={200}
+                                            />
+                                        )}
+                                    />
                                 </Form.Group>
                             </Col>
                             <Col md={12}>
@@ -598,7 +640,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
     return (
         <>
             <style>{customRadioStyle}</style>
-            <Modal show={show} onHide={handleClose} size="xl">
+            <Modal show={show && !showSpecialSkillModal} onHide={handleClose} size="xl">
                 <Modal.Body className="p-3" style={{ borderRadius: '15px' }}>
                     <div className="position-relative">
                         <div
@@ -728,6 +770,10 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     </div>
                 </Modal.Body>
             </Modal>
+            <AddSpecialSkillModal 
+                show={showSpecialSkillModal} 
+                onHide={() => setShowSpecialSkillModal(false)} 
+            />
         </>
     );
 };

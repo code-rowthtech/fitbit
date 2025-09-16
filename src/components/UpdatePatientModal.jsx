@@ -5,7 +5,9 @@ import { resetUpdatePatient, updatePatient, getAllDoctors, getAllergies, getPati
 import { useDispatch, useSelector } from 'react-redux';
 import { FaTimes } from 'react-icons/fa';
 import { MdDone } from "react-icons/md";
+import { RiAddLine } from "react-icons/ri";
 import Select from 'react-select';
+import AddAllergyModal from './Allergy/AddAllergyModal';
 
 // CSS for custom radio label styling
 const customRadioStyle = `
@@ -19,20 +21,21 @@ const customRadioStyle = `
 const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
     const dispatch = useDispatch();
     const [currentStep, setCurrentStep] = useState(1);
+    const [showAllergyModal, setShowAllergyModal] = useState(false);
     const id = patientId;
     const userInfo = JSON.parse(localStorage.getItem('user'));
     const UserRole = userInfo?.role
     const UpdateResponse = useSelector((state) => state?.updatePatient?.data?.status);
     const Loading = useSelector((state) => state?.updatePatient?.loading);
     const DoctorData = useSelector((state) => state?.getAllDoctors?.data?.doctors);
-    const AllergiesList = useSelector((state) => state?.getAllergiesReducer?.data?.allergies);
+    const AllergiesList = useSelector((state) => state?.getAllergiesReducer?.data?.data);
     const PatientData = useSelector((state) => state?.getPatientByIdReducer?.data?.data?.patient);
     const StatesData = useSelector((state) => state?.getStatesReducer?.data?.data);
     const CitiesData = useSelector((state) => state?.getCitiesReducer?.data?.data);
     const { register, handleSubmit, reset, setValue, formState: { errors }, trigger, watch, control } = useForm({
         mode: 'onChange'
     });
-
+    const [selectedState, setSelectedState] = useState(null);
     const stateOptions = StatesData?.map(state => ({
         value: state?.code,
         label: state?.name,
@@ -115,11 +118,12 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
 
     useEffect(() => {
         dispatch(getAllergies());
-        dispatch(getStates());
+        dispatch(getStates({ search: '', limit: 40 }))
     }, [dispatch]);
 
     useEffect(() => {
         if (PatientData && show && (DoctorData || UserRole === "doctor") && StatesData) {
+            console.log(PatientData, 'PatientDataPatientData')
             setValue('firstName', PatientData.firstName || '');
             setValue('lastName', PatientData.lastName || '');
             setValue('email', PatientData.email || '');
@@ -130,28 +134,30 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
             setValue('maritalStatus', PatientData.maritalStatus || '');
             setValue('phoneNumber', PatientData.phoneNumber || '');
             setValue('street', PatientData.address?.street || '');
-            
+
             // Load cities if state exists and not already loaded
             if (PatientData.address?.state && !citiesLoadedRef.current) {
-                const stateCode = StatesData.find(state => 
+                const stateCode = StatesData.find(state =>
                     state.name === PatientData.address.state.name
                 )?.code;
+                const patientState = stateOptions?.find((stateData) => stateData?.value === stateCode);
                 if (stateCode) {
-                    dispatch(getCities({ stateCode: { value: stateCode } }));
+                    dispatch(getCities({ stateCode: patientState, search: PatientData?.address?.city?.name }));
                     citiesLoadedRef.current = true;
                 }
             }
-            
-            const stateValue = PatientData.address?.state ? StatesData.find(state => 
+
+            const stateValue = PatientData.address?.state?._id ? StatesData.find(state =>
                 state.name === PatientData.address.state.name
             ) : null;
             if (stateValue) {
                 setValue('state', { value: stateValue.code, label: stateValue.name, data: stateValue });
             }
+            console.log(stateValue, 'stateValue')
             setValue('pincode', PatientData.address?.zip || '');
             setValue('country', PatientData.address?.country || '');
             setValue('fullAddress', PatientData.fullAddress || '');
-            setValue('allergies', Array.isArray(PatientData.allergies) && PatientData.allergies.length > 0 ? PatientData.allergies[0] : '');
+            setValue('allergies', PatientData.allergies?.map(allergy => ({ value: allergy._id, label: allergy.name })) || []);
             setValue('medicalConditions', PatientData.condition || '');
             setValue('currentMedications', Array.isArray(PatientData.currentMedications) && PatientData.currentMedications.length > 0 ? PatientData.currentMedications[0].name : '');
             setValue('medicalHistory', PatientData.medicalHistory?.name || '');
@@ -172,8 +178,8 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
     // Set city value after cities are loaded
     useEffect(() => {
         if (PatientData?.address?.city && CitiesData?.length > 0 && !citySetRef.current) {
-            const cityValue = CitiesData.find(city => 
-                city._id === PatientData.address.city._id || 
+            const cityValue = CitiesData.find(city =>
+                city._id === PatientData.address.city._id ||
                 city.name === PatientData.address.city.name
             );
             if (cityValue) {
@@ -223,9 +229,8 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
             setCurrentStep(currentStep - 1);
         }
     };
-
+    console.log(stateOptions, 'stateOptionsstateOptions')
     const onSubmit = (data) => {
-        const selectedState=stateOptions?.find((state) => state?.value === data?.state?.value)
         const patientData = {
             body: {
                 email: data.email,
@@ -239,14 +244,14 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                     address: {
                         street: data.street || "",
                         city: data.city?.value || data.city || null,
-                        state: selectedState?.data?._id,
+                        state: data?.state?.data?._id,
                         country: "India",
                         zip: data.pincode || "",
                     }
                 } : {}),
                 fullAddress: data.fullAddress || "",
                 allergies: Array.isArray(data.allergies)
-                    ? data.allergies
+                    ? data.allergies.map(allergy => allergy.value)
                     : data.allergies
                         ? [data.allergies]
                         : [],
@@ -453,8 +458,12 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                                                 options={stateOptions}
                                                 placeholder="Select State"
                                                 styles={customSelectStyles}
+                                                onInputChange={(data) => {
+                                                    dispatch(getStates({ search: data, limit: 50 }))
+                                                }}
                                                 onChange={(e) => {
                                                     field.onChange(e);
+                                                    setSelectedState(e);
                                                     dispatch(getCities({ stateCode: e }));
                                                 }}
                                                 isClearable
@@ -476,6 +485,9 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                                                 options={cityOptions}
                                                 placeholder="Select City"
                                                 styles={customSelectStyles}
+                                                onInputChange={(data) => {
+                                                    dispatch(getCities({ search: data, stateCode: selectedState }))
+                                                }}
                                                 isClearable
                                                 isSearchable
                                             />
@@ -521,15 +533,26 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                         <Row className='mt-5'>
                             <Col md={6}>
                                 <Form.Group className="mb-3">
-                                    <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Allergies</Form.Label>
-                                    <Form.Select style={{ fontSize: '12px', backgroundColor: '#F9FAFB' }} className='py-3' {...register('allergies')}>
-                                        <option value="" hidden>Select Allergies</option>
-                                        {AllergiesList?.map((allergy) => (
-                                            <option key={allergy._id} value={allergy._id}>
-                                                {allergy.name}
-                                            </option>
-                                        ))}
-                                    </Form.Select>
+                                    <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Allergies
+                                        <span className='ms-2' style={{ cursor: 'pointer' }} onClick={() => setShowAllergyModal(true)}>
+                                            <RiAddLine title='Add Allergies' className='text-danger border border-1 rounded-1' />
+                                        </span>
+                                    </Form.Label>
+                                    <Controller
+                                        name="allergies"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Select
+                                                {...field}
+                                                options={AllergiesList?.map(allergy => ({ value: allergy._id, label: allergy.name }))}
+                                                placeholder="Select Allergies"
+                                                styles={customSelectStyles}
+                                                isClearable
+                                                isSearchable
+                                                isMulti
+                                            />
+                                        )}
+                                    />
                                 </Form.Group>
                             </Col>
                             <Col md={6}>
@@ -671,7 +694,7 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
     return (
         <>
             <style>{customRadioStyle}</style>
-            <Modal show={show} onHide={handleClose} size="xl" backdrop="static">
+            <Modal show={show && !showAllergyModal} onHide={handleClose} size="xl" backdrop="static">
                 <Modal.Body className="p-3" style={{ borderRadius: '15px' }}>
                     <div className="position-relative">
                         <div
@@ -803,6 +826,10 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                     </div>
                 </Modal.Body>
             </Modal>
+            <AddAllergyModal
+                show={showAllergyModal}
+                onHide={() => setShowAllergyModal(false)}
+            />
         </>
     );
 };

@@ -6,7 +6,8 @@ import { createPatient, resetCreatePatient, getAllDoctors, getAllergies, getStat
 import { FaTimes } from 'react-icons/fa';
 import { MdDone } from "react-icons/md";
 import Select from 'react-select';
-import { connectToFitbit } from '../redux/patientsDashboard/action';
+import { RiAddLine } from "react-icons/ri";
+import AddAllergyModal from './Allergy/AddAllergyModal';
 
 // CSS for custom radio label styling
 const customRadioStyle = `
@@ -20,15 +21,13 @@ const customRadioStyle = `
 const CreatePatientModal = ({ show, onHide }) => {
     const dispatch = useDispatch();
     const [currentStep, setCurrentStep] = useState(1);
-    const fitbitConnected = useRef(false);
+    const [showAllergyModal, setShowAllergyModal] = useState(false);
     const userInfo = JSON.parse(localStorage.getItem('user'));
     const UserRole = userInfo?.role
     const store = useSelector((state) => state);
     const CreateResponse = useSelector((state) => state?.createPatientReducer?.data?.status);
-    const FitbitConcent = useSelector((state) => state?.createPatientReducer?.data?.patient)
-    console.log('FitbitConcent :', CreateResponse, store?.createPatientReducer)
     const DoctorData = useSelector((state) => state?.getAllDoctors?.data?.doctors);
-    const AllergiesList = useSelector((state) => state?.getAllergiesReducer?.data?.allergies);
+    const AllergiesList = useSelector((state) => state?.getAllergiesReducer?.data?.data);
     const StatesData = useSelector((state) => state?.getStatesReducer?.data?.data);
     const CitiesData = useSelector((state) => state?.getCitiesReducer?.data?.data);
     const processedResponse = useRef(null);
@@ -54,10 +53,15 @@ const CreatePatientModal = ({ show, onHide }) => {
             ...provided,
             fontSize: '12px',
             backgroundColor: '#F9FAFB',
-            minHeight: '48px',
+            minHeight: '50px',
             border: '1px solid #ced4da',
+            borderRadius: '0.375rem',
             '&:hover': {
                 border: '1px solid #ced4da'
+            },
+            '&:focus-within': {
+                border: '1px solid #86b7fe',
+                boxShadow: '0 0 0 0.25rem rgba(13, 110, 253, 0.25)'
             }
         }),
         placeholder: (provided) => ({
@@ -115,17 +119,11 @@ const CreatePatientModal = ({ show, onHide }) => {
 
     useEffect(() => {
         dispatch(getAllergies())
-        dispatch(getStates())
+        dispatch(getStates({ search: '' }))
     }, [dispatch]);
 
     useEffect(() => {
-        if (CreateResponse === 201 && FitbitConcent?._id && processedResponse.current !== FitbitConcent._id) {
-            processedResponse.current = FitbitConcent._id;
-
-            if (FitbitConcent?.fitbitConsent === true) {
-                dispatch(connectToFitbit({ patientId: FitbitConcent._id }));
-            }
-
+        if (CreateResponse === 201) {
             reset();
             setCurrentStep(1);
             onHide();
@@ -382,6 +380,9 @@ const CreatePatientModal = ({ show, onHide }) => {
                                                 options={stateOptions}
                                                 placeholder="Select State"
                                                 styles={customSelectStyles}
+                                                onInputChange={(data) => {
+                                                    dispatch(getStates({ search: data }))
+                                                }}
                                                 onChange={(e) => {
                                                     field.onChange(e);
                                                     dispatch(getCities({ stateCode: e }));
@@ -450,15 +451,26 @@ const CreatePatientModal = ({ show, onHide }) => {
                         <Row className='mt-5'>
                             <Col md={6}>
                                 <Form.Group className="mb-3">
-                                    <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Allergies</Form.Label>
-                                    <Form.Select style={{ fontSize: '12px', backgroundColor: '#F9FAFB' }} className='py-3' {...register('allergies')}>
-                                        <option value="" hidden>Select Allergies</option>
-                                        {AllergiesList?.map((allergy) => (
-                                            <option key={allergy._id} value={allergy._id}>
-                                                {allergy.name}
-                                            </option>
-                                        ))}
-                                    </Form.Select>
+                                    <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Allergies
+                                        <span className='ms-2' style={{ cursor: 'pointer' }} onClick={() => setShowAllergyModal(true)}>
+                                            <RiAddLine title='Add Allergies' className='text-danger border border-1 rounded-1' />
+                                        </span>
+                                    </Form.Label>
+                                    <Controller
+                                        name="allergies"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Select
+                                                {...field}
+                                                options={AllergiesList?.map(allergy => ({ value: allergy._id, label: allergy.name }))}
+                                                placeholder="Select Allergies"
+                                                styles={customSelectStyles}
+                                                isClearable
+                                                isSearchable
+                                                isMulti
+                                            />
+                                        )}
+                                    />
                                 </Form.Group>
                             </Col>
                             <Col md={6}>
@@ -597,7 +609,7 @@ const CreatePatientModal = ({ show, onHide }) => {
     return (
         <>
             <style>{customRadioStyle}</style>
-            <Modal show={show} onHide={handleClose} size="xl">
+            <Modal show={show && !showAllergyModal} onHide={handleClose} size="xl">
                 <Modal.Body className="p-3" style={{ borderRadius: '15px' }}>
                     <div
                         onClick={handleClose}
@@ -726,6 +738,11 @@ const CreatePatientModal = ({ show, onHide }) => {
                     </div>
                 </Modal.Body>
             </Modal>
+            
+            <AddAllergyModal 
+                show={showAllergyModal} 
+                onHide={() => setShowAllergyModal(false)} 
+            />
         </>
     );
 };

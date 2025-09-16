@@ -25,3 +25,7 @@ export function getAllergiesApi() {
     return api.get(URL.GET_ALLERGIES)
 }
 
+export function createAllergiesApi(data) {
+    return api.create(URL.CREATE_ALLERGIES, data.payload)
+}
+

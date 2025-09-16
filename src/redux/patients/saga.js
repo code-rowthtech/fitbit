@@ -1,6 +1,6 @@
 import PATIENT_TYPES from './constant';
 import { all, fork, put, takeEvery, call, takeLatest } from 'redux-saga/effects';
-import { getAllPatientsApi, createPatientApi, updatePatientApi, getPatientByIdApi, getAllergiesApi } from './api';
+import { getAllPatientsApi, createPatientApi, updatePatientApi, getPatientByIdApi, getAllergiesApi, createAllergiesApi } from './api';
 
 function* getAllPatientsFunction({ payload }) {
     try {
@@ -134,6 +134,32 @@ function* getAllergiesFunction() {
     }
 }
 
+function* createAllergiesFunction(data) {
+    try {
+        yield put({
+            type: PATIENT_TYPES.CREATE_ALLERGIES_LOADING,
+            payload: {},
+        });
+        const response = yield call(createAllergiesApi, data);
+        if (response?.data?.status === 201) {
+            yield put({
+                type: PATIENT_TYPES.CREATE_ALLERGIES_SUCCESS,
+                payload: response.data,
+            });
+        } else {
+            yield put({
+                type: PATIENT_TYPES.CREATE_ALLERGIES_ERROR,
+                payload: response?.data || { message: 'Failed to create allergies' },
+            });
+        }
+    } catch (error) {
+        yield put({
+            type: PATIENT_TYPES.CREATE_ALLERGIES_ERROR,
+            payload: { message: error?.message || 'An error occurred' },
+        });
+    }
+}
+
 
 export function* getAllPatientsSaga() {
     yield takeEvery(PATIENT_TYPES.GET_ALL_PATIENTS, getAllPatientsFunction);
@@ -155,6 +181,10 @@ export function* getAllergiesSaga() {
     yield takeEvery(PATIENT_TYPES.GET_ALLERGIES, getAllergiesFunction);
 }
 
+export function* createAllergiesSaga() {
+    yield takeEvery(PATIENT_TYPES.CREATE_ALLERGIES, createAllergiesFunction);
+}
+
 
 function* PatientSaga() {
     yield all([
@@ -163,6 +193,7 @@ function* PatientSaga() {
         fork(updatePatientSaga),
         fork(getPatientByIdSaga),
         fork(getAllergiesSaga),
+        fork(createAllergiesSaga),
     ]);
 }
 
