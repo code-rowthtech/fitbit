@@ -13,7 +13,7 @@ import { getPatientById } from '../../../redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { connectToFitbit, getPatientProfile } from '../../../redux/patientsDashboard/action';
-import { toast } from 'react-toastify';
+
 const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, setActiveTab }) => {
   const dispatch = useDispatch();
 
@@ -32,7 +32,7 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
   const ConnectionStatus = useSelector((state) => state?.connectToFitbit?.data?.success);
   const connectionLoading = useSelector((state) => state?.connectToFitbit?.loading);
 
-  console.log('connection detail :', ConnectionStatus)
+  console.log('Profile detail :', patientData)
 
   const getInitials = (name) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase()
@@ -269,7 +269,7 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
                     <div>
                       <div className='text-nowrap' style={{ fontSize: '12px', color: '#6c757d', marginBottom: '2px' }}>Avg Steps</div>
                       <div style={{ fontSize: '16px', fontWeight: '600' }} className={`${isLoading ? 'placeholder rounded-1' : ''}`}>
-                        {Profile?.averageDailySteps || '7,000'}
+                        {Profile?.averageDailySteps || '-'}
                       </div>
                     </div>
                     {(parseInt(String(Profile?.averageDailySteps || '').replace(',', '')) || 7000) >= 6000 ?

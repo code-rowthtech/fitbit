@@ -1,6 +1,6 @@
 import DOCTOR_TYPES from './constant';
 import { all, fork, put, takeEvery, call, takeLatest } from 'redux-saga/effects';
-import { getAllDoctorsApi, createDoctorApi, updateDoctorApi, getStatesApi, getCitiesApi, getSkillsApi, createSkillsApi, getCategoryApi } from './api';
+import { getAllDoctorsApi, createDoctorApi, updateDoctorApi, getStatesApi, getCitiesApi, getSkillsApi, createSkillsApi, getCategoryApi, getSpecializationsApi, createSpecializationsApi } from './api';
 import { toast } from 'react-toastify';
 
 function* getAllDoctorsFunction({ payload }) {
@@ -224,6 +224,58 @@ function* getCategoryFunction({ payload }) {
     }
 }
 
+function* getSpecializationsFunction({ payload }) {
+    try {
+        yield put({
+            type: DOCTOR_TYPES.GET_SPECIALIZATIONS_LOADING,
+            payload: {},
+        });
+        const response = yield call(getSpecializationsApi, payload);
+        if (response?.data && response?.data?.status === 200) {
+            yield put({
+                type: DOCTOR_TYPES.GET_SPECIALIZATIONS_SUCCESS,
+                payload: response.data,
+            });
+        } else {
+            yield put({
+                type: DOCTOR_TYPES.GET_SPECIALIZATIONS_ERROR,
+                payload: response.data,
+            });
+        }
+    } catch (error) {
+        yield put({
+            type: DOCTOR_TYPES.GET_SPECIALIZATIONS_ERROR,
+            payload: { message: error?.message },
+        });
+    }
+}
+
+function* createSpecializationsFunction(data) {
+    try {
+        yield put({
+            type: DOCTOR_TYPES.CREATE_SPECIALIZATIONS_LOADING,
+            payload: {},
+        });
+        const response = yield call(createSpecializationsApi, data);
+        if (response?.data?.status === 201) {
+            yield put({
+                type: DOCTOR_TYPES.CREATE_SPECIALIZATIONS_SUCCESS,
+                payload: response.data,
+            });
+        } else {
+            yield put({
+                type: DOCTOR_TYPES.CREATE_SPECIALIZATIONS_ERROR,
+                payload: response.data,
+            });
+        }
+    } catch (error) {
+        yield put({
+            type: DOCTOR_TYPES.CREATE_SPECIALIZATIONS_ERROR,
+            payload: error,
+        });
+    }
+}
+
 export function* getAllDoctorsSaga() {
     yield takeEvery(DOCTOR_TYPES.GET_ALL_DOCTORS, getAllDoctorsFunction);
 }
@@ -256,6 +308,14 @@ export function* getCategorySaga() {
     yield takeEvery(DOCTOR_TYPES.GET_CATEGORY, getCategoryFunction);
 }
 
+export function* getSpecializationsSaga() {
+    yield takeEvery(DOCTOR_TYPES.GET_SPECIALIZATIONS, getSpecializationsFunction);
+}
+
+export function* createSpecializationsSaga() {
+    yield takeEvery(DOCTOR_TYPES.CREATE_SPECIALIZATIONS, createSpecializationsFunction);
+}
+
 
 function* DoctorSaga() {
     yield all([
@@ -267,6 +327,8 @@ function* DoctorSaga() {
         fork(getSkillsSaga),
         fork(createSkillsSaga),
         fork(getCategorySaga),
+        fork(getSpecializationsSaga),
+        fork(createSpecializationsSaga),
     ]);
 }
 

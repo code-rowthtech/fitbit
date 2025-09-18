@@ -44,3 +44,11 @@ export function getCategoryApi() {
     return api.get(`${URL.GET_CATEGORY}?type=category`)
 }
 
+export function getSpecializationsApi(data) {
+    return api.get(`${URL.GET_SPECIALIZATIONS}`)
+}
+
+export function createSpecializationsApi(data) {
+    return api.create(URL.CREATE_SPECIALIZATIONS, data.payload)
+}
+

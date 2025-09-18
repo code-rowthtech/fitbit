@@ -9,6 +9,8 @@ export const GET_CITIES = `${baseurl}/locations/states`
 export const GET_SKILLS = `${baseurl}/skills`
 export const CREATE_SKILLS = `${baseurl}/skills`
 export const GET_CATEGORY = `${baseurl}/skills`
+export const GET_SPECIALIZATIONS = `${baseurl}/specializations`
+export const CREATE_SPECIALIZATIONS = `${baseurl}/specializations/create`
 
 // Patients
 export const PATIENTS = `${baseurl}/patients/create`

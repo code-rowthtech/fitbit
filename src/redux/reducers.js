@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 
 import Auth from './auth/reducers';
-import { createDoctorReducer, getAllDoctors, updateDoctor, getStatesReducer, getCitiesReducer, getSkillsReducer, createSkillsReducer, getCategoryReducer } from './doctors/reducer';
+import { createDoctorReducer, getAllDoctors, updateDoctor, getStatesReducer, getCitiesReducer, getSkillsReducer, createSkillsReducer, getCategoryReducer, getSpecializationsReducer, createSpecializationsReducer } from './doctors/reducer';
 import { createAllergiesReducer, createPatientReducer, getAllergiesReducer, getAllPatients, getPatientByIdReducer, updatePatient } from './patients/reducer';
 import { createNoteReducer, getAllNotes, getNoteById, updateNoteReducer } from './notes/reducer';
 import { connectToFitbit, getPatientActivity, getPatientBodyFat, getPatientDevices, getPatientFood, getPatientGpsTracking, getPatientHeart, getPatientProfile, getPatientSleep, getPatientWater, getPatientWeight } from './patientsDashboard/reducer';
@@ -19,7 +19,9 @@ export default combineReducers({
     getSkillsReducer,
     createSkillsReducer,
     getCategoryReducer,
-
+    getSpecializationsReducer,
+    createSpecializationsReducer,
+    
     //Patients
     createPatientReducer,
     getAllPatients,
