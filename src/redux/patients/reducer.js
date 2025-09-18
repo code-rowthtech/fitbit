@@ -30,6 +30,12 @@ const GET_ALLERGIES_INITIAL_STATE = {
     loading: false,
 };
 
+const CREATE_ALLERGIES_INITIAL_STATE = {
+    data: [],
+    message: '',
+    loading: false,
+};
+
 
 export const getAllPatients = (state = GET_ALL_PATIENTS_INITIAL_STATE, action) => {
     switch (action.type) {
@@ -141,6 +147,32 @@ export const getAllergiesReducer = (state = GET_ALLERGIES_INITIAL_STATE, action)
         case PATIENT_TYPES.GET_ALLERGIES_ERROR:
             return {
                 message: action.payload,
+                loading: false
+            }
+        default: return state
+    }
+}
+
+export const createAllergiesReducer = (state = CREATE_ALLERGIES_INITIAL_STATE, action) => {
+    switch (action.type) {
+        case PATIENT_TYPES.CREATE_ALLERGIES_LOADING:
+            return {
+                data: state.data,
+                loading: true
+            }
+        case PATIENT_TYPES.CREATE_ALLERGIES_SUCCESS:
+            return {
+                data: action.payload,
+                loading: false
+            }
+        case PATIENT_TYPES.CREATE_ALLERGIES_ERROR:
+            return {
+                data: action.payload,
+                loading: false
+            }
+        case PATIENT_TYPES.CREATE_ALLERGIES_RESET:
+            return {
+                data: [],
                 loading: false
             }
         default: return state

@@ -32,4 +32,13 @@ export const getAllergies = () => ({
     type: PATIENT_TYPES.GET_ALLERGIES
 })
 
+export const createAllergies = (data) => ({
+    type: PATIENT_TYPES.CREATE_ALLERGIES,
+    payload: data
+})
+
+export const resetCreateAllergies = () => ({
+    type: PATIENT_TYPES.CREATE_ALLERGIES_RESET
+})
+
 

@@ -30,6 +30,36 @@ const GET_CITIES_INITIAL_STATE = {
     loading: false,
 };
 
+const GET_SKILLS_INITIAL_STATE = {
+    data: [],
+    message: '',
+    loading: false,
+};
+
+const CREATE_SKILLS_INITIAL_STATE = {
+    data: [],
+    message: '',
+    loading: false,
+};
+
+const GET_CATEGORY_INITIAL_STATE = {
+    data: [],
+    message: '',
+    loading: false,
+};
+
+const GET_SPECIALIZATIONS_INITIAL_STATE = {
+    data: [],
+    message: '',
+    loading: false,
+};
+
+const CREATE_SPECIALIZATIONS_INITIAL_STATE = {
+    data: [],
+    message: '',
+    loading: false,
+};
+
 
 export const getAllDoctors = (state = GET_ALL_DOCTORS_INITIAL_STATE, action) => {
     switch (action.type) {
@@ -139,6 +169,111 @@ export const getCitiesReducer = (state = GET_CITIES_INITIAL_STATE, action) => {
                 loading: false
             }
         case DOCTOR_TYPES.GET_CITIES_ERROR:
+            return {
+                data: action.payload,
+                loading: false
+            }
+        default: return state
+    }
+}
+
+export const getSkillsReducer = (state = GET_SKILLS_INITIAL_STATE, action) => {
+    switch (action.type) {
+        case DOCTOR_TYPES.GET_SKILLS_LOADING:
+            return {
+                ...state,
+                loading: true
+            }
+        case DOCTOR_TYPES.GET_SKILLS_SUCCESS:
+            return {
+                data: action.payload,
+                loading: false
+            }
+        case DOCTOR_TYPES.GET_SKILLS_ERROR:
+            return {
+                data: action.payload,
+                loading: false
+            }
+        default: return state
+    }
+}
+
+export const createSkillsReducer = (state = CREATE_SKILLS_INITIAL_STATE, action) => {
+    switch (action.type) {
+        case DOCTOR_TYPES.CREATE_SKILLS_LOADING:
+            return {
+                data: state.data,
+                loading: true
+            }
+        case DOCTOR_TYPES.CREATE_SKILLS_SUCCESS:
+            return {
+                data: action.payload,
+                loading: false
+            }
+        case DOCTOR_TYPES.CREATE_SKILLS_ERROR:
+            return {
+                data: action.payload,
+                loading: false
+            }
+        default: return state
+    }
+}
+
+export const getCategoryReducer = (state = GET_CATEGORY_INITIAL_STATE, action) => {
+    switch (action.type) {
+        case DOCTOR_TYPES.GET_CATEGORY_LOADING:
+            return {
+                ...state,
+                loading: true
+            }
+        case DOCTOR_TYPES.GET_CATEGORY_SUCCESS:
+            return {
+                data: action.payload,
+                loading: false
+            }
+        case DOCTOR_TYPES.GET_CATEGORY_ERROR:
+            return {
+                data: action.payload,
+                loading: false
+            }
+        default: return state
+    }
+}
+
+export const getSpecializationsReducer = (state = GET_SPECIALIZATIONS_INITIAL_STATE, action) => {
+    switch (action.type) {
+        case DOCTOR_TYPES.GET_SPECIALIZATIONS_LOADING:
+            return {
+                ...state,
+                loading: true
+            }
+        case DOCTOR_TYPES.GET_SPECIALIZATIONS_SUCCESS:
+            return {
+                data: action.payload,
+                loading: false
+            }
+        case DOCTOR_TYPES.GET_SPECIALIZATIONS_ERROR:
+            return {
+                data: action.payload,
+                loading: false
+            }
+        default: return state
+    }
+}
+
+export const createSpecializationsReducer = (state = CREATE_SPECIALIZATIONS_INITIAL_STATE, action) => {
+    switch (action.type) {
+        case DOCTOR_TYPES.CREATE_SPECIALIZATIONS_LOADING:
+            return {
+                data: state.data,
+                loading: true
+            }
+        case DOCTOR_TYPES.CREATE_SPECIALIZATIONS_SUCCESS:
+            return {
+                data: action.payload,
+                loading: false
+            }
+        case DOCTOR_TYPES.CREATE_SPECIALIZATIONS_ERROR:
             return {
                 data: action.payload,
                 loading: false

@@ -22,14 +22,13 @@ const PatientDashboard = () => {
   const patientId = pathId || searchParams.get('id') || searchParams.get('patientId');
   const userInfo = JSON.parse(localStorage.getItem('user'));
   const UserRole = userInfo?.role;
-  const PatientProfileData = useSelector((state) => state?.getPatientProfile?.message?.data);
+  const PatientProfileData = useSelector((state) => state?.getPatientProfile?.data?.data);
   const FitbitConnection = useSelector((state) => state?.getPatientProfile?.data?.status);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showReports, setShowReports] = useState(false);
   const [expandedCard, setExpandedCard] = useState(null);
   const [expandedReport, setExpandedReport] = useState(false);
   const [activeTab, setActiveTab] = useState('Activity Data');
-  console.log(FitbitConnection, 'FitbitConnection')
   const handleCardExpand = (cardName) => {
     setExpandedCard(expandedCard === cardName ? null : cardName);
   };
