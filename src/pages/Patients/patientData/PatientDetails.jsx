@@ -19,20 +19,18 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
 
   const [accordionOpen, setAccordionOpen] = useState(true);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const Metrics = patientData?.metrics;
-  const Profile = patientData?.profile;
   const { id: pathId } = useParams();
   const [searchParams] = useSearchParams();
   const id = pathId || searchParams.get('id') || searchParams.get('patientId');
   const PatientData = useSelector((state) => state?.getPatientByIdReducer?.data?.data?.patient);
   const isLoading = useSelector((state) => state?.getPatientByIdReducer?.loading);
   const UpdateResponse = useSelector((state) => state?.updatePatient?.data?.status);
+  const PatientProfileData = useSelector((state) => state?.getPatientProfile?.data?.data);
+  const Metrics = PatientProfileData?.metrics;
+  const Profile = PatientProfileData?.profile;
   const FitbitConnection = useSelector((state) => state?.getPatientProfile?.data?.status);
-
   const ConnectionStatus = useSelector((state) => state?.connectToFitbit?.data?.success);
   const connectionLoading = useSelector((state) => state?.connectToFitbit?.loading);
-
-  console.log('Profile detail :', patientData)
 
   const getInitials = (name) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase()
@@ -67,6 +65,12 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
   useEffect(() => {
     dispatch(getPatientProfile())
   }, [dispatch]);
+
+  useEffect(() => {
+    if (id) {
+      dispatch(getPatientProfile({ id: id }))
+    }
+  }, [id]);
 
   useEffect(() => {
     if (ConnectionStatus === true) {
@@ -295,7 +299,7 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
                     <div>
                       <div className='text-nowrap' style={{ fontSize: '12px', color: '#6c757d', marginBottom: '2px' }}>Avg Sleep Min</div>
                       <div style={{ fontSize: '16px', fontWeight: '600' }} className={`${isLoading ? 'placeholder rounded-1' : ''}`}>
-                        {Metrics?.sleep?.minutesAsleep || '360'} <span style={{ fontSize: '16px' }}>min</span>
+                        {Metrics?.sleep?.minutesAsleep || '-'} <span style={{ fontSize: '16px' }}>min</span>
                       </div>
                     </div>
                     {(parseInt(Metrics?.sleep?.minutesAsleep) || 360) >= 420 ?
@@ -308,7 +312,7 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
                     <div>
                       <div className='text-nowrap' style={{ fontSize: '12px', color: '#6c757d', marginBottom: '2px' }}>Avg Water Intake</div>
                       <div style={{ fontSize: '16px', fontWeight: '600' }} className={`${isLoading ? 'placeholder rounded-1' : ''}`}>
-                        {Metrics?.water?.averageIntake || '2700'} <span style={{ fontSize: '16px' }}>ml/Day</span>
+                        {Metrics?.water?.averageIntake || '-'} <span style={{ fontSize: '16px' }}>ml/Day</span>
                       </div>
                     </div>
                     {(parseFloat(Metrics?.water?.averageIntake) || 2700) >= 2500 ?

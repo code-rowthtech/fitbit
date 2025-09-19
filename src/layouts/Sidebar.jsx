@@ -175,7 +175,7 @@ const Sidebar = () => {
                       {patient.firstName} {patient.lastName}
                     </div>
                     <div className="text-white mt-1" style={{ fontSize: '8px' }}>
-                      {patient?.location || 'N/A'}
+                      {patient?.address?.state?.name || 'N/A'}
                     </div>
                   </div>
                   <div className="">

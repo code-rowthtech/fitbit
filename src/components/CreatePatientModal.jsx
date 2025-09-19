@@ -35,7 +35,6 @@ const CreatePatientModal = ({ show, onHide }) => {
         mode: 'onChange'
     });
 
-    console.log(store?.createPatientReducer, 'store')
 
     const stateOptions = StatesData?.map(state => ({
         value: state?.code,

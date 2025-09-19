@@ -3,11 +3,11 @@ import { APICore } from "../../helpers/api/apiCore"
 const api = new APICore()
 
 export function getPatientProfileApi(data) {
-    return api.get(URL.PATIENT_PROFILE.replace(':id', data.payload.id));
+    return api.get(`${URL.PATIENT_PROFILE}/${data.payload.id}`)
 }
 
 export function getPatientActivityApi(data) {
-    return api.get(URL.PATIENT_ACTIVITY.replace(':id', data.payload.id));
+    return api.get(`${URL.PATIENT_ACTIVITY}/${data.payload.id}`)
 }
 
 export function getPatientSleepApi(data) {
@@ -43,7 +43,10 @@ export function getPatientGpsTrackingApi(data) {
 }
 
 export function connectToFitbitApi(data) {
-    return api.get(`${URL.CONNECT_TO_FITBIT}/${data.payload.patientId}`, data.payload.body)
+    return api.get(`${URL.CONNECT_TO_FITBIT}/${data.payload.patientId}`, data.payload.body);
+}
 
+export function getFilterDataApi(data) {
+    return api.get(`${URL.GET_FILTER_DATA}/${data.payload.patientId}?field=${data.payload.field}&startDate=${data.payload.startDate}&endDate=${data.payload.endDate}&live=true`);
 }
 

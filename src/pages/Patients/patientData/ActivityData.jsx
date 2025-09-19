@@ -21,6 +21,9 @@ import {
     Tooltip,
     Legend
 } from 'chart.js';
+import { getFilterData, getPatientActivity } from '../../../redux/patientsDashboard/action'
+import { useDispatch, useSelector } from 'react-redux'
+import { useParams, useSearchParams } from 'react-router-dom'
 
 ChartJS.register(
     CategoryScale,
@@ -32,17 +35,66 @@ ChartJS.register(
 );
 
 const ActivityData = ({ isExpanded, onExpand }) => {
+    const dispatch = useDispatch();
+    const { id: pathId } = useParams();
+    const [searchParams] = useSearchParams();
+    const patientId = pathId || searchParams.get('id') || searchParams.get('patientId');
     const [isOpen, setIsOpen] = useState(true);
     const [showDatePicker, setShowDatePicker] = useState(false)
     const [expandedCard, setExpandedCard] = useState(null)
     const [dateRange, setDateRange] = useState([
         {
-            startDate: new Date(),
-            endDate: new Date(),
+            startDate: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
+            endDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
             key: 'selection'
         }
     ])
     const datePickerRef = useRef(null)
+    const ActivityData = useSelector((state) => state?.getPatientActivity?.data?.data?.activity);
+    const FilterData = useSelector((state) => state?.getFilterData);
+    console.log(ActivityData, 'ActivityData')
+    console.log(FilterData, 'FilterData')
+
+    // Process FilterData for steps
+    const getStepsData = () => {
+        if (!FilterData?.data?.data) return { labels: [], values: [], tableData: [] };
+        
+        const data = FilterData.data.data.slice(0, 7); // Limit to 7 days
+        const labels = data.map(item => {
+            const date = new Date(item.date);
+            return date.toLocaleDateString('en-US', { weekday: 'short' });
+        });
+        const values = data.map(item => item.value);
+        const tableData = data.map(item => ({
+            day: new Date(item.date).toLocaleDateString('en-US', { weekday: 'long' }),
+            value: item.value.toLocaleString()
+        }));
+        
+        return { labels, values, tableData };
+    };
+
+    const stepsData = getStepsData();
+
+    useEffect(() => {
+        if (patientId) {
+            dispatch(getPatientActivity({ id: patientId }))
+        }
+    }, [patientId]);
+
+    const formatDate = (date) => {
+        return date.toISOString().split('T')[0];
+    };
+
+    useEffect(() => {
+        if (patientId) {
+            dispatch(getFilterData({
+                patientId: patientId,
+                startDate: formatDate(dateRange[0].startDate),
+                endDate: formatDate(dateRange[0].endDate),
+                field: "steps"
+            }))
+        }
+    }, [patientId, dateRange]);
 
     const handleCardExpand = (cardType) => {
         if (expandedCard === cardType) {
@@ -63,6 +115,8 @@ const ActivityData = ({ isExpanded, onExpand }) => {
         document.addEventListener('mousedown', handleClickOutside)
         return () => document.removeEventListener('mousedown', handleClickOutside)
     }, [])
+
+
 
     return (
         <div className="accordion" id="activityAccordion" style={{ backgroundColor: 'white', }}>
@@ -86,7 +140,23 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                                     <div style={{ position: 'absolute', top: '40px', zIndex: 1000, backgroundColor: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
                                         <DateRangePicker
                                             ranges={dateRange}
-                                            onChange={(ranges) => setDateRange([ranges.selection])}
+                                            onChange={(ranges) => {
+                                                const { startDate, endDate } = ranges.selection;
+                                                const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+                                                
+                                                if (daysDiff <= 7) {
+                                                    setDateRange([ranges.selection]);
+                                                    if (patientId) {
+                                                        dispatch(getFilterData({
+                                                            patientId: patientId,
+                                                            startDate: formatDate(startDate),
+                                                            endDate: formatDate(endDate),
+                                                            field: "steps"
+                                                        }));
+                                                    }
+                                                }
+                                            }}
+                                            maxDate={new Date()}
                                         />
                                     </div>
                                 )}
@@ -124,12 +194,12 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                                             <div className='row p-3'>
                                                 <div className='col-8 pe-2'>
                                                     <div className='border rounded-2' style={{ padding: '10px', backgroundColor: '#F6FAFF', height: '500px' }}>
-                                                       
+
                                                         <Bar
                                                             data={{
-                                                                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                                                                labels: stepsData.labels.length ? stepsData.labels : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                                                                 datasets: [{
-                                                                    data: [1000, 3000, 3000, 2000, 3000, 3000, 2000],
+                                                                    data: stepsData.values.length ? stepsData.values : [1000, 3000, 3000, 2000, 3000, 3000, 2000],
                                                                     backgroundColor: '#003465',
                                                                     borderRadius: 3,
                                                                     barThickness: 35
@@ -216,17 +286,19 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                                                 <tbody>
                                                     <tr>
                                                         <td className='p-1' style={{ color: '#121212', backgroundColor: '#F3F3F3', borderBottom: '1px solid #E0E0E0' }}>Current Week</td>
-                                                        <td className='p-1' style={{ fontWeight: '600', textAlign: 'right', borderLeft: '1px solid #E0E0E0', backgroundColor: '#F3F3F3', borderBottom: '1px solid #E0E0E0' }}>Avg- 2,714</td>
+                                                        <td className='p-1' style={{ fontWeight: '600', textAlign: 'right', borderLeft: '1px solid #E0E0E0', backgroundColor: '#F3F3F3', borderBottom: '1px solid #E0E0E0' }}>Avg- {FilterData?.data?.stats?.average ? Math.round(FilterData.data.stats.average).toLocaleString() : '2,714'}</td>
                                                     </tr>
-                                                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => {
-                                                        const steps = { Monday: '3,000', Tuesday: '3,000', Wednesday: '3,000', Thursday: '2,000', Friday: '3,000', Saturday: '3,000', Sunday: '2,000' }[day];
-                                                        return (
-                                                            <tr key={day}>
-                                                                <td className='p-1' style={{ color: '#121212', borderBottom: '1px solid #E0E0E0', backgroundColor: '#F9FAFB' }}>{day}</td>
-                                                                <td className='p-1' style={{ textAlign: 'right', borderBottom: '1px solid #E0E0E0', borderLeft: '1px solid #E0E0E0', backgroundColor: '#F9FAFB' }}>{steps}</td>
-                                                            </tr>
-                                                        );
-                                                    })}
+                                                    {(stepsData.tableData.length ? stepsData.tableData : 
+                                                        ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => ({
+                                                            day,
+                                                            value: { Monday: '3,000', Tuesday: '3,000', Wednesday: '3,000', Thursday: '2,000', Friday: '3,000', Saturday: '3,000', Sunday: '2,000' }[day]
+                                                        }))
+                                                    ).map((item, index) => (
+                                                        <tr key={index}>
+                                                            <td className='p-1' style={{ color: '#121212', borderBottom: '1px solid #E0E0E0', backgroundColor: '#F9FAFB' }}>{item.day}</td>
+                                                            <td className='p-1' style={{ textAlign: 'right', borderBottom: '1px solid #E0E0E0', borderLeft: '1px solid #E0E0E0', backgroundColor: '#F9FAFB' }}>{item.value}</td>
+                                                        </tr>
+                                                    ))}
                                                 </tbody>
                                             </Table>
                                         )}

@@ -60,6 +60,12 @@ const CREATE_SPECIALIZATIONS_INITIAL_STATE = {
     loading: false,
 };
 
+const GET_SPECIALIZATIONS_CATEGORY_INITIAL_STATE = {
+    data: [],
+    message: '',
+    loading: false,
+};
+
 
 export const getAllDoctors = (state = GET_ALL_DOCTORS_INITIAL_STATE, action) => {
     switch (action.type) {
@@ -274,6 +280,27 @@ export const createSpecializationsReducer = (state = CREATE_SPECIALIZATIONS_INIT
                 loading: false
             }
         case DOCTOR_TYPES.CREATE_SPECIALIZATIONS_ERROR:
+            return {
+                data: action.payload,
+                loading: false
+            }
+        default: return state
+    }
+}
+
+export const getSpecializationsCategoryReducer = (state = GET_SPECIALIZATIONS_CATEGORY_INITIAL_STATE, action) => {
+    switch (action.type) {
+        case DOCTOR_TYPES.GET_SPECIALIZATIONS_CATEGORY_LOADING:
+            return {
+                ...state,
+                loading: true
+            }
+        case DOCTOR_TYPES.GET_SPECIALIZATIONS_CATEGORY_SUCCESS:
+            return {
+                data: action.payload,
+                loading: false
+            }
+        case DOCTOR_TYPES.GET_SPECIALIZATIONS_CATEGORY_ERROR:
             return {
                 data: action.payload,
                 loading: false

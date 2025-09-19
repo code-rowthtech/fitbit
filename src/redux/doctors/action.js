@@ -58,3 +58,8 @@ export const createSpecializations = (data) => ({
     payload: data
 })
 
+export const getSpecializationsCategory = (data) => ({
+    type: DOCTOR_TYPES.GET_SPECIALIZATIONS_CATEGORY,
+    payload: data
+})
+

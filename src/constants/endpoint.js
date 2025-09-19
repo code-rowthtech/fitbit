@@ -11,6 +11,8 @@ export const CREATE_SKILLS = `${baseurl}/skills`
 export const GET_CATEGORY = `${baseurl}/skills`
 export const GET_SPECIALIZATIONS = `${baseurl}/specializations`
 export const CREATE_SPECIALIZATIONS = `${baseurl}/specializations/create`
+export const GET_SPECIALIZATIONS_CATEGORY = `${baseurl}/specializations`
+
 
 // Patients
 export const PATIENTS = `${baseurl}/patients/create`
@@ -27,16 +29,17 @@ export const UPDATE_NOTE = `${baseurl}/notes`
 export const GET_NOTE_BY_ID = `${baseurl}/notes`
 
 // Patient Dashboard
-export const PATIENT_PROFILE = `${baseurl}/fitbit/profile/:id`
-export const PATIENT_ACTIVITY = `${baseurl}/fitbit/activity/:id`
-export const PATIENT_SLEEP = `${baseurl}/fitbit/sleep/:id`
-export const PATIENT_WATER = `${baseurl}/fitbit/water/:id`
-export const PATIENT_HEART = `${baseurl}/fitbit/heart/:id`
-export const PATIENT_WEIGHT = `${baseurl}/fitbit/weight/:id`
-export const PATIENT_BODY_FAT = `${baseurl}/fitbit/body-fat/:id`
-export const PATIENT_FOOD = `${baseurl}/fitbit/food/:id`
-export const PATIENT_DEVICES = `${baseurl}/fitbit/devices/:id`
+export const PATIENT_PROFILE = `${baseurl}/fitbit/profile`
+export const PATIENT_ACTIVITY = `${baseurl}/fitbit/activity`
+export const PATIENT_SLEEP = `${baseurl}/fitbit/sleep`
+export const PATIENT_WATER = `${baseurl}/fitbit/water`
+export const PATIENT_HEART = `${baseurl}/fitbit/heart`
+export const PATIENT_WEIGHT = `${baseurl}/fitbit/weight`
+export const PATIENT_BODY_FAT = `${baseurl}/fitbit/body-fat`
+export const PATIENT_FOOD = `${baseurl}/fitbit/food`
+export const PATIENT_DEVICES = `${baseurl}/fitbit/devices`
 export const PATIENT_GPS_TRACKING = `${baseurl}/fitbit/gps-tracking/:logId`
 export const CONNECT_TO_FITBIT = `${baseurl}/fitbit/connect`
+export const GET_FILTER_DATA = `${baseurl}/fitbit/filter`
 
 

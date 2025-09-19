@@ -2,12 +2,13 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Modal, Form, Row, Col, Button, InputGroup } from 'react-bootstrap';
 import { useForm, Controller } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { resetUpdateDoctor, updateDoctor, getStates, getCities, getSkills } from '../redux/actions';
+import { resetUpdateDoctor, updateDoctor, getStates, getCities, getSkills, getSpecializations } from '../redux/actions';
 import { FaTimes, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { MdDone } from "react-icons/md";
 import { RiAddLine } from "react-icons/ri";
 import Select from 'react-select';
 import AddSpecialSkillModal from './SpecialSkill/AddSpecialSkillModal';
+import AddSpecializationModal from './Specialization/AddSpecializationModal';
 
 // CSS for custom radio label styling
 const customRadioStyle = `
@@ -23,6 +24,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
     const [currentStep, setCurrentStep] = useState(1);
     const [showPassword, setShowPassword] = useState(false);
     const [showSpecialSkillModal, setShowSpecialSkillModal] = useState(false);
+    const [showSpecializationModal, setShowSpecializationModal] = useState(false);
 
     const doctorId = doctor?._id
     const UpdateResponse = useSelector((state) => state?.updateDoctor?.data?.status);
@@ -30,7 +32,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
     const StatesData = useSelector((state) => state?.getStatesReducer?.data?.data);
     const CitiesData = useSelector((state) => state?.getCitiesReducer?.data?.data);
     const SkillsData = useSelector((state) => state?.getSkillsReducer?.data?.data);
-    console.log(SkillsData,'SkillsData')
+    const SpecializationsData = useSelector((state) => state?.getSpecializationsReducer?.data?.data);
 
     const { register, handleSubmit, reset, setValue, formState: { errors }, trigger, watch, control } = useForm({
         mode: 'onChange'
@@ -54,6 +56,25 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
             label: skill?.name
         })) || []
     })) || [];
+
+    const groupedSpecializationOptions = SpecializationsData?.reduce((acc, item) => {
+        const existingCategory = acc.find(group => group.label === item.category);
+        if (existingCategory) {
+            existingCategory.options.push({
+                value: item._id,
+                label: item.name
+            });
+        } else {
+            acc.push({
+                label: item.category,
+                options: [{
+                    value: item._id,
+                    label: item.name
+                }]
+            });
+        }
+        return acc;
+    }, []) || [];
 
     const customSelectStyles = {
         control: (provided) => ({
@@ -136,6 +157,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
     useEffect(() => {
         dispatch(getStates({ search: '' }))
         dispatch(getSkills())
+        dispatch(getSpecializations())
     }, [dispatch]);
 
     useEffect(() => {
@@ -180,6 +202,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
             setValue('pincode', doctor.clinicAddress?.zip || '');
             setValue('fullAddress', doctor.fullAddress || '');
             setValue('registrationDate', doctor.registrationDate ? new Date(doctor.registrationDate).toISOString().split('T')[0] : '');
+            setValue('specialSkill', doctor.skills?.map(skill => ({ value: skill._id, label: skill.name })) || []);
             setValue('aboutDoctor', doctor.about || '');
             setValue('isActive', doctor.isActive ? 'true' : 'false');
         }
@@ -251,7 +274,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                 dateOfBirth: data.dateOfBirth || undefined,
                 fullAddress: data.fullAddress || "",
                 specializations: data.specialization ? [data.specialization] : [],
-                ...(data.specialSkill && { skills: [data.specialSkill.value] }),
+                ...(data.specialSkill && { skills: Array.isArray(data.specialSkill) ? data.specialSkill.map(skill => skill.value) : [data.specialSkill.value] }),
                 yearOfExperience: data.experience || undefined,
                 feePerConsultation: data.fees || undefined,
                 consultationType: data.consultationType || undefined,
@@ -436,14 +459,26 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                         <Row className='mt-5'>
                             <Col md={6}>
                                 <Form.Group className="mb-3">
-                                    <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Specialization </Form.Label>
-                                    <Form.Select style={{ fontSize: '12px', backgroundColor: '#F9FAFB' }} className='py-3' {...register('specialization')}>
-                                        <option value="">Select One</option>
-                                        <option value="cardiology">Cardiology</option>
-                                        <option value="neurology">Neurology</option>
-                                        <option value="orthopedics">Orthopedics</option>
-                                        <option value="pediatrics">Pediatrics</option>
-                                    </Form.Select>
+                                    <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Specialization
+                                        <span className='ms-2' style={{ cursor: 'pointer' }} onClick={() => setShowSpecializationModal(true)}>
+                                            <RiAddLine title='Add Specialization' className='text-danger border border-1 rounded-1' />
+                                        </span>
+                                    </Form.Label>
+                                    <Controller
+                                        name="specialization"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Select
+                                                {...field}
+                                                options={groupedSpecializationOptions}
+                                                placeholder="Select Specialization"
+                                                styles={customSelectStyles}
+                                                isClearable
+                                                isSearchable
+                                                maxMenuHeight={200}
+                                            />
+                                        )}
+                                    />
                                 </Form.Group>
                             </Col>
                             <Col md={6}>
@@ -657,10 +692,11 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                                             <Select
                                                 {...field}
                                                 options={groupedSkillOptions}
-                                                placeholder="Select Skill"
+                                                placeholder="Select Skills"
                                                 styles={customSelectStyles}
                                                 isClearable
                                                 isSearchable
+                                                isMulti
                                                 maxMenuHeight={200}
                                             />
                                         )}
@@ -692,7 +728,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
     return (
         <>
             <style>{customRadioStyle}</style>
-            <Modal show={show && !showSpecialSkillModal} onHide={handleClose} size="xl">
+            <Modal show={show && !showSpecialSkillModal && !showSpecializationModal} onHide={handleClose} size="xl">
                 <Modal.Body className="p-3" style={{ borderRadius: '15px' }}>
                     <div className="position-relative">
                         <div
@@ -825,6 +861,10 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
             <AddSpecialSkillModal
                 show={showSpecialSkillModal}
                 onHide={() => setShowSpecialSkillModal(false)}
+            />
+            <AddSpecializationModal
+                show={showSpecializationModal}
+                onHide={() => setShowSpecializationModal(false)}
             />
         </>
     );

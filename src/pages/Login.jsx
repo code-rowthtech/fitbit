@@ -24,7 +24,6 @@ const Login = () => {
   if (userLoggedIn && user) {
     return <Navigate to={`/patient-dashboard/${user?.patientId}`} replace />;
   }
-  console.log(user, '1234user')
   const handleChange = (e) => {
     setFormData({
       ...formData,

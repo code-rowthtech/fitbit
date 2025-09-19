@@ -17,7 +17,6 @@ const AddSpecialSkillModal = ({ show, onHide }) => {
         value: item.category,
         label: item.category
     })) || [];
-    console.log(CategoryData, 'CategoryData')
 
     const onSubmit = (data) => {
         const skillData = {
@@ -26,7 +25,6 @@ const AddSpecialSkillModal = ({ show, onHide }) => {
             description: data.description
         };
         dispatch(createSkills(skillData));
-        console.log('Special Skill Data:', skillData);
     };
 
     const handleClose = () => {

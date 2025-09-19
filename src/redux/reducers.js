@@ -1,10 +1,10 @@
 import { combineReducers } from 'redux';
 
 import Auth from './auth/reducers';
-import { createDoctorReducer, getAllDoctors, updateDoctor, getStatesReducer, getCitiesReducer, getSkillsReducer, createSkillsReducer, getCategoryReducer, getSpecializationsReducer, createSpecializationsReducer } from './doctors/reducer';
+import { createDoctorReducer, getAllDoctors, updateDoctor, getStatesReducer, getCitiesReducer, getSkillsReducer, createSkillsReducer, getCategoryReducer, getSpecializationsReducer, createSpecializationsReducer, getSpecializationsCategoryReducer } from './doctors/reducer';
 import { createAllergiesReducer, createPatientReducer, getAllergiesReducer, getAllPatients, getPatientByIdReducer, updatePatient } from './patients/reducer';
 import { createNoteReducer, getAllNotes, getNoteById, updateNoteReducer } from './notes/reducer';
-import { connectToFitbit, getPatientActivity, getPatientBodyFat, getPatientDevices, getPatientFood, getPatientGpsTracking, getPatientHeart, getPatientProfile, getPatientSleep, getPatientWater, getPatientWeight } from './patientsDashboard/reducer';
+import { connectToFitbit, getFilterData, getPatientActivity, getPatientBodyFat, getPatientDevices, getPatientFood, getPatientGpsTracking, getPatientHeart, getPatientProfile, getPatientSleep, getPatientWater, getPatientWeight } from './patientsDashboard/reducer';
 
 export default combineReducers({
     // Auth
@@ -21,6 +21,7 @@ export default combineReducers({
     getCategoryReducer,
     getSpecializationsReducer,
     createSpecializationsReducer,
+    getSpecializationsCategoryReducer,
     
     //Patients
     createPatientReducer,
@@ -48,4 +49,5 @@ export default combineReducers({
     getPatientDevices,
     getPatientGpsTracking,
     connectToFitbit,
+    getFilterData,
 });

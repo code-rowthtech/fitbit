@@ -1,6 +1,6 @@
 import DOCTOR_TYPES from './constant';
 import { all, fork, put, takeEvery, call, takeLatest } from 'redux-saga/effects';
-import { getAllDoctorsApi, createDoctorApi, updateDoctorApi, getStatesApi, getCitiesApi, getSkillsApi, createSkillsApi, getCategoryApi, getSpecializationsApi, createSpecializationsApi } from './api';
+import { getAllDoctorsApi, createDoctorApi, updateDoctorApi, getStatesApi, getCitiesApi, getSkillsApi, createSkillsApi, getCategoryApi, getSpecializationsApi, createSpecializationsApi, getSpecializationsCategoryApi } from './api';
 import { toast } from 'react-toastify';
 
 function* getAllDoctorsFunction({ payload }) {
@@ -276,6 +276,32 @@ function* createSpecializationsFunction(data) {
     }
 }
 
+function* getSpecializationsCategoryFunction({ payload }) {
+    try {
+        yield put({
+            type: DOCTOR_TYPES.GET_SPECIALIZATIONS_CATEGORY_LOADING,
+            payload: {},
+        });
+        const response = yield call(getSpecializationsCategoryApi, payload);
+        if (response?.data && response?.data?.status === 200) {
+            yield put({
+                type: DOCTOR_TYPES.GET_SPECIALIZATIONS_CATEGORY_SUCCESS,
+                payload: response.data,
+            });
+        } else {
+            yield put({
+                type: DOCTOR_TYPES.GET_SPECIALIZATIONS_CATEGORY_ERROR,
+                payload: response.data,
+            });
+        }
+    } catch (error) {
+        yield put({
+            type: DOCTOR_TYPES.GET_SPECIALIZATIONS_CATEGORY_ERROR,
+            payload: { message: error?.message },
+        });
+    }
+}
+
 export function* getAllDoctorsSaga() {
     yield takeEvery(DOCTOR_TYPES.GET_ALL_DOCTORS, getAllDoctorsFunction);
 }
@@ -316,6 +342,10 @@ export function* createSpecializationsSaga() {
     yield takeEvery(DOCTOR_TYPES.CREATE_SPECIALIZATIONS, createSpecializationsFunction);
 }
 
+export function* getSpecializationsCategorySaga() {
+    yield takeEvery(DOCTOR_TYPES.GET_SPECIALIZATIONS_CATEGORY, getSpecializationsCategoryFunction);
+}
+
 
 function* DoctorSaga() {
     yield all([
@@ -329,6 +359,7 @@ function* DoctorSaga() {
         fork(getCategorySaga),
         fork(getSpecializationsSaga),
         fork(createSpecializationsSaga),
+        fork(getSpecializationsCategorySaga),
     ]);
 }
 
