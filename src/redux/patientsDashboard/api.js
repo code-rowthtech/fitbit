@@ -47,6 +47,8 @@ export function connectToFitbitApi(data) {
 }
 
 export function getFilterDataApi(data) {
-    return api.get(`${URL.GET_FILTER_DATA}/${data.payload.patientId}?field=${data.payload.field}&startDate=${data.payload.startDate}&endDate=${data.payload.endDate}&live=true`);
+    const baseUrl = `${URL.GET_FILTER_DATA}/${data.payload.patientId}?field=${data.payload.field}&start=${data.payload.start}&end=${data.payload.end}`;
+    const url = data.payload.period ? `${baseUrl}&period=${data.payload.period}` : baseUrl;
+    return api.get(url);
 }
 

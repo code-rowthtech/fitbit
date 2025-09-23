@@ -12,7 +12,7 @@ import Dashboard from './pages/Dashboard';
 import Doctors from './pages/Doctors/Doctors';
 import Patients from './pages/Patients/Patients';
 import PatientDashboard from './pages/Patients/PatientDashboard';
-import Notes from './pages/Notes/Notes';
+// import Notes from './pages/Notes/Notes';
 import NotFound from './pages/NotFound';
 import { SidebarProvider } from './contexts/SidebarContext';
 import './styles/layout.css';
@@ -68,7 +68,7 @@ function App() {
               </ProtectedRoute>
             } 
           />
-          <Route 
+          {/* <Route 
             path="/notes" 
             element={
               <ProtectedRoute>
@@ -77,7 +77,7 @@ function App() {
                 </Layout>
               </ProtectedRoute>
             } 
-          />
+          /> */}
           <Route path="*" element={<NotFound />} />
         </Routes>
         </SidebarProvider>

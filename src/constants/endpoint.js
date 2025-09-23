@@ -22,11 +22,12 @@ export const GET_PATIENT_BY_ID = `${baseurl}/patients`
 export const GET_ALLERGIES = `${baseurl}/allergies`
 export const CREATE_ALLERGIES = `${baseurl}/allergies/add`
 
-// Notes
-export const NOTES = `${baseurl}/notes`
-export const GET_NOTE = `${baseurl}/notes`
-export const UPDATE_NOTE = `${baseurl}/notes`
-export const GET_NOTE_BY_ID = `${baseurl}/notes`
+// Reports
+export const REPORTS = `${baseurl}/reports/ranges`
+export const GET_REPORTS = `${baseurl}/reports/patient`
+export const GET_REPORT = `${baseurl}/reports`
+export const UPDATE_REPORT = `${baseurl}/reports`
+export const GET_REPORT_BY_ID = `${baseurl}/reports`
 
 // Patient Dashboard
 export const PATIENT_PROFILE = `${baseurl}/fitbit/profile`

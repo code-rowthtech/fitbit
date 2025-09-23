@@ -1,42 +1,42 @@
-import NOTE_TYPES from './constant';
+import REPORT_TYPES from './constant';
 
-const GET_ALL_NOTES_INITIAL_STATE = {
+const GET_ALL_REPORTS_INITIAL_STATE = {
     data: [],
     message: '',
     loading: false,
 };
 
-const GET_NOTE_BY_ID_INITIAL_STATE = {
+const GET_REPORT_BY_ID_INITIAL_STATE = {
     data: {},
     message: '',
     loading: false,
 };
 
-const CREATE_NOTE_INITIAL_STATE = {
+const CREATE_REPORT_INITIAL_STATE = {
     data: [],
     message: '',
     loading: false,
 };
 
-const UPDATE_NOTE_INITIAL_STATE = {
+const UPDATE_REPORT_INITIAL_STATE = {
     data: [],
     message: '',
     loading: false,
 };
 
-export const getAllNotes = (state = GET_ALL_NOTES_INITIAL_STATE, action) => {
+export const getAllReports = (state = GET_ALL_REPORTS_INITIAL_STATE, action) => {
     switch (action.type) {
-        case NOTE_TYPES.GET_ALL_NOTES_LOADING:
+        case REPORT_TYPES.GET_ALL_REPORTS_LOADING:
             return {
                 loading: true,
                 data: state.data,
             };
-        case NOTE_TYPES.GET_ALL_NOTES_SUCCESS:
+        case REPORT_TYPES.GET_ALL_REPORTS_SUCCESS:
             return {
                 loading: false,
                 data: action?.payload,
             };
-        case NOTE_TYPES.GET_ALL_NOTES_ERROR:
+        case REPORT_TYPES.GET_ALL_REPORTS_ERROR:
             return {
                 loading: false,
                 message: action?.payload,
@@ -46,19 +46,19 @@ export const getAllNotes = (state = GET_ALL_NOTES_INITIAL_STATE, action) => {
     }
 };
 
-export const getNoteById = (state = GET_NOTE_BY_ID_INITIAL_STATE, action) => {
+export const getReportById = (state = GET_REPORT_BY_ID_INITIAL_STATE, action) => {
     switch (action.type) {
-        case NOTE_TYPES.GET_NOTE_BY_ID_LOADING:
+        case REPORT_TYPES.GET_REPORT_BY_ID_LOADING:
             return {
                 loading: true,
                 data: state.data,
             };
-        case NOTE_TYPES.GET_NOTE_BY_ID_SUCCESS:
+        case REPORT_TYPES.GET_REPORT_BY_ID_SUCCESS:
             return {
                 loading: false,
                 data: action?.payload,
             };
-        case NOTE_TYPES.GET_NOTE_BY_ID_ERROR:
+        case REPORT_TYPES.GET_REPORT_BY_ID_ERROR:
             return {
                 loading: false,
                 message: action?.payload,
@@ -68,24 +68,24 @@ export const getNoteById = (state = GET_NOTE_BY_ID_INITIAL_STATE, action) => {
     }
 };
 
-export const createNoteReducer = (state = CREATE_NOTE_INITIAL_STATE, action) => {
+export const createReportReducer = (state = CREATE_REPORT_INITIAL_STATE, action) => {
     switch (action.type) {
-        case NOTE_TYPES.CREATE_NOTE_LOADING:
+        case REPORT_TYPES.CREATE_REPORT_LOADING:
             return {
                 data: state.data,
                 loading: true
             }
-        case NOTE_TYPES.CREATE_NOTE_SUCCESS:
+        case REPORT_TYPES.CREATE_REPORT_SUCCESS:
             return {
                 data: action.payload,
                 loading: false
             }
-        case NOTE_TYPES.CREATE_NOTE_RESET:
+        case REPORT_TYPES.CREATE_REPORT_RESET:
             return {
                 data: [],
                 loading: false
             }
-        case NOTE_TYPES.CREATE_NOTE_ERROR:
+        case REPORT_TYPES.CREATE_REPORT_ERROR:
             return {
                 data: action.payload,
                 loading: false
@@ -94,24 +94,24 @@ export const createNoteReducer = (state = CREATE_NOTE_INITIAL_STATE, action) => 
     }
 }
 
-export const updateNoteReducer = (state = UPDATE_NOTE_INITIAL_STATE, action) => {
+export const updateReportReducer = (state = UPDATE_REPORT_INITIAL_STATE, action) => {
     switch (action.type) {
-        case NOTE_TYPES.UPDATE_NOTE_LOADING:
+        case REPORT_TYPES.UPDATE_REPORT_LOADING:
             return {
                 data: state.data,
                 loading: true
             }
-        case NOTE_TYPES.UPDATE_NOTE_SUCCESS:
+        case REPORT_TYPES.UPDATE_REPORT_SUCCESS:
             return {
                 data: action.payload,
                 loading: false
             }
-        case NOTE_TYPES.UPDATE_NOTE_RESET:
+        case REPORT_TYPES.UPDATE_REPORT_RESET:
             return {
                 data: [],
                 loading: false
             }
-        case NOTE_TYPES.UPDATE_NOTE_ERROR:
+        case REPORT_TYPES.UPDATE_REPORT_ERROR:
             return {
                 data: action.payload,
                 loading: false
@@ -119,4 +119,3 @@ export const updateNoteReducer = (state = UPDATE_NOTE_INITIAL_STATE, action) => 
         default: return  state 
     }
 }
-
