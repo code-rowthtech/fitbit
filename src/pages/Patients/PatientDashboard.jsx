@@ -22,7 +22,7 @@ const PatientDashboard = () => {
   const patientId = pathId || searchParams.get('id') || searchParams.get('patientId');
   const userInfo = JSON.parse(localStorage.getItem('user'));
   const UserRole = userInfo?.role;
-  const PatientProfileData = useSelector((state) => state?.getPatientProfile?.data?.data);
+  const PatientProfileData = useSelector((state) => state?.getPatientProfile?.message?.data);
   const FitbitConnection = useSelector((state) => state?.getPatientProfile?.data?.status);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showReports, setShowReports] = useState(false);
@@ -102,8 +102,8 @@ const PatientDashboard = () => {
       {showReports ? (
         <div className="row justify-content-center">
           <div className="col-lg-12 col-md-12">
-            <PatientReport 
-              patientData={patientData} 
+            <PatientReport
+              patientData={patientData}
               isExpanded={expandedReport}
               onExpand={handleReportExpand}
             />

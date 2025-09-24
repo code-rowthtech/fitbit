@@ -29,7 +29,6 @@ const ChangePassword = () => {
     }
     setLoading(true);
     // Add your password update logic here
-    console.log('Password update:', formData.password);
   };
 
   return (

@@ -36,7 +36,6 @@ export function getSkillsApi(data) {
 }
 
 export function createSkillsApi(data) {
-    console.log(data,'dtaa238')
     return api.create(URL.CREATE_SKILLS, data.payload)
 }
 
@@ -50,5 +49,9 @@ export function getSpecializationsApi(data) {
 
 export function createSpecializationsApi(data) {
     return api.create(URL.CREATE_SPECIALIZATIONS, data.payload)
+}
+
+export function getSpecializationsCategoryApi() {
+    return api.get(`${URL.GET_SPECIALIZATIONS_CATEGORY}?type=category`)
 }
 

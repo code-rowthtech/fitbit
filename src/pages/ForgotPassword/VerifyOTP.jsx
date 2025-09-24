@@ -18,7 +18,6 @@ const VerifyOTP = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log('OTP:', otp.join(''));
         navigate('/change-password');
     };
     return (

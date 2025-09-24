@@ -72,8 +72,7 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
             fontSize: '12px'
         })
     };
-    console.log('PatientData :', PatientData)
-    console.log('DoctorData :', DoctorData)
+   
 
     const watchedDateOfBirth = watch('dateOfBirth');
 
@@ -123,7 +122,6 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
 
     useEffect(() => {
         if (PatientData && show && (DoctorData || UserRole === "doctor") && StatesData) {
-            console.log(PatientData, 'PatientDataPatientData')
             setValue('firstName', PatientData.firstName || '');
             setValue('lastName', PatientData.lastName || '');
             setValue('email', PatientData.email || '');
@@ -153,7 +151,6 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
             if (stateValue) {
                 setValue('state', { value: stateValue.code, label: stateValue.name, data: stateValue });
             }
-            console.log(stateValue, 'stateValue')
             setValue('pincode', PatientData.address?.zip || '');
             setValue('country', PatientData.address?.country || '');
             setValue('fullAddress', PatientData.fullAddress || '');
@@ -229,7 +226,6 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
             setCurrentStep(currentStep - 1);
         }
     };
-    console.log(stateOptions, 'stateOptionsstateOptions')
     const onSubmit = (data) => {
         const patientData = {
             body: {

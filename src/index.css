@@ -156,10 +156,6 @@ h1 {
   border-color: #dee2e6;
 }
 
-/* .patient-tab.inactive:hover {
-  background: #f1f3f4;
-  transform: skewX(-20deg) ;
-} */
 
 .patient-tab-arrow {
   margin-left: 8px;
@@ -167,13 +163,7 @@ h1 {
   transition: transform 0.3s ease;
 }
 
-/* .patient-tab.active .patient-tab-arrow {
-  transform: skewX(20deg) rotate(180deg);
-}
 
-.patient-tab.inactive .patient-tab-arrow {
-  transform: skewX(20deg);
-} */
 
 .patient-tab:first-child {
   border-top-left-radius: 10px !important;

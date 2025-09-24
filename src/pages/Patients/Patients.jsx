@@ -25,7 +25,6 @@ const Patients = () => {
     const UpdateResponse = useSelector((state) => state?.updatePatient?.data?.status);
     const userInfo = JSON.parse(localStorage.getItem('user'));
     const UserRole = userInfo?.role;
-    console.log(PatientData, 'PatientDataPatientData')
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPages, setTotalPages] = useState(1)
     const [showCreateModal, setShowCreateModal] = useState(false)

@@ -148,7 +148,7 @@
 
 .monthly-table-container th,
 .monthly-table-container td {
-  padding: 6px 8px !important;
+  /* padding: 6px 8px !important; */
   border-right: 1px solid #dee2e6 !important;
   border-bottom: 1px solid #dee2e6 !important;
   white-space: nowrap;

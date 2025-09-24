@@ -66,6 +66,12 @@ const CONNECT_TO_FITBIT_INITIAL_STATE = {
     loading: false,
 };
 
+const GET_FILTER_DATA_INITIAL_STATE = {
+    data: {},
+    message: '',
+    loading: false,
+};
+
 export const getPatientProfile = (state = GET_PATIENT_PROFILE_INITIAL_STATE, action) => {
     switch (action.type) {
         case PATIENT_DASHBOARD_TYPES.GET_PATIENT_PROFILE_LOADING:
@@ -299,6 +305,28 @@ export const connectToFitbit = (state = CONNECT_TO_FITBIT_INITIAL_STATE, action)
                 data: action?.payload,
             };
         case PATIENT_DASHBOARD_TYPES.CONNECT_TO_FITBIT_ERROR:
+            return {
+                loading: false,
+                message: action?.payload,
+            };
+        default:
+            return state;
+    }
+};
+
+export const getFilterData = (state = GET_FILTER_DATA_INITIAL_STATE, action) => {
+    switch (action.type) {
+        case PATIENT_DASHBOARD_TYPES.GET_FILTER_DATA_LOADING:
+            return {
+                loading: true,
+                data: state.data,
+            };
+        case PATIENT_DASHBOARD_TYPES.GET_FILTER_DATA_SUCCESS:
+            return {
+                loading: false,
+                data: action?.payload,
+            };
+        case PATIENT_DASHBOARD_TYPES.GET_FILTER_DATA_ERROR:
             return {
                 loading: false,
                 message: action?.payload,

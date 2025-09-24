@@ -27,7 +27,6 @@ const AddAllergyModal = ({ show, onHide }) => {
         e.preventDefault();
         if (formData.name.trim()) {
             dispatch(createAllergies(formData));
-            console.log(formData, 'formdataformdata')
         }
     };
 

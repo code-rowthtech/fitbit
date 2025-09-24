@@ -2,7 +2,7 @@ import { all } from 'redux-saga/effects';
 import authSaga from './auth/saga';
 import DoctorSaga from './doctors/saga';
 import PatientSaga from './patients/saga';
-import NoteSaga from './notes/saga';
+import ReportSaga from './reports/saga';
 import PatientDashboardSaga from './patientsDashboard/saga';
 
 export default function* rootSaga() {
@@ -10,7 +10,7 @@ export default function* rootSaga() {
     authSaga(),
     DoctorSaga(),
     PatientSaga(),
-    NoteSaga(),
+    ReportSaga(),
     PatientDashboardSaga(),
   ]);
 }

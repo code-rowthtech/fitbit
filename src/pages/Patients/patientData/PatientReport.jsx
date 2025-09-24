@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
-import { Table } from 'react-bootstrap';
+import React, { useState, useEffect, use } from 'react';
+import { Table, Form, Modal, Button } from 'react-bootstrap';
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import { MdSimCardDownload } from "react-icons/md";
+import { FcDownload } from "react-icons/fc";
 import moment from 'moment';
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllReports, createReport, resetCreateReport, downloadReport, resetDownloadReport } from '../../../redux/reports/action';
 import '../PatientDashboard.css';
 import { IoCalendarClearOutline } from "react-icons/io5";
 
@@ -26,11 +29,225 @@ import Elevation_Icon from '../../../assets/images/PatientDashboard/elevation.pn
 import CaloriesConsumed_Icon from '../../../assets/images/PatientDashboard/Calories Burned.png';
 import WaterIntake_Icon from '../../../assets/images/PatientDashboard/water intake.png';
 import { IoIosExpand } from 'react-icons/io';
+import { useParams, useSearchParams } from 'react-router-dom';
 
 const PatientReport = ({ isExpanded, onExpand }) => {
+  const { id: pathId } = useParams();
+  const [searchParams] = useSearchParams();
+  const id = pathId || searchParams.get('id') || searchParams.get('patientId');
   const [currentMonth, setCurrentMonth] = useState(moment());
+  const [normalRanges, setNormalRanges] = useState({});
+  const [editingRange, setEditingRange] = useState(null);
+  const [tempRange, setTempRange] = useState({ min: '', max: '' });
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
   const daysInMonth = currentMonth.daysInMonth();
   const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+
+  const dispatch = useDispatch();
+
+  const CreateResponse = useSelector(state => state?.createReportReducer?.data?.status)
+  const DailyData = useSelector(state => state?.getAllReports?.data?.data?.mappedData)
+  const loading = useSelector(state => state?.getAllReports?.loading)
+  const downloadLoading = useSelector(state => state?.downloadReportReducer?.loading)
+  const downloadResponse = useSelector(state => state?.downloadReportReducer?.data)
+  const downloadError = useSelector(state => state?.downloadReportReducer?.message)
+  const metricsEnum = [
+    'steps', 'Continuous Heart Rate', 'BMI', 'sleep', 'calories burned', 'distance',
+    'activeMinutes', 'Sleep Stages', 'Awakenings', 'Weight', 'Calories Consumed',
+    'Water Intake', 'Resting Heart Rate', 'Exercise Sessions', 'GPS Tracking',
+    'Elevation', 'Body Fat Percentage'
+  ];
+
+  const metricsConfig = [
+    { label: 'steps', icon: Steps_Icon, displayName: 'Steps' },
+    { label: 'activeMinutes', icon: ActiveMinutes_Icon, displayName: 'Active Mins' },
+    { label: 'calories burned', icon: CaloriesBurned_Icon, displayName: 'Calories Burned' },
+    { label: 'distance', icon: Distance_Icon, displayName: 'Distance' },
+    { label: 'Sleep Stages', icon: SleepStages_Icon, displayName: 'Sleep Stages' },
+    { label: 'sleep', icon: Duration_Icon, displayName: 'Duration' },
+    { label: 'sleep', icon: Efficiency_Icon, displayName: 'Efficiency' },
+    { label: 'Awakenings', icon: Awakenings_Icon, displayName: 'Awakenings' },
+    { label: 'Resting Heart Rate', icon: HeartRate_Icon, displayName: 'Resting Heart Rate' },
+    { label: 'Continuous Heart Rate', icon: ContinuousHeartRate_Icon, displayName: 'Continuous Heart Rate' },
+    { label: 'Weight', icon: Weight_Icon, displayName: 'Weight' },
+    { label: 'BMI', icon: BMI_Icon, displayName: 'BMI' },
+    { label: 'Body Fat Percentage', icon: BodyFat_Icon, displayName: 'Body Fat Percentage' },
+    { label: 'Exercise Sessions', icon: ExerciseSessions_Icon, displayName: 'Exercise Sessions' },
+    { label: 'GPS Tracking', icon: GPSTracking_Icon, displayName: 'GPS Tracking' },
+    { label: 'Elevation', icon: Elevation_Icon, displayName: 'Elevation' },
+    { label: 'Calories Consumed', icon: CaloriesConsumed_Icon, displayName: 'Calories Consumed' },
+    { label: 'Water Intake', icon: WaterIntake_Icon, displayName: 'Water Intake' }
+  ];
+
+  useEffect(() => {
+    if (id) {
+      dispatch(getAllReports({ id, month: currentMonth.format('YYYY-MM') }));
+    }
+  }, [dispatch, id, currentMonth]);
+
+  useEffect(() => {
+    if (DailyData) {
+      const rangesMap = {};
+      DailyData.forEach(report => {
+        rangesMap[report.label] = { min: report.min, max: report.max };
+      });
+      setNormalRanges(rangesMap);
+    }
+  }, [DailyData]);
+
+  useEffect(() => {
+    if (CreateResponse === 201 && id) {
+      dispatch(getAllReports({ id, month: currentMonth.format('YYYY-MM') }));
+      // Reset the create response to allow future triggers
+      dispatch(resetCreateReport());
+    }
+  }, [CreateResponse, dispatch, id, currentMonth]);
+
+  useEffect(() => {
+    if (downloadResponse?.success) {
+      dispatch(resetDownloadReport());
+    }
+  }, [downloadResponse, dispatch]);
+
+
+  const handleCreateReport = (label, min, max) => {
+    const reportData = {
+      patientId: id,
+      data: [{
+        label,
+        min,
+        max
+      }]
+    };
+    dispatch(createReport(reportData));
+  };
+
+  const handleRangeClick = (label) => {
+    const existing = normalRanges[label];
+    setEditingRange(label);
+    setTempRange(existing || { min: '', max: '' });
+  };
+
+  const handleRangeSave = () => {
+    if (tempRange.min && tempRange.max) {
+      handleCreateReport(editingRange, tempRange.min, tempRange.max);
+    }
+    setEditingRange(null);
+    setTempRange({ min: '', max: '' });
+  };
+
+  const handleRangeCancel = () => {
+    setEditingRange(null);
+    setTempRange({ min: '', max: '' });
+  };
+
+  const handleDownloadReport = () => {
+    setShowDownloadModal(true);
+  };
+
+  const confirmDownload = () => {
+    if (!id) return;
+    dispatch(downloadReport({ id, month: currentMonth.format('YYYY-MM') }));
+    setShowDownloadModal(false);
+  };
+
+  const handlePreviousMonth = () => {
+    setCurrentMonth(prev => prev.clone().subtract(1, 'month'));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentMonth(prev => prev.clone().add(1, 'month'));
+  };
+
+  const getDataForDay = (label, day) => {
+    const reportData = DailyData?.find(report => report.label === label);
+    if (!reportData?.dailyData) return '-';
+
+    const dayData = reportData.dailyData.find(data => {
+      const dataDay = new Date(data.date).getDate();
+      return dataDay === day;
+    });
+
+    if (!dayData) return '-';
+
+    // Format value based on label
+    switch (label) {
+      case 'steps': return dayData.value.toLocaleString();
+      case 'Water Intake': return `${dayData.value}ml`;
+      case 'distance': return `${dayData.value}`;
+      default: return dayData.value;
+    }
+  };
+
+  const getCellColor = (label, day) => {
+    const reportData = DailyData?.find(report => report.label === label);
+    if (!reportData?.dailyData) return '#000';
+
+    const dayData = reportData.dailyData.find(data => {
+      const dataDay = new Date(data.date).getDate();
+      return dataDay === day;
+    });
+
+    return dayData?.color || '#000';
+  };
+
+  const renderNormalRangeCell = (label) => {
+    const range = normalRanges[label];
+    const isEditing = editingRange === label;
+
+    if (isEditing) {
+      return (
+        <td className="normal-range-cell p-0">
+          <div className="d-flex align-items-center justify-content-center gap-1" style={{ paddingBottom: '1px', paddingTop: '1px' }}>
+            <Form.Control
+              size="sm"
+              placeholder="Min"
+              value={tempRange.min}
+              onChange={(e) => setTempRange(prev => ({ ...prev, min: e.target.value }))}
+              className="range-input"
+              style={{ width: '100px', fontSize: '10px' }}
+            />
+            <span className="text-muted" style={{ fontSize: '10px' }}>-</span>
+            <Form.Control
+              size="sm"
+              placeholder="Max"
+              value={tempRange.max}
+              onChange={(e) => setTempRange(prev => ({ ...prev, max: e.target.value }))}
+              className="range-input"
+              style={{ width: '100px', fontSize: '10px' }}
+            />
+            <button
+              className="btn btn-sm text-white p-0"
+              style={{ width: '20px', height: '20px', fontSize: '10px', backgroundColor: '#003465' }}
+              onClick={handleRangeSave}
+              title="Save"
+            >
+              ✓
+            </button>
+            <button
+              className="btn btn-secondary btn-sm p-0"
+              style={{ width: '20px', height: '20px', fontSize: '10px' }}
+              onClick={handleRangeCancel}
+              title="Cancel"
+            >
+              ✕
+            </button>
+          </div>
+        </td>
+      );
+    }
+
+    return (
+      <td
+        className="normal-range-cell text-center"
+        style={{ cursor: 'pointer' }}
+        onClick={() => handleRangeClick(label)}
+        title="Click to edit range"
+      >
+        {range ? `${range.min} - ${range.max}` : 'No fixed range'}
+      </td>
+    );
+  };
 
   return (
     <div className='bg-white py-2 px-2'>
@@ -47,7 +264,12 @@ const PatientReport = ({ isExpanded, onExpand }) => {
         </h6>
         <div>
           <IoIosExpand title='Expand Report' className='me-3 p-0 fs-4' style={{ color: '#003465', cursor: 'pointer' }} onClick={onExpand} />
-          <MdSimCardDownload title='Export Report' className='me-3 p-0 fs-4' style={{ color: '#003465', cursor: 'pointer' }} />
+          <MdSimCardDownload
+            title='Export Report'
+            className='me-3 p-0 fs-4'
+            style={{ color: '#003465', cursor: 'pointer' }}
+            onClick={handleDownloadReport}
+          />
           <FaAngleRight style={{ color: '#003465', cursor: 'pointer' }} onClick={() => setCurrentMonth(currentMonth.clone().add(1, 'month'))} />
         </div>
       </div>
@@ -57,122 +279,70 @@ const PatientReport = ({ isExpanded, onExpand }) => {
       <div className="monthly-table-container">
         {/* Unified Scrollable Content */}
         <div className="table-scroll-container">
-          <Table className="mb-0 table-hover table-sm patient-report-table" style={{ width: `${450 + daysInMonth * 60}px` }}>
-            <thead className="table table-header">
-              <tr>
-                <th className='fw-bold text-center sticky-metrics'>Metrics</th>
-                <th className='fw-bold text-center sticky-normal-range'>Normal Range</th>
-                {daysArray.map(day => (
-                  <th className='fw-bold day-header' key={day}>{day}</th>
+          {loading ? (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: '400px' }}>
+              <div className="spinner-border" role="status" style={{ color: '#003465' }}>
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          ) : (
+            <Table className="mb-0 table-hover table-sm patient-report-table" style={{ width: `${450 + daysInMonth * 60}px` }}>
+              <thead className="table table-header">
+                <tr>
+                  <th className='fw-bold text-center sticky-metrics'>Metrics</th>
+                  <th className='fw-bold text-center sticky-normal-range'>Normal Range</th>
+                  {daysArray.map(day => (
+                    <th className='fw-bold day-header' key={day}>{day}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className='fw-semibold'>
+                {metricsConfig.map((metric, index) => (
+                  <tr key={`${metric.label}-${index}`}>
+                    <td className="d-flex align-items-center metrics-cell" style={{ padding: '6px 8px' }}>
+                      <img src={metric.icon} alt={metric.displayName} className="metric-icon" />
+                      {metric.displayName}
+                    </td>
+                    {renderNormalRangeCell(metric.label)}
+                    {daysArray.map(day => (
+                      <td key={day} className="text-center day-data-cell"
+                        style={{ color: getCellColor(metric.label, day) }}>
+                        {getDataForDay(metric.label, day)}
+                      </td>
+                    ))}
+                  </tr>
                 ))}
-              </tr>
-            </thead>
-            <tbody className='fw-semibold'>
-              {/* Activity Data Section */}
-              <tr>
-                <td className="d-flex align-items-center metrics-cell"><img src={Steps_Icon} alt="Steps" className="metric-icon" />Steps</td>
-                <td className="normal-range-cell">6k - 8k</td>
-                {daysArray.map(day => <td key={day} className="text-center day-data-cell" style={{ color: day <= 20 ? (day % 3 === 0 ? '#28a745' : day % 2 === 0 ? '#ffc107' : '#dc3545') : '#000' }}>{day <= 20 ? `7,000` : '-'}</td>)}
-              </tr>
-              <tr>
-                <td className="d-flex align-items-center metrics-cell"><img src={ActiveMinutes_Icon} alt="Active Mins" className="metric-icon" />Active Mins</td>
-                <td className="normal-range-cell">150 - 300 Min (Moderate) OR 75 - 150 Min (Vigorous)</td>
-                {daysArray.map(day => <td key={day} className="text-center day-data-cell" style={{ color: day <= 20 ? (day % 3 === 0 ? '#28a745' : day % 2 === 0 ? '#ffc107' : '#dc3545') : '#000' }}>{day <= 20 ? `${Math.floor(Math.random() * 60) + 30} mins` : '-'}</td>)}
-              </tr>
-              <tr>
-                <td className="d-flex align-items-center metrics-cell"><img src={CaloriesBurned_Icon} alt="Calories Burned" className="metric-icon" />Calories Burned</td>
-                <td className="normal-range-cell">1,800 - 2,400 Kcal (W) &gt; 2,200 - 3,000 Kcal (M)</td>
-                {daysArray.map(day => <td key={day} className="text-center day-data-cell" style={{ color: day <= 20 ? '#28a745' : '#000' }}>{day <= 20 ? `2,150 kcal` : '-'}</td>)}
-              </tr>
-              <tr>
-                <td className="d-flex align-items-center metrics-cell"><img src={Distance_Icon} alt="Distance" className="metric-icon" />Distance</td>
-                <td className="normal-range-cell">7,000 - 10,000 Steps (~5 - 8 Km)</td>
-                {daysArray.map(day => <td key={day} className="text-center day-data-cell" style={{ color: day <= 20 ? (day % 4 === 0 ? '#28a745' : day % 3 === 0 ? '#ffc107' : '#dc3545') : '#000' }}>{day <= 20 ? `${(Math.random() * 3 + 3).toFixed(1)} km` : '-'}</td>)}
-              </tr>
-
-              {/* Sleep Data Section */}
-              <tr>
-                <td className="d-flex align-items-center metrics-cell"><img src={SleepStages_Icon} alt="Sleep Stages" className="metric-icon" />Sleep Stages</td>
-                <td className="normal-range-cell">L Sleep: 45 - 55%</td>
-                {daysArray.map(day => <td key={day} className="text-center day-data-cell" style={{ color: day <= 20 ? (day % 3 === 0 ? '#28a745' : '#ffc107') : '#000' }}>{day <= 20 ? `7h 15m` : '-'}</td>)}
-              </tr>
-              <tr>
-                <td className="d-flex align-items-center metrics-cell"><img src={Duration_Icon} alt="Duration" className="metric-icon" />Duration</td>
-                <td className="normal-range-cell">7 - 9 Hours/Night</td>
-                {daysArray.map(day => <td key={day} className="text-center day-data-cell" style={{ color: day <= 20 ? (day % 2 === 0 ? '#28a745' : '#ffc107') : '#000' }}>{day <= 20 ? `${Math.floor(Math.random() * 2) + 7}h ${Math.floor(Math.random() * 60)}m` : '-'}</td>)}
-              </tr>
-              <tr>
-                <td className="d-flex align-items-center metrics-cell"><img src={Efficiency_Icon} alt="Efficiency" className="metric-icon" />Efficiency</td>
-                <td className="normal-range-cell">≥85%</td>
-                {daysArray.map(day => <td key={day} className="text-center day-data-cell" style={{ color: day <= 20 ? (day % 4 === 0 ? '#28a745' : day % 3 === 0 ? '#ffc107' : '#dc3545') : '#000' }}>{day <= 20 ? `${Math.floor(Math.random() * 20) + 80}%` : '-'}</td>)}
-              </tr>
-              <tr>
-                <td className="d-flex align-items-center metrics-cell"><img src={Awakenings_Icon} alt="Awakenings" className="metric-icon" />Awakenings</td>
-                <td className="normal-range-cell">0 - 2</td>
-                {daysArray.map(day => <td key={day} className="text-center day-data-cell" style={{ color: day <= 20 ? (day % 5 === 0 ? '#28a745' : day % 2 === 0 ? '#ffc107' : '#dc3545') : '#000' }}>{day <= 20 ? `${Math.floor(Math.random() * 4)}` : '-'}</td>)}
-              </tr>
-
-              {/* Heart Rate Section */}
-              <tr>
-                <td className="d-flex align-items-center metrics-cell"><img src={HeartRate_Icon} alt="Resting Heart Rate" className="metric-icon" />Resting Heart Rate</td>
-                <td className="normal-range-cell">60 - 100 Bpm</td>
-                {daysArray.map(day => <td key={day} className="text-center day-data-cell" style={{ color: day <= 20 ? '#28a745' : '#000' }}>{day <= 20 ? `68 bpm` : '-'}</td>)}
-              </tr>
-              <tr>
-                <td className="d-flex align-items-center metrics-cell"><img src={ContinuousHeartRate_Icon} alt="Continuous Heart Rate" className="metric-icon" />Continuous Heart Rate</td>
-                <td className="normal-range-cell">60 - 100 Bpm</td>
-                {daysArray.map(day => <td key={day} className="text-center day-data-cell" style={{ color: day <= 20 ? '#28a745' : '#000' }}>{day <= 20 ? `70 bpm` : '-'}</td>)}
-              </tr>
-
-              {/* Weight And Body Metrics Section */}
-              <tr>
-                <td className="d-flex align-items-center metrics-cell"><img src={Weight_Icon} alt="Weight" className="metric-icon" />Weight</td>
-                <td className="normal-range-cell">L Sleep: 45 - 55%</td>
-                {daysArray.map(day => <td key={day} className="text-center day-data-cell" style={{ color: day <= 20 ? (day % 4 === 0 ? '#28a745' : day % 2 === 0 ? '#ffc107' : '#dc3545') : '#000' }}>{day <= 20 ? `${(Math.random() * 20 + 60).toFixed(1)} kg` : '-'}</td>)}
-              </tr>
-              <tr>
-                <td className="d-flex align-items-center metrics-cell"><img src={BMI_Icon} alt="BMI" className="metric-icon" />BMI</td>
-                <td className="normal-range-cell">18.5 - 24.9</td>
-                {daysArray.map(day => <td key={day} className="text-center day-data-cell" style={{ color: day <= 20 ? (day % 3 === 0 ? '#28a745' : day % 2 === 0 ? '#ffc107' : '#dc3545') : '#000' }}>{day <= 20 ? `${(Math.random() * 10 + 18).toFixed(1)}` : '-'}</td>)}
-              </tr>
-              <tr>
-                <td className="d-flex align-items-center metrics-cell"><img src={BodyFat_Icon} alt="Body Fat Percentage" className="metric-icon" />Body Fat Percentage</td>
-                <td className="normal-range-cell">10 - 20%</td>
-                {daysArray.map(day => <td key={day} className="text-center day-data-cell" style={{ color: day <= 20 ? (day % 5 === 0 ? '#28a745' : day % 3 === 0 ? '#ffc107' : '#dc3545') : '#000' }}>{day <= 20 ? `${(Math.random() * 15 + 10).toFixed(1)}%` : '-'}</td>)}
-              </tr>
-
-              {/* Exercise Data Section */}
-              <tr>
-                <td className="d-flex align-items-center metrics-cell"><img src={ExerciseSessions_Icon} alt="Exercise Sessions" className="metric-icon" />Exercise Sessions</td>
-                <td className="normal-range-cell">3 - 5 Sessions</td>
-                {daysArray.map(day => <td key={day} className="text-center day-data-cell" style={{ color: day <= 20 ? (day % 4 === 0 ? '#28a745' : day % 2 === 0 ? '#ffc107' : '#dc3545') : '#000' }}>{day <= 20 ? `${Math.floor(Math.random() * 3) + 1}` : '-'}</td>)}
-              </tr>
-              <tr>
-                <td className="d-flex align-items-center metrics-cell"><img src={GPSTracking_Icon} alt="GPS Tracking" className="metric-icon" />GPS Tracking</td>
-                <td className="normal-range-cell">2 - 3 Cardio</td>
-                {daysArray.map(day => <td key={day} className="text-center day-data-cell" style={{ color: day <= 20 ? (day % 3 === 0 ? '#28a745' : '#ffc107') : '#000' }}>{day <= 20 ? `${Math.floor(Math.random() * 2) + 1}` : '-'}</td>)}
-              </tr>
-              <tr>
-                <td className="d-flex align-items-center metrics-cell"><img src={Elevation_Icon} alt="Elevation" className="metric-icon" />Elevation</td>
-                <td className="normal-range-cell">No Fixed Average</td>
-                {daysArray.map(day => <td key={day} className="text-center day-data-cell" style={{ color: day <= 20 ? (day % 5 === 0 ? '#28a745' : day % 2 === 0 ? '#ffc107' : '#dc3545') : '#000' }}>{day <= 20 ? `${Math.floor(Math.random() * 100)}m` : '-'}</td>)}
-              </tr>
-
-              {/* Nutrition Section */}
-              <tr>
-                <td className="d-flex align-items-center metrics-cell"><img src={CaloriesConsumed_Icon} alt="Calories Consumed" className="metric-icon" />Calories Consumed</td>
-                <td className="normal-range-cell">1,800 - 2,200 Kcal</td>
-                {daysArray.map(day => <td key={day} className="text-center day-data-cell" style={{ color: day <= 20 ? (day % 4 === 0 ? '#28a745' : day % 3 === 0 ? '#ffc107' : '#dc3545') : '#000' }}>{day <= 20 ? `${Math.floor(Math.random() * 400) + 1800} kcal` : '-'}</td>)}
-              </tr>
-              <tr>
-                <td className="d-flex align-items-center metrics-cell"><img src={WaterIntake_Icon} alt="Water Intake" className="metric-icon" />Water Intake</td>
-                <td className="normal-range-cell">2 - 3 Liters/Day</td>
-                {daysArray.map(day => <td key={day} className="text-center day-data-cell" style={{ color: day <= 20 ? (day % 3 === 0 ? '#28a745' : day % 2 === 0 ? '#ffc107' : '#dc3545') : '#000' }}>{day <= 20 ? `${(Math.random() * 1 + 2).toFixed(1)}L` : '-'}</td>)}
-              </tr>
-            </tbody>
-          </Table>
+              </tbody>
+            </Table>
+          )}
         </div>
       </div>
+
+      {/* Download Confirmation Modal */}
+      <Modal show={showDownloadModal} onHide={() => setShowDownloadModal(false)} >
+        <Modal.Header closeButton className='border-0'>
+          <Modal.Title className='fs-6 fw-bold'>Download Report</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className='text-center py-4' style={{ fontSize: '12px' }}>
+          <FcDownload size={40} className='mb-3' />
+          <div>Are you sure you want to download report of <span className='fw-bold' style={{ color: '#003465' }}>{currentMonth.format('MMMM YYYY')}</span> month?</div>
+        </Modal.Body>
+        <Modal.Footer className='border-0'>
+          <Button variant="secondary" className='fw-bold' onClick={() => setShowDownloadModal(false)} disabled={downloadLoading}>
+            Cancel
+          </Button>
+          <Button 
+            variant="primary" 
+            className='fw-bold' 
+            onClick={confirmDownload} 
+            disabled={downloadLoading}
+            style={{ backgroundColor: '#003465', borderColor: '#003465' }}
+          >
+            {downloadLoading ? 'Downloading...' : 'Download'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
     </div>
   );
 };
