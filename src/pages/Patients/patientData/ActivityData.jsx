@@ -70,7 +70,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
         const values = data.map(item => item.value);
         const tableData = data.map(item => ({
             day: new Date(item.date).toLocaleDateString('en-US', { weekday: 'long' }),
-            value: item.value.toLocaleString()
+            value: item.value ? item.value.toLocaleString() : '0'
         }));
 
         return { labels, values, tableData };
@@ -125,7 +125,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
             }
             return {
                 period,
-                value: item.value.toLocaleString()
+                value: item.value ? item.value.toLocaleString() : '0'
             };
         });
         
