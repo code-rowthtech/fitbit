@@ -27,3 +27,12 @@ export const resetCreateReport = () => ({
 export const resetUpdateReport = () => ({
     type: REPORT_TYPES.UPDATE_REPORT_RESET
 })
+
+export const downloadReport = (data) => ({
+    type: REPORT_TYPES.DOWNLOAD_REPORT,
+    payload: data
+})
+
+export const resetDownloadReport = () => ({
+    type: REPORT_TYPES.DOWNLOAD_REPORT_RESET
+})

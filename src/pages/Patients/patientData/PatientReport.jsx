@@ -1,10 +1,11 @@
 import React, { useState, useEffect, use } from 'react';
-import { Table, Form } from 'react-bootstrap';
+import { Table, Form, Modal, Button } from 'react-bootstrap';
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import { MdSimCardDownload } from "react-icons/md";
+import { FcDownload } from "react-icons/fc";
 import moment from 'moment';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllReports, createReport } from '../../../redux/reports/action';
+import { getAllReports, createReport, resetCreateReport, downloadReport, resetDownloadReport } from '../../../redux/reports/action';
 import '../PatientDashboard.css';
 import { IoCalendarClearOutline } from "react-icons/io5";
 
@@ -38,6 +39,7 @@ const PatientReport = ({ isExpanded, onExpand }) => {
   const [normalRanges, setNormalRanges] = useState({});
   const [editingRange, setEditingRange] = useState(null);
   const [tempRange, setTempRange] = useState({ min: '', max: '' });
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
   const daysInMonth = currentMonth.daysInMonth();
   const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
@@ -46,7 +48,9 @@ const PatientReport = ({ isExpanded, onExpand }) => {
   const CreateResponse = useSelector(state => state?.createReportReducer?.data?.status)
   const DailyData = useSelector(state => state?.getAllReports?.data?.data?.mappedData)
   const loading = useSelector(state => state?.getAllReports?.loading)
-  console.log(CreateResponse, 'CreateResponse')
+  const downloadLoading = useSelector(state => state?.downloadReportReducer?.loading)
+  const downloadResponse = useSelector(state => state?.downloadReportReducer?.data)
+  const downloadError = useSelector(state => state?.downloadReportReducer?.message)
   const metricsEnum = [
     'steps', 'Continuous Heart Rate', 'BMI', 'sleep', 'calories burned', 'distance',
     'activeMinutes', 'Sleep Stages', 'Awakenings', 'Weight', 'Calories Consumed',
@@ -95,9 +99,15 @@ const PatientReport = ({ isExpanded, onExpand }) => {
     if (CreateResponse === 201 && id) {
       dispatch(getAllReports({ id, month: currentMonth.format('YYYY-MM') }));
       // Reset the create response to allow future triggers
-      // dispatch({ type: 'RESET_CREATE_RESPONSE' });
+      dispatch(resetCreateReport());
     }
   }, [CreateResponse, dispatch, id, currentMonth]);
+
+  useEffect(() => {
+    if (downloadResponse?.success) {
+      dispatch(resetDownloadReport());
+    }
+  }, [downloadResponse, dispatch]);
 
 
   const handleCreateReport = (label, min, max) => {
@@ -131,6 +141,16 @@ const PatientReport = ({ isExpanded, onExpand }) => {
     setTempRange({ min: '', max: '' });
   };
 
+  const handleDownloadReport = () => {
+    setShowDownloadModal(true);
+  };
+
+  const confirmDownload = () => {
+    if (!id) return;
+    dispatch(downloadReport({ id, month: currentMonth.format('YYYY-MM') }));
+    setShowDownloadModal(false);
+  };
+
   const handlePreviousMonth = () => {
     setCurrentMonth(prev => prev.clone().subtract(1, 'month'));
   };
@@ -154,7 +174,7 @@ const PatientReport = ({ isExpanded, onExpand }) => {
     switch (label) {
       case 'steps': return dayData.value.toLocaleString();
       case 'Water Intake': return `${dayData.value}ml`;
-      case 'distance': return `${dayData.value}km`;
+      case 'distance': return `${dayData.value}`;
       default: return dayData.value;
     }
   };
@@ -198,7 +218,7 @@ const PatientReport = ({ isExpanded, onExpand }) => {
             />
             <button
               className="btn btn-sm text-white p-0"
-              style={{ width: '20px', height: '20px', fontSize: '10px', backgroundColor:'#003465' }}
+              style={{ width: '20px', height: '20px', fontSize: '10px', backgroundColor: '#003465' }}
               onClick={handleRangeSave}
               title="Save"
             >
@@ -244,7 +264,12 @@ const PatientReport = ({ isExpanded, onExpand }) => {
         </h6>
         <div>
           <IoIosExpand title='Expand Report' className='me-3 p-0 fs-4' style={{ color: '#003465', cursor: 'pointer' }} onClick={onExpand} />
-          <MdSimCardDownload title='Export Report' className='me-3 p-0 fs-4' style={{ color: '#003465', cursor: 'pointer' }} />
+          <MdSimCardDownload
+            title='Export Report'
+            className='me-3 p-0 fs-4'
+            style={{ color: '#003465', cursor: 'pointer' }}
+            onClick={handleDownloadReport}
+          />
           <FaAngleRight style={{ color: '#003465', cursor: 'pointer' }} onClick={() => setCurrentMonth(currentMonth.clone().add(1, 'month'))} />
         </div>
       </div>
@@ -293,6 +318,30 @@ const PatientReport = ({ isExpanded, onExpand }) => {
         </div>
       </div>
 
+      {/* Download Confirmation Modal */}
+      <Modal show={showDownloadModal} onHide={() => setShowDownloadModal(false)} >
+        <Modal.Header closeButton className='border-0'>
+          <Modal.Title className='fs-6 fw-bold'>Download Report</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className='text-center py-4' style={{ fontSize: '12px' }}>
+          <FcDownload size={40} className='mb-3' />
+          <div>Are you sure you want to download report of <span className='fw-bold' style={{ color: '#003465' }}>{currentMonth.format('MMMM YYYY')}</span> month?</div>
+        </Modal.Body>
+        <Modal.Footer className='border-0'>
+          <Button variant="secondary" className='fw-bold' onClick={() => setShowDownloadModal(false)} disabled={downloadLoading}>
+            Cancel
+          </Button>
+          <Button 
+            variant="primary" 
+            className='fw-bold' 
+            onClick={confirmDownload} 
+            disabled={downloadLoading}
+            style={{ backgroundColor: '#003465', borderColor: '#003465' }}
+          >
+            {downloadLoading ? 'Downloading...' : 'Download'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
     </div>
   );

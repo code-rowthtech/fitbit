@@ -1,6 +1,6 @@
 import REPORT_TYPES from './constant';
 import { all, fork, put, takeEvery, call, takeLatest } from 'redux-saga/effects';
-import { getAllReportsApi, getReportByIdApi, createReportApi, updateReportApi } from './api';
+import { getAllReportsApi, getReportByIdApi, createReportApi, updateReportApi, downloadReportApi } from './api';
 import { toast } from 'react-toastify';
 
 function* getAllReportsFunction({ payload }) {
@@ -125,12 +125,50 @@ export function* updateReportSaga() {
     yield takeLatest(REPORT_TYPES.UPDATE_REPORT, updateReportFunction);
 }
 
+function* downloadReportFunction({ payload }) {
+    try {
+        yield put({
+            type: REPORT_TYPES.DOWNLOAD_REPORT_LOADING,
+            payload: {},
+        });
+        const response = yield call(downloadReportApi, { payload });
+
+        if (response?.status === 200 && response.data) {
+            // Handle download directly in saga
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(response.data);
+            link.download = `report-${payload.month}.csv`;
+            link.click();
+            
+            yield put({
+                type: REPORT_TYPES.DOWNLOAD_REPORT_SUCCESS,
+                payload: { success: true },
+            });
+        } else {
+            yield put({
+                type: REPORT_TYPES.DOWNLOAD_REPORT_ERROR,
+                payload: { message: 'Download failed' },
+            });
+        }
+    } catch (error) {
+        yield put({
+            type: REPORT_TYPES.DOWNLOAD_REPORT_ERROR,
+            payload: { message: error?.message },
+        });
+    }
+}
+
+export function* downloadReportSaga() {
+    yield takeEvery(REPORT_TYPES.DOWNLOAD_REPORT, downloadReportFunction);
+}
+
 function* ReportSaga() {
     yield all([
         fork(getAllReportsSaga),
         fork(getReportByIdSaga),
         fork(createReportSaga),
         fork(updateReportSaga),
+        fork(downloadReportSaga),
     ]);
 }
 

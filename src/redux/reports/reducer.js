@@ -24,6 +24,12 @@ const UPDATE_REPORT_INITIAL_STATE = {
     loading: false,
 };
 
+const DOWNLOAD_REPORT_INITIAL_STATE = {
+    data: null,
+    message: '',
+    loading: false,
+};
+
 export const getAllReports = (state = GET_ALL_REPORTS_INITIAL_STATE, action) => {
     switch (action.type) {
         case REPORT_TYPES.GET_ALL_REPORTS_LOADING:
@@ -112,6 +118,32 @@ export const updateReportReducer = (state = UPDATE_REPORT_INITIAL_STATE, action)
                 loading: false
             }
         case REPORT_TYPES.UPDATE_REPORT_ERROR:
+            return {
+                data: action.payload,
+                loading: false
+            }
+        default: return  state 
+    }
+}
+
+export const downloadReportReducer = (state = DOWNLOAD_REPORT_INITIAL_STATE, action) => {
+    switch (action.type) {
+        case REPORT_TYPES.DOWNLOAD_REPORT_LOADING:
+            return {
+                data: state.data,
+                loading: true
+            }
+        case REPORT_TYPES.DOWNLOAD_REPORT_SUCCESS:
+            return {
+                data: action.payload,
+                loading: false
+            }
+        case REPORT_TYPES.DOWNLOAD_REPORT_RESET:
+            return {
+                data: null,
+                loading: false
+            }
+        case REPORT_TYPES.DOWNLOAD_REPORT_ERROR:
             return {
                 data: action.payload,
                 loading: false

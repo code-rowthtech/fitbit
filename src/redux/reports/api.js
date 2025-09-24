@@ -17,3 +17,7 @@ export function createReportApi(data) {
 export function updateReportApi(data) {
     return api.update(`${URL.UPDATE_REPORT}/${data.payload.reportId}`, data.payload.body)
 }
+
+export function downloadReportApi(data) {
+    return api.getFile(`${URL.DOWNLOAD_REPORT}/${data.payload.id}/monthly/${data.payload.month}/csv`);
+}

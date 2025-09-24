@@ -104,7 +104,7 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
             >
               <div className={`patient-tab-content ${index === 0 || index === tabs.length - 1 ? 'straight' : ''}`}>
                 {tab}
-                <span className="patient-tab-arrow"><FaChevronDown /></span>
+                {/* <span className="patient-tab-arrow"><FaChevronDown /></span> */}
               </div>
             </div>
           ))}
