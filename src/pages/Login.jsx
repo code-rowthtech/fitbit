@@ -114,10 +114,10 @@ const Login = () => {
             </Button>
           </div> */}
 
-          <div className="text-center">
+          {/* <div className="text-center">
             <span className="text-white login-text">Don't have an account? </span>
             <Link to="/signup" className="text-white text-decoration-underline fw-bold login-text">Sign Up</Link>
-          </div>
+          </div> */}
         </Form>
       </div>
     </div>
