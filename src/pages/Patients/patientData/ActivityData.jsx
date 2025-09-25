@@ -45,18 +45,30 @@ const ActivityData = ({ isExpanded, onExpand }) => {
     const [expandedCard, setExpandedCard] = useState(null)
     const [activeTab, setActiveTab] = useState('Week')
     const [currentDate, setCurrentDate] = useState(new Date())
-    const [dateRange, setDateRange] = useState([
-        {
-            startDate: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
-            endDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+
+    // Initialize dateRange based on current week
+    const initializeWeekRange = () => {
+        const today = new Date();
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay());
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        return {
+            startDate: startOfWeek,
+            endDate: endOfWeek,
             key: 'selection'
-        }
-    ])
+        };
+    };
+
+    const [dateRange, setDateRange] = useState([initializeWeekRange()])
     const datePickerRef = useRef(null)
-    const ActivityData = useSelector((state) => state?.getPatientActivity?.data?.data?.activity);
+    // const ActivityData = useSelector((state) => state?.getPatientActivity?.data?.data?.activity);
     const FilterData = useSelector((state) => state?.getFilterData?.data?.response?.data);
-    console.log(ActivityData, 'ActivityData')
-    console.log( useSelector((state) => state?.getFilterData), 'FilterData')
+    const StepsStatsData = useSelector((state) => state?.getFilterData?.data?.response?.targetRange);
+    const AverageData = useSelector((state) => state?.getFilterData?.data?.response);
+
+    console.log(AverageData, 'AverageData')
+    console.log(StepsStatsData, 'StepsStatsData')
 
     // Process FilterData for steps
     const getStepsData = () => {
@@ -85,8 +97,14 @@ const ActivityData = ({ isExpanded, onExpand }) => {
         }
 
         const apiData = FilterData;
-        
+
         const labels = apiData.map(item => {
+            // Handle special format for Month tab (e.g., "2025-08 Week 34")
+            if (activeTab === 'Month' && item.date.includes('Week')) {
+                const weekMatch = item.date.match(/Week (\d+)/);
+                return weekMatch ? `Week ${weekMatch[1]}` : item.date;
+            }
+
             const date = new Date(item.date);
             switch (activeTab) {
                 case 'Day':
@@ -101,34 +119,42 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                     return date.toLocaleDateString();
             }
         });
-        
+
         const data = apiData.map(item => item.value);
-        
+
         const tableData = apiData.map(item => {
-            const date = new Date(item.date);
             let period;
-            switch (activeTab) {
-                case 'Day':
-                    period = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-                    break;
-                case 'Week':
-                    period = date.toLocaleDateString('en-US', { weekday: 'long' });
-                    break;
-                case 'Month':
-                    period = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                    break;
-                case 'Year':
-                    period = date.toLocaleDateString('en-US', { month: 'long' });
-                    break;
-                default:
-                    period = date.toLocaleDateString();
+
+            // Handle special format for Month tab (e.g., "2025-08 Week 34")
+            if (activeTab === 'Month' && item.date.includes('Week')) {
+                const weekMatch = item.date.match(/Week (\d+)/);
+                period = weekMatch ? `Week ${weekMatch[1]}` : item.date;
+            } else {
+                const date = new Date(item.date);
+                switch (activeTab) {
+                    case 'Day':
+                        period = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+                        break;
+                    case 'Week':
+                        period = date.toLocaleDateString('en-US', { weekday: 'long' });
+                        break;
+                    case 'Month':
+                        period = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        break;
+                    case 'Year':
+                        period = date.toLocaleDateString('en-US', { month: 'long' });
+                        break;
+                    default:
+                        period = date.toLocaleDateString();
+                }
             }
+
             return {
                 period,
                 value: item.value ? item.value.toLocaleString() : '0'
             };
         });
-        
+
         return { labels, data, tableData };
     };
 
@@ -138,7 +164,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
     // Get date range based on active tab and current date
     const getDateRange = () => {
         const date = new Date(currentDate);
-        
+
         switch (activeTab) {
             case 'Day':
                 return {
@@ -189,7 +215,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
     // Get navigation label based on active tab
     const getNavigationLabel = () => {
         const date = new Date(currentDate);
-        
+
         switch (activeTab) {
             case 'Day':
                 return date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
@@ -208,10 +234,35 @@ const ActivityData = ({ isExpanded, onExpand }) => {
         }
     };
 
+    // Check if next navigation would go to future
+    const isNextDisabled = () => {
+        const today = new Date();
+        const testDate = new Date(currentDate);
+
+        switch (activeTab) {
+            case 'Day':
+                testDate.setDate(testDate.getDate() + 1);
+                return testDate > today;
+            case 'Week':
+                testDate.setDate(testDate.getDate() + 7);
+                return testDate > today;
+            case 'Month':
+                testDate.setMonth(testDate.getMonth() + 1);
+                return testDate > today;
+            case 'Year':
+                testDate.setFullYear(testDate.getFullYear() + 1);
+                return testDate > today;
+            default:
+                return false;
+        }
+    };
+
     // Handle navigation
     const handleNavigation = (direction) => {
+        if (direction === 'next' && isNextDisabled()) return;
+
         const newDate = new Date(currentDate);
-        
+
         switch (activeTab) {
             case 'Day':
                 newDate.setDate(newDate.getDate() + (direction === 'next' ? 1 : -1));
@@ -226,12 +277,42 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                 newDate.setFullYear(newDate.getFullYear() + (direction === 'next' ? 1 : -1));
                 break;
         }
-        
+
         setCurrentDate(newDate);
+
+        // Calculate new date range based on the new current date
+        let start, end;
+        switch (activeTab) {
+            case 'Day':
+                start = end = new Date(newDate);
+                break;
+            case 'Week':
+                start = new Date(newDate);
+                start.setDate(newDate.getDate() - newDate.getDay());
+                end = new Date(start);
+                end.setDate(start.getDate() + 6);
+                break;
+            case 'Month':
+                start = new Date(newDate.getFullYear(), newDate.getMonth(), 1);
+                end = new Date(newDate.getFullYear(), newDate.getMonth() + 1, 0);
+                break;
+            case 'Year':
+                start = new Date(newDate.getFullYear(), 0, 1);
+                end = new Date(newDate.getFullYear(), 11, 31);
+                break;
+        }
+
+        // Update dateRange to match navigation
+        setDateRange([{
+            startDate: start,
+            endDate: end,
+            key: 'selection'
+        }]);
+
+
         // Fetch new data after navigation
         setTimeout(() => {
             if (patientId) {
-                const { start, end } = getDateRange();
                 const payload = {
                     patientId: patientId,
                     start: formatDate(start),
@@ -253,7 +334,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
             if (patientId) {
                 const date = new Date(currentDate);
                 let start, end;
-                
+
                 switch (tab) {
                     case 'Day':
                         start = end = new Date(date);
@@ -273,7 +354,14 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                         end = new Date(date.getFullYear(), 11, 31);
                         break;
                 }
-                
+
+                // Update dateRange to match tab change
+                setDateRange([{
+                    startDate: start,
+                    endDate: end,
+                    key: 'selection'
+                }]);
+
                 const payload = {
                     patientId: patientId,
                     start: formatDate(start),
@@ -287,29 +375,33 @@ const ActivityData = ({ isExpanded, onExpand }) => {
         }, 0);
     };
 
-    useEffect(() => {
-        if (patientId) {
-            dispatch(getPatientActivity({ id: patientId }))
-        }
-    }, [patientId]);
+    // useEffect(() => {
+    //     if (patientId) {
+    //         dispatch(getPatientActivity({ id: patientId }))
+    //     }
+    // }, [patientId]);
 
     const formatDate = (date) => {
-        return date.toISOString().split('T')[0];
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     };
 
     useEffect(() => {
         if (patientId) {
+            const { start, end } = getDateRange();
             const payload = {
                 patientId: patientId,
-                start: formatDate(dateRange[0].startDate),
-                end: formatDate(dateRange[0].endDate),
+                start: formatDate(start),
+                end: formatDate(end),
                 field: "steps"
             };
             if (activeTab === 'Month') payload.period = 'month';
             if (activeTab === 'Year') payload.period = 'year';
             dispatch(getFilterData(payload));
         }
-    }, [patientId, dateRange, activeTab]);
+    }, [patientId, currentDate, activeTab]);
 
     const handleCardExpand = (cardType) => {
         if (expandedCard === cardType) {
@@ -426,7 +518,17 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                                                             }}
                                                             options={{
                                                                 maintainAspectRatio: false,
-                                                                plugins: { legend: { display: false } },
+                                                                plugins: {
+                                                                    legend: { display: false },
+                                                                    tooltip: {
+                                                                        callbacks: {
+                                                                            afterBody: activeTab === 'Week' && StepsStatsData ? () => [
+                                                                                `Min: ${parseInt(StepsStatsData.min)}`,
+                                                                                `Max: ${parseInt(StepsStatsData.max)}`
+                                                                            ] : undefined
+                                                                        }
+                                                                    }
+                                                                },
                                                                 scales: {
                                                                     x: {
                                                                         grid: { display: false },
@@ -438,21 +540,49 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                                                                         ticks: { color: '#666', fontSize: 10 }
                                                                     }
                                                                 },
-                                                                categoryPercentage: 0.6
+                                                                categoryPercentage: 0.6,
+                                                                onHover: activeTab === 'Week' && StepsStatsData ? (event, elements, chart) => {
+                                                                    const ctx = chart.ctx;
+                                                                    const chartArea = chart.chartArea;
+                                                                    
+                                                                    if (chartArea) {
+                                                                        const yScale = chart.scales.y;
+                                                                        const minY = yScale.getPixelForValue(parseInt(StepsStatsData.min));
+                                                                        const maxY = yScale.getPixelForValue(parseInt(StepsStatsData.max));
+                                                                        
+                                                                        // Draw min line
+                                                                        ctx.save();
+                                                                        ctx.strokeStyle = '#ff6b6b';
+                                                                        ctx.lineWidth = 1;
+                                                                        ctx.setLineDash([5, 5]);
+                                                                        ctx.beginPath();
+                                                                        ctx.moveTo(chartArea.left, minY);
+                                                                        ctx.lineTo(chartArea.right, minY);
+                                                                        ctx.stroke();
+                                                                        
+                                                                        // Draw max line
+                                                                        ctx.strokeStyle = '#51cf66';
+                                                                        ctx.beginPath();
+                                                                        ctx.moveTo(chartArea.left, maxY);
+                                                                        ctx.lineTo(chartArea.right, maxY);
+                                                                        ctx.stroke();
+                                                                        ctx.restore();
+                                                                    }
+                                                                } : undefined
                                                             }}
                                                         />
                                                     </div>
                                                 </div>
-                                                <div className='col-4 ps-2 border rounded-2' style={{backgroundColor: '#F8FBFF'}}>
+                                                <div className='col-4 ps-2 border rounded-2' style={{ backgroundColor: '#F8FBFF' }}>
                                                     {/* Tabs Row */}
                                                     <div className='d-flex justify-content-center my-3 p-0 rounded-pill' style={{ backgroundColor: '#F0F7FF', gap: '4px' }}>
-                                                        {[ 'Day', 'Week', 'Month', 'Year'].map((tab, index) => (
-                                                            <div 
-                                                                key={index} 
+                                                        {['Day', 'Week', 'Month', 'Year'].map((tab, index) => (
+                                                            <div
+                                                                key={index}
                                                                 className='px-3 py-2 rounded-pill text-center flex-fill'
-                                                                style={{ 
-                                                                    backgroundColor: tab === activeTab ? '#003465' : 'transparent', 
-                                                                    color: tab === activeTab ? 'white' : '#003465', 
+                                                                style={{
+                                                                    backgroundColor: tab === activeTab ? '#003465' : 'transparent',
+                                                                    color: tab === activeTab ? 'white' : '#003465',
                                                                     cursor: 'pointer',
                                                                     fontSize: '11px',
                                                                     fontWeight: '500',
@@ -476,32 +606,68 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                                                             </div>
                                                         ))}
                                                     </div>
-                                                    
+
                                                     {/* Date Navigation Row */}
                                                     <div className='d-flex align-items-center justify-content-between mb-2 p-2' style={{ backgroundColor: '#E8F2FF', borderRadius: '4px' }}>
-                                                        <IoChevronBack 
-                                                            style={{ fontSize: '12px', color: '#003465', cursor: 'pointer' }} 
+                                                        <button
+                                                            className='btn p-1 d-flex align-items-center justify-content-center'
+                                                            style={{
+                                                                width: '24px',
+                                                                height: '24px',
+                                                                backgroundColor: 'white',
+                                                                border: '1px solid #003465',
+                                                                borderRadius: '4px',
+                                                                color: '#003465'
+                                                            }}
                                                             onClick={() => handleNavigation('prev')}
-                                                        />
+                                                        >
+                                                            <IoChevronBack style={{ fontSize: '12px' }} />
+                                                        </button>
                                                         <span style={{ fontSize: '11px', fontWeight: '600', color: '#003465' }}>
                                                             {getNavigationLabel()}
                                                         </span>
-                                                        <IoChevronForward 
-                                                            style={{ fontSize: '12px', color: '#003465', cursor: 'pointer' }} 
+                                                        <button
+                                                            className='btn p-1 d-flex align-items-center justify-content-center'
+                                                            style={{
+                                                                width: '24px',
+                                                                height: '24px',
+                                                                backgroundColor: isNextDisabled() ? '#f5f5f5' : 'white',
+                                                                border: `1px solid ${isNextDisabled() ? '#ccc' : '#003465'}`,
+                                                                borderRadius: '4px',
+                                                                color: isNextDisabled() ? '#ccc' : '#003465',
+                                                                cursor: isNextDisabled() ? 'not-allowed' : 'pointer'
+                                                            }}
                                                             onClick={() => handleNavigation('next')}
-                                                        />
+                                                            disabled={isNextDisabled()}
+                                                        >
+                                                            <IoChevronForward style={{ fontSize: '12px' }} />
+                                                        </button>
                                                     </div>
-                                                    
+
                                                     {/* Average Row */}
                                                     <div className='d-flex justify-content-between p-2 mb-1' style={{ backgroundColor: '#E8F2FF', fontSize: '10px', fontWeight: '600' }}>
                                                         <span style={{ color: '#003465' }}>Average</span>
-                                                        <span style={{ color: '#003465' }}>0</span>
+                                                        <span style={{ color: '#003465' }}>{AverageData?.stats?.average}</span>
                                                     </div>
-                                                    
+
+                                                    {/* Min/Max Rows - Only show in Week tab */}
+                                                    {activeTab === 'Week' && StepsStatsData && (
+                                                        <>
+                                                            <div className='d-flex justify-content-between p-2 mb-1' style={{ backgroundColor: '#FFE8E8', fontSize: '10px', fontWeight: '600' }}>
+                                                                <span style={{ color: '#ff6b6b' }}>Min</span>
+                                                                <span style={{ color: '#ff6b6b' }}>{StepsStatsData.min}</span>
+                                                            </div>
+                                                            <div className='d-flex justify-content-between p-2 mb-1' style={{ backgroundColor: '#E8F8E8', fontSize: '10px', fontWeight: '600' }}>
+                                                                <span style={{ color: '#51cf66' }}>Max</span>
+                                                                <span style={{ color: '#51cf66' }}>{StepsStatsData.max}</span>
+                                                            </div>
+                                                        </>
+                                                    )}
+
                                                     {/* Data Rows */}
-                                                    <div style={{ 
-                                                        maxHeight: '340px', 
-                                                        overflowY: 'auto', 
+                                                    <div style={{
+                                                        maxHeight: '340px',
+                                                        overflowY: 'auto',
                                                         paddingRight: '4px',
                                                         scrollbarWidth: 'thin',
                                                         scrollbarColor: '#003465 #E8F2FF'
@@ -523,34 +689,34 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                                             </div>
                                         ) : (
 
-                                            <div className=' rounded-3 px-2 mt-1 d-flex flex-column' style={{ backgroundColor: '#F8FBFF', height: '200px'}}>
+                                            <div className=' rounded-3 px-2 mt-1 d-flex flex-column' style={{ backgroundColor: '#F8FBFF', height: '200px' }}>
                                                 <div className="d-flex justify-content-center mb-2">
                                                     <div className="position-relative" style={{ width: '120px', height: '120px' }}>
                                                         <svg width="120" height="120" className="position-absolute">
                                                             <circle cx="60" cy="60" r="48" fill="none" stroke="#E8F2FF" strokeWidth="6" />
-                                                            <circle cx="60" cy="60" r="48" fill="none" stroke="#003465" strokeWidth="4" strokeDasharray="301" strokeDashoffset="90" strokeLinecap="round" transform="rotate(-90 60 60)" />
+                                                            <circle cx="60" cy="60" r="48" fill="none" stroke="#003465" strokeWidth="4" strokeDasharray="301" strokeDashoffset={301 - (((AverageData?.todayData?.value || 0) / (AverageData?.goals?.steps || 1)) * 301)} strokeLinecap="round" transform="rotate(-90 60 60)" />
                                                         </svg>
                                                         <div className="position-absolute top-50 start-50 translate-middle text-center">
-                                                            <div className="fw-bold" style={{ fontSize: '16px', color: '#003465' }}>70%</div>
+                                                            <div className="fw-bold" style={{ fontSize: '16px', color: '#003465' }}>{Math.round(((AverageData?.todayData?.value || 0) / (AverageData?.goals?.steps || 1)) * 100)}%</div>
                                                             <div style={{ fontSize: '9px', color: '#666', fontWeight: '500' }}>Complete</div>
                                                         </div>
                                                     </div>
                                                 </div>
 
                                                 <div className="text-center mb-2">
-                                                    <p className="mb-0" style={{ fontSize: '10px', color: '#666', fontWeight: '500' }}>3,000 steps to reach daily goal</p>
+                                                    <p className="mb-0" style={{ fontSize: '10px', color: '#666', fontWeight: '500' }}>{Math.max(0, (AverageData?.goals?.steps || 0) - (AverageData?.todayData?.value || 0))} steps to reach daily goal</p>
                                                 </div>
 
                                                 <div className="row g-1 ">
                                                     <div className="col-6">
                                                         <div className="text-center py-1 px-2 rounded-2" style={{ backgroundColor: 'white', border: '1px solid #E8F2FF' }}>
-                                                            <div className="fw-bold" style={{ fontSize: '14px', color: '#003465' }}>7,000</div>
+                                                            <div className="fw-bold" style={{ fontSize: '14px', color: '#003465' }}>{AverageData?.todayData?.value || '-'}</div>
                                                             <div style={{ fontSize: '9px', color: '#666', fontWeight: '500' }}>Today</div>
                                                         </div>
                                                     </div>
                                                     <div className="col-6">
                                                         <div className="text-center py-1 px-2 rounded-2" style={{ backgroundColor: 'white', border: '1px solid #E8F2FF' }}>
-                                                            <div className="fw-bold" style={{ fontSize: '14px', color: '#003465' }}>10,000</div>
+                                                            <div className="fw-bold" style={{ fontSize: '14px', color: '#003465' }}>{AverageData?.goals?.steps}</div>
                                                             <div style={{ fontSize: '9px', color: '#666', fontWeight: '500' }}>Goal</div>
                                                         </div>
                                                     </div>

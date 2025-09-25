@@ -173,7 +173,7 @@ const PatientReport = ({ isExpanded, onExpand }) => {
     // Format value based on label
     switch (label) {
       case 'steps': return dayData.value.toLocaleString();
-      case 'Water Intake': return `${dayData.value}ml`;
+      case 'Water Intake': return `${dayData.value}`;
       case 'distance': return `${dayData.value}`;
       default: return dayData.value;
     }
