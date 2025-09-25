@@ -121,10 +121,19 @@ const Doctors = () => {
                                             <tr key={doctor._id} className="align-middle">
                                                 <td className="text-start ps-3" style={{ fontSize: '14px', width: '35%' }}>
                                                     <div className="d-flex align-items-center gap-2">
-                                                        <div className="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-uppercase"
-                                                            style={{ width: '32px', height: '32px', fontSize: '14px', color: 'white' }}>
-                                                            {doctor.firstName?.charAt(0)}{doctor.lastName?.charAt(0)}
-                                                        </div>
+                                                        {doctor.profilePhoto ? (
+                                                            <img 
+                                                                src={doctor.profilePhoto} 
+                                                                alt="Profile" 
+                                                                className="rounded-circle"
+                                                                style={{ width: '32px', height: '32px', objectFit: 'cover' }}
+                                                            />
+                                                        ) : (
+                                                            <div className="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-uppercase"
+                                                                style={{ width: '32px', height: '32px', fontSize: '14px', color: 'white' }}>
+                                                                {doctor.firstName?.charAt(0)}{doctor.lastName?.charAt(0)}
+                                                            </div>
+                                                        )}
                                                         <div>
                                                             <div className="fw-semibold text-dark text-capitalize" style={{ cursor: 'pointer' }}>
                                                                 {doctor.firstName} {doctor.lastName}
