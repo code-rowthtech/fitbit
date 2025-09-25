@@ -25,6 +25,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
     const [showPassword, setShowPassword] = useState(false);
     const [showSpecialSkillModal, setShowSpecialSkillModal] = useState(false);
     const [showSpecializationModal, setShowSpecializationModal] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
     const CreateResponse = useSelector((state) => state?.createDoctorReducer?.data?.status);
     const Loading = useSelector((state) => state?.createDoctorReducer?.loading)
     const StatesData = useSelector((state) => state?.getStatesReducer?.data?.data);
@@ -74,6 +75,13 @@ const CreateDoctorModal = ({ show, onHide }) => {
         }
         return acc;
     }, []) || [];
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSelectedImage(file);
+        }
+    };
 
     const customSelectStyles = {
         control: (provided) => ({
@@ -189,44 +197,49 @@ const CreateDoctorModal = ({ show, onHide }) => {
 
     const onSubmit = (data) => {
         const selectedState = stateOptions?.find((state) => state?.value === data?.state?.value);
-        const doctorData = {
-            firstName: data.firstName || "",
-            lastName: data.lastName || "",
-            email: data.email,
-            password: data.password, // must come from form or auto-generated
-            phoneNumber: data.phone || undefined,
-            role: "admin",
-            gender: data.gender,
-            age: data.age || undefined,
-            ...(data.profilePhoto && data.profilePhoto.length > 0 && { profilePhoto: data.profilePhoto }),
-            dateOfBirth: data.dateOfBirth || undefined,
-            fullAddress: data.fullAddress || "",
-            specializations: data.specialization ? [data.specialization] : [],
-            ...(data.specialSkill && { skills: Array.isArray(data.specialSkill) ? data.specialSkill.map(skill => skill.value) : [data.specialSkill.value] }),
-            yearOfExperience: data.experience || undefined,
-            feePerConsultation: data.fees || undefined,
-            consultationType: data.consultationType || undefined,
-            patients: [], // optional: start empty
-            timings: data.timings || undefined,
-            languageKnown: data.languages ? [data.languages] : [],
-            medicalLicenseNumber: data.licenseNumber || undefined,
-            qualifications: data.qualification ? [data.qualification] : [],
-            hospitalName: data.hospitalName || undefined,
-            clinicName: data.clinicName || undefined,
-            clinicAddress: {
-                street: data.street || "",
-                city: data.city?.value || data.city || null,
-                state: selectedState?.data?._id,
-                country: "India",
-                zip: data.pincode || "",
-            },
-            registrationDate: data.registrationDate,
-            about: data.aboutDoctor || "",
-            isActive: true,
-            isDeleted: false,
-            lastLogin: null,
+        const formData = new FormData();
+        
+        formData.append('firstName', data.firstName || "");
+        formData.append('lastName', data.lastName || "");
+        formData.append('email', data.email);
+        formData.append('password', data.password);
+        if (data.phone) formData.append('phoneNumber', data.phone);
+        formData.append('role', "admin");
+        if (data.gender) formData.append('gender', data.gender);
+        if (data.age) formData.append('age', data.age);
+        if (data.dateOfBirth) formData.append('dateOfBirth', data.dateOfBirth);
+        formData.append('fullAddress', data.fullAddress || "");
+        if (data.specialization) formData.append('specializations', JSON.stringify([data.specialization]));
+        if (data.specialSkill && data.specialSkill.length > 0) {
+            const skills = Array.isArray(data.specialSkill) ? data.specialSkill.map(skill => skill.value) : [data.specialSkill.value];
+            skills.forEach(skillId => formData.append('skills[]', skillId));
+        }
+        if (data.experience) formData.append('yearOfExperience', data.experience);
+        if (data.fees) formData.append('feePerConsultation', data.fees);
+        if (data.consultationType) formData.append('consultationType', data.consultationType);
+        formData.append('patients', JSON.stringify([]));
+        if (data.timings) formData.append('timings', data.timings);
+        if (data.languages) formData.append('languageKnown', JSON.stringify([data.languages]));
+        if (data.licenseNumber) formData.append('medicalLicenseNumber', data.licenseNumber);
+        if (data.qualification) formData.append('qualifications', JSON.stringify([data.qualification]));
+        if (data.hospitalName) formData.append('hospitalName', data.hospitalName);
+        if (data.clinicName) formData.append('clinicName', data.clinicName);
+        const clinicAddress = {
+            street: data.street || "",
+            city: data.city?.value || data.city || null,
+            state: selectedState?.data?._id,
+            country: "India",
+            zip: data.pincode || "",
         };
-        dispatch(createDoctor(doctorData));
+        formData.append('clinicAddress', JSON.stringify(clinicAddress));
+        if (data.registrationDate) formData.append('registrationDate', data.registrationDate);
+        formData.append('about', data.aboutDoctor || "");
+        formData.append('isActive', true);
+        formData.append('isDeleted', false);
+        formData.append('lastLogin', null);
+        if (selectedImage) formData.append('image', selectedImage);
+        
+        dispatch(createDoctor(formData));
     };
 
 
@@ -350,7 +363,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
                                         style={{ fontSize: '12px', backgroundColor: '#F9FAFB' }}
                                         className='py-3'
                                         type="file"
-                                        {...register('profilePhoto')}
+                                        onChange={handleFileChange}
                                     />
                                 </Form.Group>
                             </Col>

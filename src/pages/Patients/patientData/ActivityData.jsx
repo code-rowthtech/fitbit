@@ -536,6 +536,8 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                                                                     },
                                                                     y: {
                                                                         beginAtZero: true,
+                                                                        min: activeTab === 'Week' && StepsStatsData ? Math.min(0, parseInt(StepsStatsData.min) - 500) : 0,
+                                                                        max: activeTab === 'Week' && StepsStatsData ? Math.max(...chartData.data, parseInt(StepsStatsData.max) + 500) : undefined,
                                                                         grid: { color: '#f0f0f0' },
                                                                         ticks: { color: '#666', fontSize: 10 }
                                                                     }
