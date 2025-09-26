@@ -11,7 +11,15 @@ export function getPatientActivityApi(data) {
 }
 
 export function getPatientSleepApi(data) {
-    return api.get(URL.PATIENT_SLEEP.replace(':id', data.payload.id));
+    const baseUrl = `${URL.PATIENT_SLEEP}/${data.payload.patientId}?field=${data.payload.field}&start=${data.payload.start}&end=${data.payload.end}`;
+    const url = data.payload.period ? `${baseUrl}&period=${data.payload.period}` : baseUrl;
+    return api.get(url);
+}
+
+export function getPatientSleepEfficiencyApi(data) {
+    const baseUrl = `${URL.PATIENT_SLEEP_EFFICIENCY}/${data.payload.patientId}?field=${data.payload.field}&start=${data.payload.start}&end=${data.payload.end}`;
+    const url = data.payload.period ? `${baseUrl}&period=${data.payload.period}` : baseUrl;
+    return api.get(url);
 }
 
 export function getPatientWaterApi(data) {

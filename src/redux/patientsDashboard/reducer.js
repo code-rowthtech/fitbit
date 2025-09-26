@@ -18,6 +18,12 @@ const GET_PATIENT_SLEEP_INITIAL_STATE = {
     loading: false,
 };
 
+const GET_PATIENT_SLEEP_EFFICIENCY_INITIAL_STATE = {
+    data: {},
+    message: '',
+    loading: false,
+};
+
 const GET_PATIENT_WATER_INITIAL_STATE = {
     data: {},
     message: '',
@@ -129,6 +135,28 @@ export const getPatientSleep = (state = GET_PATIENT_SLEEP_INITIAL_STATE, action)
                 data: action?.payload,
             };
         case PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_ERROR:
+            return {
+                loading: false,
+                message: action?.payload,
+            };
+        default:
+            return state;
+    }
+};
+
+export const getPatientSleepEfficiency = (state = GET_PATIENT_SLEEP_EFFICIENCY_INITIAL_STATE, action) => {
+    switch (action.type) {
+        case PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_EFFICIENCY_LOADING:
+            return {
+                loading: true,
+                data: state.data,
+            };
+        case PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_EFFICIENCY_SUCCESS:
+            return {
+                loading: false,
+                data: action?.payload,
+            };
+        case PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_EFFICIENCY_ERROR:
             return {
                 loading: false,
                 message: action?.payload,
