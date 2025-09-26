@@ -33,7 +33,8 @@ export const DOWNLOAD_REPORT = `${baseurl}/reports/patient`
 // Patient Dashboard
 export const PATIENT_PROFILE = `${baseurl}/fitbit/profile`
 export const PATIENT_ACTIVITY = `${baseurl}/fitbit/activity`
-export const PATIENT_SLEEP = `${baseurl}/fitbit/sleep`
+export const PATIENT_SLEEP = `${baseurl}/fitbit/filter`
+export const PATIENT_SLEEP_EFFICIENCY = `${baseurl}/fitbit/filter`
 export const PATIENT_WATER = `${baseurl}/fitbit/water`
 export const PATIENT_HEART = `${baseurl}/fitbit/heart`
 export const PATIENT_WEIGHT = `${baseurl}/fitbit/weight`

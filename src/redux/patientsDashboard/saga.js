@@ -1,6 +1,6 @@
 import PATIENT_DASHBOARD_TYPES from './constant';
 import { all, fork, put, takeEvery, call } from 'redux-saga/effects';
-import { getPatientProfileApi, getPatientActivityApi, getPatientSleepApi, getPatientWaterApi, getPatientHeartApi, getPatientWeightApi, getPatientBodyFatApi, getPatientFoodApi, getPatientDevicesApi, getPatientGpsTrackingApi, connectToFitbitApi, getFilterDataApi } from './api';
+import { getPatientProfileApi, getPatientActivityApi, getPatientSleepApi, getPatientSleepEfficiencyApi, getPatientWaterApi, getPatientHeartApi, getPatientWeightApi, getPatientBodyFatApi, getPatientFoodApi, getPatientDevicesApi, getPatientGpsTrackingApi, connectToFitbitApi, getFilterDataApi } from './api';
 import { toast } from 'react-toastify';
 
 function* getPatientProfileFunction({ payload }) {
@@ -79,6 +79,33 @@ function* getPatientSleepFunction({ payload }) {
     } catch (error) {
         yield put({
             type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_ERROR,
+            payload: { message: error?.message },
+        });
+    }
+}
+
+function* getPatientSleepEfficiencyFunction({ payload }) {
+    try {
+        yield put({
+            type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_EFFICIENCY_LOADING,
+            payload: {},
+        });
+        const response = yield call(getPatientSleepEfficiencyApi, { payload });
+
+        if (response?.data && response?.data?.status === 200) {
+            yield put({
+                type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_EFFICIENCY_SUCCESS,
+                payload: response.data,
+            });
+        } else {
+            yield put({
+                type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_EFFICIENCY_ERROR,
+                payload: response.data,
+            });
+        }
+    } catch (error) {
+        yield put({
+            type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_EFFICIENCY_ERROR,
             payload: { message: error?.message },
         });
     }
@@ -340,6 +367,10 @@ export function* getPatientSleepSaga() {
     yield takeEvery(PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP, getPatientSleepFunction);
 }
 
+export function* getPatientSleepEfficiencySaga() {
+    yield takeEvery(PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_EFFICIENCY, getPatientSleepEfficiencyFunction);
+}
+
 export function* getPatientWaterSaga() {
     yield takeEvery(PATIENT_DASHBOARD_TYPES.GET_PATIENT_WATER, getPatientWaterFunction);
 }
@@ -381,6 +412,7 @@ function* PatientDashboardSaga() {
         fork(getPatientProfileSaga),
         fork(getPatientActivitySaga),
         fork(getPatientSleepSaga),
+        fork(getPatientSleepEfficiencySaga),
         fork(getPatientWaterSaga),
         fork(getPatientHeartSaga),
         fork(getPatientWeightSaga),

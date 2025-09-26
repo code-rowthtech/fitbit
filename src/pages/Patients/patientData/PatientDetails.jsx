@@ -25,13 +25,10 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
   const PatientData = useSelector((state) => state?.getPatientByIdReducer?.data?.data?.patient);
   const isLoading = useSelector((state) => state?.getPatientByIdReducer?.loading);
   const UpdateResponse = useSelector((state) => state?.updatePatient?.data?.status);
-  const PatientProfileData = useSelector((state) => state?.getPatientProfile?.data?.data);
-  const Metrics = PatientProfileData?.metrics;
-  const Profile = PatientProfileData?.profile;
   const FitbitConnection = useSelector((state) => state?.getPatientProfile?.data?.status);
   const ConnectionStatus = useSelector((state) => state?.connectToFitbit?.data?.success);
   const connectionLoading = useSelector((state) => state?.connectToFitbit?.loading);
-
+  console.log(PatientData, 'PatientData')
   const getInitials = (name) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase()
   }
@@ -88,28 +85,30 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
         borderTopLeftRadius: '10px',
         borderTopRightRadius: '10px'
       }}>
-      <div>
-        {/* tab section */}
-        <div className="d-flex patient-tabs">
-          {tabs.map((tab, index) => (
-            <div
-              key={tab}
-              className={`patient-tab fw-semibold flex-fill ${activeTab === tab ? 'active' : 'inactive'}`}
-              onClick={() => setActiveTab(tab)}
-              style={{
-                cursor: 'pointer',
-                ...(index === 0 && { borderTopLeftRadius: '10px' }),
-                ...(index === tabs.length - 1 && { borderTopRightRadius: '10px' })
-              }}
-            >
-              <div className={`patient-tab-content ${index === 0 || index === tabs.length - 1 ? 'straight' : ''}`}>
-                {tab}
-                {/* <span className="patient-tab-arrow"><FaChevronDown /></span> */}
+      {!showReports && (
+        <div>
+          {/* tab section */}
+          <div className="d-flex patient-tabs">
+            {tabs.map((tab, index) => (
+              <div
+                key={tab}
+                className={`patient-tab fw-semibold flex-fill ${activeTab === tab ? 'active' : 'inactive'}`}
+                onClick={() => setActiveTab(tab)}
+                style={{
+                  cursor: 'pointer',
+                  ...(index === 0 && { borderTopLeftRadius: '10px' }),
+                  ...(index === tabs.length - 1 && { borderTopRightRadius: '10px' })
+                }}
+              >
+                <div className={`patient-tab-content ${index === 0 || index === tabs.length - 1 ? 'straight' : ''}`}>
+                  {tab}
+                  {/* <span className="patient-tab-arrow"><FaChevronDown /></span> */}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
       <div className="accordion m-2" id="patientAccordion">
         <div className="accordion-item">
           <h2 className="accordion-header">
@@ -200,9 +199,9 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
             <div className="accordion-body py-2" style={{ backgroundColor: '#F6FAFF' }}>
               <div className="d-flex align-items-center justify-content-between">
                 <div className="d-flex align-items-center">
-                  {Profile?.avatar ? (
+                  {PatientData?.avatar ? (
                     <img
-                      src={Profile?.avatar}
+                      src={PatientData?.avatar}
                       alt="Patient Avatar"
                       className={`me-3 ${isLoading ? "placeholder " : ''}`}
                       style={{
@@ -268,54 +267,54 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
                 </div>
 
                 <div className="d-flex" style={{ gap: '18px' }}>
-                  <div className="d-flex align-items-center bg-white p-3 rounded-1 position-relative" style={{ gap: '20px', width: '9vw', boxShadow: (parseInt(String(Profile?.averageDailySteps || '').replace(',', '')) || 7000) < 6000 ? '0 0 8px rgba(220, 53, 69, 0.3)' : 'none' }}>
+                  <div className="d-flex align-items-center bg-white p-3 rounded-1 position-relative" style={{ gap: '20px', width: '9vw', boxShadow: (parseInt(String(PatientData?.weeklyFitbitData?.avgSteps || '').replace(',', '')) || 7000) < 6000 ? '0 0 8px rgba(220, 53, 69, 0.3)' : 'none' }}>
                     <img src={stepsIcon} alt="Steps" style={{ width: '24px', height: '24px' }} />
                     <div>
                       <div className='text-nowrap' style={{ fontSize: '12px', color: '#6c757d', marginBottom: '2px' }}>Avg Steps</div>
                       <div style={{ fontSize: '16px', fontWeight: '600' }} className={`${isLoading ? 'placeholder rounded-1' : ''}`}>
-                        {Profile?.averageDailySteps || '-'}
+                        {PatientData?.weeklyFitbitData?.avgSteps || '-'}
                       </div>
                     </div>
-                    {(parseInt(String(Profile?.averageDailySteps || '').replace(',', '')) || 7000) >= 6000 ?
+                    {(parseInt(String(PatientData?.weeklyFitbitData?.averageDailySteps || '').replace(',', ''))) >= 6000 ?
                       <FaCheckCircle style={{ position: 'absolute', bottom: '4px', right: '4px', color: '#28a745', fontSize: '14px' }} /> :
                       <FaExclamationTriangle style={{ position: 'absolute', bottom: '4px', right: '4px', color: '#dc3545', fontSize: '14px' }} />
                     }
                   </div>
-                  <div className="d-flex align-items-center bg-white p-3 rounded-1 position-relative" style={{ gap: '16px', width: '9vw', boxShadow: ((parseInt(Metrics?.heartRate) || 80) < 60 || (parseInt(Metrics?.heartRate) || 80) > 100) ? '0 0 8px rgba(220, 53, 69, 0.3)' : 'none' }}>
+                  <div className="d-flex align-items-center bg-white p-3 rounded-1 position-relative" style={{ gap: '16px', width: '9vw', boxShadow: ((parseInt(PatientData?.weeklyFitbitData?.heartRate) || 80) < 60 || (parseInt(PatientData?.weeklyFitbitData?.heartRate) || 80) > 100) ? '0 0 8px rgba(220, 53, 69, 0.3)' : 'none' }}>
                     <img src={heartRateIcon} alt="Heart Rate" style={{ width: '26px', height: '26px' }} />
                     <div>
                       <div className='text-nowrap' style={{ fontSize: '12px', color: '#6c757d', marginBottom: '2px' }}>Avg Heart Rate</div>
                       <div style={{ fontSize: '16px', fontWeight: '600' }} className={`${isLoading ? 'placeholder rounded-1' : ''}`}>
-                        {Metrics?.heartRate || '80'} <span style={{ fontSize: '16px' }}>bpm</span>
+                        {PatientData?.weeklyFitbitData?.heartRate || '80'} <span style={{ fontSize: '16px' }}>bpm</span>
                       </div>
                     </div>
-                    {(parseInt(Metrics?.heartRate) || 80) >= 60 && (parseInt(Metrics?.heartRate) || 80) <= 100 ?
+                    {(parseInt(PatientData?.weeklyFitbitData?.heartRate) || 80) >= 60 && (parseInt(PatientData?.weeklyFitbitData?.heartRate) || 80) <= 100 ?
                       <FaCheckCircle style={{ position: 'absolute', bottom: '4px', right: '4px', color: '#28a745', fontSize: '14px' }} /> :
                       <FaExclamationTriangle style={{ position: 'absolute', bottom: '4px', right: '4px', color: '#dc3545', fontSize: '14px' }} />
                     }
                   </div>
-                  <div className="d-flex align-items-center bg-white p-3 rounded-1 position-relative" style={{ gap: '16px', width: '9vw', boxShadow: (parseInt(Metrics?.sleep?.minutesAsleep) || 360) < 420 ? '0 0 8px rgba(220, 53, 69, 0.3)' : 'none' }}>
+                  <div className="d-flex align-items-center bg-white p-3 rounded-1 position-relative" style={{ gap: '16px', width: '9vw', boxShadow: (parseInt(PatientData?.weeklyFitbitData?.avgSleepDuration) || 360) < 420 ? '0 0 8px rgba(220, 53, 69, 0.3)' : 'none' }}>
                     <img src={sleepIcon} alt="Sleep" style={{ width: '24px', height: '24px' }} />
                     <div>
                       <div className='text-nowrap' style={{ fontSize: '12px', color: '#6c757d', marginBottom: '2px' }}>Avg Sleep Min</div>
                       <div style={{ fontSize: '16px', fontWeight: '600' }} className={`${isLoading ? 'placeholder rounded-1' : ''}`}>
-                        {Metrics?.sleep?.minutesAsleep || '-'} <span style={{ fontSize: '16px' }}>min</span>
+                        {PatientData?.weeklyFitbitData?.avgSleepDuration || '-'} <span style={{ fontSize: '16px' }}>min</span>
                       </div>
                     </div>
-                    {(parseInt(Metrics?.sleep?.minutesAsleep) || 360) >= 420 ?
+                    {(parseInt(PatientData?.weeklyFitbitData?.avgSleepDuration)) >= 420 ?
                       <FaCheckCircle style={{ position: 'absolute', bottom: '4px', right: '4px', color: '#28a745', fontSize: '14px' }} /> :
                       <FaExclamationTriangle style={{ position: 'absolute', bottom: '4px', right: '4px', color: '#dc3545', fontSize: '14px' }} />
                     }
                   </div>
-                  <div className="d-flex align-items-center bg-white p-3 rounded-1 position-relative" style={{ gap: '16px', width: '9vw', boxShadow: (parseFloat(Metrics?.water?.averageIntake) || 2700) < 2500 ? '0 0 8px rgba(220, 53, 69, 0.3)' : 'none' }}>
+                  <div className="d-flex align-items-center bg-white p-3 rounded-1 position-relative" style={{ gap: '16px', width: '9vw', boxShadow: (parseFloat(PatientData?.weeklyFitbitData?.avgWater) || 2700) < 2500 ? '0 0 8px rgba(220, 53, 69, 0.3)' : 'none' }}>
                     <img src={waterIntakeIcon} alt="Water Intake" style={{ width: '24px', height: '24px' }} />
                     <div>
                       <div className='text-nowrap' style={{ fontSize: '12px', color: '#6c757d', marginBottom: '2px' }}>Avg Water Intake</div>
                       <div style={{ fontSize: '16px', fontWeight: '600' }} className={`${isLoading ? 'placeholder rounded-1' : ''}`}>
-                        {Metrics?.water?.averageIntake || '-'} <span style={{ fontSize: '16px' }}>ml/Day</span>
+                        {PatientData?.weeklyFitbitData?.avgWater || '-'} <span style={{ fontSize: '16px' }}>ml/Day</span>
                       </div>
                     </div>
-                    {(parseFloat(Metrics?.water?.averageIntake) || 2700) >= 2500 ?
+                    {(parseFloat(PatientData?.weeklyFitbitData?.avgWater)) >= 2500 ?
                       <FaCheckCircle style={{ position: 'absolute', bottom: '4px', right: '4px', color: '#28a745', fontSize: '14px' }} /> :
                       <FaExclamationTriangle style={{ position: 'absolute', bottom: '4px', right: '4px', color: '#dc3545', fontSize: '14px' }} />
                     }

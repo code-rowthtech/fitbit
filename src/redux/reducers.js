@@ -4,7 +4,7 @@ import Auth from './auth/reducers';
 import { createDoctorReducer, getAllDoctors, updateDoctor, getStatesReducer, getCitiesReducer, getSkillsReducer, createSkillsReducer, getCategoryReducer, getSpecializationsReducer, createSpecializationsReducer, getSpecializationsCategoryReducer } from './doctors/reducer';
 import { createAllergiesReducer, createPatientReducer, getAllergiesReducer, getAllPatients, getPatientByIdReducer, updatePatient } from './patients/reducer';
 import { createReportReducer, getAllReports, getReportById, updateReportReducer, downloadReportReducer } from './reports/reducer';
-import { connectToFitbit, getFilterData, getPatientActivity, getPatientBodyFat, getPatientDevices, getPatientFood, getPatientGpsTracking, getPatientHeart, getPatientProfile, getPatientSleep, getPatientWater, getPatientWeight } from './patientsDashboard/reducer';
+import { connectToFitbit, getFilterData, getPatientActivity, getPatientBodyFat, getPatientDevices, getPatientFood, getPatientGpsTracking, getPatientHeart, getPatientProfile, getPatientSleep, getPatientSleepEfficiency, getPatientWater, getPatientWeight } from './patientsDashboard/reducer';
 
 export default combineReducers({
     // Auth
@@ -42,6 +42,7 @@ export default combineReducers({
     getPatientProfile,
     getPatientActivity,
     getPatientSleep,
+    getPatientSleepEfficiency,
     getPatientWater,
     getPatientHeart,
     getPatientWeight,
