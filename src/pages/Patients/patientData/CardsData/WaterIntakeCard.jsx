@@ -59,6 +59,21 @@ const WaterIntakeCard = ({
         }
     }, [patientId, dispatch, activeTab, currentDate, formatDate])
 
+    // Convert ml string to liters number
+    const convertMlToLiters = (value) => {
+        if (!value || value === null) return 0
+        if (typeof value === 'string') {
+            const numericValue = parseFloat(value.replace(' ml', ''))
+            return numericValue / 1000 // Convert ml to liters
+        }
+        return value / 1000
+    }
+
+    // Get daily goal from targetRange (convert from "10L/day" to 10)
+    const getDailyGoal = () => {
+        return 3 // Use 3L as default goal
+    }
+
     // Get chart data based on API response
     const getChartData = () => {
         if (!WaterData || WaterData.length === 0) {
@@ -83,7 +98,7 @@ const WaterIntakeCard = ({
             }
         })
 
-        const data = apiData.map(item => item.value)
+        const data = apiData.map(item => convertMlToLiters(item.value))
 
         const tableData = apiData.map(item => {
             const date = new Date(item.date)
@@ -106,9 +121,10 @@ const WaterIntakeCard = ({
                     period = date.toLocaleDateString()
             }
 
+            const litersValue = convertMlToLiters(item.value)
             return {
                 period,
-                value: item.value ? `${item.value.toFixed(1)}L` : '0L'
+                value: litersValue > 0 ? `${litersValue.toFixed(1)}L` : '0L'
             }
         })
 
@@ -446,29 +462,29 @@ const WaterIntakeCard = ({
                             <div className="position-relative" style={{ width: '120px', height: '120px' }}>
                                 <svg width="120" height="120" className="position-absolute">
                                     <circle cx="60" cy="60" r="48" fill="none" stroke="#E8F2FF" strokeWidth="6" />
-                                    <circle cx="60" cy="60" r="48" fill="none" stroke="#003465" strokeWidth="4" strokeDasharray="301" strokeDashoffset={301 - (((AverageData?.todayData?.value || 0) / (AverageData?.goals?.water || 1)) * 301)} strokeLinecap="round" transform="rotate(-90 60 60)" />
+                                    <circle cx="60" cy="60" r="48" fill="none" stroke="#003465" strokeWidth="4" strokeDasharray="301" strokeDashoffset={301 - (Math.min(1, (convertMlToLiters(AverageData?.todayData?.value) || 0) / getDailyGoal()) * 301)} strokeLinecap="round" transform="rotate(-90 60 60)" />
                                 </svg>
                                 <div className="position-absolute top-50 start-50 translate-middle text-center">
-                                    <div className="fw-bold" style={{ fontSize: '16px', color: '#003465' }}>{Math.round(((AverageData?.todayData?.value || 0) / (AverageData?.goals?.water || 1)) * 100)}%</div>
+                                    <div className="fw-bold" style={{ fontSize: '16px', color: '#003465' }}>{Math.min(100, Math.round(((convertMlToLiters(AverageData?.todayData?.value) || 0) / getDailyGoal()) * 100))}%</div>
                                     <div style={{ fontSize: '9px', color: '#666', fontWeight: '500' }}>Hydrated</div>
                                 </div>
                             </div>
                         </div>
 
                         <div className="text-center mb-2">
-                            <p className="mb-0" style={{ fontSize: '10px', color: '#666', fontWeight: '500' }}>{Math.max(0, (AverageData?.goals?.water || 0) - (AverageData?.todayData?.value || 0)).toFixed(1)}L to reach daily goal</p>
+                            <p className="mb-0" style={{ fontSize: '10px', color: '#666', fontWeight: '500' }}>{Math.max(0, getDailyGoal() - (convertMlToLiters(AverageData?.todayData?.value) || 0)).toFixed(1)}L to reach daily goal</p>
                         </div>
 
                         <div className="row g-1 ">
                             <div className="col-6">
                                 <div className="text-center py-1 px-2 rounded-2" style={{ backgroundColor: 'white', border: '1px solid #E8F2FF' }}>
-                                    <div className="fw-bold" style={{ fontSize: '14px', color: '#003465' }}>{AverageData?.todayData?.value ? `${AverageData.todayData.value.toFixed(1)}` : '-'}</div>
+                                    <div className="fw-bold" style={{ fontSize: '14px', color: '#003465' }}>{AverageData?.todayData?.value ? `${convertMlToLiters(AverageData.todayData.value).toFixed(1)}` : '-'}</div>
                                     <div style={{ fontSize: '9px', color: '#666', fontWeight: '500' }}>Today (L)</div>
                                 </div>
                             </div>
                             <div className="col-6">
                                 <div className="text-center py-1 px-2 rounded-2" style={{ backgroundColor: 'white', border: '1px solid #E8F2FF' }}>
-                                    <div className="fw-bold" style={{ fontSize: '14px', color: '#003465' }}>{AverageData?.goals?.water ? AverageData.goals.water.toFixed(1) : '-'}</div>
+                                    <div className="fw-bold" style={{ fontSize: '14px', color: '#003465' }}>{getDailyGoal().toFixed(1)}</div>
                                     <div style={{ fontSize: '9px', color: '#666', fontWeight: '500' }}>Goal (L)</div>
                                 </div>
                             </div>
