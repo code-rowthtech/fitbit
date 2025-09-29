@@ -6,15 +6,15 @@ import { Bar } from 'react-chartjs-2'
 import { useDispatch, useSelector } from 'react-redux'
 import { getFilterData } from '../../../../redux/patientsDashboard/action'
 
-const StepsCard = ({ 
-    patientId, 
-    expandedCard, 
-    onCardExpand, 
-    activeTab, 
-    onTabChange, 
-    currentDate, 
+const StepsCard = ({
+    patientId,
+    expandedCard,
+    onCardExpand,
+    activeTab,
+    onTabChange,
+    currentDate,
     onDateChange,
-    formatDate 
+    formatDate
 }) => {
     const dispatch = useDispatch()
     const FilterData = useSelector((state) => state?.getFilterData?.data?.response?.data)
@@ -297,12 +297,12 @@ const StepsCard = ({
                                         onHover: activeTab === 'Week' && StepsStatsData ? (event, elements, chart) => {
                                             const ctx = chart.ctx
                                             const chartArea = chart.chartArea
-                                            
+
                                             if (chartArea) {
                                                 const yScale = chart.scales.y
                                                 const minY = yScale.getPixelForValue(parseInt(StepsStatsData.min))
                                                 const maxY = yScale.getPixelForValue(parseInt(StepsStatsData.max))
-                                                
+
                                                 // Draw min line
                                                 ctx.save()
                                                 ctx.strokeStyle = '#ff6b6b'
@@ -312,7 +312,7 @@ const StepsCard = ({
                                                 ctx.moveTo(chartArea.left, minY)
                                                 ctx.lineTo(chartArea.right, minY)
                                                 ctx.stroke()
-                                                
+
                                                 // Draw max line
                                                 ctx.strokeStyle = '#51cf66'
                                                 ctx.beginPath()
@@ -468,7 +468,7 @@ const StepsCard = ({
                             </div>
                             <div className="col-6">
                                 <div className="text-center py-1 px-2 rounded-2" style={{ backgroundColor: 'white', border: '1px solid #E8F2FF' }}>
-                                    <div className="fw-bold" style={{ fontSize: '14px', color: '#003465' }}>{AverageData?.goals?.steps}</div>
+                                    <div className="fw-bold" style={{ fontSize: '14px', color: '#003465' }}>{AverageData?.goals?.steps || '-'}</div>
                                     <div style={{ fontSize: '9px', color: '#666', fontWeight: '500' }}>Goal</div>
                                 </div>
                             </div>

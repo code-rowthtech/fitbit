@@ -28,7 +28,7 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
   const FitbitConnection = useSelector((state) => state?.getPatientProfile?.data?.status);
   const ConnectionStatus = useSelector((state) => state?.connectToFitbit?.data?.success);
   const connectionLoading = useSelector((state) => state?.connectToFitbit?.loading);
-  console.log(PatientData, 'PatientData')
+
   const getInitials = (name) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase()
   }
@@ -46,8 +46,6 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
     'Exercise Data',
     'Nutrition'
   ]
-
-
 
   useEffect(() => {
     dispatch(getPatientById(id))

@@ -24,6 +24,8 @@ import { getFilterData } from '../../../redux/patientsDashboard/action'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams, useSearchParams } from 'react-router-dom'
 import StepsCard from './CardsData/StepsCard'
+import CaloriesCard from './CardsData/CaloriesCard'
+import DistanceCard from './CardsData/DistanceCard'
 import './ActivityData.css'
 
 ChartJS.register(
@@ -347,128 +349,16 @@ const ActivityData = ({ isExpanded, onExpand }) => {
 
                             {/* Calories Card */}
                             {(!expandedCard || expandedCard === 'calories') && (
-                                <div style={{ flex: 1, backgroundColor: 'white', border: '1px solid #e9ecef', borderRadius: '8px', minHeight: expandedCard === 'calories' ? '550px' : '245px', transition: 'min-height 0.3s ease' }}>
-                                    <div className="d-flex align-items-center justify-content-between mb-0 p-2 border-1" style={{ backgroundColor: '#E0ECF8', borderTopLeftRadius: '7px', borderTopRightRadius: '7px' }}>
-                                        <div>
-                                            <img src={Calories_Icon} alt="Calories Burned" className="mx-2" style={{ width: '19px', height: '19px' }} />
-                                            <span style={{ fontSize: '12px', fontWeight: '600', color: '#003465' }}>Calories Burned</span>
-                                        </div>
-                                        <div className='d-flex'>
-                                            <IoCalendarClearOutline style={{ fontSize: '16px', color: '#003465', marginLeft: '8px' }} />
-                                            <IoIosExpand
-                                                style={{ fontSize: '16px', color: '#003465', marginLeft: '6px', cursor: 'pointer' }}
-                                                onClick={() => handleCardExpand('calories')}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className='p-1 pt-0'>
-                                        {expandedCard === 'calories' ? (
-                                            <div className='row p-3'>
-                                                <div className='col-8 pe-2'>
-                                                    <div className='border rounded-2' style={{ padding: '10px', backgroundColor: '#F6FAFF', height: '500px' }}>
-                                                        <Bar
-                                                            data={{
-                                                                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                                                                datasets: [{
-                                                                    data: [2150, 1980, 2300, 1710, 2450, 2100, 1650],
-                                                                    backgroundColor: '#003465',
-                                                                    borderRadius: 3,
-                                                                    barThickness: 35
-                                                                }]
-                                                            }}
-                                                            options={{
-                                                                maintainAspectRatio: false,
-                                                                plugins: { legend: { display: false } },
-                                                                scales: {
-                                                                    x: {
-                                                                        grid: { display: false },
-                                                                        ticks: { color: '#666', fontSize: 10 }
-                                                                    },
-                                                                    y: {
-                                                                        beginAtZero: true,
-                                                                        grid: { color: '#f0f0f0' },
-                                                                        ticks: { color: '#666', fontSize: 10 }
-                                                                    }
-                                                                },
-                                                                categoryPercentage: 0.6
-                                                            }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className='col-4 ps-2'>
-                                                    <div className='border rounded-2 p-3 d-flex flex-column' style={{ backgroundColor: '#F6FAFF', height: '500px' }}>
-                                                        <div className="mb-3">
-                                                            <p className='fw-bold mb-0' style={{ color: "#003465", fontSize: '14px' }}>Calories Summary</p>
-                                                        </div>
-                                                        <div className="d-flex justify-content-center mb-4">
-                                                            <div className="position-relative" style={{ width: '180px', height: '180px' }}>
-                                                                <svg width="180" height="180" className="position-absolute">
-                                                                    <circle cx="90" cy="90" r="75" fill="none" stroke="#E0ECF8" strokeWidth="12" />
-                                                                    <circle cx="90" cy="90" r="75" fill="none" stroke="#003465" strokeWidth="10" strokeDasharray="471" strokeDashoffset="94" strokeLinecap="round" transform="rotate(-90 90 90)" />
-                                                                </svg>
-                                                                <div className="position-absolute top-50 start-50 translate-middle text-center">
-                                                                    <div className="fw-bold" style={{ fontSize: '24px', color: '#003465' }}>80%</div>
-                                                                    <div style={{ fontSize: '14px', color: '#003465' }}>Goal</div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div className="text-center mb-4">
-                                                            <p className="mb-0" style={{ fontSize: '13px', color: '#666' }}>350 calories away from hitting daily goal</p>
-                                                        </div>
-                                                        <div className="row mb-4">
-                                                            <div className="col-6">
-                                                                <div className="text-center p-2 rounded" style={{ backgroundColor: 'white' }}>
-                                                                    <div className="fw-bold" style={{ fontSize: '18px', color: '#003465' }}>2,150</div>
-                                                                    <div style={{ fontSize: '12px', color: '#666' }}>Today's Burn</div>
-                                                                </div>
-                                                            </div>
-                                                            <div className="col-6">
-                                                                <div className="text-center p-2 rounded" style={{ backgroundColor: 'white' }}>
-                                                                    <div className="fw-bold" style={{ fontSize: '18px', color: '#003465' }}>2,500</div>
-                                                                    <div style={{ fontSize: '12px', color: '#666' }}>Daily Goal</div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div className="mt-auto">
-                                                            <div className="row">
-                                                                <div className="col-12 mb-2">
-                                                                    <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{ backgroundColor: 'white', fontSize: '12px' }}>
-                                                                        <span style={{ color: '#666' }}>Weekly Average</span>
-                                                                        <span className="fw-bold" style={{ color: '#003465' }}>2,063</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="col-12">
-                                                                    <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{ backgroundColor: 'white', fontSize: '12px' }}>
-                                                                        <span style={{ color: '#666' }}>Best Day</span>
-                                                                        <span className="fw-bold" style={{ color: '#003465' }}>2,450</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <Table className=' fw-bold mb-0 mt-1' style={{ width: '100%', fontSize: '10px', borderCollapse: 'collapse', border: '1px solid #E0E0E0', borderBottom: 'transparent' }}>
-                                                <tbody>
-                                                    <tr>
-                                                        <td className='p-1' style={{ color: '#121212', backgroundColor: '#F3F3F3', borderBottom: '1px solid #E0E0E0' }}>Current Week</td>
-                                                        <td className='p-1' style={{ fontWeight: '600', textAlign: 'right', borderLeft: '1px solid #E0E0E0', backgroundColor: '#F3F3F3', borderBottom: '1px solid #E0E0E0' }}>Avg- 2,150</td>
-                                                    </tr>
-                                                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => {
-                                                        const calories = { Monday: '2,150', Tuesday: '1,980', Wednesday: '2,300', Thursday: '1,710', Friday: '2,450', Saturday: '2,100', Sunday: '1,650' }[day];
-                                                        return (
-                                                            <tr key={day}>
-                                                                <td className='p-1' style={{ color: '#121212', borderBottom: '1px solid #E0E0E0', backgroundColor: '#F9FAFB' }}>{day}</td>
-                                                                <td className='p-1' style={{ textAlign: 'right', borderBottom: '1px solid #E0E0E0', borderLeft: '1px solid #E0E0E0', backgroundColor: '#F9FAFB' }}>{calories}</td>
-                                                            </tr>
-                                                        );
-                                                    })}
-                                                </tbody>
-                                            </Table>
-                                        )}
-                                    </div>
-                                </div>
+                                <CaloriesCard 
+                                    patientId={patientId}
+                                    expandedCard={expandedCard}
+                                    onCardExpand={handleCardExpand}
+                                    activeTab={activeTab}
+                                    onTabChange={setActiveTab}
+                                    currentDate={currentDate}
+                                    onDateChange={setCurrentDate}
+                                    formatDate={formatDate}
+                                />
                             )}
 
                             {/* Heart Rate Card */}
@@ -601,130 +491,16 @@ const ActivityData = ({ isExpanded, onExpand }) => {
 
                             {/* Distance Card */}
                             {(!expandedCard || expandedCard === 'distance') && (
-                                <div style={{ flex: 1, backgroundColor: 'white', border: '1px solid #e9ecef', borderRadius: '8px', minHeight: expandedCard === 'distance' ? '550px' : '245px', transition: 'min-height 0.3s ease' }}>
-                                    <div className="d-flex align-items-center justify-content-between mb-0 p-2 border-1" style={{ backgroundColor: '#E0ECF8', borderTopLeftRadius: '7px', borderTopRightRadius: '7px' }}>
-                                        <div>
-                                            <img src={Distance_Icon} alt="Distance" className="mx-2" style={{ width: '19px', height: '19px' }} />
-                                            <span style={{ fontSize: '12px', fontWeight: '600', color: '#003465' }}>Distance</span>
-                                        </div>
-                                        <div className='d-flex'>
-                                            <IoCalendarClearOutline style={{ fontSize: '16px', color: '#003465', marginLeft: '8px' }} />
-                                            <IoIosExpand
-                                                style={{ fontSize: '16px', color: '#003465', marginLeft: '6px', cursor: 'pointer' }}
-                                                onClick={() => handleCardExpand('distance')}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className='p-1 pt-0'>
-                                        {expandedCard === 'distance' ? (
-                                            <div className='row p-3'>
-                                                <div className='col-8 pe-2'>
-                                                    <div className='border rounded-2' style={{ padding: '10px', backgroundColor: '#F6FAFF', height: '500px' }}>
-                                                        <Bar
-                                                            data={{
-                                                                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                                                                datasets: [{
-                                                                    data: [2.3, 2.1, 2.5, 1.8, 2.7, 2.2, 1.6],
-                                                                    backgroundColor: '#003465',
-                                                                    borderRadius: 3,
-                                                                    barThickness: 35
-                                                                }]
-                                                            }}
-                                                            options={{
-                                                                maintainAspectRatio: false,
-                                                                plugins: { legend: { display: false } },
-                                                                scales: {
-                                                                    x: {
-                                                                        grid: { display: false },
-                                                                        ticks: { color: '#666', fontSize: 10 }
-                                                                    },
-                                                                    y: {
-                                                                        beginAtZero: true,
-                                                                        grid: { color: '#f0f0f0' },
-                                                                        ticks: { color: '#666', fontSize: 10 }
-                                                                    }
-                                                                },
-                                                                categoryPercentage: 0.6
-                                                            }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className='col-4 ps-2'>
-                                                    <div className='border rounded-2 p-3 d-flex flex-column' style={{ backgroundColor: '#F6FAFF', height: '500px' }}>
-                                                        <div className="mb-3">
-                                                            <p className='fw-bold mb-0' style={{ color: "#003465", fontSize: '14px' }}>Distance Summary</p>
-                                                        </div>
-                                                        <div className="d-flex justify-content-center mb-4">
-                                                            <div className="position-relative" style={{ width: '180px', height: '180px' }}>
-                                                                <svg width="180" height="180" className="position-absolute">
-                                                                    <circle cx="90" cy="90" r="75" fill="none" stroke="#E0ECF8" strokeWidth="12" />
-                                                                    <circle cx="90" cy="90" r="75" fill="none" stroke="#003465" strokeWidth="10" strokeDasharray="471" strokeDashoffset="165" strokeLinecap="round" transform="rotate(-90 90 90)" />
-                                                                </svg>
-                                                                <div className="position-absolute top-50 start-50 translate-middle text-center">
-                                                                    <div className="fw-bold" style={{ fontSize: '24px', color: '#003465' }}>65%</div>
-                                                                    <div style={{ fontSize: '14px', color: '#003465' }}>Goal</div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div className="text-center mb-4">
-                                                            <p className="mb-0" style={{ fontSize: '13px', color: '#666' }}>1.2 km away from hitting daily goal</p>
-                                                        </div>
-                                                        <div className="row mb-4">
-                                                            <div className="col-6">
-                                                                <div className="text-center p-2 rounded" style={{ backgroundColor: 'white' }}>
-                                                                    <div className="fw-bold" style={{ fontSize: '18px', color: '#003465' }}>2.3</div>
-                                                                    <div style={{ fontSize: '12px', color: '#666' }}>Today's km</div>
-                                                                </div>
-                                                            </div>
-                                                            <div className="col-6">
-                                                                <div className="text-center p-2 rounded" style={{ backgroundColor: 'white' }}>
-                                                                    <div className="fw-bold" style={{ fontSize: '18px', color: '#003465' }}>3.5</div>
-                                                                    <div style={{ fontSize: '12px', color: '#666' }}>Daily Goal</div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div className="mt-auto">
-                                                            <div className="row">
-                                                                <div className="col-12 mb-2">
-                                                                    <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{ backgroundColor: 'white', fontSize: '12px' }}>
-                                                                        <span style={{ color: '#666' }}>Weekly Average</span>
-                                                                        <span className="fw-bold" style={{ color: '#003465' }}>2.17 km</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="col-12">
-                                                                    <div className="d-flex justify-content-between align-items-center p-2 rounded" style={{ backgroundColor: 'white', fontSize: '12px' }}>
-                                                                        <span style={{ color: '#666' }}>Best Day</span>
-                                                                        <span className="fw-bold" style={{ color: '#003465' }}>2.7 km</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <Table className=' fw-bold mb-0 mt-1' style={{ width: '100%', fontSize: '10px', borderCollapse: 'collapse', border: '1px solid #E0E0E0', borderBottom: 'transparent' }}>
-                                                <tbody>
-                                                    <tr>
-                                                        <td className='p-1' style={{ color: '#121212', backgroundColor: '#F3F3F3', borderBottom: '1px solid #E0E0E0' }}>Current Week</td>
-                                                        <td className='p-1 text-warning' style={{ fontWeight: '600', textAlign: 'right', borderLeft: '1px solid #E0E0E0', backgroundColor: '#F3F3F3', borderBottom: '1px solid #E0E0E0' }}>Avg- 2.1 km</td>
-                                                    </tr>
-                                                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => {
-                                                        const distance = { Monday: '2.3', Tuesday: '2.1', Wednesday: '2.5', Thursday: '1.8', Friday: '2.7', Saturday: '2.2', Sunday: '1.6' }[day];
-                                                        const distanceValue = parseFloat(distance);
-                                                        const colorClass = distanceValue >= 2.5 ? 'text-success' : distanceValue >= 2.0 ? 'text-warning' : 'text-danger';
-                                                        return (
-                                                            <tr key={day}>
-                                                                <td className='p-1' style={{ color: '#121212', borderBottom: '1px solid #E0E0E0', backgroundColor: '#F9FAFB' }}>{day}</td>
-                                                                <td className={`p-1 ${colorClass}`} style={{ textAlign: 'right', borderBottom: '1px solid #E0E0E0', borderLeft: '1px solid #E0E0E0', backgroundColor: '#F9FAFB' }}>{distance}</td>
-                                                            </tr>
-                                                        );
-                                                    })}
-                                                </tbody>
-                                            </Table>
-                                        )}
-                                    </div>
-                                </div>
+                                <DistanceCard 
+                                    patientId={patientId}
+                                    expandedCard={expandedCard}
+                                    onCardExpand={handleCardExpand}
+                                    activeTab={activeTab}
+                                    onTabChange={setActiveTab}
+                                    currentDate={currentDate}
+                                    onDateChange={setCurrentDate}
+                                    formatDate={formatDate}
+                                />
                             )}
                         </div>
                     </div>

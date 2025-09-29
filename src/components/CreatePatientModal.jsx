@@ -174,9 +174,9 @@ const CreatePatientModal = ({ show, onHide }) => {
             } : {}),
             fullAddress: data.fullAddress || "",
             allergies: Array.isArray(data.allergies)
-                ? data.allergies
+                ? data.allergies.map(allergy => allergy.value)
                 : data.allergies
-                    ? [data.allergies]
+                    ? [data.allergies.value]
                     : [],
             currentMedications: Array.isArray(data.currentMedications)
                 ? data.currentMedications
@@ -192,7 +192,7 @@ const CreatePatientModal = ({ show, onHide }) => {
             lastName: data.lastName || "",
             gender: data.gender || "prefer-not-to-say",
             doctorId: data.doctorId || undefined,
-            fitbitConsent: data.fitbitConsent || '',
+            fitbitConsent: data.fitbitConsent || false,
         };
 
         dispatch(createPatient(patientData));
