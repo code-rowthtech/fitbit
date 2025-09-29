@@ -16,6 +16,18 @@ export function getPatientSleepApi(data) {
     return api.get(url);
 }
 
+export function getPatientCaloriesBurnedApi(data) {
+    const baseUrl = `${URL.PATIENT_CALORIES_BURNED}/${data.payload.patientId}?field=${data.payload.field}&start=${data.payload.start}&end=${data.payload.end}`;
+    const url = data.payload.period ? `${baseUrl}&period=${data.payload.period}` : baseUrl;
+    return api.get(url);
+}
+
+export function getPatientDistanceApi(data) {
+    const baseUrl = `${URL.PATIENT_DISTANCE}/${data.payload.patientId}?field=${data.payload.field}&start=${data.payload.start}&end=${data.payload.end}`;
+    const url = data.payload.period ? `${baseUrl}&period=${data.payload.period}` : baseUrl;
+    return api.get(url);
+}
+
 export function getPatientSleepEfficiencyApi(data) {
     const baseUrl = `${URL.PATIENT_SLEEP_EFFICIENCY}/${data.payload.patientId}?field=${data.payload.field}&start=${data.payload.start}&end=${data.payload.end}`;
     const url = data.payload.period ? `${baseUrl}&period=${data.payload.period}` : baseUrl;
@@ -23,7 +35,9 @@ export function getPatientSleepEfficiencyApi(data) {
 }
 
 export function getPatientWaterApi(data) {
-    return api.get(URL.PATIENT_WATER.replace(':id', data.payload.id));
+    const baseUrl = `${URL.PATIENT_WATER}/${data.payload.patientId}?field=${data.payload.field}&start=${data.payload.start}&end=${data.payload.end}`;
+    const url = data.payload.period ? `${baseUrl}&period=${data.payload.period}` : baseUrl;
+    return api.get(url);
 }
 
 export function getPatientHeartApi(data) {

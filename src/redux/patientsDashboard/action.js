@@ -15,6 +15,16 @@ export const getPatientSleep = (data) => ({
     payload: data
 })
 
+export const getPatientCaloriesBurned = (data) => ({
+    type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_CALORIES_BURNED,
+    payload: data
+})
+
+export const getPatientDistance = (data) => ({
+    type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_DISTANCE,
+    payload: data
+})
+
 export const getPatientSleepEfficiency = (data) => ({
     type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_EFFICIENCY,
     payload: data

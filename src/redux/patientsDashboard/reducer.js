@@ -18,6 +18,18 @@ const GET_PATIENT_SLEEP_INITIAL_STATE = {
     loading: false,
 };
 
+const GET_PATIENT_CALORIES_BURNED_INITIAL_STATE = {
+    data: {},
+    message: '',
+    loading: false,
+};
+
+const GET_PATIENT_DISTANCE_INITIAL_STATE = {
+    data: {},
+    message: '',
+    loading: false,
+};
+
 const GET_PATIENT_SLEEP_EFFICIENCY_INITIAL_STATE = {
     data: {},
     message: '',
@@ -135,6 +147,50 @@ export const getPatientSleep = (state = GET_PATIENT_SLEEP_INITIAL_STATE, action)
                 data: action?.payload,
             };
         case PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_ERROR:
+            return {
+                loading: false,
+                message: action?.payload,
+            };
+        default:
+            return state;
+    }
+};
+
+export const getPatientCaloriesBurned = (state = GET_PATIENT_CALORIES_BURNED_INITIAL_STATE, action) => {
+    switch (action.type) {
+        case PATIENT_DASHBOARD_TYPES.GET_PATIENT_CALORIES_BURNED_LOADING:
+            return {
+                loading: true,
+                data: state.data,
+            };
+        case PATIENT_DASHBOARD_TYPES.GET_PATIENT_CALORIES_BURNED_SUCCESS:
+            return {
+                loading: false,
+                data: action?.payload,
+            };
+        case PATIENT_DASHBOARD_TYPES.GET_PATIENT_CALORIES_BURNED_ERROR:
+            return {
+                loading: false,
+                message: action?.payload,
+            };
+        default:
+            return state;
+    }
+};
+
+export const getPatientDistance = (state = GET_PATIENT_DISTANCE_INITIAL_STATE, action) => {
+    switch (action.type) {
+        case PATIENT_DASHBOARD_TYPES.GET_PATIENT_DISTANCE_LOADING:
+            return {
+                loading: true,
+                data: state.data,
+            };
+        case PATIENT_DASHBOARD_TYPES.GET_PATIENT_DISTANCE_SUCCESS:
+            return {
+                loading: false,
+                data: action?.payload,
+            };
+        case PATIENT_DASHBOARD_TYPES.GET_PATIENT_DISTANCE_ERROR:
             return {
                 loading: false,
                 message: action?.payload,

@@ -20,7 +20,7 @@ const EfficiencyCard = ({
     const FilterData = useSelector((state) => state?.getPatientSleepEfficiency?.data?.response?.data)
     const StatsData = useSelector((state) => state?.getPatientSleepEfficiency?.data?.response?.targetRange)
     const AverageData = useSelector((state) => state?.getPatientSleepEfficiency?.data?.response)
-    console.log(AverageData, 'AverageData')
+
     // Initial API call when component mounts
     useEffect(() => {
         if (patientId) {
