@@ -16,6 +16,7 @@ const Sidebar = () => {
   const loading = Store?.getAllPatients?.loading || false;
   const [activePatient, setActivePatient] = useState(null);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const location = useLocation();
   const userInfo = JSON.parse(localStorage.getItem('user'));
   const UserRole = userInfo?.role;
@@ -23,7 +24,7 @@ const Sidebar = () => {
   const CreateDoctorResponse = useSelector((state) => state?.createDoctorReducer?.data?.status);
 
   useEffect(() => {
-    const payload = selectedDoctor?.value && selectedDoctor.value !== 'all' ? { doctorId: selectedDoctor.value } : {};
+    const payload = selectedDoctor?.value && selectedDoctor.value !== 'all' ? { doctorId: selectedDoctor.value, paginate: false } : { paginate: false };
     dispatch(getAllPatients(payload));
     if (UserRole !== "doctor") {
       dispatch(getAllDoctors());
@@ -39,7 +40,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     if (CreateResponse === 201) {
-      const payload = selectedDoctor?.value && selectedDoctor.value !== 'all' ? { doctorId: selectedDoctor.value } : {};
+      const payload = selectedDoctor?.value && selectedDoctor.value !== 'all' ? { doctorId: selectedDoctor.value, paginate: false } : { paginate: false };
       dispatch(getAllPatients(payload));
     }
   }, [CreateResponse, selectedDoctor]);
@@ -82,6 +83,8 @@ const Sidebar = () => {
           <div style={{ position: 'relative', flex: 1 }}>
             <input
               type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               style={{ padding: '4px 30px 4px 8px', fontSize: '12px', height: '36px' }}
               className='form-control'
               placeholder="Search patients..."
@@ -154,7 +157,11 @@ const Sidebar = () => {
                 <span className="text-white" style={{ fontSize: '12px' }}>No patients found</span>
               </div>
             ) : (
-              PatientData?.map((patient) => (
+              PatientData?.filter((patient) => {
+                const fullName = `${patient.firstName} ${patient.lastName}`.toLowerCase();
+                return fullName.includes(searchTerm.toLowerCase()) ||
+                  patient.email?.toLowerCase().includes(searchTerm.toLowerCase());
+              }).map((patient) => (
                 <div
                   key={patient._id}
                   className={`d-flex align-items-center p-2 patient-item ${activePatient === patient._id ? 'active' : ''}`}

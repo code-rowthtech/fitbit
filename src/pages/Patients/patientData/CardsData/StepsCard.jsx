@@ -188,7 +188,7 @@ const StepsCard = ({
                     end: formatDate(end),
                     field: "steps"
                 }
-                if (activeTab === 'Month') payload.period = 'month'
+                // if (activeTab === 'Month') payload.period = 'month'
                 if (activeTab === 'Year') payload.period = 'year'
                 dispatch(getFilterData(payload))
             }

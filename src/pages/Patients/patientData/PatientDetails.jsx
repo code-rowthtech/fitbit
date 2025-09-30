@@ -265,7 +265,7 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
                 </div>
 
                 <div className="d-flex" style={{ gap: '18px' }}>
-                  <div className="d-flex align-items-center bg-white p-3 rounded-1 position-relative" style={{ gap: '20px', width: '9vw', boxShadow: (parseInt(String(PatientData?.weeklyFitbitData?.avgSteps || '').replace(',', '')) || 7000) < 6000 ? '0 0 8px rgba(220, 53, 69, 0.3)' : 'none' }}>
+                  <div className="d-flex align-items-center p-3 rounded-1 position-relative" style={{ gap: '20px', width: '9vw', backgroundColor: (parseInt(String(PatientData?.weeklyFitbitData?.avgSteps || '').replace(',', '')) || 7000) < 6000 ? '#fef7f7' : 'white', boxShadow: (parseInt(String(PatientData?.weeklyFitbitData?.avgSteps || '').replace(',', '')) || 7000) < 6000 ? '0 0 8px rgba(220, 53, 69, 0.3)' : 'none' }}>
                     <img src={stepsIcon} alt="Steps" style={{ width: '24px', height: '24px' }} />
                     <div>
                       <div className='text-nowrap' style={{ fontSize: '12px', color: '#6c757d', marginBottom: '2px' }}>Avg Steps</div>
@@ -278,7 +278,7 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
                       <FaExclamationTriangle style={{ position: 'absolute', bottom: '4px', right: '4px', color: '#dc3545', fontSize: '14px' }} />
                     }
                   </div>
-                  <div className="d-flex align-items-center bg-white p-3 rounded-1 position-relative" style={{ gap: '16px', width: '9vw', boxShadow: ((parseInt(PatientData?.weeklyFitbitData?.heartRate) || 80) < 60 || (parseInt(PatientData?.weeklyFitbitData?.heartRate) || 80) > 100) ? '0 0 8px rgba(220, 53, 69, 0.3)' : 'none' }}>
+                  <div className="d-flex align-items-center p-3 rounded-1 position-relative" style={{ gap: '16px', width: '9vw', backgroundColor: ((parseInt(PatientData?.weeklyFitbitData?.heartRate) || 80) < 60 || (parseInt(PatientData?.weeklyFitbitData?.heartRate) || 80) > 100) ? '#fef7f7' : 'white', boxShadow: ((parseInt(PatientData?.weeklyFitbitData?.heartRate) || 80) < 60 || (parseInt(PatientData?.weeklyFitbitData?.heartRate) || 80) > 100) ? '0 0 8px rgba(220, 53, 69, 0.3)' : 'none' }}>
                     <img src={heartRateIcon} alt="Heart Rate" style={{ width: '26px', height: '26px' }} />
                     <div>
                       <div className='text-nowrap' style={{ fontSize: '12px', color: '#6c757d', marginBottom: '2px' }}>Avg Heart Rate</div>
@@ -291,7 +291,7 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
                       <FaExclamationTriangle style={{ position: 'absolute', bottom: '4px', right: '4px', color: '#dc3545', fontSize: '14px' }} />
                     }
                   </div>
-                  <div className="d-flex align-items-center bg-white p-3 rounded-1 position-relative" style={{ gap: '16px', width: '9vw', boxShadow: (parseInt(PatientData?.weeklyFitbitData?.avgSleepDuration) || 360) < 420 ? '0 0 8px rgba(220, 53, 69, 0.3)' : 'none' }}>
+                  <div className="d-flex align-items-center p-3 rounded-1 position-relative" style={{ gap: '16px', width: '9vw', backgroundColor: (parseInt(PatientData?.weeklyFitbitData?.avgSleepDuration) || 360) < 420 ? '#fef7f7' : 'white', boxShadow: (parseInt(PatientData?.weeklyFitbitData?.avgSleepDuration) || 360) < 420 ? '0 0 8px rgba(220, 53, 69, 0.3)' : 'none' }}>
                     <img src={sleepIcon} alt="Sleep" style={{ width: '24px', height: '24px' }} />
                     <div>
                       <div className='text-nowrap' style={{ fontSize: '12px', color: '#6c757d', marginBottom: '2px' }}>Avg Sleep Min</div>
@@ -304,7 +304,7 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
                       <FaExclamationTriangle style={{ position: 'absolute', bottom: '4px', right: '4px', color: '#dc3545', fontSize: '14px' }} />
                     }
                   </div>
-                  <div className="d-flex align-items-center bg-white p-3 rounded-1 position-relative" style={{ gap: '16px', width: '9vw', boxShadow: (parseFloat(PatientData?.weeklyFitbitData?.avgWater) || 2700) < 2500 ? '0 0 8px rgba(220, 53, 69, 0.3)' : 'none' }}>
+                  <div className="d-flex align-items-center p-3 rounded-1 position-relative" style={{ gap: '16px', width: '9vw', backgroundColor: (parseFloat(PatientData?.weeklyFitbitData?.avgWater) || 2700) < 2500 ? '#fef7f7' : 'white', boxShadow: (parseFloat(PatientData?.weeklyFitbitData?.avgWater) || 2700) < 2500 ? '0 0 8px rgba(220, 53, 69, 0.3)' : 'none' }}>
                     <img src={waterIntakeIcon} alt="Water Intake" style={{ width: '24px', height: '24px' }} />
                     <div>
                       <div className='text-nowrap' style={{ fontSize: '12px', color: '#6c757d', marginBottom: '2px' }}>Avg Water Intake</div>

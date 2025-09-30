@@ -45,6 +45,10 @@
   font-size: 14px !important;
 }
 
+.login-input::placeholder {
+  color: #dadcdd !important;
+}
+
 .login-btn {
   background-color: #16213D !important;
   border: none !important;
