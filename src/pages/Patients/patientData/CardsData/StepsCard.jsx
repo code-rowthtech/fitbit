@@ -276,7 +276,12 @@ const StepsCard = ({
                                                     afterBody: activeTab === 'Week' && StepsStatsData ? () => [
                                                         `Min: ${parseInt(StepsStatsData.min)}`,
                                                         `Max: ${parseInt(StepsStatsData.max)}`
-                                                    ] : undefined
+                                                    ] : activeTab === 'Month' && FilterData ? (context) => {
+                                                        const dataIndex = context[0]?.dataIndex
+                                                        return dataIndex !== undefined && FilterData[dataIndex] ? [
+                                                            `Days: ${FilterData[dataIndex].dayRange}`
+                                                        ] : []
+                                                    } : undefined
                                                 }
                                             }
                                         },
