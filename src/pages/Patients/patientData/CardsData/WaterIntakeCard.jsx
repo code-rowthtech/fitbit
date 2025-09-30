@@ -83,6 +83,11 @@ const WaterIntakeCard = ({
         const apiData = WaterData
 
         const labels = apiData.map(item => {
+            if (activeTab === 'Month' && item.date.includes('Week')) {
+                const weekMatch = item.date.match(/Week (\d+)/)
+                return weekMatch ? `Week ${weekMatch[1]}` : item.date
+            }
+
             const date = new Date(item.date)
             switch (activeTab) {
                 case 'Day':
@@ -101,24 +106,29 @@ const WaterIntakeCard = ({
         const data = apiData.map(item => convertMlToLiters(item.value))
 
         const tableData = apiData.map(item => {
-            const date = new Date(item.date)
             let period
 
-            switch (activeTab) {
-                case 'Day':
-                    period = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
-                    break
-                case 'Week':
-                    period = date.toLocaleDateString('en-US', { weekday: 'long' })
-                    break
-                case 'Month':
-                    period = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-                    break
-                case 'Year':
-                    period = date.toLocaleDateString('en-US', { month: 'long' })
-                    break
-                default:
-                    period = date.toLocaleDateString()
+            if (activeTab === 'Month' && item.date.includes('Week')) {
+                const weekMatch = item.date.match(/Week (\d+)/)
+                period = weekMatch ? `Week ${weekMatch[1]}` : item.date
+            } else {
+                const date = new Date(item.date)
+                switch (activeTab) {
+                    case 'Day':
+                        period = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+                        break
+                    case 'Week':
+                        period = date.toLocaleDateString('en-US', { weekday: 'long' })
+                        break
+                    case 'Month':
+                        period = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                        break
+                    case 'Year':
+                        period = date.toLocaleDateString('en-US', { month: 'long' })
+                        break
+                    default:
+                        period = date.toLocaleDateString()
+                }
             }
 
             const litersValue = convertMlToLiters(item.value)
@@ -313,14 +323,19 @@ const WaterIntakeCard = ({
                                     }}
                                     options={{
                                         maintainAspectRatio: false,
-                                        plugins: {
+                                         plugins: {
                                             legend: { display: false },
                                             tooltip: {
                                                 callbacks: {
                                                     afterBody: activeTab === 'Week' && WaterStatsData ? () => [
                                                         `Min: ${parseFloat(WaterStatsData.min).toFixed(1)}L`,
                                                         `Max: ${parseFloat(WaterStatsData.max).toFixed(1)}L`
-                                                    ] : undefined
+                                                    ] : activeTab === 'Month' && WaterData ? (context) => {
+                                                        const dataIndex = context[0]?.dataIndex
+                                                        return dataIndex !== undefined && WaterData[dataIndex] ? [
+                                                            `Days: ${WaterData[dataIndex].dayRange}`
+                                                        ] : []
+                                                    } : undefined
                                                 }
                                             }
                                         },
@@ -337,7 +352,35 @@ const WaterIntakeCard = ({
                                                 ticks: { color: '#666', fontSize: 10 }
                                             }
                                         },
-                                        categoryPercentage: 0.6
+                                        categoryPercentage: 0.6,
+                                        onHover: activeTab === 'Week' && WaterStatsData ? (event, elements, chart) => {
+                                            const ctx = chart.ctx
+                                            const chartArea = chart.chartArea
+
+                                            if (chartArea) {
+                                                const yScale = chart.scales.y
+                                                const minY = yScale.getPixelForValue(parseFloat(WaterStatsData.min))
+                                                const maxY = yScale.getPixelForValue(parseFloat(WaterStatsData.max))
+
+                                                // Draw min line
+                                                ctx.save()
+                                                ctx.strokeStyle = '#ff6b6b'
+                                                ctx.lineWidth = 1
+                                                ctx.setLineDash([5, 5])
+                                                ctx.beginPath()
+                                                ctx.moveTo(chartArea.left, minY)
+                                                ctx.lineTo(chartArea.right, minY)
+                                                ctx.stroke()
+
+                                                // Draw max line
+                                                ctx.strokeStyle = '#51cf66'
+                                                ctx.beginPath()
+                                                ctx.moveTo(chartArea.left, maxY)
+                                                ctx.lineTo(chartArea.right, maxY)
+                                                ctx.stroke()
+                                                ctx.restore()
+                                            }
+                                        } : undefined
                                     }}
                                 />
                             </div>
@@ -416,7 +459,7 @@ const WaterIntakeCard = ({
                             {/* Average Row */}
                             <div className='d-flex justify-content-between p-2 mb-1' style={{ backgroundColor: '#E8F2FF', fontSize: '10px', fontWeight: '600' }}>
                                 <span style={{ color: '#003465' }}>Average</span>
-                                <span style={{ color: '#003465' }}>{AverageData?.stats?.average ? `${AverageData.stats.average}L` : '-'}</span>
+                                <span style={{ color: '#003465' }}>{AverageData?.stats?.average ? `${(AverageData.stats.average / 1000).toFixed(1)}L` : '-'}</span>
                             </div>
 
                             {/* Min/Max Rows - Only show in Week tab */}

@@ -6,15 +6,15 @@ import { Bar } from 'react-chartjs-2'
 import { useDispatch, useSelector } from 'react-redux'
 import { getPatientCaloriesBurned } from '../../../../redux/patientsDashboard/action'
 
-const CaloriesCard = ({ 
-    patientId, 
-    expandedCard, 
-    onCardExpand, 
-    activeTab, 
-    onTabChange, 
-    currentDate, 
+const CaloriesCard = ({
+    patientId,
+    expandedCard,
+    onCardExpand,
+    activeTab,
+    onTabChange,
+    currentDate,
     onDateChange,
-    formatDate 
+    formatDate
 }) => {
     const dispatch = useDispatch()
     const CaloriesData = useSelector((state) => state?.getPatientCaloriesBurned?.data?.response?.data)
@@ -311,10 +311,19 @@ const CaloriesCard = ({
                                             legend: { display: false },
                                             tooltip: {
                                                 callbacks: {
-                                                    afterBody: activeTab === 'Week' && CaloriesStatsData ? () => [
-                                                        `Min: ${parseInt(CaloriesStatsData.min)}`,
-                                                        `Max: ${parseInt(CaloriesStatsData.max)}`
-                                                    ] : undefined
+                                                    afterBody: activeTab === 'Week' && CaloriesData ? (context) => {
+                                                        const dataIndex = context[0]?.dataIndex
+                                                        return dataIndex !== undefined && CaloriesData[dataIndex]?.calories ? [
+                                                            `BMR: ${parseInt(CaloriesData[dataIndex].calories.bmr)}`,
+                                                            `Total: ${parseInt(CaloriesData[dataIndex].calories.total)}`,
+                                                            `Out: ${parseInt(CaloriesData[dataIndex].calories.out)}`
+                                                        ] : []
+                                                    } : activeTab === 'Month' && CaloriesData ? (context) => {
+                                                        const dataIndex = context[0]?.dataIndex
+                                                        return dataIndex !== undefined && CaloriesData[dataIndex] ? [
+                                                            `Days: ${CaloriesData[dataIndex].dayRange}`
+                                                        ] : []
+                                                    } : undefined
                                                 }
                                             }
                                         },
@@ -335,12 +344,12 @@ const CaloriesCard = ({
                                         onHover: activeTab === 'Week' && CaloriesStatsData ? (event, elements, chart) => {
                                             const ctx = chart.ctx
                                             const chartArea = chart.chartArea
-                                            
+
                                             if (chartArea) {
                                                 const yScale = chart.scales.y
                                                 const minY = yScale.getPixelForValue(parseInt(CaloriesStatsData.min))
                                                 const maxY = yScale.getPixelForValue(parseInt(CaloriesStatsData.max))
-                                                
+
                                                 // Draw min line
                                                 ctx.save()
                                                 ctx.strokeStyle = '#ff6b6b'
@@ -350,7 +359,7 @@ const CaloriesCard = ({
                                                 ctx.moveTo(chartArea.left, minY)
                                                 ctx.lineTo(chartArea.right, minY)
                                                 ctx.stroke()
-                                                
+
                                                 // Draw max line
                                                 ctx.strokeStyle = '#51cf66'
                                                 ctx.beginPath()
@@ -498,13 +507,19 @@ const CaloriesCard = ({
                         </div>
 
                         <div className="row g-1 ">
-                            <div className="col-6">
+                             <div className="col-4">
+                                <div className="text-center py-1 px-2 rounded-2" style={{ backgroundColor: 'white', border: '1px solid #E8F2FF' }}>
+                                    <div className="fw-bold" style={{ fontSize: '14px', color: '#003465' }}>{AverageData?.todayData?.calories?.bmr || '-'}</div>
+                                    <div style={{ fontSize: '9px', color: '#666', fontWeight: '500' }}>BMR</div>
+                                </div>
+                            </div>
+                            <div className="col-4">
                                 <div className="text-center py-1 px-2 rounded-2" style={{ backgroundColor: 'white', border: '1px solid #E8F2FF' }}>
                                     <div className="fw-bold" style={{ fontSize: '14px', color: '#003465' }}>{AverageData?.todayData?.value || '-'}</div>
                                     <div style={{ fontSize: '9px', color: '#666', fontWeight: '500' }}>Today</div>
                                 </div>
                             </div>
-                            <div className="col-6">
+                            <div className="col-4">
                                 <div className="text-center py-1 px-2 rounded-2" style={{ backgroundColor: 'white', border: '1px solid #E8F2FF' }}>
                                     <div className="fw-bold" style={{ fontSize: '14px', color: '#003465' }}>{AverageData?.goals?.calories || '-'}</div>
                                     <div style={{ fontSize: '9px', color: '#666', fontWeight: '500' }}>Goal</div>

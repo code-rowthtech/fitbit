@@ -312,9 +312,14 @@ const DistanceCard = ({
                                             tooltip: {
                                                 callbacks: {
                                                     afterBody: activeTab === 'Week' && DistanceStatsData ? () => [
-                                                        `Min: ${parseFloat(DistanceStatsData.min).toFixed(2)} km`,
-                                                        `Max: ${parseFloat(DistanceStatsData.max).toFixed(2)} km`
-                                                    ] : undefined
+                                                        `Min: ${parseInt(DistanceStatsData.min)}`,
+                                                        `Max: ${parseInt(DistanceStatsData.max)}`
+                                                    ] : activeTab === 'Month' && DistanceData ? (context) => {
+                                                        const dataIndex = context[0]?.dataIndex
+                                                        return dataIndex !== undefined && DistanceData[dataIndex] ? [
+                                                            `Days: ${DistanceData[dataIndex].dayRange}`
+                                                        ] : []
+                                                    } : undefined
                                                 }
                                             }
                                         },

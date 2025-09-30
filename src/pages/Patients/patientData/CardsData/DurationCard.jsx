@@ -307,14 +307,19 @@ const DurationCard = ({
                                     }}
                                     options={{
                                         maintainAspectRatio: false,
-                                        plugins: {
+                                         plugins: {
                                             legend: { display: false },
                                             tooltip: {
                                                 callbacks: {
                                                     afterBody: activeTab === 'Week' && StatsData ? () => [
-                                                        `Min: ${parseInt(StatsData.min)}h`,
-                                                        `Max: ${parseInt(StatsData.max)}h`
-                                                    ] : undefined
+                                                        `Min: ${parseInt(StatsData.min)}`,
+                                                        `Max: ${parseInt(StatsData.max)}`
+                                                    ] : activeTab === 'Month' && FilterData ? (context) => {
+                                                        const dataIndex = context[0]?.dataIndex
+                                                        return dataIndex !== undefined && FilterData[dataIndex] ? [
+                                                            `Days: ${FilterData[dataIndex].dayRange}`
+                                                        ] : []
+                                                    } : undefined
                                                 }
                                             }
                                         },
