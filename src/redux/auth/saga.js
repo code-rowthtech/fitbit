@@ -46,7 +46,7 @@ function* login({ payload: { username, password } }) {
             yield put(authApiResponseError(AuthActionTypes.LOGIN_USER, errorMessage));
         }
     } catch (error) {
-        const errorMessage = error?.response?.data?.message || error?.message || 'Network error occurred';
+        const errorMessage = error?.response?.data?.error || error?.message || 'Network error occurred';
         yield put(authApiResponseError(AuthActionTypes.LOGIN_USER, errorMessage));
     }
 }
