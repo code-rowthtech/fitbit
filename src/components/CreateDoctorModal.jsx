@@ -215,7 +215,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
             skills.forEach(skillId => formData.append('skills[]', skillId));
         }
         if (data.experience) formData.append('yearOfExperience', data.experience);
-        if (data.fees) formData.append('feePerConsultation', data.fees);
+        // if (data.fees) formData.append('feePerConsultation', data.fees);
         if (data.consultationType) formData.append('consultationType', data.consultationType);
         formData.append('patients', JSON.stringify([]));
         if (data.timings) formData.append('timings', data.timings);
@@ -492,7 +492,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
                 return (
                     <div className="p-4" style={{ minHeight: '400px' }}>
                         <Row className='mt-5'>
-                            <Col md={6}>
+                            <Col md={12}>
                                 <Form.Group className="mb-3">
                                     <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Clinic Name</Form.Label>
                                     <Form.Control
@@ -505,7 +505,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col md={6}>
+                            {/* <Col md={6}>
                                 <Form.Group className="mb-3">
                                     <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Fees</Form.Label>
                                     <Form.Control
@@ -517,7 +517,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
                                         {...register('fees')}
                                     />
                                 </Form.Group>
-                            </Col>
+                            </Col> */}
                             <Col md={12}>
                                 <h4 className='fw-bold mb-3 mt-2' style={{ fontSize: '16px', color: '#16213D' }}>Clinic Address</h4>
                             </Col>
