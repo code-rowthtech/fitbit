@@ -70,6 +70,16 @@ export const connectToFitbit = (data) => ({
     payload: data
 })
 
+export const getPatientActiveMin = (data) => ({
+    type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_ACTIVE_MIN,
+    payload: data
+})
+
+export const getPatientHeartRate = (data) => ({
+    type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_HEART_RATE,
+    payload: data
+})
+
 export const getFilterData = (data) => ({
     type: PATIENT_DASHBOARD_TYPES.GET_FILTER_DATA,
     payload: data
