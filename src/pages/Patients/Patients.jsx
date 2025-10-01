@@ -99,7 +99,7 @@ const Patients = () => {
     }
 
     const handleUpdatePatient = (patient) => {
-        setSelectedPatient(patient)
+        setSelectedPatient(patient._id)
         setShowUpdateModal(true)
     }
 
@@ -307,7 +307,7 @@ const Patients = () => {
                                                                 title='Update'
                                                                 className="btn text-white d-flex align-items-center justify-content-center"
                                                                 style={{ padding: '4px 6px', fontSize: '10px', backgroundColor: '#5496D3', height: '30px' }}
-                                                                onClick={() => handleUpdatePatient(patient?._id)}
+                                                                onClick={() => handleUpdatePatient(patient)}
                                                             >
                                                                 <TbPencilMinus size={12} />
                                                             </button>
@@ -377,7 +377,7 @@ const Patients = () => {
                 <UpdatePatientModal
                     show={showUpdateModal}
                     onHide={() => setShowUpdateModal(false)}
-                    patient={selectedPatient}
+                    patientId={selectedPatient}
                 />
             </div>
         </>
