@@ -7,6 +7,7 @@ export function getAllDoctorsApi(data) {
     if (data.payload?.page) params.append('page', data.payload.page);
     if (data.payload?.limit) params.append('limit', data.payload.limit);
     if (data.payload?.search) params.append('search', data.payload.search);
+    if (data.payload?.isActive !== undefined) params.append('isActive', data.payload.isActive);
 
     return api.get(`${URL.GET_DOCTORS}?${params.toString()}`);
 }

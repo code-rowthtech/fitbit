@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Table, Pagination, Form } from 'react-bootstrap'
+import { Table, Pagination, Form, Modal, Button } from 'react-bootstrap'
 import { FaEye } from 'react-icons/fa'
 import { TbPencilMinus } from "react-icons/tb";
-import { FiSearch } from 'react-icons/fi'
+import { FiSearch, FiFilter } from 'react-icons/fi'
 import { useNavigate } from 'react-router-dom'
 import CreatePatientModal from '../../components/CreatePatientModal'
 import UpdatePatientModal from '../../components/UpdatePatientModal'
-import { getAllPatients, getAllDoctors } from '../../redux/actions'
+import { getAllPatients, getAllDoctors, updatePatient } from '../../redux/actions'
 import { useDispatch, useSelector } from 'react-redux'
 import { useSidebar } from '../../contexts/SidebarContext'
 import { DateRangePicker } from 'react-date-range'
@@ -21,6 +21,7 @@ const Patients = () => {
     const Store = useSelector((state) => state)
     const PatientCount = Store?.getAllPatients?.message;
     const PatientData = Store?.getAllPatients?.message?.patients
+    console.log(PatientData, 'PatientData')
     const DoctorData = Store?.getAllDoctors?.data?.doctors || []
     const loading = Store?.getAllPatients?.loading || false
     const CreateResponse = useSelector((state) => state?.createPatientReducer?.data?.status);
@@ -42,7 +43,12 @@ const Patients = () => {
     ])
     const [searchTerm, setSearchTerm] = useState('')
     const [selectedDoctor, setSelectedDoctor] = useState(null)
+    const [statusFilter, setStatusFilter] = useState('active')
+    const [showStatusFilter, setShowStatusFilter] = useState(false)
+    const [showConfirmModal, setShowConfirmModal] = useState(false)
+    const [selectedPatientForToggle, setSelectedPatientForToggle] = useState(null)
     const datePickerRef = useRef(null)
+    const statusFilterRef = useRef(null)
 
     useEffect(() => {
         hideSidebar();
@@ -53,11 +59,12 @@ const Patients = () => {
             params.startDateRange = dateRange[0].startDate.toISOString().split('T')[0];
             params.endDateRange = dateRange[0].endDate.toISOString().split('T')[0];
         }
+        if (statusFilter) params.isActive = statusFilter === 'active';
         dispatch(getAllPatients(params))
         if (UserRole !== "doctor") {
             dispatch(getAllDoctors());
         }
-    }, [currentPage, searchTerm, selectedDoctor, dateRange]);
+    }, [currentPage, searchTerm, selectedDoctor, dateRange, statusFilter]);
 
     useEffect(() => {
         if (PatientCount) {
@@ -69,6 +76,9 @@ const Patients = () => {
         const handleClickOutside = (event) => {
             if (datePickerRef.current && !datePickerRef.current.contains(event.target)) {
                 setShowDatePicker(false)
+            }
+            if (statusFilterRef.current && !statusFilterRef.current.contains(event.target)) {
+                setShowStatusFilter(false)
             }
         }
         document.addEventListener('mousedown', handleClickOutside)
@@ -88,9 +98,10 @@ const Patients = () => {
                 params.startDateRange = dateRange[0].startDate.toISOString().split('T')[0];
                 params.endDateRange = dateRange[0].endDate.toISOString().split('T')[0];
             }
+            if (statusFilter) params.isActive = statusFilter === 'active';
             dispatch(getAllPatients(params))
         }
-    }, [CreateResponse, UpdateResponse, currentPage, searchTerm, selectedDoctor, dateRange]);
+    }, [CreateResponse, UpdateResponse, currentPage, searchTerm, selectedDoctor, dateRange, statusFilter]);
 
 
     const handleViewPatient = (patient) => {
@@ -109,6 +120,23 @@ const Patients = () => {
 
     const getStatusBadge = (isActive) => {
         return isActive ? 'badge badge-active' : 'badge bg-secondary-subtle text-secondary'
+    }
+
+    const handleStatusToggle = (patient) => {
+        setSelectedPatientForToggle(patient)
+        setShowConfirmModal(true)
+    }
+
+    const confirmStatusToggle = () => {
+        const updatedData = {
+            patientId: selectedPatientForToggle._id,
+            body: {
+                isActive: !selectedPatientForToggle.isActive
+            }
+        }
+        dispatch(updatePatient(updatedData))
+        setShowConfirmModal(false)
+        setSelectedPatientForToggle(null)
     }
 
     return (
@@ -140,6 +168,14 @@ const Patients = () => {
                     background-color: #fff;
                     border-color: #dee2e6;
                 }
+                .form-check-input:checked {
+                    background-color: #003465;
+                    border-color: #003465;
+                }
+                .form-check-input:focus {
+                    border-color: #003465;
+                    box-shadow: 0 0 0 0.25rem rgba(0, 52, 101, 0.25);
+                }
                 `}
             </style>
             <div className='border-0' style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -147,10 +183,38 @@ const Patients = () => {
                     <div className="">
                         <div className="d-flex justify-content-between align-items-center mb-2">
                             <div className='d-flex gap-3 align-items-center'>
-                                <h4 className='fw-bold mb-0' style={{ color:'#003465', letterSpacing: '-0.5px' }}>Patients</h4>
-                                <span className='badge text-white rounded-2 px-2 py-1' style={{backgroundColor:'#003465', fontSize:'14px', fontWeight: '600'}}>{PatientCount?.totalRecords || 0}</span>
+                                <h4 className='fw-bold mb-0' style={{ color: '#003465', letterSpacing: '-0.5px' }}>Patients</h4>
+                                <span className='badge text-white rounded-2 px-2 py-1' style={{ backgroundColor: '#003465', fontSize: '14px', fontWeight: '600' }}>{PatientCount?.totalRecords || 0}</span>
                             </div>
                             <div className='d-flex gap-2'>
+                                <div ref={statusFilterRef} style={{ position: 'relative' }}>
+                                    <button
+                                        className="form-control border-0 bg-light text-start d-flex justify-content-between align-items-center"
+                                        style={{ fontSize: '12px', height: '36px', width: '120px', color: '#003465', backgroundColor: '#F0F3F7' }}
+                                        onClick={() => setShowStatusFilter(!showStatusFilter)}
+                                    >
+                                        <span className="text-capitalize">{statusFilter}</span>
+                                        <FiFilter />
+                                    </button>
+                                    {showStatusFilter && (
+                                        <div style={{ position: 'absolute', top: '40px', zIndex: 1000, backgroundColor: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', borderRadius: '6px', minWidth: '120px' }}>
+                                            <div 
+                                                className="px-3 py-2 text-start" 
+                                                style={{ cursor: 'pointer', fontSize: '12px', borderBottom: '1px solid #eee' }}
+                                                onClick={() => { setStatusFilter('active'); setShowStatusFilter(false); }}
+                                            >
+                                                Active
+                                            </div>
+                                            <div 
+                                                className="px-3 py-2 text-start" 
+                                                style={{ cursor: 'pointer', fontSize: '12px' }}
+                                                onClick={() => { setStatusFilter('inactive'); setShowStatusFilter(false); }}
+                                            >
+                                                Inactive
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                                 <div ref={datePickerRef} style={{ position: 'relative' }}>
                                     <button
                                         className="form-control border-0 bg-light text-start d-flex justify-content-between align-items-center"
@@ -158,8 +222,8 @@ const Patients = () => {
                                         onClick={() => setShowDatePicker(!showDatePicker)}
                                     >
                                         <span>
-                                            {dateRange[0].startDate && dateRange[0].endDate 
-                                                ? `${dateRange[0].startDate.toLocaleDateString()} - ${dateRange[0].endDate.toLocaleDateString()}` 
+                                            {dateRange[0].startDate && dateRange[0].endDate
+                                                ? `${dateRange[0].startDate.toLocaleDateString()} - ${dateRange[0].endDate.toLocaleDateString()}`
                                                 : 'Select Date Range'
                                             }
                                         </span>
@@ -178,8 +242,8 @@ const Patients = () => {
                                     <></>
                                     :
                                     <div>
-                                        <Form.Select 
-                                            className="mb-0 border-0 bg-light" 
+                                        <Form.Select
+                                            className="mb-0 border-0 bg-light"
                                             style={{ fontSize: '12px', height: '36px', width: '247px', color: '#003465', backgroundColor: '#F0F3F7' }}
                                             value={selectedDoctor?.value || ''}
                                             onChange={(e) => {
@@ -240,13 +304,13 @@ const Patients = () => {
                                     <thead className='thead-custom' style={{ position: 'sticky', top: 0, zIndex: 10 }}>
                                         <tr>
                                             <th className='fw-bold py-2 text-center' style={{ width: '5%', fontSize: '16px' }}>#</th>
-                                            <th className='fw-bold py-2 text-start ps-5' style={{ width: '22%', fontSize: '16px' }}>Name</th>
-                                            <th className='fw-bold py-2 text-start' style={{ width: '23%', fontSize: '16px' }}>Email</th>
-                                            <th className='fw-bold py-2 text-start' style={{ width: '20%', fontSize: '16px' }}>Assigned to</th>
-                                            <th className='fw-bold py-2 text-center' style={{ width: '8%', fontSize: '16px' }}>Gender</th>
+                                            <th className='fw-bold py-2 text-start ps-5' style={{ width: '20%', fontSize: '16px' }}>Name</th>
+                                            <th className='fw-bold py-2 text-start' style={{ width: '25%', fontSize: '16px' }}>Email</th>
                                             <th className='fw-bold py-2 text-center' style={{ width: '12%', fontSize: '16px' }}>Registered At</th>
-                                            <th className='fw-bold py-2 text-center' style={{ width: '8%', fontSize: '16px' }}>Status</th>
-                                            <th className='fw-bold py-2 text-start pe-3' style={{ width: '10%', fontSize: '16px' }}>Actions</th>
+                                            <th className='fw-bold py-2 text-start' style={{ width: '18%', fontSize: '16px' }}>Assigned to</th>
+                                            <th className='fw-bold py-2 text-center' style={{ width: '8%', fontSize: '16px' }}>Gender</th>
+                                            <th className='fw-bold py-2 text-center' style={{ width: '7%', fontSize: '16px' }}>Status</th>
+                                            <th className='fw-bold py-2 text-start pe-3' style={{ width: '5%', fontSize: '16px' }}>Actions</th>
                                         </tr>
                                     </thead>
                                 </Table>
@@ -258,7 +322,7 @@ const Patients = () => {
                                                     <td className="text-center fw-semibold" style={{ fontSize: '14px', width: '5%' }}>
                                                         {((currentPage - 1) * 20) + index + 1}
                                                     </td>
-                                                    <td className="text-start ps-3" style={{ fontSize: '14px', width: '22%' }}>
+                                                    <td className="text-start ps-3" style={{ fontSize: '14px', width: '20%' }}>
                                                         <div className="d-flex align-items-center gap-2">
                                                             <div className="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-uppercase"
                                                                 style={{ width: '32px', height: '32px', fontSize: '14px', color: 'white' }}>
@@ -271,10 +335,13 @@ const Patients = () => {
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className="text-start" style={{ fontSize: '14px', width: '23%' }}>
+                                                    <td className="text-start" style={{ fontSize: '14px', width: '25%' }}>
                                                         {patient.email}
                                                     </td>
-                                                    <td className="text-start" style={{ fontSize: '14px', width: '20%' }}>
+                                                    <td className="text-center" style={{ fontSize: '14px', width: '12%' }}>
+                                                        {patient.registrationDate ? new Date(patient.registrationDate).toLocaleDateString() : "-"}
+                                                    </td>
+                                                    <td className="text-start" style={{ fontSize: '14px', width: '18%' }}>
                                                         <div className="text-dark text-capitalize" style={{ fontSize: '14px' }}>
                                                             {patient?.doctorId?.firstName && patient?.doctorId?.lastName
                                                                 ? `${patient.doctorId.firstName} ${patient.doctorId.lastName}`
@@ -284,16 +351,16 @@ const Patients = () => {
                                                     <td className="text-center" style={{ fontSize: '14px', width: '8%' }}>
                                                         <span className="text-capitalize">{patient.gender || "-"}</span>
                                                     </td>
-                                                    <td className="text-center" style={{ fontSize: '14px', width: '12%' }}>
-                                                        {patient.registrationDate ? new Date(patient.registrationDate).toLocaleDateString() : "-"}
+                                                    <td className="text-center" style={{ width: '7%' }}>
+                                                        <Form.Check 
+                                                            type="switch"
+                                                            id={`status-switch-${patient._id}`}
+                                                            checked={patient.isActive}
+                                                            onChange={() => handleStatusToggle(patient)}
+                                                            style={{ transform: 'scale(1.2)' }}
+                                                        />
                                                     </td>
-                                                    <td className="text-center" style={{ width: '8%' }}>
-                                                        <span className={`${getStatusBadge(patient.isActive)} text-capitalize`}
-                                                            style={{ padding: '6px', fontSize: '14px', width: '3.5vw', height: '30px' }}>
-                                                            {patient.isActive ? 'Active' : 'Inactive'}
-                                                        </span>
-                                                    </td>
-                                                    <td className="text-center pe-3" style={{ width: '10%' }}>
+                                                    <td className="text-center pe-3" style={{ width: '5%' }}>
                                                         <div className="d-flex justify-content-center gap-1">
                                                             <button
                                                                 title='View'
@@ -328,18 +395,18 @@ const Patients = () => {
                                 Showing <span className="fw-bold">{((currentPage - 1) * 20) + 1}</span> - <span className="fw-bold">{Math.min(currentPage * 20, PatientCount?.totalRecords || 0)}</span> of <span className="fw-bold">{PatientCount?.totalRecords || 0}</span> patients
                             </div>
                             <Pagination className="custom-pagination mb-0">
-                                <Pagination.First 
+                                <Pagination.First
                                     onClick={() => handlePaginationChange(1)}
                                     disabled={currentPage === 1}
                                 />
-                                <Pagination.Prev 
+                                <Pagination.Prev
                                     onClick={() => handlePaginationChange(currentPage - 1)}
                                     disabled={currentPage === 1}
                                 />
                                 {[...Array(PatientCount?.totalPages)].map((_, index) => {
                                     const page = index + 1;
-                                    if (page === currentPage || 
-                                        page === 1 || 
+                                    if (page === currentPage ||
+                                        page === 1 ||
                                         page === PatientCount?.totalPages ||
                                         (page >= currentPage - 1 && page <= currentPage + 1)) {
                                         return (
@@ -356,11 +423,11 @@ const Patients = () => {
                                     }
                                     return null;
                                 })}
-                                <Pagination.Next 
+                                <Pagination.Next
                                     onClick={() => handlePaginationChange(currentPage + 1)}
                                     disabled={currentPage === PatientCount?.totalPages}
                                 />
-                                <Pagination.Last 
+                                <Pagination.Last
                                     onClick={() => handlePaginationChange(PatientCount?.totalPages)}
                                     disabled={currentPage === PatientCount?.totalPages}
                                 />
@@ -379,6 +446,28 @@ const Patients = () => {
                     onHide={() => setShowUpdateModal(false)}
                     patientId={selectedPatient}
                 />
+
+                <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
+                    <Modal.Header closeButton className='border-0'>
+                        <Modal.Title className='fs-6 fw-bold'>Status Confirmation</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className='text-center py-4' style={{ fontSize: '12px' }}>
+                        <div>Are you sure you want to {selectedPatientForToggle?.isActive ? 'deactivate' : 'activate'} <span className='fw-bold' style={{ color: '#003465' }}>{selectedPatientForToggle?.firstName} {selectedPatientForToggle?.lastName}</span>?</div>
+                    </Modal.Body>
+                    <Modal.Footer className='border-0'>
+                        <Button variant="secondary" className='fw-bold' onClick={() => setShowConfirmModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button 
+                            variant="primary" 
+                            className='fw-bold' 
+                            onClick={confirmStatusToggle}
+                            style={{ backgroundColor: '#003465', borderColor: '#003465' }}
+                        >
+                            {selectedPatientForToggle?.isActive ? 'Deactivate' : 'Activate'}
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
             </div>
         </>
     )

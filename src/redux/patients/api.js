@@ -26,6 +26,9 @@ export function getAllPatientsApi(data) {
     if (data?.payload?.paginate !== undefined) {
         params.append('paginate', data.payload.paginate);
     }
+    if (data?.payload?.isActive !== undefined) {
+        params.append('isActive', data.payload.isActive);
+    }
     
     const url = params.toString() ? `${URL.GET_PATIENTS}?${params.toString()}` : URL.GET_PATIENTS;
     return api.get(url);

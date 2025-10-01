@@ -68,6 +68,18 @@ export function connectToFitbitApi(data) {
     return api.get(`${URL.CONNECT_TO_FITBIT}/${data.payload.patientId}`, data.payload.body);
 }
 
+export function getPatientActiveMinApi(data) {
+    const baseUrl = `${URL.PATIENT_ACTIVE_MIN}/${data.payload.patientId}?field=${data.payload.field}&start=${data.payload.start}&end=${data.payload.end}`;
+    const url = data.payload.period ? `${baseUrl}&period=${data.payload.period}` : baseUrl;
+    return api.get(url);
+}
+
+export function getPatientHeartRateApi(data) {
+    const baseUrl = `${URL.PATIENT_HEART_Rate}/${data.payload.patientId}?field=${data.payload.field}&start=${data.payload.start}&end=${data.payload.end}`;
+    const url = data.payload.period ? `${baseUrl}&period=${data.payload.period}` : baseUrl;
+    return api.get(url);
+}
+
 export function getFilterDataApi(data) {
     const baseUrl = `${URL.GET_FILTER_DATA}/${data.payload.patientId}?field=${data.payload.field}&start=${data.payload.start}&end=${data.payload.end}`;
     const url = data.payload.period ? `${baseUrl}&period=${data.payload.period}` : baseUrl;

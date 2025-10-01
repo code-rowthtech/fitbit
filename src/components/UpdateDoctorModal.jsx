@@ -186,7 +186,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
             setValue('consultationType', doctor.consultationType || '');
             setValue('languages', doctor.languageKnown?.[0] || '');
             setValue('clinicName', doctor.clinicName || '');
-            setValue('fees', doctor.feePerConsultation || '');
+            // setValue('fees', doctor.feePerConsultation || '');
             setValue('street', doctor.clinicAddress?.street || '');
 
             // Load cities if state exists and not already loaded
@@ -287,7 +287,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
             skills.forEach(skillId => formData.append('skills[]', skillId));
         }
         if (data.experience) formData.append('yearOfExperience', data.experience);
-        if (data.fees) formData.append('feePerConsultation', data.fees);
+        // if (data.fees) formData.append('feePerConsultation', data.fees);
         if (data.consultationType) formData.append('consultationType', data.consultationType);
         if (data.languages) formData.append('languageKnown', JSON.stringify([data.languages]));
         if (data.licenseNumber) formData.append('medicalLicenseNumber', data.licenseNumber);
@@ -561,7 +561,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                 return (
                     <div className="p-4" style={{ minHeight: '400px' }}>
                         <Row className='mt-5'>
-                            <Col md={6}>
+                            <Col md={12}>
                                 <Form.Group className="mb-3">
                                     <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Clinic Name</Form.Label>
                                     <Form.Control
@@ -573,7 +573,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col md={6}>
+                            {/* <Col md={6}>
                                 <Form.Group className="mb-3">
                                     <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Fees</Form.Label>
                                     <Form.Control
@@ -585,7 +585,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                                         {...register('fees')}
                                     />
                                 </Form.Group>
-                            </Col>
+                            </Col> */}
                             <Col md={12}>
                                 <h4 className='fw-bold mb-3 mt-2' style={{ fontSize: '16px', color: '#16213D' }}>Clinic Address</h4>
                             </Col>

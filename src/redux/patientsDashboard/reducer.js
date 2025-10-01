@@ -84,6 +84,18 @@ const CONNECT_TO_FITBIT_INITIAL_STATE = {
     loading: false,
 };
 
+const GET_PATIENT_ACTIVE_MIN_INITIAL_STATE = {
+    data: {},
+    message: '',
+    loading: false,
+};
+
+const GET_PATIENT_HEART_RATE_INITIAL_STATE = {
+    data: {},
+    message: '',
+    loading: false,
+};
+
 const GET_FILTER_DATA_INITIAL_STATE = {
     data: {},
     message: '',
@@ -389,6 +401,50 @@ export const connectToFitbit = (state = CONNECT_TO_FITBIT_INITIAL_STATE, action)
                 data: action?.payload,
             };
         case PATIENT_DASHBOARD_TYPES.CONNECT_TO_FITBIT_ERROR:
+            return {
+                loading: false,
+                message: action?.payload,
+            };
+        default:
+            return state;
+    }
+};
+
+export const getPatientActiveMin = (state = GET_PATIENT_ACTIVE_MIN_INITIAL_STATE, action) => {
+    switch (action.type) {
+        case PATIENT_DASHBOARD_TYPES.GET_PATIENT_ACTIVE_MIN_LOADING:
+            return {
+                loading: true,
+                data: state.data,
+            };
+        case PATIENT_DASHBOARD_TYPES.GET_PATIENT_ACTIVE_MIN_SUCCESS:
+            return {
+                loading: false,
+                data: action?.payload,
+            };
+        case PATIENT_DASHBOARD_TYPES.GET_PATIENT_ACTIVE_MIN_ERROR:
+            return {
+                loading: false,
+                message: action?.payload,
+            };
+        default:
+            return state;
+    }
+};
+
+export const getPatientHeartRate = (state = GET_PATIENT_HEART_RATE_INITIAL_STATE, action) => {
+    switch (action.type) {
+        case PATIENT_DASHBOARD_TYPES.GET_PATIENT_HEART_RATE_LOADING:
+            return {
+                loading: true,
+                data: state.data,
+            };
+        case PATIENT_DASHBOARD_TYPES.GET_PATIENT_HEART_RATE_SUCCESS:
+            return {
+                loading: false,
+                data: action?.payload,
+            };
+        case PATIENT_DASHBOARD_TYPES.GET_PATIENT_HEART_RATE_ERROR:
             return {
                 loading: false,
                 message: action?.payload,
