@@ -10,6 +10,8 @@ import { useDispatch, useSelector } from 'react-redux'
 const Doctors = () => {
     const dispatch = useDispatch();
     const Store = useSelector((state) => state)
+    const DoctorCount = Store?.getAllDoctors?.data;
+    console.log(DoctorCount,'DoctorCount')
     const DoctorData = Store?.getAllDoctors?.data?.doctors
     const loading = Store?.getAllDoctors?.loading || false
     const CreateResponse = useSelector((state) => state?.createDoctorReducer?.data?.status);
@@ -19,10 +21,19 @@ const Doctors = () => {
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [showUpdateModal, setShowUpdateModal] = useState(false)
     const [selectedDoctor, setSelectedDoctor] = useState(null)
+    const [searchTerm, setSearchTerm] = useState('')
 
     useEffect(() => {
-        dispatch(getAllDoctors())
-    }, []);
+        const params = { page: currentPage, limit: 20 };
+        if (searchTerm) params.search = searchTerm;
+        dispatch(getAllDoctors(params))
+    }, [currentPage, searchTerm]);
+
+    useEffect(() => {
+        if (DoctorCount) {
+            setTotalPages(DoctorCount.totalPages || 1)
+        }
+    }, [DoctorCount]);
 
     useEffect(() => {
         const handleCreateDoctorEvent = () => {
@@ -42,16 +53,18 @@ const Doctors = () => {
 
     useEffect(() => {
         if (CreateResponse === 201 || UpdateResponse === 200) {
-            dispatch(getAllDoctors())
+            const params = { page: currentPage, limit: 20 };
+            if (searchTerm) params.search = searchTerm;
+            dispatch(getAllDoctors(params))
         }
-    }, [CreateResponse, UpdateResponse]);
+    }, [CreateResponse, UpdateResponse, currentPage, searchTerm]);
 
     const handleUpdateDoctor = (doctor) => {
         setSelectedDoctor(doctor)
         setShowUpdateModal(true)
     }
 
-    const handlePaginationChange = (event, page) => {
+    const handlePaginationChange = (page) => {
         setCurrentPage(page)
     }
 
@@ -60,17 +73,49 @@ const Doctors = () => {
     }
 
     return (
-        <div className='border-0' style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <>
+            <style>
+                {`
+                .custom-pagination .page-link {
+                    color: #003465;
+                    border: 1px solid #e9ecef;
+                    padding: 5px 10px;
+                    margin: 0 3px;
+                    border-radius: 6px;
+                    font-weight: 500;
+                    transition: all 0.2s ease;
+                }
+                .custom-pagination .page-link:hover {
+                    background-color: #f8f9fa;
+                    border-color: #003465;
+                    color: #003465;
+                }
+                .custom-pagination .page-item.active .page-link {
+                    background-color: #003465;
+                    border-color: #003465;
+                    color: white;
+                }
+                .custom-pagination .page-item.disabled .page-link {
+                    color: #6c757d;
+                    background-color: #fff;
+                    border-color: #dee2e6;
+                }
+                `}
+            </style>
+            <div className='border-0' style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <div className='px-4 py-2' style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <div className="">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                        <div>
-                            <h4 className='fw-semibold mt-1' style={{ fontSize: '24px' }}>Doctors</h4>
+                        <div className='d-flex gap-3 align-items-center'>
+                            <h4 className='fw-bold mb-0' style={{ color:'#003465', letterSpacing: '-0.5px' }}>Doctors</h4>
+                            <span className='badge text-white rounded-2 px-2 py-1' style={{backgroundColor:'#003465', fontSize:'14px', fontWeight: '600'}}>{DoctorCount?.totalDoctors || 0}</span>
                         </div>
                         <div className='d-flex gap-2'>
                             <div style={{ position: 'relative' }}>
                                 <input
                                     type="text"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
                                     style={{ padding: '4px 32px 4px 8px', fontSize: '12px', height: '36px', width: '247px', backgroundColor:'#F6F9FF' }}
                                     className='form-control border-0'
                                     placeholder="Search doctors..."
@@ -82,7 +127,7 @@ const Doctors = () => {
                                         top: '50%', 
                                         transform: 'translateY(-50%)', 
                                         color: '#6c757d',
-                                        fontSize: '14px'
+                                        fontSize: '18px'
                                     }} 
                                 />
                             </div>
@@ -97,7 +142,7 @@ const Doctors = () => {
                                 <span className="visually-hidden">Loading...</span>
                             </div>
                         </div>
-                    ) : DoctorData?.length === 0 ? (
+                    ) : !DoctorData || DoctorData.length === 0 ? (
                         <div className="d-flex justify-content-center align-items-center h-100">
                             <h5 className="text-muted">No Doctors Found</h5>
                         </div>
@@ -106,7 +151,8 @@ const Doctors = () => {
                             <Table className="mb-0 table-sm" style={{ fontSize: '11px', overflow: 'hidden' }}>
                                 <thead className='thead-custom' style={{ position: 'sticky', top: 0, zIndex: 10 }}>
                                     <tr>
-                                        <th className='fw-bold py-2 text-start ps-5' style={{ width: '35%', fontSize: '16px' }}>Name</th>
+                                        <th className='fw-bold py-2 text-center' style={{ width: '5%', fontSize: '16px' }}>#</th>
+                                        <th className='fw-bold py-2 text-start ps-5' style={{ width: '30%', fontSize: '16px' }}>Name</th>
                                         <th className='fw-bold py-2 text-start' style={{ width: '35%', fontSize: '16px' }}>Email</th>
                                         <th className='fw-bold py-2 text-center' style={{ width: '10%', fontSize: '16px' }}>Gender</th>
                                         <th className='fw-bold py-2 text-center' style={{ width: '10%', fontSize: '16px' }}>Status</th>
@@ -114,12 +160,15 @@ const Doctors = () => {
                                     </tr>
                                 </thead>
                             </Table>
-                            <div style={{ flex: 1, overflowY: 'auto', maxHeight: '80vh' }}>
-                                <Table className="mb-0 table-hover table-sm" style={{ fontSize: '11px' }}>
+                            <div style={{ flex: 1, overflowY: 'auto', maxHeight: '76vh' }}>
+                                <Table className="mb-0 table-sm" style={{ fontSize: '11px' }}>
                                     <tbody>
-                                        {DoctorData?.map((doctor) => (
-                                            <tr key={doctor._id} className="align-middle">
-                                                <td className="text-start ps-3" style={{ fontSize: '14px', width: '35%' }}>
+                                        {DoctorData?.map((doctor, index) => (
+                                            <tr key={doctor._id} className="align-middle" style={{ cursor: 'pointer' }}>
+                                                <td className="text-center fw-semibold" style={{ fontSize: '14px', width: '5%' }}>
+                                                    {((currentPage - 1) * 20) + index + 1}
+                                                </td>
+                                                <td className="text-start ps-3" style={{ fontSize: '14px', width: '30%' }}>
                                                     <div className="d-flex align-items-center gap-2">
                                                         {doctor.profilePhoto ? (
                                                             <img 
@@ -174,15 +223,49 @@ const Doctors = () => {
                     )}
                 </div>
 
-                {totalPages > 1 && (
-                    <div className="d-flex justify-content-end mt-3 pt-2 border-top">
-                        <Pagination
-                            page={currentPage}
-                            count={totalPages}
-                            color="primary"
-                            variant="outlined"
-                            onChange={handlePaginationChange}
-                        />
+                {DoctorCount?.totalPages > 1 && (
+                    <div className="d-flex justify-content-between align-items-center mt-2 pt-3" style={{ borderTop: '1px solid #e9ecef' }}>
+                        <div style={{ fontSize: '14px', color: '#003465', fontWeight: '500' }}>
+                            Showing <span className="fw-bold">{((currentPage - 1) * 20) + 1}</span> - <span className="fw-bold">{Math.min(currentPage * 20, DoctorCount?.totalRecords || 0)}</span> of <span className="fw-bold">{DoctorCount?.totalRecords || 0}</span> doctors
+                        </div>
+                        <Pagination className="custom-pagination mb-0">
+                            <Pagination.First 
+                                onClick={() => handlePaginationChange(1)}
+                                disabled={currentPage === 1}
+                            />
+                            <Pagination.Prev 
+                                onClick={() => handlePaginationChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                            />
+                            {[...Array(DoctorCount?.totalPages)].map((_, index) => {
+                                const page = index + 1;
+                                if (page === currentPage || 
+                                    page === 1 || 
+                                    page === DoctorCount?.totalPages ||
+                                    (page >= currentPage - 1 && page <= currentPage + 1)) {
+                                    return (
+                                        <Pagination.Item
+                                            key={page}
+                                            active={page === currentPage}
+                                            onClick={() => handlePaginationChange(page)}
+                                        >
+                                            {page}
+                                        </Pagination.Item>
+                                    );
+                                } else if (page === currentPage - 2 || page === currentPage + 2) {
+                                    return <Pagination.Ellipsis key={page} />;
+                                }
+                                return null;
+                            })}
+                            <Pagination.Next 
+                                onClick={() => handlePaginationChange(currentPage + 1)}
+                                disabled={currentPage === DoctorCount?.totalPages}
+                            />
+                            <Pagination.Last 
+                                onClick={() => handlePaginationChange(DoctorCount?.totalPages)}
+                                disabled={currentPage === DoctorCount?.totalPages}
+                            />
+                        </Pagination>
                     </div>
                 )}
             </div>
@@ -197,7 +280,8 @@ const Doctors = () => {
                 onHide={() => setShowUpdateModal(false)}
                 doctor={selectedDoctor}
             />
-        </div>
+            </div>
+        </>
     )
 }
 

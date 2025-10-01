@@ -103,8 +103,10 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
     ];
 
     useEffect(() => {
-        dispatch(getPatientById(id))
-    }, []);
+        if (id && show) {
+            dispatch(getPatientById(id))
+        }
+    }, [id, show, dispatch]);
 
     useEffect(() => {
         if (show) {
@@ -127,8 +129,13 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
             setValue('email', PatientData.email || '');
             setValue('gender', PatientData.gender || '');
             setValue('isActive', PatientData.isActive ? 'true' : 'false');
-            setValue('dateOfBirth', PatientData.dateOfBirth ? new Date(PatientData.dateOfBirth).toISOString().split('T')[0] : '');
-            setValue('age', PatientData.age || '');
+            const dobValue = PatientData.dateOfBirth ? new Date(PatientData.dateOfBirth).toISOString().split('T')[0] : '';
+            setValue('dateOfBirth', dobValue);
+            // Let the useEffect calculate age from dateOfBirth
+            if (dobValue) {
+                const calculatedAge = calculateAge(dobValue);
+                setValue('age', calculatedAge);
+            }
             setValue('maritalStatus', PatientData.maritalStatus || '');
             setValue('phoneNumber', PatientData.phoneNumber || '');
             setValue('street', PatientData.address?.street || '');
@@ -226,6 +233,10 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
             setCurrentStep(currentStep - 1);
         }
     };
+
+    const handleStepClick = (stepId) => {
+        setCurrentStep(stepId);
+    };
     const onSubmit = (data) => {
         const patientData = {
             body: {
@@ -295,7 +306,13 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                                         type="text"
                                         placeholder="Enter First Name"
                                         autoComplete="off"
-                                        {...register('firstName', { required: 'First name is required' })}
+                                        {...register('firstName', { 
+                                            required: 'First name is required',
+                                            pattern: {
+                                                value: /^[A-Za-z]{3,}$/,
+                                                message: 'First name should contain at least 3 alphabets only'
+                                            }
+                                        })}
                                     />
                                     {errors.firstName && <span className="text-danger" style={{ fontSize: '10px' }}>{errors.firstName.message}</span>}
                                 </Form.Group>
@@ -309,7 +326,13 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                                         type="text"
                                         placeholder="Enter Last Name"
                                         autoComplete="off"
-                                        {...register('lastName', { required: 'Last name is required' })}
+                                        {...register('lastName', { 
+                                            required: 'Last name is required',
+                                            pattern: {
+                                                value: /^[A-Za-z]{3,}$/,
+                                                message: 'Last name should contain at least 3 alphabets only'
+                                            }
+                                        })}
                                     />
                                     {errors.lastName && <span className="text-danger" style={{ fontSize: '10px' }}>{errors.lastName.message}</span>}
                                 </Form.Group>
@@ -408,7 +431,13 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                                         placeholder="Enter Phone Number"
                                         autoComplete="off"
                                         name="phoneNumber"
-                                        {...register('phoneNumber', { required: 'Phone number is required' })}
+                                        {...register('phoneNumber', { 
+                                            required: 'Phone number is required',
+                                            pattern: {
+                                                value: /^[0-9]{10}$/,
+                                                message: 'Phone number must contain exactly 10 digits'
+                                            }
+                                        })}
                                     />
                                     {errors.phoneNumber && <span className="text-danger" style={{ fontSize: '10px' }}>{errors.phoneNumber.message}</span>}
                                 </Form.Group>
@@ -722,7 +751,11 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                                 <h4 className="fw-bold mb-5 pb-1" style={{ fontSize: '22px', color: '#121212' }}>Update Patient</h4>
                                 {steps.map((step, index) => (
                                     <div key={step.id} className="position-relative mb-5 pb-2">
-                                        <div className="d-flex align-items-center">
+                                        <div 
+                                            className="d-flex align-items-center" 
+                                            onClick={() => handleStepClick(step.id)}
+                                            style={{ cursor: 'pointer' }}
+                                        >
                                             <div
                                                 className={`rounded-circle d-flex align-items-center justify-content-center me-3 ${step.completed || currentStep === step.id ? 'text-white' : 'bg-light text-muted'
                                                     }`}
@@ -784,7 +817,21 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                                                 BACK
                                             </Button>
                                         )}
-                                        {currentStep < 4 ? (
+                                        <Button
+                                            type="submit"
+                                            disabled={Loading}
+                                            style={{
+                                                minWidth: '100px',
+                                                height: '46px',
+                                                backgroundColor: '#28a745',
+                                                border: 'none',
+                                                fontWeight: '600',
+                                                textTransform: 'uppercase'
+                                            }}
+                                        >
+                                            SUBMIT
+                                        </Button>
+                                        {currentStep < 4 && (
                                             <Button
                                                 onClick={handleNext}
                                                 disabled={Loading}
@@ -798,21 +845,6 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                                                 }}
                                             >
                                                 NEXT
-                                            </Button>
-                                        ) : (
-                                            <Button
-                                                type="submit"
-                                                disabled={Loading}
-                                                style={{
-                                                    minWidth: '100px',
-                                                    height: '46px',
-                                                    backgroundColor: '#003465',
-                                                    border: 'none',
-                                                    fontWeight: '600',
-                                                    textTransform: 'uppercase'
-                                                }}
-                                            >
-                                                UPDATE
                                             </Button>
                                         )}
                                     </div>

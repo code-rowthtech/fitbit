@@ -22,6 +22,7 @@ const Sidebar = () => {
   const UserRole = userInfo?.role;
   const CreateResponse = useSelector((state) => state?.createPatientReducer?.data?.status);
   const CreateDoctorResponse = useSelector((state) => state?.createDoctorReducer?.data?.status);
+  const UpdateResponse = useSelector((state) => state?.updatePatient?.data?.status);
 
   useEffect(() => {
     const payload = selectedDoctor?.value && selectedDoctor.value !== 'all' ? { doctorId: selectedDoctor.value, paginate: false } : { paginate: false };
@@ -50,6 +51,13 @@ const Sidebar = () => {
       dispatch(getAllDoctors());
     }
   }, [CreateDoctorResponse]);
+
+  useEffect(() => {
+    if (UpdateResponse === 200) {
+      const payload = selectedDoctor?.value && selectedDoctor.value !== 'all' ? { doctorId: selectedDoctor.value, paginate: false } : { paginate: false };
+      dispatch(getAllPatients(payload));
+    }
+  }, [UpdateResponse, selectedDoctor]);
 
   const styles = `
     .patient-item:hover {
@@ -145,7 +153,7 @@ const Sidebar = () => {
               />
             </div>
           )}
-          <div className="patient-list" style={{ maxHeight: 'calc(100vh - 140px)' }}>
+          <div className="patient-list pb-4" style={{ maxHeight: 'calc(100vh - 140px)' }}>
             {loading ? (
               <div className="d-flex justify-content-center align-items-center p-3">
                 <div className="spinner-border spinner-border-sm text-white" role="status">

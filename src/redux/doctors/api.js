@@ -4,12 +4,9 @@ const api = new APICore()
 
 export function getAllDoctorsApi(data) {
     const params = new URLSearchParams();
-    // if (data.payload.status && data.payload.status !== 'all') params.append('status', data.payload.status);
-    // if (data.payload.specialty && data.payload.specialty !== 'all') params.append('specialty', data.payload.specialty);
-    // if (data.payload.department && data.payload.department !== 'all') params.append('department', data.payload.department);
-    // if (data.payload.page) params.append('page', data.payload.page);
-    // if (data.payload.limit) params.append('limit', data.payload.limit);
-    // if (data.payload.user) params.append('user', data.payload.user);
+    if (data.payload?.page) params.append('page', data.payload.page);
+    if (data.payload?.limit) params.append('limit', data.payload.limit);
+    if (data.payload?.search) params.append('search', data.payload.search);
 
     return api.get(`${URL.GET_DOCTORS}?${params.toString()}`);
 }

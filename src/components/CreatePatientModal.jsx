@@ -220,7 +220,13 @@ const CreatePatientModal = ({ show, onHide }) => {
                                         type="text"
                                         placeholder="Enter First Name"
                                         autoComplete="off"
-                                        {...register('firstName', { required: 'First name is required' })}
+                                        {...register('firstName', { 
+                                            required: 'First name is required',
+                                            pattern: {
+                                                value: /^[A-Za-z]{3,}$/,
+                                                message: 'First name should contain at least 3 alphabets only'
+                                            }
+                                        })}
                                     />
                                     {errors.firstName && <span className="text-danger" style={{ fontSize: '10px' }}>{errors.firstName.message}</span>}
                                 </Form.Group>
@@ -234,7 +240,13 @@ const CreatePatientModal = ({ show, onHide }) => {
                                         type="text"
                                         placeholder="Enter Last Name"
                                         autoComplete="off"
-                                        {...register('lastName', { required: 'Last name is required' })}
+                                        {...register('lastName', { 
+                                            required: 'Last name is required',
+                                            pattern: {
+                                                value: /^[A-Za-z]{3,}$/,
+                                                message: 'Last name should contain at least 3 alphabets only'
+                                            }
+                                        })}
                                     />
                                     {errors.lastName && <span className="text-danger" style={{ fontSize: '10px' }}>{errors.lastName.message}</span>}
                                 </Form.Group>
@@ -273,7 +285,7 @@ const CreatePatientModal = ({ show, onHide }) => {
                             <Col md={6}>
                                 <Form.Group className="mb-3">
                                     <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Marital Status</Form.Label>
-                                    <Form.Select style={{ fontSize: '12px', backgroundColor: '#F9FAFB' }} className='py-3' {...register('maritalStatus')}>
+                                    <Form.Select style={{ fontSize: '12px', backgroundColor: '#F9FAFB' }} className='py-3' autoComplete="off" {...register('maritalStatus')}>
                                         <option value="">Select</option>
                                         <option value="single">Single</option>
                                         <option value="married">Married</option>
@@ -333,7 +345,13 @@ const CreatePatientModal = ({ show, onHide }) => {
                                         placeholder="Enter Phone Number"
                                         autoComplete="off"
                                         name="phoneNumber"
-                                        {...register('phoneNumber', { required: 'Phone number is required' })}
+                                        {...register('phoneNumber', { 
+                                            required: 'Phone number is required',
+                                            pattern: {
+                                                value: /^[0-9]{10}$/,
+                                                message: 'Phone number must contain exactly 10 digits'
+                                            }
+                                        })}
                                     />
                                     {errors.phoneNumber && <span className="text-danger" style={{ fontSize: '10px' }}>{errors.phoneNumber.message}</span>}
                                 </Form.Group>
@@ -475,7 +493,7 @@ const CreatePatientModal = ({ show, onHide }) => {
                             <Col md={6}>
                                 <Form.Group className="mb-3">
                                     <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Existing Medical Conditions</Form.Label>
-                                    <Form.Select style={{ fontSize: '12px', backgroundColor: '#F9FAFB' }} className='py-3' {...register('medicalConditions')}>
+                                    <Form.Select style={{ fontSize: '12px', backgroundColor: '#F9FAFB' }} className='py-3' autoComplete="off" {...register('medicalConditions')}>
                                         <option value="">Select One</option>
                                         <option value="Critical">Critical</option>
                                         <option value="Normal">Normal</option>
@@ -487,7 +505,7 @@ const CreatePatientModal = ({ show, onHide }) => {
                             <Col md={6}>
                                 <Form.Group className="mb-3">
                                     <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Current Medications</Form.Label>
-                                    <Form.Select style={{ fontSize: '12px', backgroundColor: '#F9FAFB' }} className='py-3' {...register('currentMedications')}>
+                                    <Form.Select style={{ fontSize: '12px', backgroundColor: '#F9FAFB' }} className='py-3' autoComplete="off" {...register('currentMedications')}>
                                         <option value="">Select One</option>
                                         <option value="none">None</option>
                                         <option value="prescription">Prescription Medications</option>
@@ -539,7 +557,7 @@ const CreatePatientModal = ({ show, onHide }) => {
                                 <Col md={6}>
                                     <Form.Group className="mb-3">
                                         <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Assigned to <span className="text-danger">*</span></Form.Label>
-                                        <Form.Select style={{ fontSize: '12px', backgroundColor: '#F9FAFB' }} className='py-3' {...register('doctorId', { required: 'Doctor assignment is required' })}>
+                                        <Form.Select style={{ fontSize: '12px', backgroundColor: '#F9FAFB' }} className='py-3' autoComplete="off" {...register('doctorId', { required: 'Doctor assignment is required' })}>
                                             <option value="">Select One</option>
                                             {DoctorData?.map((doctor) => (
                                                 <option key={doctor._id} value={doctor._id}>
@@ -554,7 +572,7 @@ const CreatePatientModal = ({ show, onHide }) => {
                             <Col md={6}>
                                 <Form.Group className="mb-3">
                                     <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Patient Category</Form.Label>
-                                    <Form.Select style={{ fontSize: '12px', backgroundColor: '#F9FAFB' }} className='py-3' {...register('patientCategory')}>
+                                    <Form.Select style={{ fontSize: '12px', backgroundColor: '#F9FAFB' }} className='py-3' autoComplete="off" {...register('patientCategory')}>
                                         <option value="">Select One</option>
                                         <option value="regular">Regular</option>
                                         <option value="premium">Premium</option>
