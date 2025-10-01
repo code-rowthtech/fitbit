@@ -1,6 +1,6 @@
 import PATIENT_DASHBOARD_TYPES from './constant';
 import { all, fork, put, takeEvery, call } from 'redux-saga/effects';
-import { getPatientProfileApi, getPatientActivityApi, getPatientSleepApi, getPatientCaloriesBurnedApi, getPatientDistanceApi, getPatientSleepEfficiencyApi, getPatientWaterApi, getPatientHeartApi, getPatientWeightApi, getPatientBodyFatApi, getPatientFoodApi, getPatientDevicesApi, getPatientGpsTrackingApi, connectToFitbitApi, getFilterDataApi } from './api';
+import { getPatientProfileApi, getPatientActivityApi, getPatientSleepApi, getPatientCaloriesBurnedApi, getPatientDistanceApi, getPatientSleepEfficiencyApi, getPatientWaterApi, getPatientHeartApi, getPatientWeightApi, getPatientBodyFatApi, getPatientFoodApi, getPatientDevicesApi, getPatientGpsTrackingApi, connectToFitbitApi, getPatientActiveMinApi, getPatientHeartRateApi, getFilterDataApi } from './api';
 import { toast } from 'react-toastify';
 
 function* getPatientProfileFunction({ payload }) {
@@ -382,6 +382,60 @@ function* connectToFitbitFunction({ payload }) {
     }
 }
 
+function* getPatientActiveMinFunction({ payload }) {
+    try {
+        yield put({
+            type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_ACTIVE_MIN_LOADING,
+            payload: {},
+        });
+        const response = yield call(getPatientActiveMinApi, { payload });
+
+        if (response?.data && response?.data?.status === 200) {
+            yield put({
+                type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_ACTIVE_MIN_SUCCESS,
+                payload: response.data,
+            });
+        } else {
+            yield put({
+                type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_ACTIVE_MIN_ERROR,
+                payload: response.data,
+            });
+        }
+    } catch (error) {
+        yield put({
+            type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_ACTIVE_MIN_ERROR,
+            payload: { message: error?.message },
+        });
+    }
+}
+
+function* getPatientHeartRateFunction({ payload }) {
+    try {
+        yield put({
+            type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_HEART_RATE_LOADING,
+            payload: {},
+        });
+        const response = yield call(getPatientHeartRateApi, { payload });
+
+        if (response?.data && response?.data?.status === 200) {
+            yield put({
+                type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_HEART_RATE_SUCCESS,
+                payload: response.data,
+            });
+        } else {
+            yield put({
+                type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_HEART_RATE_ERROR,
+                payload: response.data,
+            });
+        }
+    } catch (error) {
+        yield put({
+            type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_HEART_RATE_ERROR,
+            payload: { message: error?.message },
+        });
+    }
+}
+
 function* getFilterDataFunction({ payload }) {
     try {
         yield put({
@@ -465,6 +519,14 @@ export function* connectToFitbitSaga() {
     yield takeEvery(PATIENT_DASHBOARD_TYPES.CONNECT_TO_FITBIT, connectToFitbitFunction);
 }
 
+export function* getPatientActiveMinSaga() {
+    yield takeEvery(PATIENT_DASHBOARD_TYPES.GET_PATIENT_ACTIVE_MIN, getPatientActiveMinFunction);
+}
+
+export function* getPatientHeartRateSaga() {
+    yield takeEvery(PATIENT_DASHBOARD_TYPES.GET_PATIENT_HEART_RATE, getPatientHeartRateFunction);
+}
+
 export function* getFilterDataSaga() {
     yield takeEvery(PATIENT_DASHBOARD_TYPES.GET_FILTER_DATA, getFilterDataFunction);
 }
@@ -485,6 +547,8 @@ function* PatientDashboardSaga() {
         fork(getPatientDevicesSaga),
         fork(getPatientGpsTrackingSaga),
         fork(connectToFitbitSaga),
+        fork(getPatientActiveMinSaga),
+        fork(getPatientHeartRateSaga),
         fork(getFilterDataSaga),
     ]);
 }
