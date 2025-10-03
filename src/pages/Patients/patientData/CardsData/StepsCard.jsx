@@ -27,8 +27,24 @@ const StepsCard = ({
     (state) => state?.getFilterData?.data?.response
   );
 
+  console.log(AverageData, "AverageData");
+
   // Get chart data based on active tab and API response
   const getChartData = () => {
+    // Check for intraday data when activeTab is "Day"
+    if (activeTab === "Day" && AverageData?.data[0].intradayData) {
+      const intradayData = AverageData.data[0].intradayData;
+
+      const labels = intradayData.map((item) => item.timeRange);
+      const data = intradayData.map((item) => item.steps);
+      const tableData = intradayData.map((item) => ({
+        period: item.timeRange,
+        value: item.steps ? item.steps.toLocaleString() : "0",
+      }));
+
+      return { labels, data, tableData };
+    }
+
     if (!FilterData || FilterData.length === 0) {
       return { labels: [], data: [], tableData: [] };
     }
@@ -355,9 +371,7 @@ const StepsCard = ({
                                   const dataIndex = context[0]?.dataIndex;
                                   return dataIndex !== undefined &&
                                     FilterData[dataIndex]
-                                    ? [
-                                        `Days: ${FilterData[dataIndex].dayRange}`,
-                                      ]
+                                    ? [`Date: ${FilterData[dataIndex].date}`]
                                     : [];
                                 }
                               : undefined,
@@ -524,7 +538,9 @@ const StepsCard = ({
                   fontWeight: "600",
                 }}
               >
-                <span style={{ color: "#003465" }}>Average</span>
+                <span style={{ color: "#003465" }}>
+                  {activeTab === "Day" ? "Total" : "Average"}{" "}
+                </span>
                 <span style={{ color: "#003465" }}>
                   {AverageData?.stats?.average}
                 </span>
