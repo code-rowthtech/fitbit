@@ -1,22 +1,22 @@
-import { useState, useEffect } from 'react';
-import { Form, Button, Alert } from 'react-bootstrap';
-import { useDispatch, useSelector } from 'react-redux';
-import { Navigate, Link } from 'react-router-dom';
-import { loginUser, resetAuth } from '../redux/auth/actions';
-import { getAuthData } from '../redux/auth/selectors';
-import './Login.css';
-import logo_bg from '../assets/images/logo_bg.png';
+import { useState, useEffect } from "react";
+import { Form, Button, Alert } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
+import { Navigate, Link } from "react-router-dom";
+import { loginUser, resetAuth } from "../redux/auth/actions";
+import { getAuthData } from "../redux/auth/selectors";
+import "./Login.css";
+import logo_bg from "../assets/images/logo_bg.png";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    username: '',
-    password: '',
+    username: "",
+    password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const { loading, error, userLoggedIn, user } = useSelector(getAuthData);
-  console.log(error,'errorerror')
+  console.log(error, "errorerror");
 
   useEffect(() => {
     dispatch(resetAuth());
@@ -28,7 +28,7 @@ const Login = () => {
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -49,14 +49,20 @@ const Login = () => {
           <h2 className="text-white mb-4 login-title">Login</h2>
         </div>
 
-        {error && <Alert variant="danger" className="mb-3">{error}</Alert>}
+        {error && (
+          <Alert variant="danger" className="mb-3">
+            {error}
+          </Alert>
+        )}
 
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-2">
-            <Form.Label className="text-white mb-2 login-label">Email</Form.Label>
+            <Form.Label className="text-white mb-2 login-label">
+              Email
+            </Form.Label>
             <Form.Control
               type="text"
-              placeholder='Username@gmail.com'
+              placeholder="Username@gmail.com"
               name="username"
               value={formData.username}
               onChange={handleChange}
@@ -66,12 +72,14 @@ const Login = () => {
           </Form.Group>
 
           <Form.Group className="mb-2">
-            <Form.Label className="text-white mb-2 login-label">Password</Form.Label>
+            <Form.Label className="text-white mb-2 login-label">
+              Password
+            </Form.Label>
             <div className="position-relative">
               <Form.Control
                 type={showPassword ? "text" : "password"}
                 name="password"
-                placeholder='Password'
+                placeholder="Password"
                 value={formData.password}
                 onChange={handleChange}
                 required
@@ -82,13 +90,22 @@ const Login = () => {
                 className="btn position-absolute top-50 end-0 translate-middle-y me-3 p-0 border-0 bg-transparent"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? <IoEyeOff className="text-muted" /> : <IoEye className="text-muted" />}
+                {showPassword ? (
+                  <IoEyeOff className="text-muted" />
+                ) : (
+                  <IoEye className="text-muted" />
+                )}
               </button>
             </div>
           </Form.Group>
 
           <div className="mb-3">
-            <Link to="/forgot-password" className="text-white text-decoration-none login-text">Forgot Password?</Link>
+            <Link
+              to="/forgot-password"
+              className="text-white text-decoration-none login-text"
+            >
+              Forgot Password?
+            </Link>
           </div>
 
           <Button
@@ -96,7 +113,7 @@ const Login = () => {
             type="submit"
             disabled={loading}
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? "Signing in..." : "Sign In"}
           </Button>
 
           {/* <div className="text-center mb-3">
