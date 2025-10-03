@@ -13,6 +13,8 @@ import {
   getSpecializationsReducer,
   createSpecializationsReducer,
   getSpecializationsCategoryReducer,
+  createDegreeReducer,
+  getQualificationReducer,
 } from "./doctors/reducer";
 import {
   createAllergiesReducer,
@@ -36,6 +38,7 @@ import {
   getPatientActivity,
   getPatientBodyFat,
   getPatientCaloriesBurned,
+  getPatientCaloriesConsumed,
   getPatientDevices,
   getPatientDistance,
   getPatientFood,
@@ -65,6 +68,8 @@ export default combineReducers({
   getSpecializationsReducer,
   createSpecializationsReducer,
   getSpecializationsCategoryReducer,
+  createDegreeReducer,
+  getQualificationReducer,
 
   //Patients
   createPatientReducer,
@@ -99,4 +104,5 @@ export default combineReducers({
   connectToFitbit,
   getFilterData,
   getPatientHeartRate,
+  getPatientCaloriesConsumed,
 });

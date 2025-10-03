@@ -122,7 +122,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
         end: formatDate(end),
         field: "steps",
       };
-      if (activeTab === "Month") payload.period = "month";
+      // if (activeTab === "Month") payload.period = "month";
       if (activeTab === "Year") payload.period = "year";
       dispatch(getFilterData(payload));
     }
@@ -173,7 +173,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
               >
                 Activity Data
               </span>
-              <div ref={datePickerRef} style={{ position: "relative" }}>
+              {/* <div ref={datePickerRef} style={{ position: "relative" }}>
                 <button
                   className="form-control rounded-3 border-0 text-start d-flex justify-content-between align-items-center"
                   style={{
@@ -234,7 +234,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                     />
                   </div>
                 )}
-              </div>
+              </div> */}
             </div>
             <div
               onClick={() => setIsOpen(!isOpen)}

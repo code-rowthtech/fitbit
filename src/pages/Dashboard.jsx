@@ -59,7 +59,7 @@ const Dashboard = () => {
       data: [80, 65, 75, 40, 70, 85, 90, 55, 75, 80],
       backgroundColor: '#003465',
       borderRadius: 4,
-      barThickness: 35
+      barThickness: 15
     }]
   };
 

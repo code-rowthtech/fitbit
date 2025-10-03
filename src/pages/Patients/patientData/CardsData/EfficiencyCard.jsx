@@ -302,7 +302,7 @@ const EfficiencyCard = ({
                                             data: chartData.data,
                                             backgroundColor: '#003465',
                                             borderRadius: 3,
-                                            barThickness: 35
+                                            barThickness: 15
                                         }]
                                     }}
                                     options={{
