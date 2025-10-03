@@ -86,3 +86,9 @@ export function getFilterDataApi(data) {
     return api.get(url);
 }
 
+export function getPatientCaloriesConsumedApi(data) {
+    const baseUrl = `${URL.CALORIES_CONSUMED}/${data.payload.patientId}?field=${data.payload.field}&start=${data.payload.start}&end=${data.payload.end}`;
+    const url = data.payload.period ? `${baseUrl}&period=${data.payload.period}` : baseUrl;
+    return api.get(url);
+}
+

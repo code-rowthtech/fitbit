@@ -12,6 +12,8 @@ export const GET_CATEGORY = `${baseurl}/skills`;
 export const GET_SPECIALIZATIONS = `${baseurl}/specializations`;
 export const CREATE_SPECIALIZATIONS = `${baseurl}/specializations/create`;
 export const GET_SPECIALIZATIONS_CATEGORY = `${baseurl}/specializations`;
+export const CREATE_DEGREE = `${baseurl}/qualifications/add`;
+export const GET_QUALIFICATION = `${baseurl}/qualifications`;
 
 // Patients
 export const PATIENTS = `${baseurl}/patients/create`;
@@ -39,6 +41,7 @@ export const PATIENT_DISTANCE = `${baseurl}/fitbit/filter`;
 export const PATIENT_ACTIVE_MIN = `${baseurl}/fitbit/filter`;
 export const PATIENT_HEART_Rate = `${baseurl}/fitbit/filter`;
 export const PATIENT_WATER = `${baseurl}/fitbit/filter`;
+export const CALORIES_CONSUMED = `${baseurl}/fitbit/filter`;
 export const PATIENT_HEART = `${baseurl}/fitbit/heart`;
 export const PATIENT_WEIGHT = `${baseurl}/fitbit/weight`;
 export const PATIENT_BODY_FAT = `${baseurl}/fitbit/body-fat`;

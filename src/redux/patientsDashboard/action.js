@@ -85,4 +85,9 @@ export const getFilterData = (data) => ({
     payload: data
 })
 
+export const getPatientCaloriesConsumed = (data) => ({
+    type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_CALORIES_CONSUMED,
+    payload: data
+})
+
 

@@ -226,7 +226,7 @@ const SleepData = ({ isExpanded, onExpand }) => {
                                     data: [4, 4, 3, 4, 4, 3, 4],
                                     backgroundColor: "#003465",
                                     borderRadius: 3,
-                                    barThickness: 35,
+                                    barThickness: 15,
                                   },
                                 ],
                               }}
@@ -608,7 +608,7 @@ const SleepData = ({ isExpanded, onExpand }) => {
                                     data: [2, 3, 1, 4, 2, 2, 2],
                                     backgroundColor: "#003465",
                                     borderRadius: 3,
-                                    barThickness: 35,
+                                    barThickness: 15,
                                   },
                                 ],
                               }}

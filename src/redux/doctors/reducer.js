@@ -66,6 +66,18 @@ const GET_SPECIALIZATIONS_CATEGORY_INITIAL_STATE = {
     loading: false,
 };
 
+const CREATE_DEGREE_INITIAL_STATE = {
+    data: [],
+    message: '',
+    loading: false,
+};
+
+const GET_QUALIFICATION_INITIAL_STATE = {
+    data: [],
+    message: '',
+    loading: false,
+};
+
 
 export const getAllDoctors = (state = GET_ALL_DOCTORS_INITIAL_STATE, action) => {
     switch (action.type) {
@@ -301,6 +313,48 @@ export const getSpecializationsCategoryReducer = (state = GET_SPECIALIZATIONS_CA
                 loading: false
             }
         case DOCTOR_TYPES.GET_SPECIALIZATIONS_CATEGORY_ERROR:
+            return {
+                data: action.payload,
+                loading: false
+            }
+        default: return state
+    }
+}
+
+export const createDegreeReducer = (state = CREATE_DEGREE_INITIAL_STATE, action) => {
+    switch (action.type) {
+        case DOCTOR_TYPES.CREATE_DEGREE_LOADING:
+            return {
+                data: state.data,
+                loading: true
+            }
+        case DOCTOR_TYPES.CREATE_DEGREE_SUCCESS:
+            return {
+                data: action.payload,
+                loading: false
+            }
+        case DOCTOR_TYPES.CREATE_DEGREE_ERROR:
+            return {
+                data: action.payload,
+                loading: false
+            }
+        default: return state
+    }
+}
+
+export const getQualificationReducer = (state = GET_QUALIFICATION_INITIAL_STATE, action) => {
+    switch (action.type) {
+        case DOCTOR_TYPES.GET_QUALIFICATION_LOADING:
+            return {
+                ...state,
+                loading: true
+            }
+        case DOCTOR_TYPES.GET_QUALIFICATION_SUCCESS:
+            return {
+                data: action.payload,
+                loading: false
+            }
+        case DOCTOR_TYPES.GET_QUALIFICATION_ERROR:
             return {
                 data: action.payload,
                 loading: false

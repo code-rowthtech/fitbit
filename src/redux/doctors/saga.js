@@ -1,6 +1,6 @@
 import DOCTOR_TYPES from './constant';
 import { all, fork, put, takeEvery, call, takeLatest } from 'redux-saga/effects';
-import { getAllDoctorsApi, createDoctorApi, updateDoctorApi, getStatesApi, getCitiesApi, getSkillsApi, createSkillsApi, getCategoryApi, getSpecializationsApi, createSpecializationsApi, getSpecializationsCategoryApi } from './api';
+import { getAllDoctorsApi, createDoctorApi, updateDoctorApi, getStatesApi, getCitiesApi, getSkillsApi, createSkillsApi, getCategoryApi, getSpecializationsApi, createSpecializationsApi, getSpecializationsCategoryApi, createDegreeApi, getQualificationApi } from './api';
 import { toast } from 'react-toastify';
 
 function* getAllDoctorsFunction({ payload }) {
@@ -302,6 +302,58 @@ function* getSpecializationsCategoryFunction({ payload }) {
     }
 }
 
+function* createDegreeFunction(data) {
+    try {
+        yield put({
+            type: DOCTOR_TYPES.CREATE_DEGREE_LOADING,
+            payload: {},
+        });
+        const response = yield call(createDegreeApi, data);
+        if (response?.data?.status === 201) {
+            yield put({
+                type: DOCTOR_TYPES.CREATE_DEGREE_SUCCESS,
+                payload: response.data,
+            });
+        } else {
+            yield put({
+                type: DOCTOR_TYPES.CREATE_DEGREE_ERROR,
+                payload: response.data,
+            });
+        }
+    } catch (error) {
+        yield put({
+            type: DOCTOR_TYPES.CREATE_DEGREE_ERROR,
+            payload: error,
+        });
+    }
+}
+
+function* getQualificationFunction({ payload }) {
+    try {
+        yield put({
+            type: DOCTOR_TYPES.GET_QUALIFICATION_LOADING,
+            payload: {},
+        });
+        const response = yield call(getQualificationApi, payload);
+        if (response?.data && response?.data?.status === 200) {
+            yield put({
+                type: DOCTOR_TYPES.GET_QUALIFICATION_SUCCESS,
+                payload: response.data,
+            });
+        } else {
+            yield put({
+                type: DOCTOR_TYPES.GET_QUALIFICATION_ERROR,
+                payload: response.data,
+            });
+        }
+    } catch (error) {
+        yield put({
+            type: DOCTOR_TYPES.GET_QUALIFICATION_ERROR,
+            payload: { message: error?.message },
+        });
+    }
+}
+
 export function* getAllDoctorsSaga() {
     yield takeEvery(DOCTOR_TYPES.GET_ALL_DOCTORS, getAllDoctorsFunction);
 }
@@ -346,6 +398,14 @@ export function* getSpecializationsCategorySaga() {
     yield takeEvery(DOCTOR_TYPES.GET_SPECIALIZATIONS_CATEGORY, getSpecializationsCategoryFunction);
 }
 
+export function* createDegreeSaga() {
+    yield takeEvery(DOCTOR_TYPES.CREATE_DEGREE, createDegreeFunction);
+}
+
+export function* getQualificationSaga() {
+    yield takeEvery(DOCTOR_TYPES.GET_QUALIFICATION, getQualificationFunction);
+}
+
 
 function* DoctorSaga() {
     yield all([
@@ -360,6 +420,8 @@ function* DoctorSaga() {
         fork(getSpecializationsSaga),
         fork(createSpecializationsSaga),
         fork(getSpecializationsCategorySaga),
+        fork(createDegreeSaga),
+        fork(getQualificationSaga),
     ]);
 }
 

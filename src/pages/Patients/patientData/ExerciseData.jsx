@@ -210,7 +210,7 @@ const ExerciseData = ({ isExpanded, onExpand }) => {
                                     data: [1, 0, 1, 1, 1, 1, 0],
                                     backgroundColor: "#003465",
                                     borderRadius: 3,
-                                    barThickness: 35,
+                                    barThickness: 15,
                                   },
                                 ],
                               }}
@@ -574,7 +574,7 @@ const ExerciseData = ({ isExpanded, onExpand }) => {
                                     data: [3.5, 0.0, 2.8, 3.1, 3.6, 4.2, 0.0],
                                     backgroundColor: "#003465",
                                     borderRadius: 3,
-                                    barThickness: 35,
+                                    barThickness: 15,
                                   },
                                 ],
                               }}
@@ -935,7 +935,7 @@ const ExerciseData = ({ isExpanded, onExpand }) => {
                                     data: [145, 0, 98, 132, 156, 178, 0],
                                     backgroundColor: "#003465",
                                     borderRadius: 3,
-                                    barThickness: 35,
+                                    barThickness: 15,
                                   },
                                 ],
                               }}

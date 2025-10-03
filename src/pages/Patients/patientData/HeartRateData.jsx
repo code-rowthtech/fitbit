@@ -209,7 +209,7 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
                                     data: [60, 62, 61, 64, 63, 61, 63],
                                     backgroundColor: "#003465",
                                     borderRadius: 3,
-                                    barThickness: 35,
+                                    barThickness: 15,
                                   },
                                 ],
                               }}
@@ -570,7 +570,7 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
                                     data: [72, 76, 74, 78, 75, 73, 77],
                                     backgroundColor: "#003465",
                                     borderRadius: 3,
-                                    barThickness: 35,
+                                    barThickness: 15,
                                   },
                                 ],
                               }}
