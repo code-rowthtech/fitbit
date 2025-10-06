@@ -121,7 +121,7 @@ const CaloriesCard = ({
                 end: formatDate(end),
                 field: "calories"
             }
-            if (activeTab === 'Month') payload.period = 'month'
+            // if (activeTab === 'Month') payload.period = 'month'
             if (activeTab === 'Year') payload.period = 'year'
             dispatch(getPatientCaloriesBurned(payload))
         }
@@ -226,7 +226,7 @@ const CaloriesCard = ({
                     end: formatDate(end),
                     field: "calories"
                 }
-                if (activeTab === 'Month') payload.period = 'month'
+                // if (activeTab === 'Month') payload.period = 'month'
                 if (activeTab === 'Year') payload.period = 'year'
                 dispatch(getPatientCaloriesBurned(payload))
             }
