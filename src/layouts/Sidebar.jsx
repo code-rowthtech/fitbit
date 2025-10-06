@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getAllPatients, getAllDoctors } from '../redux/actions';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Select from 'react-select';
+import moment from 'moment';
 
 const Sidebar = () => {
   const dispatch = useDispatch();
@@ -23,7 +24,7 @@ const Sidebar = () => {
   const CreateResponse = useSelector((state) => state?.createPatientReducer?.data?.status);
   const CreateDoctorResponse = useSelector((state) => state?.createDoctorReducer?.data?.status);
   const UpdateResponse = useSelector((state) => state?.updatePatient?.data?.status);
-
+console.log(PatientData,'PatientDataPatientData')
   useEffect(() => {
     const payload = selectedDoctor?.value && selectedDoctor.value !== 'all' ? { doctorId: selectedDoctor.value, paginate: false } : { paginate: false };
     dispatch(getAllPatients(payload));
@@ -194,7 +195,7 @@ const Sidebar = () => {
                     </div>
                   </div>
                   <div className="">
-                    <span className="text-white me-2 mb-0" style={{ fontSize: '8px' }}>09:15 AM</span>
+                    <span className="text-white me-2 mb-0" style={{ fontSize: '8px' }}>{patient?.createdAt ? moment(patient.createdAt).format('DD/MM/YYYY') : 'N/A'}</span>
                     <p className='m-0 text-white text-capitalize fw-semibold' style={{ fontSize: '10px' }}>
                       {patient.isActive ? 'active' : 'inactive'}
                     </p>
