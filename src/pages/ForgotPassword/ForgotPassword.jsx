@@ -4,24 +4,27 @@ import { useNavigate } from 'react-router-dom';
 import { forgotPassword } from '../../helpers/api/auth';
 import '../Login.css';
 import logo_bg from '../../assets/images/logo_bg.png';
+import { useSelector } from 'react-redux';
+import { getAuthData } from '../../redux/auth/selectors';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { passwordReset} = useSelector(getAuthData);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
     try {
       await forgotPassword({ email });
       sessionStorage.setItem('resetEmail', email);
       navigate('/verify-otp');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send OTP');
+      setError(err|| 'Failed to send OTP');
     } finally {
       setLoading(false);
     }
@@ -41,7 +44,7 @@ const ForgotPassword = () => {
 
         <Form onSubmit={handleSubmit}>
           {error && <Alert variant="danger">{error}</Alert>}
-          
+
           <Form.Group className="mb-4">
             <Form.Label className="text-white mb-2 login-label">Email</Form.Label>
             <Form.Control

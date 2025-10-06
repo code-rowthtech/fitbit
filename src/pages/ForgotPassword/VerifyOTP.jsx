@@ -27,6 +27,18 @@ const VerifyOTP = () => {
             const newOtp = [...otp];
             newOtp[index] = value;
             setOtp(newOtp);
+            
+            // Move to next field if value is entered
+            if (value && index < 3) {
+                document.getElementById(`otp-${index + 1}`).focus();
+            }
+        }
+    };
+
+    const handleKeyDown = (index, e) => {
+        // Move to previous field on backspace if current field is empty
+        if (e.key === 'Backspace' && !otp[index] && index > 0) {
+            document.getElementById(`otp-${index - 1}`).focus();
         }
     };
 
@@ -82,10 +94,12 @@ const VerifyOTP = () => {
                             {otp.map((digit, index) => (
                                 <Form.Control
                                     key={index}
+                                    id={`otp-${index}`}
                                     type="text"
                                     maxLength="1"
                                     value={digit}
                                     onChange={(e) => handleOtpChange(index, e.target.value)}
+                                    onKeyDown={(e) => handleKeyDown(index, e)}
                                     className="login-input text-center border-0"
                                     style={{ width: '60px', height: '60px', fontSize: '28px', backgroundColor: '#8bb4f1', color: 'white' }}
                                     required
