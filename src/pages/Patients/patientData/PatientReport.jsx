@@ -1,11 +1,11 @@
 import React, { useState, useEffect, use } from 'react';
-import { Table, Form, Modal, Button } from 'react-bootstrap';
+import { Table, Form, Modal, Button, Tooltip, OverlayTrigger } from 'react-bootstrap';
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa6";
 import { MdSimCardDownload } from "react-icons/md";
 import { FcDownload } from "react-icons/fc";
 import moment from 'moment';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllReports, createReport, resetCreateReport, downloadReport, resetDownloadReport } from '../../../redux/reports/action';
+import { getAllReports, createReport, resetCreateReport, downloadReport, resetDownloadReport, getYearlyReports, downloadYearlyReport, resetDownloadYearlyReport } from '../../../redux/reports/action';
 import '../PatientDashboard.css';
 import { IoCalendarClearOutline } from "react-icons/io5";
 
@@ -40,17 +40,25 @@ const PatientReport = ({ isExpanded, onExpand }) => {
   const [editingRange, setEditingRange] = useState(null);
   const [tempRange, setTempRange] = useState({ min: '', max: '' });
   const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [showYearlyDownloadModal, setShowYearlyDownloadModal] = useState(false);
+  const [viewType, setViewType] = useState('Monthly');
+  const [currentYear, setCurrentYear] = useState(moment());
   const daysInMonth = currentMonth.daysInMonth();
   const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  const monthsArray = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   const dispatch = useDispatch();
 
   const CreateResponse = useSelector(state => state?.createReportReducer?.data?.status)
   const DailyData = useSelector(state => state?.getAllReports?.data?.data?.mappedData)
+  const YearlyData = useSelector(state => state?.getYearlyReports?.data?.data?.mappedData)
   const loading = useSelector(state => state?.getAllReports?.loading)
+  const yearlyLoading = useSelector(state => state?.getYearlyReports?.loading)
   const downloadLoading = useSelector(state => state?.downloadReportReducer?.loading)
   const downloadResponse = useSelector(state => state?.downloadReportReducer?.data)
   const downloadError = useSelector(state => state?.downloadReportReducer?.message)
+  const yearlyDownloadLoading = useSelector(state => state?.downloadYearlyReportReducer?.loading)
+  const yearlyDownloadResponse = useSelector(state => state?.downloadYearlyReportReducer?.data)
   const metricsEnum = [
     'steps', 'Continuous Heart Rate', 'BMI', 'sleep', 'calories burned', 'distance',
     'activeMinutes', 'Sleep Stages', 'Awakenings', 'Weight', 'Calories Consumed',
@@ -81,19 +89,24 @@ const PatientReport = ({ isExpanded, onExpand }) => {
 
   useEffect(() => {
     if (id) {
-      dispatch(getAllReports({ id, month: currentMonth.format('YYYY-MM') }));
+      if (viewType === 'Monthly') {
+        dispatch(getAllReports({ id, month: currentMonth.format('YYYY-MM') }));
+      } else {
+        dispatch(getYearlyReports({ id, year: currentYear.format('YYYY') }));
+      }
     }
-  }, [dispatch, id, currentMonth]);
+  }, [dispatch, id, currentMonth, currentYear, viewType]);
 
   useEffect(() => {
-    if (DailyData) {
+    const data = viewType === 'Monthly' ? DailyData : YearlyData;
+    if (data) {
       const rangesMap = {};
-      DailyData.forEach(report => {
+      data.forEach(report => {
         rangesMap[report.label] = { min: report.min, max: report.max };
       });
       setNormalRanges(rangesMap);
     }
-  }, [DailyData]);
+  }, [DailyData, YearlyData, viewType]);
 
   useEffect(() => {
     if (CreateResponse === 201 && id) {
@@ -108,6 +121,12 @@ const PatientReport = ({ isExpanded, onExpand }) => {
       dispatch(resetDownloadReport());
     }
   }, [downloadResponse, dispatch]);
+
+  useEffect(() => {
+    if (yearlyDownloadResponse?.success) {
+      dispatch(resetDownloadYearlyReport());
+    }
+  }, [yearlyDownloadResponse, dispatch]);
 
 
   const handleCreateReport = (label, min, max) => {
@@ -142,7 +161,11 @@ const PatientReport = ({ isExpanded, onExpand }) => {
   };
 
   const handleDownloadReport = () => {
-    setShowDownloadModal(true);
+    if (viewType === 'Monthly') {
+      setShowDownloadModal(true);
+    } else {
+      setShowYearlyDownloadModal(true);
+    }
   };
 
   const confirmDownload = () => {
@@ -151,12 +174,50 @@ const PatientReport = ({ isExpanded, onExpand }) => {
     setShowDownloadModal(false);
   };
 
+  const confirmYearlyDownload = () => {
+    if (!id) return;
+    dispatch(downloadYearlyReport({ id, year: currentYear.format('YYYY') }));
+    setShowYearlyDownloadModal(false);
+  };
+
   const handlePreviousMonth = () => {
     setCurrentMonth(prev => prev.clone().subtract(1, 'month'));
   };
 
   const handleNextMonth = () => {
     setCurrentMonth(prev => prev.clone().add(1, 'month'));
+  };
+
+  const handlePreviousYear = () => {
+    setCurrentYear(prev => prev.clone().subtract(1, 'year'));
+  };
+
+  const handleNextYear = () => {
+    setCurrentYear(prev => prev.clone().add(1, 'year'));
+  };
+
+  const getDataForMonth = (label, monthIndex) => {
+    const reportData = YearlyData?.find(report => report.label === label);
+    if (!reportData?.monthlyData) return '-';
+
+    // Find the month data that matches the current year and month index
+    const targetMonth = `${currentYear.format('YYYY')}-${String(monthIndex + 1).padStart(2, '0')}`;
+    const monthData = reportData.monthlyData.find(data => data.month === targetMonth);
+    
+    if (!monthData) return '-';
+
+    return monthData.value || '-';
+  };
+
+  const getMonthCellColor = (label, monthIndex) => {
+    const reportData = YearlyData?.find(report => report.label === label);
+    if (!reportData?.monthlyData) return '#000';
+
+    // Find the month data that matches the current year and month index
+    const targetMonth = `${currentYear.format('YYYY')}-${String(monthIndex + 1).padStart(2, '0')}`;
+    const monthData = reportData.monthlyData.find(data => data.month === targetMonth);
+    
+    return monthData?.color || '#000';
   };
 
   const getDataForDay = (label, day) => {
@@ -197,7 +258,7 @@ const PatientReport = ({ isExpanded, onExpand }) => {
 
     if (isEditing) {
       return (
-        <td className="normal-range-cell p-0">
+        <td className="normal-range-cell p-0" style={{ width: viewType === 'Yearly' ? '200px' : 'auto' }}>
           <div className="d-flex align-items-center justify-content-center gap-1" style={{ paddingBottom: '1px', paddingTop: '1px' }}>
             <Form.Control
               size="sm"
@@ -205,7 +266,7 @@ const PatientReport = ({ isExpanded, onExpand }) => {
               value={tempRange.min}
               onChange={(e) => setTempRange(prev => ({ ...prev, min: e.target.value }))}
               className="range-input"
-              style={{ width: '100px', fontSize: '10px' }}
+              style={{ width: '65px', fontSize: '10px' }}
             />
             <span className="text-muted" style={{ fontSize: '10px' }}>-</span>
             <Form.Control
@@ -214,7 +275,7 @@ const PatientReport = ({ isExpanded, onExpand }) => {
               value={tempRange.max}
               onChange={(e) => setTempRange(prev => ({ ...prev, max: e.target.value }))}
               className="range-input"
-              style={{ width: '100px', fontSize: '10px' }}
+              style={{ width: '65px', fontSize: '10px' }}
             />
             <button
               className="btn btn-sm text-white p-0"
@@ -240,7 +301,7 @@ const PatientReport = ({ isExpanded, onExpand }) => {
     return (
       <td
         className="normal-range-cell text-center"
-        style={{ cursor: 'pointer' }}
+        style={{ cursor: 'pointer', width: viewType === 'Yearly' ? '200px' : 'auto' }}
         onClick={() => handleRangeClick(label)}
         title="Click to edit range"
       >
@@ -251,26 +312,75 @@ const PatientReport = ({ isExpanded, onExpand }) => {
 
   return (
     <div className='bg-white py-2 px-2'>
-      {/* Month Navigation */}
+      {/* Navigation */}
       <div className="d-flex justify-content-between align-items-center px-4 py-2  month-navigation">
-        <span onClick={() => setCurrentMonth(currentMonth.clone().subtract(1, 'month'))} className="month-navigation span">
+        <span onClick={viewType === 'Monthly' ? handlePreviousMonth : handlePreviousYear} className="month-navigation span">
           <FaAngleLeft style={{ color: '#003465' }} />
         </span>
         <h6 className="mb-0 fw-bold text-center month-navigation" style={{ fontSize: '14px', color: '#003465' }}>
-          {currentMonth.format('MMMM YYYY')}
+          {viewType === 'Monthly' ? currentMonth.format('MMMM YYYY') : currentYear.format('YYYY')}
           <span>
             <IoCalendarClearOutline className='mb-1' style={{ fontSize: '18px', marginLeft: '8px', color: '#003465' }} />
           </span>
         </h6>
-        <div>
-          <IoIosExpand title='Expand Report' className='me-3 p-0 fs-4' style={{ color: '#003465', cursor: 'pointer' }} onClick={onExpand} />
-          <MdSimCardDownload
-            title='Export Report'
-            className='me-3 p-0 fs-4'
-            style={{ color: '#003465', cursor: 'pointer' }}
-            onClick={handleDownloadReport}
-          />
-          <FaAngleRight style={{ color: '#003465', cursor: 'pointer' }} onClick={() => setCurrentMonth(currentMonth.clone().add(1, 'month'))} />
+        <div className="d-flex align-items-center">
+          <div className="d-flex align-items-center gap-2 me-3">
+            <div className="d-flex align-items-center gap-1" style={{ fontSize: '12.4px', color: viewType === 'Monthly' ? '#003465' : '#6c757d' }}>
+              <span className="fw-bold">Monthly</span>
+            </div>
+            <div
+              className="position-relative d-flex align-items-center justify-content-center"
+              style={{
+                width: '40px',
+                height: '18px',
+                backgroundColor: viewType === 'Yearly' ? '#003465' : '#003465',
+                borderRadius: '9px',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onClick={() => {
+                const newViewType = viewType === 'Monthly' ? 'Yearly' : 'Monthly';
+                setViewType(newViewType);
+                if (id) {
+                  if (newViewType === 'Yearly') {
+                    dispatch(getYearlyReports({ id, year: currentYear.format('YYYY') }));
+                  } else {
+                    dispatch(getAllReports({ id, month: currentMonth.format('YYYY-MM') }));
+                  }
+                }
+              }}
+            >
+              <div
+                className="position-absolute bg-white rounded-circle"
+                style={{
+                  width: '14px',
+                  height: '14px',
+                  left: viewType === 'Yearly' ? '24px' : '2px',
+                  transition: 'all 0.3s ease'
+                }}
+              />
+            </div>
+            <div className="d-flex align-items-center gap-1" style={{ fontSize: '12.4px', color: viewType === 'Yearly' ? '#003465' : '#6c757d' }}>
+              <span className="fw-bold">Yearly</span>
+            </div>
+          </div>
+          <OverlayTrigger
+            placement="top"
+            overlay={<Tooltip>Expand Report</Tooltip>}
+          >
+            <IoIosExpand className='me-3 p-0 fs-4' style={{ color: '#003465', cursor: 'pointer' }} onClick={onExpand} />
+          </OverlayTrigger>
+          <OverlayTrigger
+            placement="top"
+            overlay={<Tooltip>{viewType === 'Monthly' ? 'Export Monthly Report' : 'Export Yearly Report'}</Tooltip>}
+          >
+            <MdSimCardDownload
+              className='me-3 p-0 fs-4'
+              style={{ color: '#003465', cursor: 'pointer' }}
+              onClick={handleDownloadReport}
+            />
+          </OverlayTrigger>
+          <FaAngleRight style={{ color: '#003465', cursor: 'pointer' }} onClick={viewType === 'Monthly' ? handleNextMonth : handleNextYear} />
         </div>
       </div>
 
@@ -279,37 +389,52 @@ const PatientReport = ({ isExpanded, onExpand }) => {
       <div className="monthly-table-container">
         {/* Unified Scrollable Content */}
         <div className="table-scroll-container">
-          {loading ? (
+          {(loading || yearlyLoading) ? (
             <div className="d-flex justify-content-center align-items-center" style={{ height: '400px' }}>
               <div className="spinner-border" role="status" style={{ color: '#003465' }}>
                 <span className="visually-hidden">Loading...</span>
               </div>
             </div>
           ) : (
-            <Table className="mb-0 table-hover table-sm patient-report-table" style={{ width: `${450 + daysInMonth * 60}px` }}>
+            <Table className="mb-0 table-hover table-sm patient-report-table" style={{ width: viewType === 'Monthly' ? `${450 + daysInMonth * 60}px` : '100%' }}>
               <thead className="table table-header">
                 <tr>
-                  <th className='fw-bold text-center sticky-metrics'>Metrics</th>
-                  <th className='fw-bold text-center sticky-normal-range'>Normal Range</th>
-                  {daysArray.map(day => (
-                    <th className='fw-bold day-header' key={day}>{day}</th>
-                  ))}
+                  <th className='fw-bold text-center sticky-metrics' style={{ width: viewType === 'Yearly' ? '150px' : 'auto' }}>Metrics</th>
+                  <th className='fw-bold text-center sticky-normal-range' style={{ width: viewType === 'Yearly' ? '200px' : 'auto' }}>Normal Range</th>
+                  {viewType === 'Monthly' ? (
+                    daysArray.map(day => (
+                      <th className='fw-bold day-header' key={day}>{day}</th>
+                    ))
+                  ) : (
+                    monthsArray.map((month, index) => (
+                      <th className='fw-bold day-header' key={index} style={{ width: 'auto' }}>{month}</th>
+                    ))
+                  )}
                 </tr>
               </thead>
               <tbody className='fw-semibold'>
                 {metricsConfig.map((metric, index) => (
                   <tr key={`${metric.label}-${index}`}>
-                    <td className="d-flex align-items-center metrics-cell" style={{ padding: '6px 8px' }}>
+                    <td className="d-flex align-items-center metrics-cell" style={{ padding: '6px 8px', width: viewType === 'Yearly' ? '150px' : 'auto' }}>
                       <img src={metric.icon} alt={metric.displayName} className="metric-icon" />
                       {metric.displayName}
                     </td>
                     {renderNormalRangeCell(metric.label)}
-                    {daysArray.map(day => (
-                      <td key={day} className="text-center day-data-cell"
-                        style={{ color: getCellColor(metric.label, day) }}>
-                        {getDataForDay(metric.label, day)}
-                      </td>
-                    ))}
+                    {viewType === 'Monthly' ? (
+                      daysArray.map(day => (
+                        <td key={day} className="text-center day-data-cell"
+                          style={{ color: getCellColor(metric.label, day) }}>
+                          {getDataForDay(metric.label, day)}
+                        </td>
+                      ))
+                    ) : (
+                      monthsArray.map((month, monthIndex) => (
+                        <td key={monthIndex} className="text-center day-data-cell"
+                          style={{ color: getMonthCellColor(metric.label, monthIndex), width: 'auto' }}>
+                          {getDataForMonth(metric.label, monthIndex)}
+                        </td>
+                      ))
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -318,10 +443,10 @@ const PatientReport = ({ isExpanded, onExpand }) => {
         </div>
       </div>
 
-      {/* Download Confirmation Modal */}
+      {/* Monthly Download Confirmation Modal */}
       <Modal show={showDownloadModal} onHide={() => setShowDownloadModal(false)} >
         <Modal.Header closeButton className='border-0'>
-          <Modal.Title className='fs-6 fw-bold'>Download Report</Modal.Title>
+          <Modal.Title className='fs-6 fw-bold'>Download Monthly Report</Modal.Title>
         </Modal.Header>
         <Modal.Body className='text-center py-4' style={{ fontSize: '12px' }}>
           <FcDownload size={40} className='mb-3' />
@@ -339,6 +464,31 @@ const PatientReport = ({ isExpanded, onExpand }) => {
             style={{ backgroundColor: '#003465', borderColor: '#003465' }}
           >
             {downloadLoading ? 'Downloading...' : 'Download'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Yearly Download Confirmation Modal */}
+      <Modal show={showYearlyDownloadModal} onHide={() => setShowYearlyDownloadModal(false)} >
+        <Modal.Header closeButton className='border-0'>
+          <Modal.Title className='fs-6 fw-bold'>Download Yearly Report</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className='text-center py-4' style={{ fontSize: '12px' }}>
+          <FcDownload size={40} className='mb-3' />
+          <div>Are you sure you want to download report of <span className='fw-bold' style={{ color: '#003465' }}>{currentYear.format('YYYY')}</span> year?</div>
+        </Modal.Body>
+        <Modal.Footer className='border-0'>
+          <Button variant="secondary" className='fw-bold' onClick={() => setShowYearlyDownloadModal(false)} disabled={yearlyDownloadLoading}>
+            Cancel
+          </Button>
+          <Button 
+            variant="primary" 
+            className='fw-bold' 
+            onClick={confirmYearlyDownload} 
+            disabled={yearlyDownloadLoading}
+            style={{ backgroundColor: '#003465', borderColor: '#003465' }}
+          >
+            {yearlyDownloadLoading ? 'Downloading...' : 'Download'}
           </Button>
         </Modal.Footer>
       </Modal>

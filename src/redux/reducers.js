@@ -30,6 +30,8 @@ import {
   getReportById,
   updateReportReducer,
   downloadReportReducer,
+  getYearlyReports,
+  downloadYearlyReportReducer,
 } from "./reports/reducer";
 import {
   connectToFitbit,
@@ -85,6 +87,8 @@ export default combineReducers({
   createReportReducer,
   updateReportReducer,
   downloadReportReducer,
+  getYearlyReports,
+  downloadYearlyReportReducer,
 
   // Patient-Dashboard
   getPatientProfile,

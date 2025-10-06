@@ -1,6 +1,6 @@
 import REPORT_TYPES from './constant';
 import { all, fork, put, takeEvery, call, takeLatest } from 'redux-saga/effects';
-import { getAllReportsApi, getReportByIdApi, createReportApi, updateReportApi, downloadReportApi } from './api';
+import { getAllReportsApi, getReportByIdApi, createReportApi, updateReportApi, downloadReportApi, getYearlyReportsApi, downloadYearlyReportApi } from './api';
 import { toast } from 'react-toastify';
 
 function* getAllReportsFunction({ payload }) {
@@ -162,6 +162,73 @@ export function* downloadReportSaga() {
     yield takeEvery(REPORT_TYPES.DOWNLOAD_REPORT, downloadReportFunction);
 }
 
+function* getYearlyReportsFunction({ payload }) {
+    try {
+        yield put({
+            type: REPORT_TYPES.GET_YEARLY_REPORTS_LOADING,
+            payload: {},
+        });
+        const response = yield call(getYearlyReportsApi, { payload });
+
+        if (response?.data && response?.data?.status === 200) {
+            yield put({
+                type: REPORT_TYPES.GET_YEARLY_REPORTS_SUCCESS,
+                payload: response.data,
+            });
+        } else {
+            yield put({
+                type: REPORT_TYPES.GET_YEARLY_REPORTS_ERROR,
+                payload: response.data,
+            });
+        }
+    } catch (error) {
+        yield put({
+            type: REPORT_TYPES.GET_YEARLY_REPORTS_ERROR,
+            payload: { message: error?.message },
+        });
+    }
+}
+
+function* downloadYearlyReportFunction({ payload }) {
+    try {
+        yield put({
+            type: REPORT_TYPES.DOWNLOAD_YEARLY_REPORT_LOADING,
+            payload: {},
+        });
+        const response = yield call(downloadYearlyReportApi, { payload });
+
+        if (response?.status === 200 && response.data) {
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(response.data);
+            link.download = `yearly-report-${payload.year}.csv`;
+            link.click();
+            
+            yield put({
+                type: REPORT_TYPES.DOWNLOAD_YEARLY_REPORT_SUCCESS,
+                payload: { success: true },
+            });
+        } else {
+            yield put({
+                type: REPORT_TYPES.DOWNLOAD_YEARLY_REPORT_ERROR,
+                payload: { message: 'Download failed' },
+            });
+        }
+    } catch (error) {
+        yield put({
+            type: REPORT_TYPES.DOWNLOAD_YEARLY_REPORT_ERROR,
+            payload: { message: error?.message },
+        });
+    }
+}
+
+export function* getYearlyReportsSaga() {
+    yield takeEvery(REPORT_TYPES.GET_YEARLY_REPORTS, getYearlyReportsFunction);
+}
+
+export function* downloadYearlyReportSaga() {
+    yield takeEvery(REPORT_TYPES.DOWNLOAD_YEARLY_REPORT, downloadYearlyReportFunction);
+}
+
 function* ReportSaga() {
     yield all([
         fork(getAllReportsSaga),
@@ -169,6 +236,8 @@ function* ReportSaga() {
         fork(createReportSaga),
         fork(updateReportSaga),
         fork(downloadReportSaga),
+        fork(getYearlyReportsSaga),
+        fork(downloadYearlyReportSaga),
     ]);
 }
 

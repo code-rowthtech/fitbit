@@ -21,3 +21,11 @@ export function updateReportApi(data) {
 export function downloadReportApi(data) {
     return api.getFile(`${URL.DOWNLOAD_REPORT}/${data.payload.id}/monthly/${data.payload.month}/csv`);
 }
+
+export function getYearlyReportsApi(data) {
+    return api.get(`${URL.GET_YEARLY_REPORTS}/${data.payload.id}/yearly/${data.payload.year}`);
+}
+
+export function downloadYearlyReportApi(data) {
+    return api.getFile(`${URL.DOWNLOAD_YEARLY_REPORT}/${data.payload.id}/yearly/${data.payload.year}/csv`);
+}

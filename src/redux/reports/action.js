@@ -36,3 +36,21 @@ export const downloadReport = (data) => ({
 export const resetDownloadReport = () => ({
     type: REPORT_TYPES.DOWNLOAD_REPORT_RESET
 })
+
+export const getYearlyReports = (data) => ({
+    type: REPORT_TYPES.GET_YEARLY_REPORTS,
+    payload: data
+})
+
+export const resetGetYearlyReports = () => ({
+    type: REPORT_TYPES.GET_YEARLY_REPORTS_RESET
+})
+
+export const downloadYearlyReport = (data) => ({
+    type: REPORT_TYPES.DOWNLOAD_YEARLY_REPORT,
+    payload: data
+})
+
+export const resetDownloadYearlyReport = () => ({
+    type: REPORT_TYPES.DOWNLOAD_YEARLY_REPORT_RESET
+})
