@@ -303,14 +303,17 @@ const Patients = () => {
                                 <Table className="mb-0 table-sm" style={{ fontSize: '11px', overflow: 'hidden' }}>
                                     <thead className='thead-custom' style={{ position: 'sticky', top: 0, zIndex: 10 }}>
                                         <tr>
-                                            <th className='fw-bold py-2 text-center' style={{ width: '5%', fontSize: '16px' }}>#</th>
-                                            <th className='fw-bold py-2 text-start ps-5' style={{ width: '20%', fontSize: '16px' }}>Name</th>
-                                            <th className='fw-bold py-2 text-start' style={{ width: '25%', fontSize: '16px' }}>Email</th>
-                                            <th className='fw-bold py-2 text-center' style={{ width: '12%', fontSize: '16px' }}>Registered At</th>
-                                            <th className='fw-bold py-2 text-start' style={{ width: '18%', fontSize: '16px' }}>Assigned to</th>
-                                            <th className='fw-bold py-2 text-center' style={{ width: '8%', fontSize: '16px' }}>Gender</th>
-                                            <th className='fw-bold py-2 text-center' style={{ width: '7%', fontSize: '16px' }}>Status</th>
-                                            <th className='fw-bold py-2 text-start pe-3' style={{ width: '5%', fontSize: '16px' }}>Actions</th>
+                                            <th className='fw-bold py-2 text-center' style={{ width: statusFilter === 'inactive' ? '4%' : '5%', fontSize: '16px' }}>#</th>
+                                            <th className='fw-bold py-2 text-start ps-5' style={{ width: statusFilter === 'inactive' ? '18%' : '20%', fontSize: '16px' }}>Name</th>
+                                            <th className='fw-bold py-2 text-start' style={{ width: statusFilter === 'inactive' ? '22%' : '25%', fontSize: '16px' }}>Email</th>
+                                            <th className='fw-bold py-2 text-center' style={{ width: statusFilter === 'inactive' ? '10%' : '12%', fontSize: '16px' }}>Registered At</th>
+                                            <th className='fw-bold py-2 text-start' style={{ width: statusFilter === 'inactive' ? '16%' : '18%', fontSize: '16px' }}>Assigned to</th>
+                                            <th className='fw-bold py-2 text-center' style={{ width: statusFilter === 'inactive' ? '7%' : '8%', fontSize: '16px' }}>Gender</th>
+                                            {statusFilter === 'inactive' && (
+                                                <th className='fw-bold py-2 text-center' style={{ width: '10%', fontSize: '16px' }}>Inactive Date</th>
+                                            )}
+                                            <th className='fw-bold py-2 text-center' style={{ width: statusFilter === 'inactive' ? '6%' : '7%', fontSize: '16px' }}>Status</th>
+                                            <th className='fw-bold py-2 text-start pe-3' style={{ width: statusFilter === 'inactive' ? '7%' : '5%', fontSize: '16px' }}>Actions</th>
                                         </tr>
                                     </thead>
                                 </Table>
@@ -319,10 +322,10 @@ const Patients = () => {
                                         <tbody>
                                             {PatientData?.map((patient, index) => (
                                                 <tr key={patient._id} className="align-middle patient-row" style={{ cursor: 'pointer' }}>
-                                                    <td className="text-center fw-semibold" style={{ fontSize: '14px', width: '5%' }}>
+                                                    <td className="text-center fw-semibold" style={{ fontSize: '14px', width: statusFilter === 'inactive' ? '4%' : '5%' }}>
                                                         {((currentPage - 1) * 20) + index + 1}
                                                     </td>
-                                                    <td className="text-start ps-3" style={{ fontSize: '14px', width: '20%' }}>
+                                                    <td className="text-start ps-3" style={{ fontSize: '14px', width: statusFilter === 'inactive' ? '18%' : '20%' }}>
                                                         <div className="d-flex align-items-center gap-2">
                                                             <div className="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-uppercase"
                                                                 style={{ width: '32px', height: '32px', fontSize: '14px', color: 'white' }}>
@@ -335,23 +338,29 @@ const Patients = () => {
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className="text-start" style={{ fontSize: '14px', width: '25%' }}>
+                                                    <td className="text-start" style={{ fontSize: '14px', width: statusFilter === 'inactive' ? '22%' : '25%' }}>
                                                         {patient.email}
                                                     </td>
-                                                    <td className="text-center" style={{ fontSize: '14px', width: '12%' }}>
+                                                    <td className="text-center" style={{ fontSize: '14px', width: statusFilter === 'inactive' ? '10%' : '12%' }}>
                                                         {patient.registrationDate ? new Date(patient.registrationDate).toLocaleDateString() : "-"}
                                                     </td>
-                                                    <td className="text-start" style={{ fontSize: '14px', width: '18%' }}>
+                                                    <td className="text-start" style={{ fontSize: '14px', width: statusFilter === 'inactive' ? '16%' : '18%' }}>
                                                         <div className="text-dark text-capitalize" style={{ fontSize: '14px' }}>
                                                             {patient?.doctorId?.firstName && patient?.doctorId?.lastName
                                                                 ? `${patient.doctorId.firstName} ${patient.doctorId.lastName}`
                                                                 : 'Unassigned'}
                                                         </div>
                                                     </td>
-                                                    <td className="text-center" style={{ fontSize: '14px', width: '8%' }}>
+                                                    <td className="text-center" style={{ fontSize: '14px', width: statusFilter === 'inactive' ? '7%' : '8%' }}>
                                                         <span className="text-capitalize">{patient.gender || "-"}</span>
                                                     </td>
-                                                    <td className="text-center" style={{ width: '7%' }}>
+                                                    {statusFilter === 'inactive' && (
+                                                        <td className="text-center" style={{ fontSize: '14px', width: '10%' }}>
+                                                            {patient.inActiveTime ? 
+                                                                new Date(patient.inActiveTime).toLocaleDateString('en-GB') : "-"}
+                                                        </td>
+                                                    )}
+                                                    <td className="text-center" style={{ width: statusFilter === 'inactive' ? '6%' : '7%' }}>
                                                         <Form.Check 
                                                             type="switch"
                                                             id={`status-switch-${patient._id}`}
@@ -360,7 +369,7 @@ const Patients = () => {
                                                             style={{ transform: 'scale(1.2)' }}
                                                         />
                                                     </td>
-                                                    <td className="text-center pe-3" style={{ width: '5%' }}>
+                                                    <td className="text-center pe-3" style={{ width: statusFilter === 'inactive' ? '7%' : '5%' }}>
                                                         <div className="d-flex justify-content-center gap-1">
                                                             <button
                                                                 title='View'

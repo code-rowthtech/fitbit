@@ -200,7 +200,10 @@ const PatientReport = ({ isExpanded, onExpand }) => {
     const reportData = YearlyData?.find(report => report.label === label);
     if (!reportData?.monthlyData) return '-';
 
-    const monthData = reportData.monthlyData[monthIndex];
+    // Find the month data that matches the current year and month index
+    const targetMonth = `${currentYear.format('YYYY')}-${String(monthIndex + 1).padStart(2, '0')}`;
+    const monthData = reportData.monthlyData.find(data => data.month === targetMonth);
+    
     if (!monthData) return '-';
 
     return monthData.value || '-';
@@ -210,7 +213,10 @@ const PatientReport = ({ isExpanded, onExpand }) => {
     const reportData = YearlyData?.find(report => report.label === label);
     if (!reportData?.monthlyData) return '#000';
 
-    const monthData = reportData.monthlyData[monthIndex];
+    // Find the month data that matches the current year and month index
+    const targetMonth = `${currentYear.format('YYYY')}-${String(monthIndex + 1).padStart(2, '0')}`;
+    const monthData = reportData.monthlyData.find(data => data.month === targetMonth);
+    
     return monthData?.color || '#000';
   };
 
