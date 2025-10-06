@@ -11,6 +11,7 @@ const AddDegreeModal = ({ show, onHide }) => {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm();
   const { data, loading } = useSelector((state) => state.createDegreeReducer);
@@ -93,10 +94,63 @@ const AddDegreeModal = ({ show, onHide }) => {
                     className="py-3"
                     type="text"
                     placeholder="Enter Degree Name"
-                    onKeyDown={preventFirstSpace}
+                    autoComplete="off"
+                    onKeyDown={(e) => {
+                      preventFirstSpace(e);
+                      // Block emojis, numbers, and special characters
+                      const isEmoji =
+                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                          e.key
+                        );
+                      if (
+                        (!/^[a-zA-Z\s]$/.test(e.key) || isEmoji) &&
+                        e.key.length === 1 &&
+                        !["Backspace", "Delete", "Tab", "Enter"].includes(e.key)
+                      ) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onPaste={(e) => {
+                      const pastedText = e.clipboardData.getData("text");
+                      const hasEmoji =
+                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                          pastedText
+                        );
+                      if (!/^[A-Za-z\s]+$/.test(pastedText) || hasEmoji) {
+                        e.preventDefault();
+                      }
+                    }}
                     {...register("degree", {
                       required: "Degree name is required",
-                      onChange: (e) => handleInputChange(e, (e) => {}),
+                      minLength: {
+                        value: 2,
+                        message: "Name is too short",
+                      },
+                      maxLength: {
+                        value: 50,
+                        message: "Maximum 50 characters allowed",
+                      },
+                      pattern: {
+                        value: /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+                        message:
+                          "Only alphabets are allowed (no emojis, numbers, or special characters)",
+                      },
+                      validate: {
+                        noLeadingSpace: (value) =>
+                          value?.trim() === value ||
+                          "Name cannot start or end with spaces",
+                        noMultipleSpaces: (value) =>
+                          !/\s{2,}/.test(value) ||
+                          "Multiple consecutive spaces are not allowed",
+                        noEmojis: (value) =>
+                          !/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                            value
+                          ) || "Emojis are not allowed",
+                      },
+                      onChange: (e) =>
+                        handleInputChange(e, (e) =>
+                          setValue("degree", e.target.value)
+                        ),
                     })}
                   />
                   {errors.degree && (
@@ -120,10 +174,50 @@ const AddDegreeModal = ({ show, onHide }) => {
                     as="textarea"
                     rows={3}
                     placeholder="Enter Description"
-                    onKeyDown={preventFirstSpace}
+                    autoComplete="off"
+                    onKeyDown={(e) => {
+                      preventFirstSpace(e);
+                      // Block emojis
+                      const isEmoji =
+                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                          e.key
+                        );
+                      if (isEmoji && e.key.length === 1) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onPaste={(e) => {
+                      const pastedText = e.clipboardData.getData("text");
+                      const hasEmoji =
+                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                          pastedText
+                        );
+                      if (hasEmoji) {
+                        e.preventDefault();
+                      }
+                    }}
                     {...register("description", {
                       required: "Description is required",
-                      onChange: (e) => handleInputChange(e, (e) => {}),
+                      minLength: {
+                        value: 10,
+                        message: "Description is too short",
+                      },
+                      validate: {
+                        noLeadingSpace: (value) =>
+                          value?.trim() === value ||
+                          "Description cannot start or end with spaces",
+                        noMultipleSpaces: (value) =>
+                          !/\s{2,}/.test(value) ||
+                          "Multiple consecutive spaces are not allowed",
+                        noEmojis: (value) =>
+                          !/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                            value
+                          ) || "Emojis are not allowed",
+                      },
+                      onChange: (e) =>
+                        handleInputChange(e, (e) =>
+                          setValue("description", e.target.value)
+                        ),
                     })}
                   />
                   {errors.description && (
@@ -135,20 +229,20 @@ const AddDegreeModal = ({ show, onHide }) => {
               </Col>
             </Row>
 
-            <div className="d-flex justify-content-end gap-3 mt-4">
+            <div className="d-flex justify-content-end gap-2 mt-4">
+              <Button
+                variant="outline-secondary"
+                onClick={handleClose}
+                disabled={loading}
+              >
+                Cancel
+              </Button>
               <Button
                 type="submit"
+                variant="primary"
                 disabled={loading}
-                style={{
-                  minWidth: "100px",
-                  height: "46px",
-                  backgroundColor: "#003465",
-                  border: "none",
-                  fontWeight: "600",
-                  textTransform: "uppercase",
-                }}
               >
-                {loading ? "ADDING..." : "ADD DEGREE"}
+                {loading ? "Adding..." : "Add Degree"}
               </Button>
             </div>
           </Form>

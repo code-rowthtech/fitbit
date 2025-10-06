@@ -10,7 +10,6 @@ import {
   getSkills,
   getSpecializations,
   getQualification,
-  getAllDoctors,
 } from "../redux/actions";
 import { FaTimes, FaEye, FaEyeSlash } from "react-icons/fa";
 import { RiAddLine } from "react-icons/ri";
@@ -38,16 +37,11 @@ const CreateDoctorModal = ({ show, onHide }) => {
   const [showSpecializationModal, setShowSpecializationModal] = useState(false);
   const [showDegreeModal, setShowDegreeModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const CreateResponse = useSelector(
     (state) => state?.createDoctorReducer?.data?.status
   );
 
-  const CreateMeassage = useSelector(
-    (state) => state?.createDoctorReducer?.data?.message
-  );
-
-  console.log(CreateMeassage, "CreateMeassageCreateMeassage");
-  console.log(CreateResponse, "CreateResponseCreateResponse");
   const Loading = useSelector((state) => state?.createDoctorReducer?.loading);
   const StatesData = useSelector(
     (state) => state?.getStatesReducer?.data?.data
@@ -65,7 +59,6 @@ const CreateDoctorModal = ({ show, onHide }) => {
     (state) => state?.getQualificationReducer?.data?.data
   );
 
-  console.log(qualificationsData, "qualificationsDataqualificationsData");
   const userInfo = JSON.parse(localStorage.getItem("user"));
   const UserRole = userInfo?.role;
   const {
@@ -229,40 +222,50 @@ const CreateDoctorModal = ({ show, onHide }) => {
   ];
 
   useEffect(() => {
-    if (show) {
+    if (show && !isModalOpen) {
+      setIsModalOpen(true);
       setCurrentStep(1);
       reset();
-      dispatch(getAllDoctors({ search: "" }));
+      setSelectedImage(null);
+      dispatch(resetCreateDoctor());
+    } else if (!show && isModalOpen) {
+      setIsModalOpen(false);
     }
-  }, [show]);
+  }, [show, isModalOpen, reset, dispatch]);
 
   useEffect(() => {
-    dispatch(getStates({ search: "" }));
-    dispatch(getSkills());
-    dispatch(getSpecializations());
-    dispatch(getQualification());
-  }, [dispatch]);
+    if (show && isModalOpen) {
+      dispatch(getStates({ search: "" }));
+      dispatch(getSkills());
+      dispatch(getSpecializations());
+      dispatch(getQualification());
+    }
+  }, [show, isModalOpen, dispatch]);
 
   useEffect(() => {
-    if (CreateResponse === 201) {
-      toast.success(CreateMeassage); // ✅ show toast
-
+    if (CreateResponse === 201 && isModalOpen) {
       reset();
       setCurrentStep(1);
+      setSelectedImage(null);
+      setShowSpecialSkillModal(false);
+      setShowSpecializationModal(false);
+      setShowDegreeModal(false);
+      setIsModalOpen(false);
       onHide();
       dispatch(resetCreateDoctor());
+    } else if (CreateResponse && CreateResponse !== 201) {
+      dispatch(resetCreateDoctor());
     }
-  }, [CreateResponse]);
+  }, [CreateResponse, isModalOpen, reset, onHide, dispatch]);
 
   const handleNext = async () => {
     let fieldsToValidate = [];
 
     if (currentStep === 1) {
       fieldsToValidate = ["firstName", "lastName", "email", "password"];
+    } else if (currentStep === 2) {
+      fieldsToValidate = ["specialization", "qualification"];
     }
-    // else if (currentStep === 2) {
-    //     fieldsToValidate = ['specialization', 'qualification'];
-    // }
 
     const isValid = await trigger(fieldsToValidate);
 
@@ -282,72 +285,112 @@ const CreateDoctorModal = ({ show, onHide }) => {
       (state) => state?.value === data?.state?.value
     );
 
+    // Create initial payload
     const payload = {
-      firstName: data.firstName || "",
-      lastName: data.lastName || "",
+      firstName: data.firstName,
+      lastName: data.lastName,
       email: data.email,
       password: data.password,
-      phoneNumber: data.phone || "",
+      phoneNumber: data.phone,
       role: "admin",
-      gender: data.gender || "",
-      age: data.age || "",
-      dateOfBirth: data.dateOfBirth || "",
-      fullAddress: data.fullAddress || "",
-      specializations: data.specialization ? [data.specialization.value] : [],
+      gender: data.gender,
+      age: data.age,
+      dateOfBirth: data.dateOfBirth,
+      fullAddress: data.fullAddress,
+      specializations: data.specialization
+        ? [data.specialization.value]
+        : undefined,
       skills:
         data.specialSkill && data.specialSkill.length > 0
           ? Array.isArray(data.specialSkill)
             ? data.specialSkill.map((skill) => skill.value)
             : [data.specialSkill.value]
-          : [],
-      yearOfExperience: data.experience || "",
-      consultationType: data.consultationType || "",
+          : undefined,
+      yearOfExperience: data.experience,
+      consultationType: data.consultationType,
       patients: [],
-      timings: data.timings || "",
-      languageKnown: data.languages ? [data.languages] : [],
-      medicalLicenseNumber: data.licenseNumber || "",
-      qualifications: data.qualification ? [data.qualification] : [],
-      hospitalName: data.hospitalName || "",
-      clinicName: data.clinicName || "",
+      timings: data.timings,
+      languageKnown: data.languages ? [data.languages] : undefined,
+      medicalLicenseNumber: data.licenseNumber,
+      qualifications: data.qualification
+        ? [data.qualification.value]
+        : undefined,
+      hospitalName: data.hospitalName,
+      clinicName: data.clinicName,
       clinicAddress: {
-        street: data.street || "",
-        city: data.city?.value || data.city || null,
+        street: data.street,
+        city: data.city?.value || data.city,
         state: selectedState?.data?._id,
         country: "India",
-        zip: data.pincode || "",
+        zip: data.pincode,
       },
-      registrationDate: data.registrationDate || "",
-      about: data.aboutDoctor || "",
+      registrationDate:
+        data.registrationDate || new Date().toISOString().split("T")[0],
+      about: data.aboutDoctor,
       isActive: true,
       isDeleted: false,
       lastLogin: null,
     };
 
-    // If you still need FormData for the image
+    // 🧹 Remove empty, null, undefined, or blank-string fields from payload
+    const cleanPayload = (obj) => {
+      if (Array.isArray(obj)) {
+        return obj
+          .map((item) => cleanPayload(item))
+          .filter((item) => item !== undefined && item !== null && item !== "");
+      } else if (typeof obj === "object" && obj !== null) {
+        const newObj = {};
+        Object.keys(obj).forEach((key) => {
+          const value = cleanPayload(obj[key]);
+          if (
+            value !== undefined &&
+            value !== null &&
+            value !== "" &&
+            !(Array.isArray(value) && value.length === 0)
+          ) {
+            newObj[key] = value;
+          }
+        });
+        return Object.keys(newObj).length > 0 ? newObj : undefined;
+      }
+      return obj;
+    };
+
+    const filteredPayload = cleanPayload(payload);
+
+    // ✅ If image selected, send as FormData
     if (selectedImage) {
       const formData = new FormData();
-      Object.keys(payload).forEach((key) => {
+      Object.keys(filteredPayload).forEach((key) => {
         if (
-          typeof payload[key] === "object" &&
-          !(payload[key] instanceof File)
+          typeof filteredPayload[key] === "object" &&
+          !(filteredPayload[key] instanceof File)
         ) {
-          formData.append(key, JSON.stringify(payload[key]));
+          formData.append(key, JSON.stringify(filteredPayload[key]));
         } else {
-          formData.append(key, payload[key]);
+          formData.append(key, filteredPayload[key]);
         }
       });
       formData.append("image", selectedImage);
       dispatch(createDoctor(formData));
     } else {
-      dispatch(createDoctor(payload));
+      dispatch(createDoctor(filteredPayload));
     }
   };
 
   const handleClose = useCallback(() => {
-    reset();
-    setCurrentStep(1);
-    onHide();
-  }, [reset, onHide]);
+    if (isModalOpen) {
+      reset();
+      setCurrentStep(1);
+      setSelectedImage(null);
+      setShowSpecialSkillModal(false);
+      setShowSpecializationModal(false);
+      setShowDegreeModal(false);
+      dispatch(resetCreateDoctor());
+      setIsModalOpen(false);
+      onHide();
+    }
+  }, [isModalOpen, reset, onHide, dispatch]);
 
   const preventFirstSpace = (e) => {
     if (e.target.value.length === 0 && e.key === " ") {
@@ -366,7 +409,10 @@ const CreateDoctorModal = ({ show, onHide }) => {
     onChange(e);
   };
 
-  useEffect(() => {}, []);
+  // Prevent rendering if modal should not be open
+  if (!show) {
+    return null;
+  }
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -388,9 +434,54 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     type="text"
                     placeholder="Enter First Name"
                     autoComplete="off"
-                    onKeyDown={preventFirstSpace}
+                    onKeyDown={(e) => {
+                      preventFirstSpace(e);
+                      // Block emojis, numbers, and special characters
+                      const isEmoji =
+                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                          e.key
+                        );
+                      if (
+                        (!/^[a-zA-Z\s]$/.test(e.key) || isEmoji) &&
+                        e.key.length === 1 &&
+                        !["Backspace", "Delete", "Tab", "Enter"].includes(e.key)
+                      ) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onPaste={(e) => {
+                      const pastedText = e.clipboardData.getData("text");
+                      const hasEmoji =
+                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                          pastedText
+                        );
+                      if (!/^[A-Za-z\s]+$/.test(pastedText) || hasEmoji) {
+                        e.preventDefault();
+                      }
+                    }}
                     {...register("firstName", {
                       required: "First name is required",
+                      minLength: {
+                        value: 2,
+                        message: "Name is too short",
+                      },
+                      pattern: {
+                        value: /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+                        message:
+                          "Only alphabets are allowed (no emojis, numbers, or special characters)",
+                      },
+                      validate: {
+                        noLeadingSpace: (value) =>
+                          value?.trim() === value ||
+                          "Name cannot start or end with spaces",
+                        noMultipleSpaces: (value) =>
+                          !/\s{2,}/.test(value) ||
+                          "Multiple consecutive spaces are not allowed",
+                        noEmojis: (value) =>
+                          !/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                            value
+                          ) || "Emojis are not allowed",
+                      },
                       onChange: (e) =>
                         handleInputChange(e, (e) =>
                           setValue("firstName", e.target.value)
@@ -404,6 +495,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
                   )}
                 </Form.Group>
               </Col>
+
               <Col md={6}>
                 <Form.Group className="mb-3">
                   <Form.Label
@@ -418,9 +510,54 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     type="text"
                     placeholder="Enter Last Name"
                     autoComplete="off"
-                    onKeyDown={preventFirstSpace}
+                    onKeyDown={(e) => {
+                      preventFirstSpace(e);
+                      // Block emojis, numbers, and special characters
+                      const isEmoji =
+                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                          e.key
+                        );
+                      if (
+                        (!/^[a-zA-Z\s]$/.test(e.key) || isEmoji) &&
+                        e.key.length === 1 &&
+                        !["Backspace", "Delete", "Tab", "Enter"].includes(e.key)
+                      ) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onPaste={(e) => {
+                      const pastedText = e.clipboardData.getData("text");
+                      const hasEmoji =
+                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                          pastedText
+                        );
+                      if (!/^[A-Za-z\s]+$/.test(pastedText) || hasEmoji) {
+                        e.preventDefault();
+                      }
+                    }}
                     {...register("lastName", {
                       required: "Last name is required",
+                      minLength: {
+                        value: 2,
+                        message: "Name is too short",
+                      },
+                      pattern: {
+                        value: /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+                        message:
+                          "Only alphabets are allowed (no emojis, numbers, or special characters)",
+                      },
+                      validate: {
+                        noLeadingSpace: (value) =>
+                          value?.trim() === value ||
+                          "Name cannot start or end with spaces",
+                        noMultipleSpaces: (value) =>
+                          !/\s{2,}/.test(value) ||
+                          "Multiple consecutive spaces are not allowed",
+                        noEmojis: (value) =>
+                          !/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                            value
+                          ) || "Emojis are not allowed",
+                      },
                       onChange: (e) =>
                         handleInputChange(e, (e) =>
                           setValue("lastName", e.target.value)
@@ -434,6 +571,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
                   )}
                 </Form.Group>
               </Col>
+
               <Col md={6}>
                 <Form.Group className="mb-3">
                   <Form.Label
@@ -482,14 +620,67 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     type="tel"
                     placeholder="Enter Phone Number"
                     autoComplete="off"
-                    onKeyDown={preventFirstSpace}
+                    onKeyDown={(e) => {
+                      preventFirstSpace(e);
+                      const digitCount = e.target.value.replace(
+                        /[^0-9]/g,
+                        ""
+                      ).length;
+                      // Only allow numbers, +, -, (, ), and space
+                      if (
+                        !/^[0-9+\-()\s]$/.test(e.key) &&
+                        e.key.length === 1 &&
+                        !["Backspace", "Delete", "Tab", "Enter"].includes(e.key)
+                      ) {
+                        e.preventDefault();
+                      }
+                      // Prevent more than 15 digits
+                      if (/^[0-9]$/.test(e.key) && digitCount >= 15) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onPaste={(e) => {
+                      const pastedText = e.clipboardData.getData("text");
+                      if (!/^[0-9+\-()\s]+$/.test(pastedText)) {
+                        e.preventDefault();
+                      }
+                    }}
                     {...register("phone", {
+                      pattern: {
+                        value: /^[0-9+\-()\s]+$/,
+                        message:
+                          "Only numbers and phone symbols (+, -, (, )) are allowed",
+                      },
+                      validate: {
+                        minDigits: (value) => {
+                          const digitCount =
+                            value?.replace(/[^0-9]/g, "").length || 0;
+                          return (
+                            digitCount === 0 ||
+                            digitCount >= 5 ||
+                            "Phone number must have at least 5 digits"
+                          );
+                        },
+                        maxDigits: (value) => {
+                          const digitCount =
+                            value?.replace(/[^0-9]/g, "").length || 0;
+                          return (
+                            digitCount <= 15 ||
+                            "Phone number cannot exceed 15 digits"
+                          );
+                        },
+                      },
                       onChange: (e) =>
                         handleInputChange(e, (e) =>
                           setValue("phone", e.target.value)
                         ),
                     })}
                   />
+                  {errors.phone && (
+                    <span className="text-danger" style={{ fontSize: "10px" }}>
+                      {errors.phone.message}
+                    </span>
+                  )}
                 </Form.Group>
               </Col>
               <Col md={6}>
@@ -506,9 +697,38 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     type="email"
                     placeholder="Enter Email ID"
                     autoComplete="off"
-                    onKeyDown={preventFirstSpace}
+                    onKeyDown={(e) => {
+                      preventFirstSpace(e);
+                      const isEmoji =
+                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                          e.key
+                        );
+                      if (isEmoji && e.key.length === 1) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onPaste={(e) => {
+                      const pastedText = e.clipboardData.getData("text");
+                      const hasEmoji =
+                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                          pastedText
+                        );
+                      if (hasEmoji) {
+                        e.preventDefault();
+                      }
+                    }}
                     {...register("email", {
                       required: "Email is required",
+                      pattern: {
+                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                        message: "Please enter a valid email address",
+                      },
+                      validate: {
+                        noEmojis: (value) =>
+                          !/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                            value
+                          ) || "Emojis are not allowed in email",
+                      },
                       onChange: (e) =>
                         handleInputChange(e, (e) =>
                           setValue("email", e.target.value)
@@ -541,9 +761,46 @@ const CreateDoctorModal = ({ show, onHide }) => {
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter Password"
                       autoComplete="off"
-                      onKeyDown={preventFirstSpace}
+                      onKeyDown={(e) => {
+                        preventFirstSpace(e);
+                        const isEmoji =
+                          /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                            e.key
+                          );
+                        if (isEmoji && e.key.length === 1) {
+                          e.preventDefault();
+                        }
+                      }}
+                      onPaste={(e) => {
+                        const pastedText = e.clipboardData.getData("text");
+                        const hasEmoji =
+                          /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                            pastedText
+                          );
+                        if (hasEmoji) {
+                          e.preventDefault();
+                        }
+                      }}
                       {...register("password", {
                         required: "Password is required",
+                        validate: {
+                          noEmojis: (value) =>
+                            !/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                              value
+                            ) || "Emojis are not allowed in password",
+                          minLength: (value) =>
+                            value?.length >= 8 ||
+                            "Password must be at least 8 characters",
+                          hasUppercaseAndNumber: (value) => {
+                            const hasUppercase = /[A-Z]/.test(value);
+                            const hasNumberOrSpecial =
+                              /[0-9!@#$%^&*(),.?":{}|<>]/.test(value);
+                            return (
+                              (hasUppercase && hasNumberOrSpecial) ||
+                              "Password must include a number or special character"
+                            );
+                          },
+                        },
                         onChange: (e) =>
                           handleInputChange(e, (e) =>
                             setValue("password", e.target.value)
@@ -576,8 +833,33 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     style={{ fontSize: "12px", backgroundColor: "#F9FAFB" }}
                     className="py-3"
                     type="file"
+                    accept="image/*"
                     onChange={handleFileChange}
+                    {...register("profilePhoto", {
+                      validate: {
+                        fileType: (files) => {
+                          if (!files || files.length === 0) return true;
+                          const file = files[0];
+                          const allowedTypes = [
+                            "image/jpeg",
+                            "image/jpg",
+                            "image/png",
+                            "image/gif",
+                            "image/webp",
+                          ];
+                          return (
+                            allowedTypes.includes(file.type) ||
+                            "Only image files (.png, .jpg, .jpeg, .gif, .webp) are allowed"
+                          );
+                        },
+                      },
+                    })}
                   />
+                  {errors.profilePhoto && (
+                    <span className="text-danger" style={{ fontSize: "10px" }}>
+                      {errors.profilePhoto.message}
+                    </span>
+                  )}
                 </Form.Group>
               </Col>
               <Col md={6}>
@@ -627,7 +909,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     className="mb-1 fw-semibold opacity-75"
                     style={{ fontSize: "14px", color: "#16213DB2" }}
                   >
-                    Specialization
+                    Specialization <span className="text-danger">*</span>
                     <span
                       className="ms-2"
                       style={{ cursor: "pointer" }}
@@ -642,6 +924,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
                   <Controller
                     name="specialization"
                     control={control}
+                    rules={{ required: "Specialization is required" }}
                     render={({ field }) => (
                       <Select
                         {...field}
@@ -654,6 +937,11 @@ const CreateDoctorModal = ({ show, onHide }) => {
                       />
                     )}
                   />
+                  {errors.specialization && (
+                    <span className="text-danger" style={{ fontSize: "10px" }}>
+                      {errors.specialization.message}
+                    </span>
+                  )}
                 </Form.Group>
               </Col>
               <Col md={6}>
@@ -662,7 +950,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     className="mb-1 fw-semibold opacity-75"
                     style={{ fontSize: "14px", color: "#16213DB2" }}
                   >
-                    Qualification
+                    Qualification <span className="text-danger">*</span>
                     <span
                       className="ms-2"
                       style={{ cursor: "pointer" }}
@@ -675,22 +963,27 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     </span>
                   </Form.Label>
 
-                  <Form.Select
-                    style={{ fontSize: "12px", backgroundColor: "#F9FAFB" }}
-                    className="py-3"
-                    {...register("qualification")}
-                  >
-                    <option value="">-- Select Qualification --</option>
-                    {groupedQualificationsDataOptions.map((group, gIndex) => (
-                      <optgroup key={gIndex} label={group.label}>
-                        {group.options.map((option, oIndex) => (
-                          <option key={oIndex} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </optgroup>
-                    ))}
-                  </Form.Select>
+                  <Controller
+                    name="qualification"
+                    control={control}
+                    rules={{ required: "Qualification is required" }}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        options={groupedQualificationsDataOptions}
+                        placeholder="Select Qualification"
+                        styles={customSelectStyles}
+                        isClearable
+                        isSearchable
+                        maxMenuHeight={200}
+                      />
+                    )}
+                  />
+                  {errors.qualification && (
+                    <span className="text-danger" style={{ fontSize: "10px" }}>
+                      {errors.qualification.message}
+                    </span>
+                  )}
                 </Form.Group>
               </Col>
 
@@ -979,6 +1272,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     className="py-3"
                     type="date"
                     autoComplete="off"
+                    defaultValue={new Date().toISOString().split("T")[0]}
                     {...register("registrationDate")}
                   />
                 </Form.Group>
@@ -1069,14 +1363,11 @@ const CreateDoctorModal = ({ show, onHide }) => {
     <>
       <style>{customRadioStyle}</style>
       <Modal
-        show={
-          show &&
-          !showSpecialSkillModal &&
-          !showSpecializationModal &&
-          !showDegreeModal
-        }
+        show={show}
         onHide={handleClose}
         size="xl"
+        backdrop="static"
+        keyboard={false}
       >
         <Modal.Body className="p-3" style={{ borderRadius: "15px" }}>
           <div className="position-relative">
