@@ -231,18 +231,18 @@ const AddDegreeModal = ({ show, onHide }) => {
 
             <div className="d-flex justify-content-end gap-2 mt-4">
               <Button
-                variant="outline-secondary"
-                onClick={handleClose}
-                disabled={loading}
-              >
-                Cancel
-              </Button>
-              <Button
                 type="submit"
-                variant="primary"
                 disabled={loading}
+                style={{
+                  minWidth: "100px",
+                  height: "46px",
+                  backgroundColor: "#003465",
+                  border: "none",
+                  fontWeight: "600",
+                  textTransform: "uppercase",
+                }}
               >
-                {loading ? "Adding..." : "Add Degree"}
+                {loading ? "ADDING..." : "NEXT"}
               </Button>
             </div>
           </Form>

@@ -7,12 +7,16 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import './index.css'
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-// 🔑 Fix: prevent store recreation on HMR
-if (import.meta.hot) {
-  import.meta.hot.accept();
+
+const container = document.getElementById("root");
+let root = container._reactRoot;
+
+if (!root) {
+  root = ReactDOM.createRoot(container);
+  container._reactRoot = root;
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+root.render(
   <Provider store={store}>
     <App />
     <ToastContainer />

@@ -79,7 +79,7 @@ const AddSpecializationModal = ({ show, onHide }) => {
   }, [dispatch]);
 
   return (
-    <Modal show={show} onHide={handleClose} size="lg" backdrop="static">
+    <Modal show={show} onHide={handleClose} size="lg" backdrop="static" style={{ zIndex: 1060 }}>
       <Modal.Body className="p-4" style={{ borderRadius: "15px" }}>
         <div className="position-relative">
           <div
@@ -378,14 +378,18 @@ const AddSpecializationModal = ({ show, onHide }) => {
 
             <div className="d-flex justify-content-end gap-2 mt-4">
               <Button
-                variant="outline-secondary"
-                onClick={handleClose}
+                type="submit"
                 disabled={loading}
+                style={{
+                  minWidth: "100px",
+                  height: "46px",
+                  backgroundColor: "#003465",
+                  border: "none",
+                  fontWeight: "600",
+                  textTransform: "uppercase",
+                }}
               >
-                Cancel
-              </Button>
-              <Button type="submit" variant="primary" disabled={loading}>
-                {loading ? "Adding..." : "Add Specialization"}
+                {loading ? "ADDING..." : "NEXT"}
               </Button>
             </div>
           </Form>
