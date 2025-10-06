@@ -1,12 +1,26 @@
-import { useState } from 'react';
-import { Form, Button } from 'react-bootstrap';
+import { useState, useEffect } from 'react';
+import { Form, Button, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { verifyOtpPassword, forgotPassword } from '../../helpers/api/auth';
 import '../Login.css';
 import logo_bg from '../../assets/images/logo_bg.png';
 
 const VerifyOTP = () => {
     const [otp, setOtp] = useState(['', '', '', '']);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [timer, setTimer] = useState(120);
+    const [resendLoading, setResendLoading] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (timer > 0) {
+            const interval = setInterval(() => {
+                setTimer(prev => prev - 1);
+            }, 1000);
+            return () => clearInterval(interval);
+        }
+    }, [timer]);
 
     const handleOtpChange = (index, value) => {
         if (value.length <= 1) {
@@ -16,9 +30,37 @@ const VerifyOTP = () => {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        navigate('/change-password');
+        setLoading(true);
+        setError('');
+        
+        const otpCode = parseInt(otp.join(''));
+        const email = sessionStorage.getItem('resetEmail');
+        
+        try {
+            await verifyOtpPassword({ otp: otpCode, email });
+            navigate('/change-password');
+        } catch (err) {
+            setError(err.response?.data?.message || 'Invalid OTP');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleResend = async () => {
+        setResendLoading(true);
+        setError('');
+        const email = sessionStorage.getItem('resetEmail');
+        
+        try {
+            await forgotPassword({ email });
+            setTimer(120);
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to resend OTP');
+        } finally {
+            setResendLoading(false);
+        }
     };
     return (
         <div className="vh-100 d-flex align-items-center justify-content-center position-relative px-3 login-bg">
@@ -33,6 +75,8 @@ const VerifyOTP = () => {
                 </div>
 
                 <Form onSubmit={handleSubmit}>
+                    {error && <Alert variant="danger">{error}</Alert>}
+                    
                     <Form.Group className="mb-4">
                         <div className="d-flex justify-content-center gap-3">
                             {otp.map((digit, index) => (
@@ -51,20 +95,28 @@ const VerifyOTP = () => {
                     </Form.Group>
                     <div className='text-center'>
                         <p className='text-white login-label'>
-                            00:120 sec
+                            {Math.floor(timer / 60).toString().padStart(2, '0')}:{(timer % 60).toString().padStart(2, '0')} sec
                         </p>
                     </div>
 
                     <Button
                         className="w-100 mb-3 mt-2 login-btn"
                         type="submit"
+                        disabled={loading}
                     >
-                        Sign in
+                        {loading ? 'Verifying...' : 'Sign in'}
                     </Button>
 
                     <div className="text-center">
                         <span className="text-white login-text">Don’t receive code? </span>
-                        <a href="#" className="text-white text-decoration-underline fw-bold login-text">Re-send</a>
+                        <button 
+                            type="button"
+                            onClick={handleResend}
+                            disabled={timer > 0 || resendLoading}
+                            className="btn btn-link text-white text-decoration-underline fw-bold login-text p-0"
+                        >
+                            {resendLoading ? 'Sending...' : 'Re-send'}
+                        </button>
                     </div>
                 </Form>
             </div>
