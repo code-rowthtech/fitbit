@@ -30,6 +30,8 @@ export const GET_REPORT = `${baseurl}/reports`;
 export const UPDATE_REPORT = `${baseurl}/reports`;
 export const GET_REPORT_BY_ID = `${baseurl}/reports`;
 export const DOWNLOAD_REPORT = `${baseurl}/reports/patient`;
+export const GET_YEARLY_REPORTS = `${baseurl}/reports/patient`;
+export const DOWNLOAD_YEARLY_REPORT = `${baseurl}/reports/patient`;
 
 // Patient Dashboard
 export const PATIENT_PROFILE = `${baseurl}/fitbit/profile`;
