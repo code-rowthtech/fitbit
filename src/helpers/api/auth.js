@@ -1,39 +1,36 @@
-// @flow
 import { APICore } from './apiCore';
 
 const api = new APICore();
 
-// account
-// function login(params: any): any {
-//     const baseUrl = '/login/';
-//     return api.create(`${baseUrl}`, params);
-// }
-const baseurl = 'api/v1/auth'
-function login(params: any): any {
+const baseurl = 'api/v1'
 
-    return api.create(`${baseurl}/login`, params);
-
+function login(params) {
+    return api.create(`${baseurl}/auth/login`, params);
 }
 
-
-function logout(): any {
-    const baseUrl = '/logout/';
+function logout() {
+    const baseUrl = '/auth/logout/';
     return api.create(`${baseUrl}`, {});
 }
 
-function signup(params: any): any {
+function signup(params) {
     const baseUrl = '/register/';
     return api.create(`${baseUrl}`, params);
 }
 
-function forgotPassword(params: any): any {
-    const baseUrl = '/forget-password/';
+function forgotPassword(params) {
+    const baseUrl = `${baseurl}/doctors/forgot-password`;
     return api.create(`${baseUrl}`, params);
 }
 
-function forgotPasswordConfirm(params: any): any {
-    const baseUrl = '/password/reset/confirm/';
+function forgotPasswordConfirm(params) {
+    const baseUrl = `${baseurl}/doctors/reset-password`;
     return api.create(`${baseUrl}`, params);
 }
 
-export { login, logout, signup, forgotPassword, forgotPasswordConfirm };
+function verifyOtpPassword(params) {
+    const baseUrl = `${baseurl}/doctors/verify-otp-password`;
+    return api.create(`${baseUrl}`, params);
+}
+
+export { login, logout, signup, forgotPassword, forgotPasswordConfirm, verifyOtpPassword };

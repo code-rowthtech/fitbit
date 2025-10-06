@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import { forgotPasswordConfirm } from '../../helpers/api/auth';
 import '../../pages/Login.css';
 import logo_bg from '../../assets/images/logo_bg.png';
 import { IoEye, IoEyeOff } from "react-icons/io5";
@@ -13,6 +15,8 @@ const ChangePassword = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -21,14 +25,39 @@ const ChangePassword = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setSuccess('');
+    
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
+    
+    const email = sessionStorage.getItem('resetEmail');
+    if (!email) {
+      setError('Session expired. Please start the process again.');
+      return;
+    }
+    
     setLoading(true);
-    // Add your password update logic here
+    
+    try {
+      await forgotPasswordConfirm({ 
+        email: email,
+        password: formData.password 
+      });
+      setSuccess('Password updated successfully!');
+      sessionStorage.removeItem('resetEmail');
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update password');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -44,6 +73,7 @@ const ChangePassword = () => {
         </div>
 
         {error && <Alert variant="danger" className="mb-3">{error}</Alert>}
+        {success && <Alert variant="success" className="mb-3">{success}</Alert>}
 
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-2">
