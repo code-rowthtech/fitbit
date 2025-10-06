@@ -17,6 +17,7 @@ const AddSpecializationModal = ({ show, onHide }) => {
     handleSubmit,
     reset,
     control,
+    setValue,
     formState: { errors },
   } = useForm();
   // const SpecializationData = useSelector((state) => state?.getSpecializationsReducer?.data?.data);
@@ -34,15 +35,21 @@ const AddSpecializationModal = ({ show, onHide }) => {
       label: item,
     })) || [];
 
-  const handleInputChange = (e) => {
-    let value = e.target.value;
+  const preventFirstSpace = (e) => {
+    if (e.target.value.length === 0 && e.key === " ") {
+      e.preventDefault();
+    }
+  };
 
-    // Prevent space as first character
-    if (value.startsWith(" ")) {
-      value = value.trimStart();
+  const handleInputChange = (e, onChange) => {
+    let { value } = e.target;
+
+    // Do not allow space as first character
+    if (value.length === 1 && value[0] === " ") {
+      return;
     }
 
-    return value;
+    onChange(e);
   };
 
   const onSubmit = (data) => {
@@ -113,11 +120,63 @@ const AddSpecializationModal = ({ show, onHide }) => {
                     className="py-3"
                     type="text"
                     placeholder="Enter Specialization Name"
+                    autoComplete="off"
+                    onKeyDown={(e) => {
+                      preventFirstSpace(e);
+                      // Block emojis, numbers, and special characters
+                      const isEmoji =
+                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                          e.key
+                        );
+                      if (
+                        (!/^[a-zA-Z\s]$/.test(e.key) || isEmoji) &&
+                        e.key.length === 1 &&
+                        !["Backspace", "Delete", "Tab", "Enter"].includes(e.key)
+                      ) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onPaste={(e) => {
+                      const pastedText = e.clipboardData.getData("text");
+                      const hasEmoji =
+                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                          pastedText
+                        );
+                      if (!/^[A-Za-z\s]+$/.test(pastedText) || hasEmoji) {
+                        e.preventDefault();
+                      }
+                    }}
                     {...register("name", {
                       required: "Specialization name is required",
-                      onChange: (e) => {
-                        e.target.value = handleInputChange(e);
+                      minLength: {
+                        value: 2,
+                        message: "Name is too short",
                       },
+                      maxLength: {
+                        value: 50,
+                        message: "Maximum 50 characters allowed",
+                      },
+                      pattern: {
+                        value: /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+                        message:
+                          "Only alphabets are allowed (no emojis, numbers, or special characters)",
+                      },
+                      validate: {
+                        noLeadingSpace: (value) =>
+                          value?.trim() === value ||
+                          "Name cannot start or end with spaces",
+                        noMultipleSpaces: (value) =>
+                          !/\s{2,}/.test(value) ||
+                          "Multiple consecutive spaces are not allowed",
+                        noEmojis: (value) =>
+                          !/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                            value
+                          ) || "Emojis are not allowed",
+                      },
+                      onChange: (e) =>
+                        handleInputChange(e, (e) =>
+                          setValue("name", e.target.value)
+                        ),
                     })}
                   />
                   {errors.name && (
@@ -162,11 +221,61 @@ const AddSpecializationModal = ({ show, onHide }) => {
                       className="py-3"
                       type="text"
                       placeholder="Enter New Category"
+                      autoComplete="off"
+                      onKeyDown={(e) => {
+                        preventFirstSpace(e);
+                        // Block emojis, numbers, and special characters
+                        const isEmoji =
+                          /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                            e.key
+                          );
+                        if (
+                          (!/^[a-zA-Z\s]$/.test(e.key) || isEmoji) &&
+                          e.key.length === 1 &&
+                          !["Backspace", "Delete", "Tab", "Enter"].includes(
+                            e.key
+                          )
+                        ) {
+                          e.preventDefault();
+                        }
+                      }}
+                      onPaste={(e) => {
+                        const pastedText = e.clipboardData.getData("text");
+                        const hasEmoji =
+                          /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                            pastedText
+                          );
+                        if (!/^[A-Za-z\s]+$/.test(pastedText) || hasEmoji) {
+                          e.preventDefault();
+                        }
+                      }}
                       {...register("category", {
                         required: "Category is required",
-                        onChange: (e) => {
-                          e.target.value = handleInputChange(e);
+                        minLength: {
+                          value: 2,
+                          message: "Name is too short",
                         },
+                        pattern: {
+                          value: /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+                          message:
+                            "Only alphabets are allowed (no emojis, numbers, or special characters)",
+                        },
+                        validate: {
+                          noLeadingSpace: (value) =>
+                            value?.trim() === value ||
+                            "Name cannot start or end with spaces",
+                          noMultipleSpaces: (value) =>
+                            !/\s{2,}/.test(value) ||
+                            "Multiple consecutive spaces are not allowed",
+                          noEmojis: (value) =>
+                            !/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                              value
+                            ) || "Emojis are not allowed",
+                        },
+                        onChange: (e) =>
+                          handleInputChange(e, (e) =>
+                            setValue("category", e.target.value)
+                          ),
                       })}
                     />
                   ) : (
@@ -212,11 +321,50 @@ const AddSpecializationModal = ({ show, onHide }) => {
                     as="textarea"
                     rows={3}
                     placeholder="Enter Description"
+                    autoComplete="off"
+                    onKeyDown={(e) => {
+                      preventFirstSpace(e);
+                      // Block emojis
+                      const isEmoji =
+                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                          e.key
+                        );
+                      if (isEmoji && e.key.length === 1) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onPaste={(e) => {
+                      const pastedText = e.clipboardData.getData("text");
+                      const hasEmoji =
+                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                          pastedText
+                        );
+                      if (hasEmoji) {
+                        e.preventDefault();
+                      }
+                    }}
                     {...register("description", {
                       required: "Description is required",
-                      onChange: (e) => {
-                        e.target.value = handleInputChange(e);
+                      minLength: {
+                        value: 10,
+                        message: "Description is too short",
                       },
+                      validate: {
+                        noLeadingSpace: (value) =>
+                          value?.trim() === value ||
+                          "Description cannot start or end with spaces",
+                        noMultipleSpaces: (value) =>
+                          !/\s{2,}/.test(value) ||
+                          "Multiple consecutive spaces are not allowed",
+                        noEmojis: (value) =>
+                          !/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                            value
+                          ) || "Emojis are not allowed",
+                      },
+                      onChange: (e) =>
+                        handleInputChange(e, (e) =>
+                          setValue("description", e.target.value)
+                        ),
                     })}
                   />
                   {errors.description && (
@@ -228,20 +376,16 @@ const AddSpecializationModal = ({ show, onHide }) => {
               </Col>
             </Row>
 
-            <div className="d-flex justify-content-end gap-3 mt-4">
+            <div className="d-flex justify-content-end gap-2 mt-4">
               <Button
-                type="submit"
+                variant="outline-secondary"
+                onClick={handleClose}
                 disabled={loading}
-                style={{
-                  minWidth: "100px",
-                  height: "46px",
-                  backgroundColor: "#003465",
-                  border: "none",
-                  fontWeight: "600",
-                  textTransform: "uppercase",
-                }}
               >
-                {loading ? "ADDING..." : "ADD SPECIALIZATION"}
+                Cancel
+              </Button>
+              <Button type="submit" variant="primary" disabled={loading}>
+                {loading ? "Adding..." : "Add Specialization"}
               </Button>
             </div>
           </Form>
