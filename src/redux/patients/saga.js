@@ -231,6 +231,10 @@ function* createAllergiesFunction(data) {
       });
     }
   } catch (error) {
+    toast.error(error || "Failed to Create Allergies", {
+      position: "top-right",
+      autoClose: 4000,
+    });
     yield put({
       type: PATIENT_TYPES.CREATE_ALLERGIES_ERROR,
       payload: { message: error?.message || "An error occurred" },
