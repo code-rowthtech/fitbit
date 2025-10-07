@@ -306,10 +306,8 @@ const Doctors = () => {
                 <h5 className="text-muted">No Doctors Found</h5>
               </div>
             ) : (
-              <div
-                style={{ height: "100%", overflowY: "auto", maxHeight: "76vh" }}
-              >
-                <Table className="mb-0 table-sm" style={{ fontSize: "11px" }}>
+              <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+                <Table className="mb-0 table-sm" style={{ fontSize: "11px", overflow: "hidden" }}>
                   <thead
                     className="thead-custom"
                     style={{ position: "sticky", top: 0, zIndex: 10 }}
@@ -317,175 +315,201 @@ const Doctors = () => {
                     <tr>
                       <th
                         className="fw-bold py-2 text-center"
-                        style={{ width: "5%", fontSize: "16px" }}
+                        style={{ width: statusFilter === "inactive" ? "4%" : "5%", fontSize: "16px" }}
                       >
                         #
                       </th>
                       <th
                         className="fw-bold py-2 text-start ps-5"
-                        style={{ width: "30%", fontSize: "16px" }}
+                        style={{ width: statusFilter === "inactive" ? "25%" : "30%", fontSize: "16px" }}
                       >
                         Name
                       </th>
                       <th
                         className="fw-bold py-2 text-start"
-                        style={{ width: "25%", fontSize: "16px" }}
+                        style={{ width: statusFilter === "inactive" ? "20%" : "25%", fontSize: "16px" }}
                       >
                         Email
                       </th>
                       <th
                         className="fw-bold py-2 text-start"
-                        style={{ width: "20%", fontSize: "16px" }}
+                        style={{ width: statusFilter === "inactive" ? "18%" : "20%", fontSize: "16px" }}
                       >
                         Specialization
                       </th>
                       <th
                         className="fw-bold py-2 text-center"
-                        style={{ width: "10%", fontSize: "16px" }}
+                        style={{ width: statusFilter === "inactive" ? "8%" : "10%", fontSize: "16px" }}
                       >
                         Gender
                       </th>
+                      {statusFilter === "inactive" && (
+                        <th
+                          className="fw-bold py-2 text-center"
+                          style={{ width: "10%", fontSize: "16px" }}
+                        >
+                          Inactive Date
+                        </th>
+                      )}
                       <th
                         className="fw-bold py-2 text-center"
-                        style={{ width: "10%", fontSize: "16px" }}
+                        style={{ width: statusFilter === "inactive" ? "8%" : "10%", fontSize: "16px" }}
                       >
                         Status
                       </th>
                       <th
                         className="fw-bold py-2 text-center"
-                        style={{ width: "10%", fontSize: "16px" }}
+                        style={{ width: statusFilter === "inactive" ? "7%" : "10%", fontSize: "16px" }}
                       >
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {DoctorData?.map((doctor, index) => (
-                      <tr
-                        key={doctor._id}
-                        className="align-middle"
-                        style={{ cursor: "pointer" }}
-                      >
-                        <td
-                          className="text-center fw-semibold"
-                          style={{ fontSize: "14px", width: "5%" }}
+                </Table>
+                <div style={{ flex: 1, overflowY: "auto", maxHeight: "76vh" }}>
+                  <Table className="mb-0 table-sm" style={{ fontSize: "11px" }}>
+                    <tbody>
+                      {DoctorData?.map((doctor, index) => (
+                        <tr
+                          key={doctor._id}
+                          className="align-middle"
+                          style={{ cursor: "pointer" }}
                         >
-                          {(currentPage - 1) * 20 + index + 1}
-                        </td>
-                        <td
-                          className="text-start ps-3"
-                          style={{ fontSize: "14px", width: "30%" }}
-                        >
-                          <div className="d-flex align-items-center gap-2">
-                            {doctor.profilePhoto ? (
-                              <img
-                                src={doctor.profilePhoto}
-                                alt="Profile"
-                                className="rounded-circle"
-                                style={{
-                                  width: "32px",
-                                  height: "32px",
-                                  objectFit: "cover",
-                                }}
-                              />
-                            ) : (
-                              <div
-                                className="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-uppercase"
-                                style={{
-                                  width: "32px",
-                                  height: "32px",
-                                  fontSize: "14px",
-                                  color: "white",
-                                }}
-                              >
-                                {doctor.firstName?.charAt(0)}
-                                {doctor.lastName?.charAt(0)}
-                              </div>
-                            )}
-                            <div>
-                              <div
-                                className="fw-semibold text-dark text-capitalize"
-                                style={{ cursor: "pointer" }}
-                              >
-                                {doctor.firstName} {doctor.lastName}
+                          <td
+                            className="text-center fw-semibold"
+                            style={{ fontSize: "14px", width: statusFilter === "inactive" ? "4%" : "5%" }}
+                          >
+                            {(currentPage - 1) * 20 + index + 1}
+                          </td>
+                          <td
+                            className="text-start ps-3"
+                            style={{ fontSize: "14px", width: statusFilter === "inactive" ? "25%" : "30%" }}
+                          >
+                            <div className="d-flex align-items-center gap-2">
+                              {doctor.profilePhoto ? (
+                                <img
+                                  src={doctor.profilePhoto}
+                                  alt="Profile"
+                                  className="rounded-circle"
+                                  style={{
+                                    width: "32px",
+                                    height: "32px",
+                                    objectFit: "cover",
+                                  }}
+                                />
+                              ) : (
+                                <div
+                                  className="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-uppercase"
+                                  style={{
+                                    width: "32px",
+                                    height: "32px",
+                                    fontSize: "14px",
+                                    color: "white",
+                                  }}
+                                >
+                                  {doctor.firstName?.charAt(0)}
+                                  {doctor.lastName?.charAt(0)}
+                                </div>
+                              )}
+                              <div>
+                                <div
+                                  className="fw-semibold text-dark text-capitalize"
+                                  style={{ cursor: "pointer" }}
+                                >
+                                  {doctor.firstName} {doctor.lastName}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </td>
-                        <td
-                          className="text-start"
-                          style={{ fontSize: "14px", width: "25%" }}
-                        >
-                          {doctor.email}
-                        </td>
-                        <td
-                          className="text-start"
-                          style={{ fontSize: "14px", width: "20%" }}
-                        >
-                          {(() => {
-                            const fullText =
-                              doctor?.specializations?.length > 0
-                                ? doctor.specializations
-                                    .map((spec) => spec.name || spec)
-                                    .join(", ")
-                                : "-";
-                            const truncatedText =
-                              fullText.length > 30
-                                ? fullText.substring(0, 30) + "..."
-                                : fullText;
+                          </td>
+                          <td
+                            className="text-start"
+                            style={{ fontSize: "14px", width: statusFilter === "inactive" ? "20%" : "25%" }}
+                          >
+                            {doctor.email}
+                          </td>
+                          <td
+                            className="text-start"
+                            style={{ fontSize: "14px", width: statusFilter === "inactive" ? "18%" : "20%" }}
+                          >
+                            {(() => {
+                              const fullText =
+                                doctor?.specializations?.length > 0
+                                  ? doctor.specializations
+                                      .map((spec) => spec.name || spec)
+                                      .join(", ")
+                                  : "-";
+                              const truncatedText =
+                                fullText.length > 30
+                                  ? fullText.substring(0, 30) + "..."
+                                  : fullText;
 
-                            return fullText.length > 30 ? (
-                              <OverlayTrigger
-                                placement="top"
-                                overlay={<Tooltip>{fullText}</Tooltip>}
-                              >
-                                <span style={{ cursor: "help" }}>
-                                  {truncatedText}
-                                </span>
-                              </OverlayTrigger>
-                            ) : (
-                              fullText
-                            );
-                          })()}
-                        </td>
-                        <td
-                          className="text-center"
-                          style={{ fontSize: "14px", width: "10%" }}
-                        >
-                          <span className="text-capitalize">
-                            {doctor.gender || "-"}
-                          </span>
-                        </td>
-                        <td className="text-center" style={{ width: "10%" }}>
-                          <Form.Check
-                            type="switch"
-                            id={`status-switch-${doctor._id}`}
-                            checked={doctor.isActive}
-                            onChange={() => handleStatusToggle(doctor)}
-                            style={{ transform: "scale(1.2)" }}
-                          />
-                        </td>
-                        <td className="text-center" style={{ width: "10%" }}>
-                          <div className="d-flex justify-content-center gap-1">
-                            <button
-                              title="Update"
-                              className="btn text-white d-flex align-items-center justify-content-center"
-                              style={{
-                                padding: "4px 6px",
-                                fontSize: "10px",
-                                backgroundColor: "#5496D3",
-                                height: "30px",
-                              }}
-                              onClick={() => handleUpdateDoctor(doctor)}
+                              return fullText.length > 30 ? (
+                                <OverlayTrigger
+                                  placement="top"
+                                  overlay={<Tooltip>{fullText}</Tooltip>}
+                                >
+                                  <span style={{ cursor: "help" }}>
+                                    {truncatedText}
+                                  </span>
+                                </OverlayTrigger>
+                              ) : (
+                                fullText
+                              );
+                            })()}
+                          </td>
+                          <td
+                            className="text-center"
+                            style={{ fontSize: "14px", width: statusFilter === "inactive" ? "8%" : "10%" }}
+                          >
+                            <span className="text-capitalize">
+                              {doctor.gender || "-"}
+                            </span>
+                          </td>
+
+                          {statusFilter === "inactive" && (
+                            <td
+                              className="text-center"
+                              style={{ fontSize: "14px", width: "10%" }}
                             >
-                              <TbPencilMinus size={12} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
+                              {doctor.inActiveTime
+                                ? new Date(
+                                    doctor.inActiveTime
+                                  ).toLocaleDateString("en-GB")
+                                : "-"}
+                            </td>
+                          )}
+
+                          <td className="text-center" style={{ width: statusFilter === "inactive" ? "8%" : "10%" }}>
+                            <Form.Check
+                              type="switch"
+                              id={`status-switch-${doctor._id}`}
+                              checked={doctor.isActive}
+                              onChange={() => handleStatusToggle(doctor)}
+                              style={{ transform: "scale(1.2)" }}
+                            />
+                          </td>
+                          <td className="text-center" style={{ width: statusFilter === "inactive" ? "7%" : "10%" }}>
+                            <div className="d-flex justify-content-center gap-1">
+                              <button
+                                title="Update"
+                                className="btn text-white d-flex align-items-center justify-content-center"
+                                style={{
+                                  padding: "4px 6px",
+                                  fontSize: "10px",
+                                  backgroundColor: "#5496D3",
+                                  height: "30px",
+                                }}
+                                onClick={() => handleUpdateDoctor(doctor)}
+                              >
+                                <TbPencilMinus size={12} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </div>
               </div>
             )}
           </div>

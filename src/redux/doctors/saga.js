@@ -58,7 +58,7 @@ export function* createDoctorFunction(data) {
     });
 
     const response = yield call(createDoctorApi, data);
-    console.log("Create doctor response:", response);
+    // console.log("Create doctor response:", response);
 
     // ✅ Success case (check HTTP status)
     if (response.status === 201 || response?.data?.doctor?.status === 201) {
@@ -91,7 +91,7 @@ export function* createDoctorFunction(data) {
       });
     }
   } catch (error) {
-    console.error("Error creating doctor:", error);
+    // console.error("Error creating doctor:", error);
 
     // ✅ Extract a proper error message from response or fallback
     const errorMessage =
@@ -111,57 +111,6 @@ export function* createDoctorFunction(data) {
   }
 }
 
-// function* createDoctorFunction(data) {
-//   try {
-//     yield put({
-//       type: DOCTOR_TYPES.CREATE_DOCTOR_LOADING,
-//       payload: {},
-//     });
-//     const response = yield call(createDoctorApi, data);
-//     console.log(response, "create doctor response");
-//     if (response.data.doctor.status === 201) {
-//       toast.success(response?.data?.data?.message, {
-//         position: "top-right",
-//         autoClose: 3000,
-//         hideProgressBar: false,
-//         closeOnClick: true,
-//         pauseOnHover: true,
-//         draggable: true,
-//       });
-//       yield put({
-//         type: DOCTOR_TYPES.CREATE_DOCTOR_SUCCESS,
-//         payload: response.data,
-//       });
-//     } else {
-//       //   const errorMessage =
-//       //     response.status === 409
-//       //       ? "Doctor already exists with this information"
-//       //       : response?.data || "Failed to create doctor";
-
-//       yield put({
-//         type: DOCTOR_TYPES.CREATE_DOCTOR_ERROR,
-//         payload: response.data,
-//       });
-//     }
-//   } catch (error) {
-//     console.log(error, "error76567890");
-//     // const errorMessage = error ? error : "Failed to create doctor";
-//     toast.error(error || "Error creating doctor");
-//     // toast.error(errorMessage, {
-//     //   position: "top-right",
-//     //   autoClose: 4000,
-//     //   hideProgressBar: false,
-//     //   closeOnClick: true,
-//     //   pauseOnHover: true,
-//     //   draggable: true,
-//     // });
-//     yield put({
-//       type: DOCTOR_TYPES.CREATE_DOCTOR_ERROR,
-//       payload: error,
-//     });
-//   }
-// }
-
 function* updateDoctorFunction(data) {
   try {
     yield put({
@@ -169,24 +118,40 @@ function* updateDoctorFunction(data) {
       payload: {},
     });
     const response = yield call(updateDoctorApi, data);
+    // console.log("Update doctor response:", response);
     if (response.data.doctor.status === 200) {
-      // ToastHandle(decryptedData?.message, 'success');
+      toast.success(
+        response?.data?.data?.message || "Doctor updated successfully!",
+        {
+          position: "top-right",
+          autoClose: 3000,
+        }
+      );
       yield put({
         type: DOCTOR_TYPES.UPDATE_DOCTOR_SUCCESS,
         payload: response.data,
       });
-      // yield put({
-      //     type: DOCTOR_TYPES.UPDATE_DOCTOR_RESET,
-      //     payload: {},
-      // });
     } else {
+      const errorMessage =
+        response?.data?.message ||
+        "Failed to update doctor. Please check the details.";
+
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
       yield put({
         type: DOCTOR_TYPES.UPDATE_DOCTOR_ERROR,
         payload: response.data,
       });
     }
   } catch (error) {
-    // ToastHandle(error, 'danger');
+    toast.error(error, {
+      position: "top-right",
+      autoClose: 4000,
+    });
+
     yield put({
       type: DOCTOR_TYPES.UPDATE_DOCTOR_ERROR,
       payload: error,
@@ -357,18 +322,37 @@ function* createSpecializationsFunction(data) {
       payload: {},
     });
     const response = yield call(createSpecializationsApi, data);
+    // console.log("Create specialization response:", response);
     if (response?.data?.status === 201) {
       yield put({
         type: DOCTOR_TYPES.CREATE_SPECIALIZATIONS_SUCCESS,
         payload: response.data,
       });
     } else {
+      const errorMessage =
+        response?.data?.message ||
+        "Failed to create specialization. Please check the details.";
+
+      // console.log(errorMessage, "errorMessageerrorMessage");
+
+      toast.error(errorMessage, {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
       yield put({
         type: DOCTOR_TYPES.CREATE_SPECIALIZATIONS_ERROR,
         payload: response.data,
       });
     }
   } catch (error) {
+    // console.log("Error creating specialization:", error);
+
+    toast.error(error, {
+      position: "top-right",
+      autoClose: 4000,
+    });
+
     yield put({
       type: DOCTOR_TYPES.CREATE_SPECIALIZATIONS_ERROR,
       payload: error,

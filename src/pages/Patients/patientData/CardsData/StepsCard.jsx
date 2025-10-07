@@ -27,7 +27,44 @@ const StepsCard = ({
     (state) => state?.getFilterData?.data?.response
   );
 
-  console.log(AverageData, "AverageData");
+  // console.log(AverageData, "AverageData");
+
+  // Fetch initial data when component mounts
+  useEffect(() => {
+    if (patientId) {
+      const date = new Date(currentDate);
+      let start, end;
+
+      switch (activeTab) {
+        case "Day":
+          start = end = new Date(date);
+          break;
+        case "Week":
+          start = new Date(date);
+          start.setDate(date.getDate() - date.getDay());
+          end = new Date(start);
+          end.setDate(start.getDate() + 6);
+          break;
+        case "Month":
+          start = new Date(date.getFullYear(), date.getMonth(), 1);
+          end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+          break;
+        case "Year":
+          start = new Date(date.getFullYear(), 0, 1);
+          end = new Date(date.getFullYear(), 11, 31);
+          break;
+      }
+
+      const payload = {
+        patientId: patientId,
+        start: formatDate(start),
+        end: formatDate(end),
+        field: "steps",
+      };
+      if (activeTab === "Year") payload.period = "year";
+      dispatch(getFilterData(payload));
+    }
+  }, [patientId, dispatch, formatDate]); // Only depend on patientId, dispatch, and formatDate
 
   // Get chart data based on active tab and API response
   const getChartData = () => {

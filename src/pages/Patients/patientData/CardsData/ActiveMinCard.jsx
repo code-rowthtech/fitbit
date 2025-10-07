@@ -70,9 +70,12 @@ const ActiveMinCard = ({
             }
             if (activeTab === 'Month') payload.period = 'month'
             if (activeTab === 'Year') payload.period = 'year'
+            console.log('Dispatching getPatientActiveMin with payload:', payload)
             dispatch(getPatientActiveMin(payload))
+        } else {
+            console.log('patientId is missing, API call skipped')
         }
-    }, [patientId, currentDate, activeTab])
+    }, [patientId, currentDate, activeTab, dispatch, formatDate])
 
     // Get chart data based on active tab and API response
     const getChartData = () => {
