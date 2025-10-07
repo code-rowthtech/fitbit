@@ -29,7 +29,7 @@ const customRadioStyle = `
 `;
 
 const UpdateDoctorModal = ({ show, onHide, doctor }) => {
-  console.log(doctor, "doctordoctordoctor");
+  // console.log(doctor, "doctordoctordoctor");
   const dispatch = useDispatch();
   const [currentStep, setCurrentStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
@@ -571,7 +571,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
 
     // Only proceed if there are changes or an image is selected
     if (Object.keys(filteredPayload).length === 0 && !selectedImage) {
-      console.log("No changes detected");
+      // console.log("No changes detected");
       return;
     }
 

@@ -64,7 +64,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
     (state) => state?.getQualificationReducer?.data?.data
   );
 
-  console.log(qualificationsData, "qualificationsDataqualificationsData");
+  // console.log(qualificationsData, "qualificationsDataqualificationsData");
   const userInfo = JSON.parse(localStorage.getItem("user"));
   const UserRole = userInfo?.role;
   const {
