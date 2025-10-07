@@ -1,31 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import ContinuousHeartRate_Icon from "../../../../assets/images/PatientDashboard/continuous heart rate.png";
 import { IoIosExpand } from "react-icons/io";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { Bar } from "react-chartjs-2";
-import { useDispatch, useSelector } from "react-redux";
-import { getFilterData } from "../../../../redux/patientsDashboard/action";
 
 const ContinuousHeartRateCard = ({
-  patientId,
   expandedCard,
   onCardExpand,
   activeTab,
   onTabChange,
   currentDate,
   onDateChange,
-  formatDate,
 }) => {
-  const dispatch = useDispatch();
-  const FilterData = useSelector(
-    (state) => state?.getFilterData?.data?.response?.data
-  );
-  const HeartRateStatsData = useSelector(
-    (state) => state?.getFilterData?.data?.response?.targetRange
-  );
-  const AverageData = useSelector(
-    (state) => state?.getFilterData?.data?.response
-  );
 
   // Static data for demonstration
   const staticData = {
@@ -64,59 +50,11 @@ const ContinuousHeartRateCard = ({
     ]
   };
 
-  useEffect(() => {
-    if (patientId) {
-      const date = new Date(currentDate);
-      let start, end;
 
-      switch (activeTab) {
-        case "Day":
-          start = end = new Date(date);
-          break;
-        case "Week":
-          start = new Date(date);
-          start.setDate(date.getDate() - date.getDay());
-          end = new Date(start);
-          end.setDate(start.getDate() + 6);
-          break;
-        case "Month":
-          start = new Date(date.getFullYear(), date.getMonth(), 1);
-          end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-          break;
-        case "Year":
-          start = new Date(date.getFullYear(), 0, 1);
-          end = new Date(date.getFullYear(), 11, 31);
-          break;
-      }
-
-      const payload = {
-        patientId: patientId,
-        start: formatDate(start),
-        end: formatDate(end),
-        field: "continuousHeartRate",
-      };
-      if (activeTab === "Year") payload.period = "year";
-      dispatch(getFilterData(payload));
-    }
-  }, [patientId, dispatch, formatDate]);
 
   const getChartData = () => {
-    // Use API data if available, otherwise use static data
-    if (activeTab === "Day" && AverageData?.data[0]?.intradayData) {
-      const intradayData = AverageData.data[0].intradayData;
-
-      const labels = intradayData.map((item) => item.timeRange);
-      const data = intradayData.map((item) => item.continuousHeartRate);
-      const tableData = intradayData.map((item) => ({
-        period: item.timeRange,
-        value: item.continuousHeartRate ? `${item.continuousHeartRate} bpm` : "0 bpm",
-      }));
-
-      return { labels, data, tableData };
-    }
-
-    // Use static data for Day view if no API data
-    if (activeTab === "Day" && (!AverageData?.data || !AverageData.data[0]?.intradayData)) {
+    // Use static data for Day view
+    if (activeTab === "Day") {
       const intradayData = staticData.Day.intradayData;
       
       const labels = intradayData.map((item) => item.timeRange);
@@ -129,14 +67,14 @@ const ContinuousHeartRateCard = ({
       return { labels, data, tableData };
     }
 
-    // Use API data if available, otherwise use static data for other views
-    const apiData = FilterData && FilterData.length > 0 ? FilterData : staticData[activeTab] || [];
+    // Use static data for other views
+    const staticDataForTab = staticData[activeTab] || [];
     
-    if (apiData.length === 0) {
+    if (staticDataForTab.length === 0) {
       return { labels: [], data: [], tableData: [] };
     }
 
-    const labels = apiData.map((item) => {
+    const labels = staticDataForTab.map((item) => {
       if (activeTab === "Month" && item.date.includes("Week")) {
         const weekMatch = item.date.match(/Week (\d+)/);
         return weekMatch ? `Week ${weekMatch[1]}` : item.date;
@@ -161,9 +99,9 @@ const ContinuousHeartRateCard = ({
       }
     });
 
-    const data = apiData.map((item) => item.value);
+    const data = staticDataForTab.map((item) => item.value);
 
-    const tableData = apiData.map((item) => {
+    const tableData = staticDataForTab.map((item) => {
       let period;
 
       if (activeTab === "Month" && item.date.includes("Week")) {
@@ -286,79 +224,10 @@ const ContinuousHeartRateCard = ({
     }
 
     onDateChange(newDate);
-
-    let start, end;
-    switch (activeTab) {
-      case "Day":
-        start = end = new Date(newDate);
-        break;
-      case "Week":
-        start = new Date(newDate);
-        start.setDate(newDate.getDate() - newDate.getDay());
-        end = new Date(start);
-        end.setDate(start.getDate() + 6);
-        break;
-      case "Month":
-        start = new Date(newDate.getFullYear(), newDate.getMonth(), 1);
-        end = new Date(newDate.getFullYear(), newDate.getMonth() + 1, 0);
-        break;
-      case "Year":
-        start = new Date(newDate.getFullYear(), 0, 1);
-        end = new Date(newDate.getFullYear(), 11, 31);
-        break;
-    }
-
-    setTimeout(() => {
-      if (patientId) {
-        const payload = {
-          patientId: patientId,
-          start: formatDate(start),
-          end: formatDate(end),
-          field: "continuousHeartRate",
-        };
-        if (activeTab === "Year") payload.period = "year";
-        dispatch(getFilterData(payload));
-      }
-    }, 0);
   };
 
   const handleTabChange = (tab) => {
     onTabChange(tab);
-    setTimeout(() => {
-      if (patientId) {
-        const date = new Date(currentDate);
-        let start, end;
-
-        switch (tab) {
-          case "Day":
-            start = end = new Date(date);
-            break;
-          case "Week":
-            start = new Date(date);
-            start.setDate(date.getDate() - date.getDay());
-            end = new Date(start);
-            end.setDate(start.getDate() + 6);
-            break;
-          case "Month":
-            start = new Date(date.getFullYear(), date.getMonth(), 1);
-            end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-            break;
-          case "Year":
-            start = new Date(date.getFullYear(), 0, 1);
-            end = new Date(date.getFullYear(), 11, 31);
-            break;
-        }
-
-        const payload = {
-          patientId: patientId,
-          start: formatDate(start),
-          end: formatDate(end),
-          field: "continuousHeartRate",
-        };
-        if (tab === "Year") payload.period = "year";
-        dispatch(getFilterData(payload));
-      }
-    }, 0);
   };
 
   return (
@@ -436,21 +305,7 @@ const ContinuousHeartRateCard = ({
                       legend: { display: false },
                       tooltip: {
                         callbacks: {
-                          afterBody:
-                            activeTab === "Week" && HeartRateStatsData
-                              ? () => [
-                                  `Min: ${parseInt(HeartRateStatsData.min)} bpm`,
-                                  `Max: ${parseInt(HeartRateStatsData.max)} bpm`,
-                                ]
-                              : activeTab === "Month" && FilterData
-                              ? (context) => {
-                                  const dataIndex = context[0]?.dataIndex;
-                                  return dataIndex !== undefined &&
-                                    FilterData[dataIndex]
-                                    ? [`Date: ${FilterData[dataIndex].date}`]
-                                    : [];
-                                }
-                              : undefined,
+                          afterBody: undefined,
                         },
                       },
                     },
@@ -461,17 +316,8 @@ const ContinuousHeartRateCard = ({
                       },
                       y: {
                         beginAtZero: true,
-                        min:
-                          activeTab === "Week" && HeartRateStatsData
-                            ? Math.min(0, parseInt(HeartRateStatsData.min) - 10)
-                            : 0,
-                        max:
-                          activeTab === "Week" && HeartRateStatsData
-                            ? Math.max(
-                                ...chartData.data,
-                                parseInt(HeartRateStatsData.max) + 10
-                              )
-                            : undefined,
+                        min: 0,
+                        max: undefined,
                         grid: { color: "#f0f0f0" },
                         ticks: { color: "#666", fontSize: 10 },
                       },
@@ -578,11 +424,11 @@ const ContinuousHeartRateCard = ({
               >
                 <span style={{ color: "#003465" }}>Average</span>
                 <span style={{ color: "#003465" }}>
-                  {AverageData?.stats?.average || "83"} bpm
+                  83 bpm
                 </span>
               </div>
 
-              {activeTab === "Week" && HeartRateStatsData && (
+              {activeTab === "Week" && (
                 <>
                   <div
                     className="d-flex justify-content-between p-2 mb-1"
@@ -594,7 +440,7 @@ const ContinuousHeartRateCard = ({
                   >
                     <span style={{ color: "#ff6b6b" }}>Min</span>
                     <span style={{ color: "#ff6b6b" }}>
-                      {HeartRateStatsData.min} bpm
+                      75 bpm
                     </span>
                   </div>
                   <div
@@ -607,7 +453,7 @@ const ContinuousHeartRateCard = ({
                   >
                     <span style={{ color: "#51cf66" }}>Max</span>
                     <span style={{ color: "#51cf66" }}>
-                      {HeartRateStatsData.max} bpm
+                      92 bpm
                     </span>
                   </div>
                 </>
@@ -679,9 +525,7 @@ const ContinuousHeartRateCard = ({
                     strokeDasharray="301"
                     strokeDashoffset={
                       301 -
-                      ((AverageData?.todayData?.value || 85) /
-                        (AverageData?.goals?.continuousHeartRate || 120)) *
-                        301
+                      (85 / 120) * 301
                     }
                     strokeLinecap="round"
                     transform="rotate(-90 60 60)"
@@ -692,7 +536,7 @@ const ContinuousHeartRateCard = ({
                     className="fw-bold"
                     style={{ fontSize: "16px", color: "#003465" }}
                   >
-                    {AverageData?.todayData?.value || "85"}
+                    85
                   </div>
                   <div
                     style={{
@@ -729,7 +573,7 @@ const ContinuousHeartRateCard = ({
                     className="fw-bold"
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
-                    {AverageData?.todayData?.value || "85"}
+                    85
                   </div>
                   <div
                     style={{
@@ -754,7 +598,7 @@ const ContinuousHeartRateCard = ({
                     className="fw-bold"
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
-                    {AverageData?.stats?.average || "83"}
+                    83
                   </div>
                   <div
                     style={{

@@ -31,7 +31,7 @@ const StepsCard = ({
 
   // Fetch initial data when component mounts
   useEffect(() => {
-    if (patientId) {
+    if (patientId && currentDate && activeTab) {
       const date = new Date(currentDate);
       let start, end;
 
@@ -53,6 +53,8 @@ const StepsCard = ({
           start = new Date(date.getFullYear(), 0, 1);
           end = new Date(date.getFullYear(), 11, 31);
           break;
+        default:
+          return;
       }
 
       const payload = {
@@ -64,37 +66,45 @@ const StepsCard = ({
       if (activeTab === "Year") payload.period = "year";
       dispatch(getFilterData(payload));
     }
-  }, [patientId, dispatch, formatDate]); // Only depend on patientId, dispatch, and formatDate
+  }, [patientId, dispatch, formatDate, currentDate, activeTab]);
 
   // Get chart data based on active tab and API response
   const getChartData = () => {
     // Check for intraday data when activeTab is "Day"
-    if (activeTab === "Day" && AverageData?.data[0].intradayData) {
+    if (activeTab === "Day" && AverageData?.data?.[0]?.intradayData) {
       const intradayData = AverageData.data[0].intradayData;
 
-      const labels = intradayData.map((item) => item.timeRange);
-      const data = intradayData.map((item) => item.steps);
+      if (!Array.isArray(intradayData) || intradayData.length === 0) {
+        return { labels: [], data: [], tableData: [] };
+      }
+
+      const labels = intradayData.map((item) => item?.timeRange || 'N/A');
+      const data = intradayData.map((item) => item?.steps || 0);
       const tableData = intradayData.map((item) => ({
-        period: item.timeRange,
-        value: item.steps ? item.steps.toLocaleString() : "0",
+        period: item?.timeRange || 'N/A',
+        value: item?.steps ? item.steps.toLocaleString() : "0",
       }));
 
       return { labels, data, tableData };
     }
 
-    if (!FilterData || FilterData.length === 0) {
+    if (!FilterData || !Array.isArray(FilterData) || FilterData.length === 0) {
       return { labels: [], data: [], tableData: [] };
     }
 
     const apiData = FilterData;
 
     const labels = apiData.map((item) => {
+      if (!item || !item.date) return 'N/A';
+      
       if (activeTab === "Month" && item.date.includes("Week")) {
         const weekMatch = item.date.match(/Week (\d+)/);
         return weekMatch ? `Week ${weekMatch[1]}` : item.date;
       }
 
       const date = new Date(item.date);
+      if (isNaN(date.getTime())) return item.date; // Invalid date fallback
+      
       switch (activeTab) {
         case "Day":
           return date.toLocaleDateString("en-US", {
@@ -113,9 +123,13 @@ const StepsCard = ({
       }
     });
 
-    const data = apiData.map((item) => item.value);
+    const data = apiData.map((item) => item?.value || 0);
 
     const tableData = apiData.map((item) => {
+      if (!item || !item.date) {
+        return { period: 'N/A', value: '0' };
+      }
+      
       let period;
 
       if (activeTab === "Month" && item.date.includes("Week")) {
@@ -123,34 +137,38 @@ const StepsCard = ({
         period = weekMatch ? `Week ${weekMatch[1]}` : item.date;
       } else {
         const date = new Date(item.date);
-        switch (activeTab) {
-          case "Day":
-            period = date.toLocaleDateString("en-US", {
-              weekday: "long",
-              month: "long",
-              day: "numeric",
-            });
-            break;
-          case "Week":
-            period = date.toLocaleDateString("en-US", { weekday: "long" });
-            break;
-          case "Month":
-            period = date.toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-            });
-            break;
-          case "Year":
-            period = date.toLocaleDateString("en-US", { month: "long" });
-            break;
-          default:
-            period = date.toLocaleDateString();
+        if (isNaN(date.getTime())) {
+          period = item.date; // Invalid date fallback
+        } else {
+          switch (activeTab) {
+            case "Day":
+              period = date.toLocaleDateString("en-US", {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+              });
+              break;
+            case "Week":
+              period = date.toLocaleDateString("en-US", { weekday: "long" });
+              break;
+            case "Month":
+              period = date.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+              });
+              break;
+            case "Year":
+              period = date.toLocaleDateString("en-US", { month: "long" });
+              break;
+            default:
+              period = date.toLocaleDateString();
+          }
         }
       }
 
       return {
         period,
-        value: item.value ? item.value.toLocaleString() : "0",
+        value: item?.value ? item.value.toLocaleString() : "0",
       };
     });
 
@@ -579,7 +597,7 @@ const StepsCard = ({
                   {activeTab === "Day" ? "Total" : "Average"}{" "}
                 </span>
                 <span style={{ color: "#003465" }}>
-                  {AverageData?.stats?.average}
+                  {AverageData?.stats?.average || "-"}
                 </span>
               </div>
 
@@ -695,11 +713,11 @@ const StepsCard = ({
                     className="fw-bold"
                     style={{ fontSize: "16px", color: "#003465" }}
                   >
-                    {Math.round(
+                    {AverageData?.goals?.steps > 0 ? Math.round(
                       ((AverageData?.todayData?.value || 0) /
-                        (AverageData?.goals?.steps || 1)) *
+                        AverageData.goals.steps) *
                         100
-                    )}
+                    ) : 0}
                     %
                   </div>
                   <div
@@ -720,11 +738,10 @@ const StepsCard = ({
                 className="mb-0"
                 style={{ fontSize: "10px", color: "#666", fontWeight: "500" }}
               >
-                {Math.max(
+                {AverageData?.goals?.steps && AverageData?.todayData?.value !== undefined ? Math.max(
                   0,
-                  (AverageData?.goals?.steps || 0) -
-                    (AverageData?.todayData?.value || 0)
-                )}{" "}
+                  AverageData.goals.steps - AverageData.todayData.value
+                ) : 0}{" "}
                 steps to reach daily goal
               </p>
             </div>
