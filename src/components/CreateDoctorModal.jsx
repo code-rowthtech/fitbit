@@ -297,7 +297,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
       lastName: data.lastName,
       email: data.email,
       password: data.password,
-      phoneNumber: data.phone,
+      phoneNumber: data.phone?.replace(/\s/g, ""),
       role: "admin",
       gender: data.gender,
       age: data.age,
@@ -590,6 +590,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     style={{ fontSize: "12px", backgroundColor: "#F9FAFB" }}
                     className="py-3"
                     type="date"
+                    min="1900-01-01"
                     max={
                       new Date(
                         new Date().setFullYear(new Date().getFullYear() - 18)
@@ -624,62 +625,42 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     style={{ fontSize: "12px", backgroundColor: "#F9FAFB" }}
                     className="py-3"
                     type="tel"
-                    placeholder="Enter Phone Number"
+                    placeholder="+91 Enter 10 digit number"
                     autoComplete="off"
+                    value={watch("phone") || "+91 "}
                     onKeyDown={(e) => {
-                      preventFirstSpace(e);
-                      const digitCount = e.target.value.replace(
-                        /[^0-9]/g,
-                        ""
-                      ).length;
-                      // Only allow numbers, +, -, (, ), and space
-                      if (
-                        !/^[0-9+\-()\s]$/.test(e.key) &&
-                        e.key.length === 1 &&
-                        !["Backspace", "Delete", "Tab", "Enter"].includes(e.key)
-                      ) {
+                      const currentValue = e.target.value;
+                      if (currentValue.length <= 4 && ["Backspace", "Delete"].includes(e.key)) {
                         e.preventDefault();
+                        return;
                       }
-                      // Prevent more than 15 digits
-                      if (/^[0-9]$/.test(e.key) && digitCount >= 15) {
+                      if (!/^[0-9]$/.test(e.key) && !["Backspace", "Delete", "Tab", "Enter", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+                        e.preventDefault();
+                        return;
+                      }
+                      if (/^[0-9]$/.test(e.key) && currentValue.replace(/[^0-9]/g, "").length >= 12) {
                         e.preventDefault();
                       }
                     }}
-                    onPaste={(e) => {
-                      const pastedText = e.clipboardData.getData("text");
-                      if (!/^[0-9+\-()\s]+$/.test(pastedText)) {
-                        e.preventDefault();
+                    onChange={(e) => {
+                      let value = e.target.value;
+                      if (!value.startsWith("+91 ")) {
+                        value = "+91 " + value.replace(/^\+91\s*/, "");
+                      }
+                      const digits = value.replace(/[^0-9]/g, "");
+                      if (digits.length <= 12) {
+                        const phoneDigits = digits.substring(2);
+                        setValue("phone", "+91 " + phoneDigits);
                       }
                     }}
                     {...register("phone", {
-                      pattern: {
-                        value: /^[0-9+\-()\s]+$/,
-                        message:
-                          "Only numbers and phone symbols (+, -, (, )) are allowed",
-                      },
                       validate: {
-                        minDigits: (value) => {
-                          const digitCount =
-                            value?.replace(/[^0-9]/g, "").length || 0;
-                          return (
-                            digitCount === 0 ||
-                            digitCount >= 5 ||
-                            "Phone number must have at least 5 digits"
-                          );
-                        },
-                        maxDigits: (value) => {
-                          const digitCount =
-                            value?.replace(/[^0-9]/g, "").length || 0;
-                          return (
-                            digitCount <= 15 ||
-                            "Phone number cannot exceed 15 digits"
-                          );
+                        validFormat: (value) => {
+                          const digits = value?.replace(/[^0-9]/g, "") || "";
+                          const phoneDigits = digits.substring(2);
+                          return phoneDigits.length === 10 || "Phone number must be exactly 10 digits";
                         },
                       },
-                      onChange: (e) =>
-                        handleInputChange(e, (e) =>
-                          setValue("phone", e.target.value)
-                        ),
                     })}
                   />
                   {errors.phone && (
@@ -1223,14 +1204,47 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     type="text"
                     placeholder="Enter PINCODE"
                     autoComplete="off"
-                    onKeyDown={preventFirstSpace}
+                    onKeyDown={(e) => {
+                      if (e.target.value.length === 0 && e.key === " ") {
+                        e.preventDefault();
+                      }
+                      if (
+                        !/^[0-9]$/.test(e.key) &&
+                        e.key.length === 1 &&
+                        !["Backspace", "Delete", "Tab", "Enter"].includes(e.key)
+                      ) {
+                        e.preventDefault();
+                      }
+                      if (/^[0-9]$/.test(e.key) && e.target.value.length >= 6) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onPaste={(e) => {
+                      const pastedText = e.clipboardData.getData("text");
+                      if (!/^[0-9]+$/.test(pastedText)) {
+                        e.preventDefault();
+                      }
+                    }}
                     {...register("pincode", {
+                      pattern: {
+                        value: /^[0-9]+$/,
+                        message: "Pincode must contain only numbers",
+                      },
+                      maxLength: {
+                        value: 6,
+                        message: "Pincode cannot exceed 6 digits",
+                      },
                       onChange: (e) =>
                         handleInputChange(e, (e) =>
                           setValue("pincode", e.target.value)
                         ),
                     })}
                   />
+                  {errors.pincode && (
+                    <span className="text-danger" style={{ fontSize: "10px" }}>
+                      {errors.pincode.message}
+                    </span>
+                  )}
                 </Form.Group>
               </Col>
               <Col md={12}>
