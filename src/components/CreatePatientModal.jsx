@@ -203,7 +203,7 @@ const CreatePatientModal = ({ show, onHide }) => {
       email: data.email,
       role: "patient",
       isActive: true,
-      phoneNumber: data.phoneNumber || undefined,
+      phoneNumber: data.phoneNumber?.replace(/\s/g, "") || undefined,
       maritalStatus: data.maritalStatus || "prefer-not-to-say",
       dateOfBirth: data.dateOfBirth || undefined,
       ...(data.street || data.city || data.state || data.country || data.pincode
@@ -430,6 +430,7 @@ const CreatePatientModal = ({ show, onHide }) => {
                     style={{ fontSize: "12px", backgroundColor: "#F9FAFB" }}
                     className="py-3"
                     type="date"
+                    min="1900-01-01"
                     max={new Date().toISOString().split("T")[0]}
                     autoComplete="off"
                     {...register("dateOfBirth", {
@@ -557,57 +558,60 @@ const CreatePatientModal = ({ show, onHide }) => {
                     style={{ fontSize: "12px", backgroundColor: "#F9FAFB" }}
                     className="py-3"
                     type="tel"
-                    placeholder="Enter Phone Number"
+                    placeholder="+91 Enter 10 digit number"
                     autoComplete="off"
                     name="phoneNumber"
+                    value={watch("phoneNumber") || "+91 "}
                     onKeyDown={(e) => {
-                      if (e.target.value.length === 0 && e.key === " ") {
-                        e.preventDefault();
-                      }
-                      const digitCount = e.target.value.replace(
-                        /[^0-9]/g,
-                        ""
-                      ).length;
+                      const currentValue = e.target.value;
                       if (
-                        !/^[0-9+\-()\s]$/.test(e.key) &&
-                        e.key.length === 1 &&
-                        !["Backspace", "Delete", "Tab", "Enter"].includes(e.key)
+                        currentValue.length <= 4 &&
+                        ["Backspace", "Delete"].includes(e.key)
+                      ) {
+                        e.preventDefault();
+                        return;
+                      }
+                      if (
+                        !/^[0-9]$/.test(e.key) &&
+                        ![
+                          "Backspace",
+                          "Delete",
+                          "Tab",
+                          "Enter",
+                          "ArrowLeft",
+                          "ArrowRight",
+                        ].includes(e.key)
+                      ) {
+                        e.preventDefault();
+                        return;
+                      }
+                      if (
+                        /^[0-9]$/.test(e.key) &&
+                        currentValue.replace(/[^0-9]/g, "").length >= 12
                       ) {
                         e.preventDefault();
                       }
-                      if (/^[0-9]$/.test(e.key) && digitCount >= 15) {
-                        e.preventDefault();
-                      }
                     }}
-                    onPaste={(e) => {
-                      const pastedText = e.clipboardData.getData("text");
-                      if (!/^[0-9+\-()\s]+$/.test(pastedText)) {
-                        e.preventDefault();
+                    onChange={(e) => {
+                      let value = e.target.value;
+                      if (!value.startsWith("+91 ")) {
+                        value = "+91 " + value.replace(/^\+91\s*/, "");
+                      }
+                      const digits = value.replace(/[^0-9]/g, "");
+                      if (digits.length <= 12) {
+                        const phoneDigits = digits.substring(2);
+                        setValue("phoneNumber", "+91 " + phoneDigits);
                       }
                     }}
                     {...register("phoneNumber", {
                       required: "Phone number is required",
-                      pattern: {
-                        value: /^[0-9+\-()\s]+$/,
-                        message:
-                          "Only numbers and phone symbols (+, -, (, )) are allowed",
-                      },
                       validate: {
-                        minDigits: (value) => {
-                          const digitCount =
-                            value?.replace(/[^0-9]/g, "").length || 0;
+                        validFormat: (value) => {
+                          const digits = value?.replace(/[^0-9]/g, "") || "";
+                          const phoneDigits = digits.substring(2);
                           return (
-                            digitCount === 0 ||
-                            digitCount >= 5 ||
-                            "Phone number must have at least 5 digits"
-                          );
-                        },
-                        maxDigits: (value) => {
-                          const digitCount =
-                            value?.replace(/[^0-9]/g, "").length || 0;
-                          return (
-                            digitCount <= 15 ||
-                            "Phone number cannot exceed 15 digits"
+                            phoneDigits.length === 10 ||
+                            "Phone number must be exactly 10 digits"
                           );
                         },
                       },
