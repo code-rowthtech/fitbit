@@ -12,9 +12,9 @@ import waterIntakeIcon from '../../../assets/images/PatientDashboard/water intak
 import { getPatientById } from '../../../redux/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { connectToFitbit, getPatientProfile } from '../../../redux/patientsDashboard/action';
+import { connectToFitbit } from '../../../redux/patientsDashboard/action';
 
-const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, setActiveTab }) => {
+const PatientDetails = ({  onShowReports, showReports, activeTab, setActiveTab }) => {
   const dispatch = useDispatch();
 
   const [accordionOpen, setAccordionOpen] = useState(true);
@@ -25,10 +25,9 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
   const PatientData = useSelector((state) => state?.getPatientByIdReducer?.data?.data?.patient);
   const isLoading = useSelector((state) => state?.getPatientByIdReducer?.loading);
   const UpdateResponse = useSelector((state) => state?.updatePatient?.data?.status);
-  const FitbitConnection = useSelector((state) => state?.getPatientProfile?.data?.status);
   const ConnectionStatus = useSelector((state) => state?.connectToFitbit?.data?.success);
   const connectionLoading = useSelector((state) => state?.connectToFitbit?.loading);
-
+  const FitbitConectionStatus = PatientData?.fitbitStatus;
   const getInitials = (name) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase()
   }
@@ -57,20 +56,19 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
     }
   }, [UpdateResponse]);
 
-  useEffect(() => {
-    dispatch(getPatientProfile())
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(getPatientProfile())
+  // }, [dispatch]);
 
-  useEffect(() => {
-    if (id) {
-      dispatch(getPatientProfile({ id: id }))
-    }
-  }, [id]);
+  // useEffect(() => {
+  //   if (id) {
+  //     dispatch(getPatientProfile({ id: id }))
+  //   }
+  // }, [id]);
 
   useEffect(() => {
     if (ConnectionStatus === true) {
       dispatch(getPatientById(id))
-      dispatch(getPatientProfile())
     }
   }, [ConnectionStatus]);
 
@@ -132,9 +130,9 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
                   </div>
                 </div>
                 <div className="d-flex align-items-center">
-                  {PatientData?.fitbitAuthState && PatientData?.fitbitCodeVerifier ? (
+                  {FitbitConectionStatus === 'Pending' ? (
                     <span className='me-3 fw-bold p-1 rounded-1' style={{ color: '#003465', fontSize: '12px', border: '1px solid #003465' }}>Connection Pending</span>
-                  ) : FitbitConnection === 203 ? (
+                  ) : FitbitConectionStatus === 'Not Connected' ? (
                     <button
                       className='btn btn-sm me-3 fw-bold'
                       style={{
@@ -153,7 +151,7 @@ const PatientDetails = ({ patientData, onShowReports, showReports, activeTab, se
                     >
                       {connectionLoading ? "Connecting" : "Connect to Fitbit"}
                     </button>
-                  ) : FitbitConnection === 200 ? (
+                  ) : FitbitConectionStatus === 'Connected' ? (
                     <span className='me-3 fw-bold p-1 rounded-1' style={{ color: '#003465', fontSize: '12px', border: '1px solid #003465' }}>Connected</span>
                   ) : null}
                   <TbUserEdit
