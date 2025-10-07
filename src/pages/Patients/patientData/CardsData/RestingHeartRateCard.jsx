@@ -1,32 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import RestingHeartRate_Icon from "../../../../assets/images/PatientDashboard/heart rate.png";
 import { IoIosExpand } from "react-icons/io";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { Bar } from "react-chartjs-2";
-import { useDispatch, useSelector } from "react-redux";
-import { getFilterData } from "../../../../redux/patientsDashboard/action";
 
 const RestingHeartRateCard = ({
-  patientId,
   expandedCard,
   onCardExpand,
   activeTab,
   onTabChange,
   currentDate,
   onDateChange,
-  formatDate,
 }) => {
-  const dispatch = useDispatch();
-  const FilterData = useSelector(
-    (state) => state?.getFilterData?.data?.response?.data
-  );
-  const HeartRateStatsData = useSelector(
-    (state) => state?.getFilterData?.data?.response?.targetRange
-  );
-  const AverageData = useSelector(
-    (state) => state?.getFilterData?.data?.response
-  );
-
   // Static data for demonstration
   const staticData = {
     Day: {
@@ -49,10 +34,11 @@ const RestingHeartRateCard = ({
       { date: "2024-01-07", value: 66 }
     ],
     Month: [
-      { date: "Week 1", value: 68 },
-      { date: "Week 2", value: 71 },
-      { date: "Week 3", value: 69 },
-      { date: "Week 4", value: 73 }
+      { date: "2024-01-01", value: 68 },
+      { date: "2024-01-08", value: 71 },
+      { date: "2024-01-15", value: 69 },
+      { date: "2024-01-22", value: 73 },
+      { date: "2024-01-29", value: 70 }
     ],
     Year: [
       { date: "2024-01-01", value: 68 },
@@ -64,92 +50,29 @@ const RestingHeartRateCard = ({
     ]
   };
 
-  useEffect(() => {
-    if (patientId) {
-      const date = new Date(currentDate);
-      let start, end;
-
-      switch (activeTab) {
-        case "Day":
-          start = end = new Date(date);
-          break;
-        case "Week":
-          start = new Date(date);
-          start.setDate(date.getDate() - date.getDay());
-          end = new Date(start);
-          end.setDate(start.getDate() + 6);
-          break;
-        case "Month":
-          start = new Date(date.getFullYear(), date.getMonth(), 1);
-          end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-          break;
-        case "Year":
-          start = new Date(date.getFullYear(), 0, 1);
-          end = new Date(date.getFullYear(), 11, 31);
-          break;
-      }
-
-      const payload = {
-        patientId: patientId,
-        start: formatDate(start),
-        end: formatDate(end),
-        field: "restingHeartRate",
-      };
-      if (activeTab === "Year") payload.period = "year";
-      dispatch(getFilterData(payload));
-    }
-  }, [patientId, dispatch, formatDate]);
-
   const getChartData = () => {
-    // Use API data if available, otherwise use static data
-    if (activeTab === "Day" && AverageData?.data[0]?.intradayData) {
-      const intradayData = AverageData.data[0].intradayData;
-
-      const labels = intradayData.map((item) => item.timeRange);
-      const data = intradayData.map((item) => item.restingHeartRate);
-      const tableData = intradayData.map((item) => ({
-        period: item.timeRange,
-        value: item.restingHeartRate ? `${item.restingHeartRate} bpm` : "0 bpm",
-      }));
-
-      return { labels, data, tableData };
-    }
-
-    // Use static data for Day view if no API data
-    if (activeTab === "Day" && (!AverageData?.data || !AverageData.data[0]?.intradayData)) {
+    // Handle Day view with intraday data
+    if (activeTab === "Day") {
       const intradayData = staticData.Day.intradayData;
-      
       const labels = intradayData.map((item) => item.timeRange);
       const data = intradayData.map((item) => item.restingHeartRate);
       const tableData = intradayData.map((item) => ({
         period: item.timeRange,
         value: item.restingHeartRate ? `${item.restingHeartRate} bpm` : "0 bpm",
       }));
-
       return { labels, data, tableData };
     }
 
-    // Use API data if available, otherwise use static data for other views
-    const apiData = FilterData && FilterData.length > 0 ? FilterData : staticData[activeTab] || [];
+    // Handle other views (Week, Month, Year)
+    const currentData = staticData[activeTab] || [];
     
-    if (apiData.length === 0) {
+    if (currentData.length === 0) {
       return { labels: [], data: [], tableData: [] };
     }
 
-    const labels = apiData.map((item) => {
-      if (activeTab === "Month" && item.date.includes("Week")) {
-        const weekMatch = item.date.match(/Week (\d+)/);
-        return weekMatch ? `Week ${weekMatch[1]}` : item.date;
-      }
-
+    const labels = currentData.map((item) => {
       const date = new Date(item.date);
       switch (activeTab) {
-        case "Day":
-          return date.toLocaleDateString("en-US", {
-            weekday: "short",
-            month: "short",
-            day: "numeric",
-          });
         case "Week":
           return date.toLocaleDateString("en-US", { weekday: "short" });
         case "Month":
@@ -161,39 +84,27 @@ const RestingHeartRateCard = ({
       }
     });
 
-    const data = apiData.map((item) => item.value);
+    const data = currentData.map((item) => item.value);
 
-    const tableData = apiData.map((item) => {
+    const tableData = currentData.map((item) => {
+      const date = new Date(item.date);
       let period;
-
-      if (activeTab === "Month" && item.date.includes("Week")) {
-        const weekMatch = item.date.match(/Week (\d+)/);
-        period = weekMatch ? `Week ${weekMatch[1]}` : item.date;
-      } else {
-        const date = new Date(item.date);
-        switch (activeTab) {
-          case "Day":
-            period = date.toLocaleDateString("en-US", {
-              weekday: "long",
-              month: "long",
-              day: "numeric",
-            });
-            break;
-          case "Week":
-            period = date.toLocaleDateString("en-US", { weekday: "long" });
-            break;
-          case "Month":
-            period = date.toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-            });
-            break;
-          case "Year":
-            period = date.toLocaleDateString("en-US", { month: "long" });
-            break;
-          default:
-            period = date.toLocaleDateString();
-        }
+      
+      switch (activeTab) {
+        case "Week":
+          period = date.toLocaleDateString("en-US", { weekday: "long" });
+          break;
+        case "Month":
+          period = date.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+          });
+          break;
+        case "Year":
+          period = date.toLocaleDateString("en-US", { month: "long" });
+          break;
+        default:
+          period = date.toLocaleDateString();
       }
 
       return {
@@ -286,79 +197,10 @@ const RestingHeartRateCard = ({
     }
 
     onDateChange(newDate);
-
-    let start, end;
-    switch (activeTab) {
-      case "Day":
-        start = end = new Date(newDate);
-        break;
-      case "Week":
-        start = new Date(newDate);
-        start.setDate(newDate.getDate() - newDate.getDay());
-        end = new Date(start);
-        end.setDate(start.getDate() + 6);
-        break;
-      case "Month":
-        start = new Date(newDate.getFullYear(), newDate.getMonth(), 1);
-        end = new Date(newDate.getFullYear(), newDate.getMonth() + 1, 0);
-        break;
-      case "Year":
-        start = new Date(newDate.getFullYear(), 0, 1);
-        end = new Date(newDate.getFullYear(), 11, 31);
-        break;
-    }
-
-    setTimeout(() => {
-      if (patientId) {
-        const payload = {
-          patientId: patientId,
-          start: formatDate(start),
-          end: formatDate(end),
-          field: "restingHeartRate",
-        };
-        if (activeTab === "Year") payload.period = "year";
-        dispatch(getFilterData(payload));
-      }
-    }, 0);
   };
 
   const handleTabChange = (tab) => {
     onTabChange(tab);
-    setTimeout(() => {
-      if (patientId) {
-        const date = new Date(currentDate);
-        let start, end;
-
-        switch (tab) {
-          case "Day":
-            start = end = new Date(date);
-            break;
-          case "Week":
-            start = new Date(date);
-            start.setDate(date.getDate() - date.getDay());
-            end = new Date(start);
-            end.setDate(start.getDate() + 6);
-            break;
-          case "Month":
-            start = new Date(date.getFullYear(), date.getMonth(), 1);
-            end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-            break;
-          case "Year":
-            start = new Date(date.getFullYear(), 0, 1);
-            end = new Date(date.getFullYear(), 11, 31);
-            break;
-        }
-
-        const payload = {
-          patientId: patientId,
-          start: formatDate(start),
-          end: formatDate(end),
-          field: "restingHeartRate",
-        };
-        if (tab === "Year") payload.period = "year";
-        dispatch(getFilterData(payload));
-      }
-    }, 0);
   };
 
   return (
@@ -436,21 +278,9 @@ const RestingHeartRateCard = ({
                       legend: { display: false },
                       tooltip: {
                         callbacks: {
-                          afterBody:
-                            activeTab === "Week" && HeartRateStatsData
-                              ? () => [
-                                  `Min: ${parseInt(HeartRateStatsData.min)} bpm`,
-                                  `Max: ${parseInt(HeartRateStatsData.max)} bpm`,
-                                ]
-                              : activeTab === "Month" && FilterData
-                              ? (context) => {
-                                  const dataIndex = context[0]?.dataIndex;
-                                  return dataIndex !== undefined &&
-                                    FilterData[dataIndex]
-                                    ? [`Date: ${FilterData[dataIndex].date}`]
-                                    : [];
-                                }
-                              : undefined,
+                          label: (context) => {
+                            return `${context.parsed.y} bpm`;
+                          },
                         },
                       },
                     },
@@ -461,17 +291,6 @@ const RestingHeartRateCard = ({
                       },
                       y: {
                         beginAtZero: true,
-                        min:
-                          activeTab === "Week" && HeartRateStatsData
-                            ? Math.min(0, parseInt(HeartRateStatsData.min) - 10)
-                            : 0,
-                        max:
-                          activeTab === "Week" && HeartRateStatsData
-                            ? Math.max(
-                                ...chartData.data,
-                                parseInt(HeartRateStatsData.max) + 10
-                              )
-                            : undefined,
                         grid: { color: "#f0f0f0" },
                         ticks: { color: "#666", fontSize: 10 },
                       },
@@ -576,44 +395,9 @@ const RestingHeartRateCard = ({
                   fontWeight: "600",
                 }}
               >
-                <span style={{ color: "#003465" }}>
-                  {activeTab === "Day" ? "Average" : "Average"}{" "}
-                </span>
-                <span style={{ color: "#003465" }}>
-                  {AverageData?.stats?.average || "69"} bpm
-                </span>
+                <span style={{ color: "#003465" }}>Average</span>
+                <span style={{ color: "#003465" }}>69 bpm</span>
               </div>
-
-              {activeTab === "Week" && HeartRateStatsData && (
-                <>
-                  <div
-                    className="d-flex justify-content-between p-2 mb-1"
-                    style={{
-                      backgroundColor: "#FFE8E8",
-                      fontSize: "10px",
-                      fontWeight: "600",
-                    }}
-                  >
-                    <span style={{ color: "#ff6b6b" }}>Min</span>
-                    <span style={{ color: "#ff6b6b" }}>
-                      {HeartRateStatsData.min} bpm
-                    </span>
-                  </div>
-                  <div
-                    className="d-flex justify-content-between p-2 mb-1"
-                    style={{
-                      backgroundColor: "#E8F8E8",
-                      fontSize: "10px",
-                      fontWeight: "600",
-                    }}
-                  >
-                    <span style={{ color: "#51cf66" }}>Max</span>
-                    <span style={{ color: "#51cf66" }}>
-                      {HeartRateStatsData.max} bpm
-                    </span>
-                  </div>
-                </>
-              )}
 
               <div
                 style={{
@@ -679,12 +463,7 @@ const RestingHeartRateCard = ({
                     stroke="#003465"
                     strokeWidth="4"
                     strokeDasharray="301"
-                    strokeDashoffset={
-                      301 -
-                      ((AverageData?.todayData?.value || 72) /
-                        (AverageData?.goals?.restingHeartRate || 100)) *
-                        301
-                    }
+                    strokeDashoffset={301 - (72 / 100) * 301}
                     strokeLinecap="round"
                     transform="rotate(-90 60 60)"
                   />
@@ -694,7 +473,7 @@ const RestingHeartRateCard = ({
                     className="fw-bold"
                     style={{ fontSize: "16px", color: "#003465" }}
                   >
-                    {AverageData?.todayData?.value || "72"}
+                    72
                   </div>
                   <div
                     style={{
@@ -731,7 +510,7 @@ const RestingHeartRateCard = ({
                     className="fw-bold"
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
-                    {AverageData?.todayData?.value || "72"}
+                    72
                   </div>
                   <div
                     style={{
@@ -756,7 +535,7 @@ const RestingHeartRateCard = ({
                     className="fw-bold"
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
-                    {AverageData?.stats?.average || "69"}
+                    69
                   </div>
                   <div
                     style={{

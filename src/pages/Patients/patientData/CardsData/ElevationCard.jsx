@@ -1,28 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Elevation_Icon from "../../../../assets/images/PatientDashboard/elevation.png";
 import { IoIosExpand } from "react-icons/io";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { Bar } from "react-chartjs-2";
-import { useDispatch, useSelector } from "react-redux";
-import { getFilterData } from "../../../../redux/patientsDashboard/action";
 
 const ElevationCard = ({
-  patientId,
   expandedCard,
   onCardExpand,
   activeTab,
   onTabChange,
   currentDate,
   onDateChange,
-  formatDate,
 }) => {
-  const dispatch = useDispatch();
-  const FilterData = useSelector(
-    (state) => state?.getFilterData?.data?.response?.data
-  );
-  const AverageData = useSelector(
-    (state) => state?.getFilterData?.data?.response
-  );
 
   // Static data for demonstration
   const staticData = {
@@ -61,55 +50,10 @@ const ElevationCard = ({
     ]
   };
 
-  useEffect(() => {
-    if (patientId) {
-      const date = new Date(currentDate);
-      let start, end;
 
-      switch (activeTab) {
-        case "Day":
-          start = end = new Date(date);
-          break;
-        case "Week":
-          start = new Date(date);
-          start.setDate(date.getDate() - date.getDay());
-          end = new Date(start);
-          end.setDate(start.getDate() + 6);
-          break;
-        case "Month":
-          start = new Date(date.getFullYear(), date.getMonth(), 1);
-          end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-          break;
-        case "Year":
-          start = new Date(date.getFullYear(), 0, 1);
-          end = new Date(date.getFullYear(), 11, 31);
-          break;
-      }
-
-      const payload = {
-        patientId: patientId,
-        start: formatDate(start),
-        end: formatDate(end),
-        field: "elevation",
-      };
-      if (activeTab === "Year") payload.period = "year";
-      dispatch(getFilterData(payload));
-    }
-  }, [patientId, dispatch, formatDate]);
 
   const getChartData = () => {
-    if (activeTab === "Day" && AverageData?.data[0]?.intradayData) {
-      const intradayData = AverageData.data[0].intradayData;
-      const labels = intradayData.map((item) => item.timeRange);
-      const data = intradayData.map((item) => item.elevation);
-      const tableData = intradayData.map((item) => ({
-        period: item.timeRange,
-        value: item.elevation ? `${item.elevation} m` : "0 m",
-      }));
-      return { labels, data, tableData };
-    }
-
-    if (activeTab === "Day" && (!AverageData?.data || !AverageData.data[0]?.intradayData)) {
+    if (activeTab === "Day") {
       const intradayData = staticData.Day.intradayData;
       const labels = intradayData.map((item) => item.timeRange);
       const data = intradayData.map((item) => item.elevation);
@@ -120,7 +64,7 @@ const ElevationCard = ({
       return { labels, data, tableData };
     }
 
-    const apiData = FilterData && FilterData.length > 0 ? FilterData : staticData[activeTab] || [];
+    const apiData = staticData[activeTab] || [];
     
     if (apiData.length === 0) {
       return { labels: [], data: [], tableData: [] };
@@ -134,12 +78,6 @@ const ElevationCard = ({
 
       const date = new Date(item.date);
       switch (activeTab) {
-        case "Day":
-          return date.toLocaleDateString("en-US", {
-            weekday: "short",
-            month: "short",
-            day: "numeric",
-          });
         case "Week":
           return date.toLocaleDateString("en-US", { weekday: "short" });
         case "Month":
@@ -162,13 +100,6 @@ const ElevationCard = ({
       } else {
         const date = new Date(item.date);
         switch (activeTab) {
-          case "Day":
-            period = date.toLocaleDateString("en-US", {
-              weekday: "long",
-              month: "long",
-              day: "numeric",
-            });
-            break;
           case "Week":
             period = date.toLocaleDateString("en-US", { weekday: "long" });
             break;
@@ -276,79 +207,10 @@ const ElevationCard = ({
     }
 
     onDateChange(newDate);
-
-    let start, end;
-    switch (activeTab) {
-      case "Day":
-        start = end = new Date(newDate);
-        break;
-      case "Week":
-        start = new Date(newDate);
-        start.setDate(newDate.getDate() - newDate.getDay());
-        end = new Date(start);
-        end.setDate(start.getDate() + 6);
-        break;
-      case "Month":
-        start = new Date(newDate.getFullYear(), newDate.getMonth(), 1);
-        end = new Date(newDate.getFullYear(), newDate.getMonth() + 1, 0);
-        break;
-      case "Year":
-        start = new Date(newDate.getFullYear(), 0, 1);
-        end = new Date(newDate.getFullYear(), 11, 31);
-        break;
-    }
-
-    setTimeout(() => {
-      if (patientId) {
-        const payload = {
-          patientId: patientId,
-          start: formatDate(start),
-          end: formatDate(end),
-          field: "elevation",
-        };
-        if (activeTab === "Year") payload.period = "year";
-        dispatch(getFilterData(payload));
-      }
-    }, 0);
   };
 
   const handleTabChange = (tab) => {
     onTabChange(tab);
-    setTimeout(() => {
-      if (patientId) {
-        const date = new Date(currentDate);
-        let start, end;
-
-        switch (tab) {
-          case "Day":
-            start = end = new Date(date);
-            break;
-          case "Week":
-            start = new Date(date);
-            start.setDate(date.getDate() - date.getDay());
-            end = new Date(start);
-            end.setDate(start.getDate() + 6);
-            break;
-          case "Month":
-            start = new Date(date.getFullYear(), date.getMonth(), 1);
-            end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-            break;
-          case "Year":
-            start = new Date(date.getFullYear(), 0, 1);
-            end = new Date(date.getFullYear(), 11, 31);
-            break;
-        }
-
-        const payload = {
-          patientId: patientId,
-          start: formatDate(start),
-          end: formatDate(end),
-          field: "elevation",
-        };
-        if (tab === "Year") payload.period = "year";
-        dispatch(getFilterData(payload));
-      }
-    }, 0);
   };
 
   return (
@@ -526,7 +388,7 @@ const ElevationCard = ({
               >
                 <span style={{ color: "#003465" }}>Average</span>
                 <span style={{ color: "#003465" }}>
-                  {AverageData?.stats?.average || "192"} m
+                  192 m
                 </span>
               </div>
 
@@ -595,10 +457,7 @@ const ElevationCard = ({
                     strokeWidth="4"
                     strokeDasharray="301"
                     strokeDashoffset={
-                      301 -
-                      ((AverageData?.todayData?.value || 192) /
-                        (AverageData?.goals?.elevation || 300)) *
-                        301
+                      301 - (192 / 300) * 301
                     }
                     strokeLinecap="round"
                     transform="rotate(-90 60 60)"
@@ -609,7 +468,7 @@ const ElevationCard = ({
                     className="fw-bold"
                     style={{ fontSize: "16px", color: "#003465" }}
                   >
-                    {AverageData?.todayData?.value || "192"}
+                    192
                   </div>
                   <div
                     style={{
@@ -646,7 +505,7 @@ const ElevationCard = ({
                     className="fw-bold"
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
-                    {AverageData?.todayData?.value || "192"}
+                    192
                   </div>
                   <div
                     style={{
@@ -671,7 +530,7 @@ const ElevationCard = ({
                     className="fw-bold"
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
-                    {AverageData?.stats?.average || "192"}
+                    192
                   </div>
                   <div
                     style={{

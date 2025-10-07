@@ -15,8 +15,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { useDispatch, useSelector } from "react-redux";
-import { useParams, useSearchParams } from "react-router-dom";
+
 import ExerciseSessionsCard from "./CardsData/ExerciseSessionsCard";
 import GPSTrackingCard from "./CardsData/GPSTrackingCard";
 import ElevationCard from "./CardsData/ElevationCard";
@@ -31,11 +30,6 @@ ChartJS.register(
 );
 
 const ExerciseData = ({ isExpanded, onExpand }) => {
-  const dispatch = useDispatch();
-  const { id: pathId } = useParams();
-  const [searchParams] = useSearchParams();
-  const patientId =
-    pathId || searchParams.get("id") || searchParams.get("patientId");
   const [isOpen, setIsOpen] = useState(true);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [expandedCard, setExpandedCard] = useState(null);
@@ -132,42 +126,36 @@ const ExerciseData = ({ isExpanded, onExpand }) => {
               {/* Exercise Sessions Card */}
               {(!expandedCard || expandedCard === "sessions") && (
                 <ExerciseSessionsCard
-                  patientId={patientId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={activeTab}
                   onTabChange={setActiveTab}
                   currentDate={currentDate}
                   onDateChange={setCurrentDate}
-                  formatDate={formatDate}
                 />
               )}
 
               {/* GPS Tracking Card */}
               {(!expandedCard || expandedCard === "gpsTracking") && (
                 <GPSTrackingCard
-                  patientId={patientId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={activeTab}
                   onTabChange={setActiveTab}
                   currentDate={currentDate}
                   onDateChange={setCurrentDate}
-                  formatDate={formatDate}
                 />
               )}
 
               {/* Elevation Card */}
               {(!expandedCard || expandedCard === "elevation") && (
                 <ElevationCard
-                  patientId={patientId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={activeTab}
                   onTabChange={setActiveTab}
                   currentDate={currentDate}
                   onDateChange={setCurrentDate}
-                  formatDate={formatDate}
                 />
               )}
               {/* Empty card to maintain width */}
