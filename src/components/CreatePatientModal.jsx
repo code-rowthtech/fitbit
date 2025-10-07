@@ -971,6 +971,7 @@ const CreatePatientModal = ({ show, onHide }) => {
                     className="py-3"
                     type="date"
                     autoComplete="off"
+                    defaultValue={new Date().toISOString().split("T")[0]}
                     {...register("registrationDate")}
                   />
                 </Form.Group>
