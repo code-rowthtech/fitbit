@@ -27,7 +27,7 @@ const StepsCard = ({
     (state) => state?.getFilterData?.data?.response
   );
 
-  console.log(AverageData, "AverageData");
+  // console.log(AverageData, "AverageData");
 
   // Fetch initial data when component mounts
   useEffect(() => {

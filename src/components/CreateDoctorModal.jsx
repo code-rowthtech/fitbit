@@ -10,6 +10,7 @@ import {
   getSkills,
   getSpecializations,
   getQualification,
+  getAllDoctors,
 } from "../redux/actions";
 import { FaTimes, FaEye, FaEyeSlash } from "react-icons/fa";
 import { RiAddLine } from "react-icons/ri";
@@ -42,6 +43,10 @@ const CreateDoctorModal = ({ show, onHide }) => {
     (state) => state?.createDoctorReducer?.data?.status
   );
 
+  const CreateMeassage = useSelector(
+    (state) => state?.createDoctorReducer?.data?.message
+  );
+
   const Loading = useSelector((state) => state?.createDoctorReducer?.loading);
   const StatesData = useSelector(
     (state) => state?.getStatesReducer?.data?.data
@@ -59,6 +64,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
     (state) => state?.getQualificationReducer?.data?.data
   );
 
+  // console.log(qualificationsData, "qualificationsDataqualificationsData");
   const userInfo = JSON.parse(localStorage.getItem("user"));
   const UserRole = userInfo?.role;
   const {
@@ -1363,11 +1369,16 @@ const CreateDoctorModal = ({ show, onHide }) => {
     <>
       <style>{customRadioStyle}</style>
       <Modal
-        show={show}
         onHide={handleClose}
         size="xl"
         backdrop="static"
         keyboard={false}
+        show={
+          show &&
+          !showSpecialSkillModal &&
+          !showSpecializationModal &&
+          !showDegreeModal
+        }
       >
         <Modal.Body className="p-3" style={{ borderRadius: "15px" }}>
           <div className="position-relative">
