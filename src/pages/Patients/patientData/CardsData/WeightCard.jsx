@@ -280,6 +280,40 @@ const WeightCard = ({
         }, 0)
     }
 
+    // Fetch data on component mount and when dependencies change
+    useEffect(() => {
+        if (patientId) {
+            const date = new Date(currentDate)
+            let start, end
+
+            switch (activeTab) {
+                case 'Week':
+                    start = new Date(date)
+                    start.setDate(date.getDate() - date.getDay())
+                    end = new Date(start)
+                    end.setDate(start.getDate() + 6)
+                    break
+                case 'Month':
+                    start = new Date(date.getFullYear(), date.getMonth(), 1)
+                    end = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+                    break
+                case 'Year':
+                    start = new Date(date.getFullYear(), 0, 1)
+                    end = new Date(date.getFullYear(), 11, 31)
+                    break
+            }
+
+            const payload = {
+                patientId: patientId,
+                start: formatDate(start),
+                end: formatDate(end),
+                field: "weight"
+            }
+            if (activeTab === 'Year') payload.period = 'year'
+            dispatch(getPatientWeight(payload))
+        }
+    }, [patientId, currentDate, activeTab, dispatch, formatDate])
+
     return (
         <div style={{ flex: 1, backgroundColor: 'white', border: '1px solid #e9ecef', borderRadius: '8px', minHeight: expandedCard === 'weight' ? '550px' : '245px', transition: 'min-height 0.3s ease' }}>
             <div className="d-flex align-items-center justify-content-between mb-0 p-2 border-1" style={{ backgroundColor: '#E0ECF8', borderTopLeftRadius: '7px', borderTopRightRadius: '7px' }}>

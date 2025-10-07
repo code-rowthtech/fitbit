@@ -19,7 +19,8 @@ const HeartRateCard = ({
     const dispatch = useDispatch()
     const HeartRateData = useSelector((state) => state?.getPatientHeartRate?.data?.response?.data)
     const HeartRateStatsData = useSelector((state) => state?.getPatientHeartRate?.data?.response?.targetRange) || { min: 60, max: 100 }
-    const AverageData = useSelector((state) => state?.getPatientHeartRate?.data?.response) || {
+    // Use static data for display
+    const AverageData = {
         stats: { average: 76 },
         todayData: { value: 78 }
     }
@@ -146,6 +147,9 @@ const HeartRateCard = ({
 
     // Get chart data based on active tab and API response
     const getChartData = () => {
+        // Always use static data for now
+        return getStaticData()
+        
         if (!HeartRateData || HeartRateData.length === 0) {
             return getStaticData()
         }

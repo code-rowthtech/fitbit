@@ -30,7 +30,6 @@ const PatientDashboard = () => {
   const [activeTab, setActiveTab] = useState('Activity Data');
   const id = patientId
 
-  console.log(FitbitConnection, 'FitbitConnection')
   const handleCardExpand = (cardName) => {
     setExpandedCard(expandedCard === cardName ? null : cardName);
   };
