@@ -45,7 +45,9 @@ export function getPatientHeartApi(data) {
 }
 
 export function getPatientWeightApi(data) {
-    return api.get(URL.PATIENT_WEIGHT.replace(':id', data.payload.id));
+    const baseUrl = `${URL.PATIENT_WEIGHT}/${data.payload.patientId}?field=${data.payload.field}&start=${data.payload.start}&end=${data.payload.end}`;
+    const url = data.payload.period ? `${baseUrl}&period=${data.payload.period}` : baseUrl;
+    return api.get(url);
 }
 
 export function getPatientBodyFatApi(data) {

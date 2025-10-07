@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from "react";
-import Weight_Icon from "../../../assets/images/PatientDashboard/Weight.png";
 import BMI_Icon from "../../../assets/images/PatientDashboard/BMI.png";
 import BodyFat_Icon from "../../../assets/images/PatientDashboard/body fat percentage.png";
 import { IoCalendarClearOutline } from "react-icons/io5";
@@ -19,6 +18,8 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import WeightCard from "./CardsData/WeightCard";
+import { useParams, useSearchParams } from "react-router-dom";
 
 ChartJS.register(
   CategoryScale,
@@ -30,9 +31,14 @@ ChartJS.register(
 );
 
 const WeightBodyMetrics = ({ isExpanded, onExpand }) => {
+  const { id: pathId } = useParams();
+  const [searchParams] = useSearchParams();
+  const patientId = pathId || searchParams.get("id") || searchParams.get("patientId");
   const [isOpen, setIsOpen] = useState(true);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [expandedCard, setExpandedCard] = useState(null);
+  const [activeTab, setActiveTab] = useState("Week");
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [dateRange, setDateRange] = useState([
     {
       startDate: new Date(),
@@ -41,6 +47,13 @@ const WeightBodyMetrics = ({ isExpanded, onExpand }) => {
     },
   ]);
   const datePickerRef = useRef(null);
+
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
   const handleCardExpand = (cardType) => {
     if (expandedCard === cardType) {
@@ -134,359 +147,16 @@ const WeightBodyMetrics = ({ isExpanded, onExpand }) => {
             >
               {/* Weight Card */}
               {(!expandedCard || expandedCard === "weight") && (
-                <div
-                  style={{
-                    flex: 1,
-                    backgroundColor: "white",
-                    border: "1px solid #e9ecef",
-                    borderRadius: "8px",
-                    minHeight: expandedCard === "weight" ? "550px" : "245px",
-                    transition: "min-height 0.3s ease",
-                  }}
-                >
-                  <div
-                    className="d-flex align-items-center justify-content-between mb-0 p-2 border-1"
-                    style={{
-                      backgroundColor: "#E0ECF8",
-                      borderTopLeftRadius: "7px",
-                      borderTopRightRadius: "7px",
-                    }}
-                  >
-                    <div>
-                      <img
-                        src={Weight_Icon}
-                        alt="Weight"
-                        className="mx-2"
-                        style={{ width: "19px", height: "19px" }}
-                      />
-                      <span style={{ fontSize: "12px", fontWeight: "600" }}>
-                        Weight
-                      </span>
-                    </div>
-                    <div className="d-flex">
-                      <IoCalendarClearOutline
-                        style={{
-                          fontSize: "16px",
-                          color: "#003465",
-                          marginLeft: "8px",
-                        }}
-                      />
-                      <IoIosExpand
-                        style={{
-                          fontSize: "16px",
-                          color: "#003465",
-                          marginLeft: "6px",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => handleCardExpand("weight")}
-                      />
-                    </div>
-                  </div>
-                  <div className="p-1 pt-0">
-                    {expandedCard === "weight" ? (
-                      <div className="row p-3">
-                        <div className="col-8 pe-2">
-                          <div
-                            className="border rounded-2"
-                            style={{
-                              padding: "10px",
-                              backgroundColor: "#F6FAFF",
-                              height: "500px",
-                            }}
-                          >
-                            <Bar
-                              data={{
-                                labels: [
-                                  "Mon",
-                                  "Tue",
-                                  "Wed",
-                                  "Thu",
-                                  "Fri",
-                                  "Sat",
-                                  "Sun",
-                                ],
-                                datasets: [
-                                  {
-                                    data: [
-                                      75.1, 75.3, 75.0, 75.4, 75.2, 75.1, 75.3,
-                                    ],
-                                    backgroundColor: "#003465",
-                                    borderRadius: 3,
-                                    barThickness: 15,
-                                  },
-                                ],
-                              }}
-                              options={{
-                                maintainAspectRatio: false,
-                                plugins: { legend: { display: false } },
-                                scales: {
-                                  x: {
-                                    grid: { display: false },
-                                    ticks: { color: "#666", fontSize: 10 },
-                                  },
-                                  y: {
-                                    beginAtZero: false,
-                                    min: 74.5,
-                                    max: 76,
-                                    grid: { color: "#f0f0f0" },
-                                    ticks: { color: "#666", fontSize: 10 },
-                                  },
-                                },
-                                categoryPercentage: 0.6,
-                              }}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-4 ps-2">
-                          <div
-                            className="border rounded-2 p-3 d-flex flex-column"
-                            style={{
-                              backgroundColor: "#F6FAFF",
-                              height: "500px",
-                            }}
-                          >
-                            <div className="mb-3">
-                              <p
-                                className="fw-bold mb-0"
-                                style={{ color: "#003465", fontSize: "14px" }}
-                              >
-                                Weight Summary
-                              </p>
-                            </div>
-                            <div className="d-flex justify-content-center mb-4">
-                              <div
-                                className="position-relative"
-                                style={{ width: "180px", height: "180px" }}
-                              >
-                                <svg
-                                  width="180"
-                                  height="180"
-                                  className="position-absolute"
-                                >
-                                  <circle
-                                    cx="90"
-                                    cy="90"
-                                    r="75"
-                                    fill="none"
-                                    stroke="#E0ECF8"
-                                    strokeWidth="12"
-                                  />
-                                  <circle
-                                    cx="90"
-                                    cy="90"
-                                    r="75"
-                                    fill="none"
-                                    stroke="#003465"
-                                    strokeWidth="10"
-                                    strokeDasharray="471"
-                                    strokeDashoffset="47"
-                                    strokeLinecap="round"
-                                    transform="rotate(-90 90 90)"
-                                  />
-                                </svg>
-                                <div className="position-absolute top-50 start-50 translate-middle text-center">
-                                  <div
-                                    className="fw-bold"
-                                    style={{
-                                      fontSize: "24px",
-                                      color: "#003465",
-                                    }}
-                                  >
-                                    90%
-                                  </div>
-                                  <div
-                                    style={{
-                                      fontSize: "14px",
-                                      color: "#003465",
-                                    }}
-                                  >
-                                    Stable
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="text-center mb-4">
-                              <p
-                                className="mb-0"
-                                style={{ fontSize: "13px", color: "#666" }}
-                              >
-                                Weight is stable and healthy
-                              </p>
-                            </div>
-                            <div className="row mb-4">
-                              <div className="col-6">
-                                <div
-                                  className="text-center p-2 rounded"
-                                  style={{ backgroundColor: "white" }}
-                                >
-                                  <div
-                                    className="fw-bold"
-                                    style={{
-                                      fontSize: "18px",
-                                      color: "#003465",
-                                    }}
-                                  >
-                                    75.2
-                                  </div>
-                                  <div
-                                    style={{ fontSize: "12px", color: "#666" }}
-                                  >
-                                    Current kg
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="col-6">
-                                <div
-                                  className="text-center p-2 rounded"
-                                  style={{ backgroundColor: "white" }}
-                                >
-                                  <div
-                                    className="fw-bold"
-                                    style={{
-                                      fontSize: "18px",
-                                      color: "#003465",
-                                    }}
-                                  >
-                                    75
-                                  </div>
-                                  <div
-                                    style={{ fontSize: "12px", color: "#666" }}
-                                  >
-                                    Target kg
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="mt-auto">
-                              <div className="row">
-                                <div className="col-12 mb-2">
-                                  <div
-                                    className="d-flex justify-content-between align-items-center p-2 rounded"
-                                    style={{
-                                      backgroundColor: "white",
-                                      fontSize: "12px",
-                                    }}
-                                  >
-                                    <span style={{ color: "#666" }}>
-                                      Weekly Change
-                                    </span>
-                                    <span
-                                      className="fw-bold"
-                                      style={{ color: "#003465" }}
-                                    >
-                                      +0.2 kg
-                                    </span>
-                                  </div>
-                                </div>
-                                <div className="col-12">
-                                  <div
-                                    className="d-flex justify-content-between align-items-center p-2 rounded"
-                                    style={{
-                                      backgroundColor: "white",
-                                      fontSize: "12px",
-                                    }}
-                                  >
-                                    <span style={{ color: "#666" }}>
-                                      Status
-                                    </span>
-                                    <span
-                                      className="fw-bold text-success"
-                                      style={{ color: "#003465" }}
-                                    >
-                                      Healthy
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <Table
-                        className=" fw-bold mb-0 mt-1"
-                        style={{
-                          width: "100%",
-                          fontSize: "10px",
-                          borderCollapse: "collapse",
-                          border: "1px solid #E0E0E0",
-                          borderBottom: "transparent",
-                        }}
-                      >
-                        <tbody>
-                          <tr>
-                            <td
-                              className="p-1"
-                              style={{
-                                color: "#121212",
-                                backgroundColor: "#F3F3F3",
-                                borderBottom: "1px solid #E0E0E0",
-                              }}
-                            >
-                              Current Week
-                            </td>
-                            <td
-                              className="p-1 text-success"
-                              style={{
-                                fontWeight: "600",
-                                textAlign: "right",
-                                borderLeft: "1px solid #E0E0E0",
-                                backgroundColor: "#F3F3F3",
-                                borderBottom: "1px solid #E0E0E0",
-                              }}
-                            >
-                              Avg- 75.2 kg
-                            </td>
-                          </tr>
-                          {[
-                            "Monday",
-                            "Tuesday",
-                            "Wednesday",
-                            "Thursday",
-                            "Friday",
-                            "Saturday",
-                            "Sunday",
-                          ].map((day) => {
-                            const weight = {
-                              Monday: "75.1",
-                              Tuesday: "75.3",
-                              Wednesday: "75.0",
-                              Thursday: "75.4",
-                              Friday: "75.2",
-                              Saturday: "75.1",
-                              Sunday: "75.3",
-                            }[day];
-                            return (
-                              <tr key={day}>
-                                <td
-                                  className="p-1"
-                                  style={{
-                                    color: "#121212",
-                                    borderBottom: "1px solid #E0E0E0",
-                                    backgroundColor: "#F9FAFB",
-                                  }}
-                                >
-                                  {day}
-                                </td>
-                                <td
-                                  className="p-1 text-success"
-                                  style={{
-                                    textAlign: "right",
-                                    borderBottom: "1px solid #E0E0E0",
-                                    borderLeft: "1px solid #E0E0E0",
-                                    backgroundColor: "#F9FAFB",
-                                  }}
-                                >
-                                  {weight} kg
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </Table>
-                    )}
-                  </div>
-                </div>
+                <WeightCard
+                  patientId={patientId}
+                  expandedCard={expandedCard}
+                  onCardExpand={handleCardExpand}
+                  activeTab={activeTab}
+                  onTabChange={setActiveTab}
+                  currentDate={currentDate}
+                  onDateChange={setCurrentDate}
+                  formatDate={formatDate}
+                />
               )}
 
               {/* BMI Card */}
