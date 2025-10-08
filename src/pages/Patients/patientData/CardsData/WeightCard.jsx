@@ -109,7 +109,13 @@ const WeightCard = ({
             }
         })
 
-        const data = apiData.map((item) => item.value)
+        const data = apiData.map((item, index) => {
+            // If today's value is 0, use previous day's value
+            if (item.value === 0 && index > 0) {
+                return apiData[index - 1].value
+            }
+            return item.value
+        })
 
         const tableData = apiData.map((item) => {
             let period
