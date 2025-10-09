@@ -155,6 +155,8 @@ const CreateDoctorModal = ({ show, onHide }) => {
     const file = e.target.files[0];
     if (file) {
       setSelectedImage(file);
+    } else {
+      setSelectedImage(null);
     }
   };
 
@@ -291,7 +293,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
       (state) => state?.value === data?.state?.value
     );
 
-    // Create initial payload
+    // Create initial payload (exclude profilePhoto as it's handled separately)
     const payload = {
       firstName: data.firstName,
       lastName: data.lastName,
@@ -370,10 +372,14 @@ const CreateDoctorModal = ({ show, onHide }) => {
       Object.keys(filteredPayload).forEach((key) => {
         if (
           typeof filteredPayload[key] === "object" &&
+          filteredPayload[key] !== null &&
           !(filteredPayload[key] instanceof File)
         ) {
           formData.append(key, JSON.stringify(filteredPayload[key]));
-        } else {
+        } else if (
+          filteredPayload[key] !== null &&
+          filteredPayload[key] !== undefined
+        ) {
           formData.append(key, filteredPayload[key]);
         }
       });
@@ -488,11 +494,14 @@ const CreateDoctorModal = ({ show, onHide }) => {
                             value
                           ) || "Emojis are not allowed",
                       },
-                      onChange: (e) =>
-                        handleInputChange(e, (e) =>
-                          setValue("firstName", e.target.value)
-                        ),
                     })}
+                    onChange={(e) => {
+                      let value = e.target.value;
+                      if (value.length > 0) {
+                        value = value.charAt(0).toUpperCase() + value.slice(1);
+                      }
+                      setValue("firstName", value, { shouldValidate: true });
+                    }}
                   />
                   {errors.firstName && (
                     <span className="text-danger" style={{ fontSize: "10px" }}>
@@ -564,11 +573,14 @@ const CreateDoctorModal = ({ show, onHide }) => {
                             value
                           ) || "Emojis are not allowed",
                       },
-                      onChange: (e) =>
-                        handleInputChange(e, (e) =>
-                          setValue("lastName", e.target.value)
-                        ),
                     })}
+                    onChange={(e) => {
+                      let value = e.target.value;
+                      if (value.length > 0) {
+                        value = value.charAt(0).toUpperCase() + value.slice(1);
+                      }
+                      setValue("lastName", value, { shouldValidate: true });
+                    }}
                   />
                   {errors.lastName && (
                     <span className="text-danger" style={{ fontSize: "10px" }}>
@@ -630,15 +642,31 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     value={watch("phone") || "+91 "}
                     onKeyDown={(e) => {
                       const currentValue = e.target.value;
-                      if (currentValue.length <= 4 && ["Backspace", "Delete"].includes(e.key)) {
+                      if (
+                        currentValue.length <= 4 &&
+                        ["Backspace", "Delete"].includes(e.key)
+                      ) {
                         e.preventDefault();
                         return;
                       }
-                      if (!/^[0-9]$/.test(e.key) && !["Backspace", "Delete", "Tab", "Enter", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+                      if (
+                        !/^[0-9]$/.test(e.key) &&
+                        ![
+                          "Backspace",
+                          "Delete",
+                          "Tab",
+                          "Enter",
+                          "ArrowLeft",
+                          "ArrowRight",
+                        ].includes(e.key)
+                      ) {
                         e.preventDefault();
                         return;
                       }
-                      if (/^[0-9]$/.test(e.key) && currentValue.replace(/[^0-9]/g, "").length >= 12) {
+                      if (
+                        /^[0-9]$/.test(e.key) &&
+                        currentValue.replace(/[^0-9]/g, "").length >= 12
+                      ) {
                         e.preventDefault();
                       }
                     }}
@@ -658,7 +686,10 @@ const CreateDoctorModal = ({ show, onHide }) => {
                         validFormat: (value) => {
                           const digits = value?.replace(/[^0-9]/g, "") || "";
                           const phoneDigits = digits.substring(2);
-                          return phoneDigits.length === 10 || "Phone number must be exactly 10 digits";
+                          return (
+                            phoneDigits.length === 10 ||
+                            "Phone number must be exactly 10 digits"
+                          );
                         },
                       },
                     })}
@@ -821,8 +852,8 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     className="py-3"
                     type="file"
                     accept="image/*"
-                    onChange={handleFileChange}
                     {...register("profilePhoto", {
+                      onChange: handleFileChange,
                       validate: {
                         fileType: (files) => {
                           if (!files || files.length === 0) return true;
