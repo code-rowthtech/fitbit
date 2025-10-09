@@ -2,7 +2,8 @@ import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const apiUrl = import.meta.env.VITE_APP_API_URL;
+// const apiUrl = import.meta.env.VITE_APP_API_URL;
+const apiUrl = 'http://localhost:5005/'
 
 // content type
 axios.defaults.headers.post["Content-Type"] = "application/json";
@@ -79,8 +80,8 @@ class APICore {
     if (params) {
       var queryString = params
         ? Object.keys(params)
-            .map((key) => key + "=" + params[key])
-            .join("&")
+          .map((key) => key + "=" + params[key])
+          .join("&")
         : "";
       response = axios.get(`${url}?${queryString}`, params);
     } else {
@@ -94,8 +95,8 @@ class APICore {
     if (params) {
       var queryString = params
         ? Object.keys(params)
-            .map((key) => key + "=" + params[key])
-            .join("&")
+          .map((key) => key + "=" + params[key])
+          .join("&")
         : "";
       response = axios.get(`${url}?${queryString}`, { responseType: "blob" });
     } else {
@@ -110,8 +111,8 @@ class APICore {
     if (params) {
       queryString = params
         ? Object.keys(params)
-            .map((key) => key + "=" + params[key])
-            .join("&")
+          .map((key) => key + "=" + params[key])
+          .join("&")
         : "";
     }
 

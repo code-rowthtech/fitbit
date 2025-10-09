@@ -27,6 +27,14 @@ const StepsCard = ({
     (state) => state?.getFilterData?.data?.response
   );
 
+  const [animationKey, setAnimationKey] = useState(0);
+
+  useEffect(() => {
+    if (AverageData?.todayData?.value !== undefined) {
+      setAnimationKey((prev) => prev + 1);
+    }
+  }, [AverageData?.todayData?.value]);
+
   // console.log(AverageData, "AverageData");
 
   // Fetch initial data when component mounts
@@ -78,10 +86,10 @@ const StepsCard = ({
         return { labels: [], data: [], tableData: [] };
       }
 
-      const labels = intradayData.map((item) => item?.timeRange || 'N/A');
+      const labels = intradayData.map((item) => item?.timeRange || "N/A");
       const data = intradayData.map((item) => item?.steps || 0);
       const tableData = intradayData.map((item) => ({
-        period: item?.timeRange || 'N/A',
+        period: item?.timeRange || "N/A",
         value: item?.steps ? item.steps.toLocaleString() : "0",
       }));
 
@@ -95,8 +103,8 @@ const StepsCard = ({
     const apiData = FilterData;
 
     const labels = apiData.map((item) => {
-      if (!item || !item.date) return 'N/A';
-      
+      if (!item || !item.date) return "N/A";
+
       if (activeTab === "Month" && item.date.includes("Week")) {
         const weekMatch = item.date.match(/Week (\d+)/);
         return weekMatch ? `Week ${weekMatch[1]}` : item.date;
@@ -104,7 +112,7 @@ const StepsCard = ({
 
       const date = new Date(item.date);
       if (isNaN(date.getTime())) return item.date; // Invalid date fallback
-      
+
       switch (activeTab) {
         case "Day":
           return date.toLocaleDateString("en-US", {
@@ -127,9 +135,9 @@ const StepsCard = ({
 
     const tableData = apiData.map((item) => {
       if (!item || !item.date) {
-        return { period: 'N/A', value: '0' };
+        return { period: "N/A", value: "0" };
       }
-      
+
       let period;
 
       if (activeTab === "Month" && item.date.includes("Week")) {
@@ -298,6 +306,32 @@ const StepsCard = ({
     }, 0);
   };
 
+  // Handle day click in week/month/year view
+  const handleDayClick = (dayIndex) => {
+    let selectedDate;
+
+    if (activeTab === "Week") {
+      const currentWeekStart = new Date(currentDate);
+      currentWeekStart.setDate(currentDate.getDate() - currentDate.getDay());
+      selectedDate = new Date(currentWeekStart);
+      selectedDate.setDate(currentWeekStart.getDate() + dayIndex);
+      onDateChange(selectedDate);
+      onTabChange("Day");
+    } else if (activeTab === "Month") {
+      selectedDate = new Date(
+        currentDate.getFullYear(),
+        currentDate.getMonth(),
+        dayIndex + 1
+      );
+      onDateChange(selectedDate);
+      onTabChange("Day");
+    } else if (activeTab === "Year") {
+      selectedDate = new Date(currentDate.getFullYear(), dayIndex, 1);
+      onDateChange(selectedDate);
+      onTabChange("Month");
+    }
+  };
+
   // Handle tab change
   const handleTabChange = (tab) => {
     onTabChange(tab);
@@ -411,6 +445,16 @@ const StepsCard = ({
                   }}
                   options={{
                     maintainAspectRatio: false,
+                    onClick:
+                      activeTab === "Week" ||
+                      activeTab === "Month" ||
+                      activeTab === "Year"
+                        ? (event, elements) => {
+                            if (elements.length > 0) {
+                              handleDayClick(elements[0].index);
+                            }
+                          }
+                        : undefined,
                     plugins: {
                       legend: { display: false },
                       tooltip: {
@@ -654,6 +698,36 @@ const StepsCard = ({
                         fontSize: "10px",
                         borderRadius: "2px",
                         border: "1px solid #E8F2FF",
+                        cursor:
+                          activeTab === "Week" ||
+                          activeTab === "Month" ||
+                          activeTab === "Year"
+                            ? "pointer"
+                            : "default",
+                      }}
+                      onClick={() =>
+                        (activeTab === "Week" ||
+                          activeTab === "Month" ||
+                          activeTab === "Year") &&
+                        handleDayClick(index)
+                      }
+                      onMouseEnter={(e) => {
+                        if (
+                          activeTab === "Week" ||
+                          activeTab === "Month" ||
+                          activeTab === "Year"
+                        ) {
+                          e.target.style.backgroundColor = "#f5f5f5";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (
+                          activeTab === "Week" ||
+                          activeTab === "Month" ||
+                          activeTab === "Year"
+                        ) {
+                          e.target.style.backgroundColor = "white";
+                        }
                       }}
                     >
                       <span style={{ color: "#003465" }}>{item.period}</span>
@@ -682,6 +756,23 @@ const StepsCard = ({
                 style={{ width: "120px", height: "120px" }}
               >
                 <svg width="120" height="120" className="position-absolute">
+                  <style>
+                    {`
+                      @keyframes circleProgress {
+                        0% { stroke-dashoffset: 301; }
+                        50% { stroke-dashoffset: 0; }
+                        100% { stroke-dashoffset: ${
+                          301 -
+                          ((AverageData?.todayData?.value || 0) /
+                            (AverageData?.goals?.steps || 1)) *
+                            301
+                        }; }
+                      }
+                      .animated-circle {
+                        animation: circleProgress 2s ease-out forwards;
+                      }
+                    `}
+                  </style>
                   <circle
                     cx="60"
                     cy="60"
@@ -691,6 +782,7 @@ const StepsCard = ({
                     strokeWidth="6"
                   />
                   <circle
+                    key={animationKey}
                     cx="60"
                     cy="60"
                     r="48"
@@ -698,14 +790,10 @@ const StepsCard = ({
                     stroke="#003465"
                     strokeWidth="4"
                     strokeDasharray="301"
-                    strokeDashoffset={
-                      301 -
-                      ((AverageData?.todayData?.value || 0) /
-                        (AverageData?.goals?.steps || 1)) *
-                        301
-                    }
+                    strokeDashoffset="301"
                     strokeLinecap="round"
                     transform="rotate(-90 60 60)"
+                    className="animated-circle"
                   />
                 </svg>
                 <div className="position-absolute top-50 start-50 translate-middle text-center">
@@ -713,11 +801,13 @@ const StepsCard = ({
                     className="fw-bold"
                     style={{ fontSize: "16px", color: "#003465" }}
                   >
-                    {AverageData?.goals?.steps > 0 ? Math.round(
-                      ((AverageData?.todayData?.value || 0) /
-                        AverageData.goals.steps) *
-                        100
-                    ) : 0}
+                    {AverageData?.goals?.steps > 0
+                      ? Math.round(
+                          ((AverageData?.todayData?.value || 0) /
+                            AverageData.goals.steps) *
+                            100
+                        )
+                      : 0}
                     %
                   </div>
                   <div
@@ -738,10 +828,13 @@ const StepsCard = ({
                 className="mb-0"
                 style={{ fontSize: "10px", color: "#666", fontWeight: "500" }}
               >
-                {AverageData?.goals?.steps && AverageData?.todayData?.value !== undefined ? Math.max(
-                  0,
-                  AverageData.goals.steps - AverageData.todayData.value
-                ) : 0}{" "}
+                {AverageData?.goals?.steps &&
+                AverageData?.todayData?.value !== undefined
+                  ? Math.max(
+                      0,
+                      AverageData.goals.steps - AverageData.todayData.value
+                    )
+                  : 0}{" "}
                 steps to reach daily goal
               </p>
             </div>
