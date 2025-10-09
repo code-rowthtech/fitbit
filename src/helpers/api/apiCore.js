@@ -153,9 +153,17 @@ class APICore {
    * post given data to url with file
    */
   createWithFile = (url, data) => {
-    const formData = new FormData();
-    for (const k in data) {
-      formData.append(k, data[k]);
+    let formData;
+    
+    // If data is already FormData, use it directly
+    if (data instanceof FormData) {
+      formData = data;
+    } else {
+      // Otherwise, create FormData from object
+      formData = new FormData();
+      for (const k in data) {
+        formData.append(k, data[k]);
+      }
     }
 
     const config = {

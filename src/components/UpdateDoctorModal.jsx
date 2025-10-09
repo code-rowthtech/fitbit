@@ -251,7 +251,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
       );
       setValue("age", doctor.age || "");
       setValue("gender", doctor.gender || "");
-      setValue("profilePhoto", doctor.profilePhoto || "");
+      setValue("image", doctor.image || "");
       // Set specialization - map to Select format
       if (doctor.specializations?.length > 0) {
         setValue("specialization", {
@@ -576,16 +576,18 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
     // If image selected, send as FormData
     if (selectedImage) {
       const formData = new FormData();
-      Object.keys(filteredPayload).forEach((key) => {
-        if (
-          typeof filteredPayload[key] === "object" &&
-          !(filteredPayload[key] instanceof File)
-        ) {
-          formData.append(key, JSON.stringify(filteredPayload[key]));
-        } else {
-          formData.append(key, filteredPayload[key]);
-        }
-      });
+      if (filteredPayload && Object.keys(filteredPayload).length > 0) {
+        Object.keys(filteredPayload).forEach((key) => {
+          if (
+            typeof filteredPayload[key] === "object" &&
+            !(filteredPayload[key] instanceof File)
+          ) {
+            formData.append(key, JSON.stringify(filteredPayload[key]));
+          } else {
+            formData.append(key, filteredPayload[key]);
+          }
+        });
+      }
       formData.append("image", selectedImage);
 
       const doctorData = {
@@ -966,29 +968,10 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                     type="file"
                     accept="image/*"
                     onChange={handleFileChange}
-                    {...register("profilePhoto", {
-                      validate: {
-                        fileType: (files) => {
-                          if (!files || files.length === 0) return true;
-                          const file = files[0];
-                          const allowedTypes = [
-                            "image/jpeg",
-                            "image/jpg",
-                            "image/png",
-                            "image/gif",
-                            "image/webp",
-                          ];
-                          return (
-                            allowedTypes.includes(file.type) ||
-                            "Only image files (.png, .jpg, .jpeg, .gif, .webp) are allowed"
-                          );
-                        },
-                      },
-                    })}
                   />
-                  {errors.profilePhoto && (
+                  {errors.image && (
                     <span className="text-danger" style={{ fontSize: "10px" }}>
-                      {errors.profilePhoto.message}
+                      {errors.image.message}
                     </span>
                   )}
                 </Form.Group>
