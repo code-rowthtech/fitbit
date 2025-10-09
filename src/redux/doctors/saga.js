@@ -62,13 +62,10 @@ export function* createDoctorFunction(data) {
 
     // ✅ Success case (check HTTP status)
     if (response.status === 201 || response?.data?.doctor?.status === 201) {
-      toast.success(
-        response?.data?.data?.message || "Doctor created successfully!",
-        {
-          position: "top-right",
-          autoClose: 3000,
-        }
-      );
+      toast.success(response?.data?.message || "Doctor created successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
 
       yield put({
         type: DOCTOR_TYPES.CREATE_DOCTOR_SUCCESS,
@@ -115,18 +112,18 @@ function* updateDoctorFunction(data) {
   try {
     yield put({
       type: DOCTOR_TYPES.UPDATE_DOCTOR_LOADING,
-      payload: {},
     });
+
     const response = yield call(updateDoctorApi, data);
-    // console.log("Update doctor response:", response);
-    if (response.data.doctor.status === 200) {
-      toast.success(
-        response?.data?.data?.message || "Doctor updated successfully!",
-        {
-          position: "top-right",
-          autoClose: 3000,
-        }
-      );
+    console.log("Update doctor response:", response?.data);
+
+    // ✅ Corrected condition
+    if (response?.data?.status === 200) {
+      toast.success(response?.data?.message || "Doctor updated successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+
       yield put({
         type: DOCTOR_TYPES.UPDATE_DOCTOR_SUCCESS,
         payload: response.data,
@@ -147,7 +144,7 @@ function* updateDoctorFunction(data) {
       });
     }
   } catch (error) {
-    toast.error(error, {
+    toast.error(error?.response?.data?.message || "Something went wrong!", {
       position: "top-right",
       autoClose: 4000,
     });
