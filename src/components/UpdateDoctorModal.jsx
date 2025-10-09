@@ -242,7 +242,14 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
       setValue("lastName", doctor.lastName || "");
       setValue("email", doctor.email || "");
       const phoneNumber = doctor.phoneNumber || "";
-      setValue("phone", phoneNumber.startsWith("+91") ? phoneNumber.replace("+91", "+91 ") : phoneNumber ? "+91 " + phoneNumber.replace(/^\+91\s*/, "") : "+91 ");
+      setValue(
+        "phone",
+        phoneNumber.startsWith("+91")
+          ? phoneNumber.replace("+91", "+91 ")
+          : phoneNumber
+          ? "+91 " + phoneNumber.replace(/^\+91\s*/, "")
+          : "+91 "
+      );
       setValue(
         "dateOfBirth",
         doctor.dateOfBirth
@@ -833,15 +840,31 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                     value={watch("phone") || "+91 "}
                     onKeyDown={(e) => {
                       const currentValue = e.target.value;
-                      if (currentValue.length <= 4 && ["Backspace", "Delete"].includes(e.key)) {
+                      if (
+                        currentValue.length <= 4 &&
+                        ["Backspace", "Delete"].includes(e.key)
+                      ) {
                         e.preventDefault();
                         return;
                       }
-                      if (!/^[0-9]$/.test(e.key) && !["Backspace", "Delete", "Tab", "Enter", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+                      if (
+                        !/^[0-9]$/.test(e.key) &&
+                        ![
+                          "Backspace",
+                          "Delete",
+                          "Tab",
+                          "Enter",
+                          "ArrowLeft",
+                          "ArrowRight",
+                        ].includes(e.key)
+                      ) {
                         e.preventDefault();
                         return;
                       }
-                      if (/^[0-9]$/.test(e.key) && currentValue.replace(/[^0-9]/g, "").length >= 12) {
+                      if (
+                        /^[0-9]$/.test(e.key) &&
+                        currentValue.replace(/[^0-9]/g, "").length >= 12
+                      ) {
                         e.preventDefault();
                       }
                     }}
@@ -861,7 +884,10 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                         validFormat: (value) => {
                           const digits = value?.replace(/[^0-9]/g, "") || "";
                           const phoneDigits = digits.substring(2);
-                          return phoneDigits.length === 10 || "Phone number must be exactly 10 digits";
+                          return (
+                            phoneDigits.length === 10 ||
+                            "Phone number must be exactly 10 digits"
+                          );
                         },
                       },
                     })}
