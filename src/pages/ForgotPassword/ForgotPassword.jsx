@@ -62,7 +62,7 @@ const ForgotPassword = () => {
 
           <Form.Group className="mb-4">
             <Form.Label className="text-white mb-2 login-label">
-              Email <span className="text-danger">*</span>
+              Email
             </Form.Label>
             <Form.Control
               type="email"

@@ -14,6 +14,10 @@ export function getAllDoctorsApi(data) {
 }
 
 export function createDoctorApi(data) {
+  // Check if payload is FormData
+  if (data.payload instanceof FormData) {
+    return api.createWithFile(URL.DOCTORS, data.payload);
+  }
   return api.create(URL.DOCTORS, data.payload);
 }
 
