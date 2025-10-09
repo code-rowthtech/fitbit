@@ -153,8 +153,29 @@ const CreateDoctorModal = ({ show, onHide }) => {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
+    console.log("File selected:", file); // Debug log
     if (file) {
+      // Validate file type
+      // const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      // if (!allowedTypes.includes(file.type)) {
+      //   toast.error('Only image files (.png, .jpg, .jpeg, .gif, .webp) are allowed');
+      //   e.target.value = '';
+      //   return;
+      // }
+      
+      // Validate file size (5MB limit)
+      // const maxSize = 5 * 1024 * 1024; // 5MB
+      // if (file.size > maxSize) {
+      //   toast.error('File size must be less than 5MB');
+      //   e.target.value = '';
+      //   return;
+      // }
+      
       setSelectedImage(file);
+      console.log("selectedImage set to:", file.name); // Debug log
+    } else {
+      setSelectedImage(null);
+      console.log("selectedImage set to null"); // Debug log
     }
   };
 
@@ -232,7 +253,6 @@ const CreateDoctorModal = ({ show, onHide }) => {
       setIsModalOpen(true);
       setCurrentStep(1);
       reset();
-      setSelectedImage(null);
       dispatch(resetCreateDoctor());
     } else if (!show && isModalOpen) {
       setIsModalOpen(false);
@@ -291,7 +311,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
       (state) => state?.value === data?.state?.value
     );
 
-    // Create initial payload
+    // Create initial payload (exclude profilePhoto as it's handled separately)
     const payload = {
       firstName: data.firstName,
       lastName: data.lastName,
@@ -338,7 +358,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
       lastLogin: null,
     };
 
-    // 🧹 Remove empty, null, undefined, or blank-string fields from payload
+    // Remove empty, null, undefined, or blank-string fields from payload
     const cleanPayload = (obj) => {
       if (Array.isArray(obj)) {
         return obj
@@ -364,22 +384,25 @@ const CreateDoctorModal = ({ show, onHide }) => {
 
     const filteredPayload = cleanPayload(payload);
 
-    // ✅ If image selected, send as FormData
-    if (selectedImage) {
+    console.log("selectedImage:", selectedImage); // Debug log
+    
+    // If image selected, send as FormData
+    if (selectedImage && selectedImage instanceof File) {
+      console.log("Sending as FormData with image"); // Debug log
       const formData = new FormData();
       Object.keys(filteredPayload).forEach((key) => {
-        if (
-          typeof filteredPayload[key] === "object" &&
-          !(filteredPayload[key] instanceof File)
-        ) {
-          formData.append(key, JSON.stringify(filteredPayload[key]));
-        } else {
-          formData.append(key, filteredPayload[key]);
-        }
+        const value = filteredPayload[key];
+        formData.append(
+          key,
+          typeof value === "object" && !(value instanceof File)
+            ? JSON.stringify(value)
+            : value
+        );
       });
       formData.append("image", selectedImage);
       dispatch(createDoctor(formData));
     } else {
+      console.log("Sending as JSON payload"); // Debug log
       dispatch(createDoctor(filteredPayload));
     }
   };
@@ -488,11 +511,14 @@ const CreateDoctorModal = ({ show, onHide }) => {
                             value
                           ) || "Emojis are not allowed",
                       },
-                      onChange: (e) =>
-                        handleInputChange(e, (e) =>
-                          setValue("firstName", e.target.value)
-                        ),
                     })}
+                    onChange={(e) => {
+                      let value = e.target.value;
+                      if (value.length > 0) {
+                        value = value.charAt(0).toUpperCase() + value.slice(1);
+                      }
+                      setValue("firstName", value, { shouldValidate: true });
+                    }}
                   />
                   {errors.firstName && (
                     <span className="text-danger" style={{ fontSize: "10px" }}>
@@ -564,11 +590,14 @@ const CreateDoctorModal = ({ show, onHide }) => {
                             value
                           ) || "Emojis are not allowed",
                       },
-                      onChange: (e) =>
-                        handleInputChange(e, (e) =>
-                          setValue("lastName", e.target.value)
-                        ),
                     })}
+                    onChange={(e) => {
+                      let value = e.target.value;
+                      if (value.length > 0) {
+                        value = value.charAt(0).toUpperCase() + value.slice(1);
+                      }
+                      setValue("lastName", value, { shouldValidate: true });
+                    }}
                   />
                   {errors.lastName && (
                     <span className="text-danger" style={{ fontSize: "10px" }}>
@@ -630,15 +659,31 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     value={watch("phone") || "+91 "}
                     onKeyDown={(e) => {
                       const currentValue = e.target.value;
-                      if (currentValue.length <= 4 && ["Backspace", "Delete"].includes(e.key)) {
+                      if (
+                        currentValue.length <= 4 &&
+                        ["Backspace", "Delete"].includes(e.key)
+                      ) {
                         e.preventDefault();
                         return;
                       }
-                      if (!/^[0-9]$/.test(e.key) && !["Backspace", "Delete", "Tab", "Enter", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+                      if (
+                        !/^[0-9]$/.test(e.key) &&
+                        ![
+                          "Backspace",
+                          "Delete",
+                          "Tab",
+                          "Enter",
+                          "ArrowLeft",
+                          "ArrowRight",
+                        ].includes(e.key)
+                      ) {
                         e.preventDefault();
                         return;
                       }
-                      if (/^[0-9]$/.test(e.key) && currentValue.replace(/[^0-9]/g, "").length >= 12) {
+                      if (
+                        /^[0-9]$/.test(e.key) &&
+                        currentValue.replace(/[^0-9]/g, "").length >= 12
+                      ) {
                         e.preventDefault();
                       }
                     }}
@@ -658,7 +703,10 @@ const CreateDoctorModal = ({ show, onHide }) => {
                         validFormat: (value) => {
                           const digits = value?.replace(/[^0-9]/g, "") || "";
                           const phoneDigits = digits.substring(2);
-                          return phoneDigits.length === 10 || "Phone number must be exactly 10 digits";
+                          return (
+                            phoneDigits.length === 10 ||
+                            "Phone number must be exactly 10 digits"
+                          );
                         },
                       },
                     })}
@@ -822,30 +870,13 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     type="file"
                     accept="image/*"
                     onChange={handleFileChange}
-                    {...register("profilePhoto", {
-                      validate: {
-                        fileType: (files) => {
-                          if (!files || files.length === 0) return true;
-                          const file = files[0];
-                          const allowedTypes = [
-                            "image/jpeg",
-                            "image/jpg",
-                            "image/png",
-                            "image/gif",
-                            "image/webp",
-                          ];
-                          return (
-                            allowedTypes.includes(file.type) ||
-                            "Only image files (.png, .jpg, .jpeg, .gif, .webp) are allowed"
-                          );
-                        },
-                      },
-                    })}
                   />
-                  {errors.profilePhoto && (
-                    <span className="text-danger" style={{ fontSize: "10px" }}>
-                      {errors.profilePhoto.message}
-                    </span>
+                  {selectedImage && (
+                    <div className="mt-2">
+                      <small className="text-success">
+                        Selected: {selectedImage.name}
+                      </small>
+                    </div>
                   )}
                 </Form.Group>
               </Col>

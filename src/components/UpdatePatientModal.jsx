@@ -253,7 +253,7 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
       setValue("notes", PatientData.notes || "");
 
       const doctorId =
-        typeof PatientData.doctorId === "object"
+        typeof PatientData.doctorId === "object" && PatientData.doctorId !== null
           ? PatientData.doctorId._id
           : PatientData.doctorId;
       const doctorExists = DoctorData?.find((doc) => doc._id === doctorId);

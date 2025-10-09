@@ -242,7 +242,14 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
       setValue("lastName", doctor.lastName || "");
       setValue("email", doctor.email || "");
       const phoneNumber = doctor.phoneNumber || "";
-      setValue("phone", phoneNumber.startsWith("+91") ? phoneNumber.replace("+91", "+91 ") : phoneNumber ? "+91 " + phoneNumber.replace(/^\+91\s*/, "") : "+91 ");
+      setValue(
+        "phone",
+        phoneNumber.startsWith("+91")
+          ? phoneNumber.replace("+91", "+91 ")
+          : phoneNumber
+          ? "+91 " + phoneNumber.replace(/^\+91\s*/, "")
+          : "+91 "
+      );
       setValue(
         "dateOfBirth",
         doctor.dateOfBirth
@@ -251,7 +258,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
       );
       setValue("age", doctor.age || "");
       setValue("gender", doctor.gender || "");
-      setValue("profilePhoto", doctor.profilePhoto || "");
+      setValue("image", doctor.image || "");
       // Set specialization - map to Select format
       if (doctor.specializations?.length > 0) {
         setValue("specialization", {
@@ -576,16 +583,18 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
     // If image selected, send as FormData
     if (selectedImage) {
       const formData = new FormData();
-      Object.keys(filteredPayload).forEach((key) => {
-        if (
-          typeof filteredPayload[key] === "object" &&
-          !(filteredPayload[key] instanceof File)
-        ) {
-          formData.append(key, JSON.stringify(filteredPayload[key]));
-        } else {
-          formData.append(key, filteredPayload[key]);
-        }
-      });
+      if (filteredPayload && Object.keys(filteredPayload).length > 0) {
+        Object.keys(filteredPayload).forEach((key) => {
+          if (
+            typeof filteredPayload[key] === "object" &&
+            !(filteredPayload[key] instanceof File)
+          ) {
+            formData.append(key, JSON.stringify(filteredPayload[key]));
+          } else {
+            formData.append(key, filteredPayload[key]);
+          }
+        });
+      }
       formData.append("image", selectedImage);
 
       const doctorData = {
@@ -831,15 +840,31 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                     value={watch("phone") || "+91 "}
                     onKeyDown={(e) => {
                       const currentValue = e.target.value;
-                      if (currentValue.length <= 4 && ["Backspace", "Delete"].includes(e.key)) {
+                      if (
+                        currentValue.length <= 4 &&
+                        ["Backspace", "Delete"].includes(e.key)
+                      ) {
                         e.preventDefault();
                         return;
                       }
-                      if (!/^[0-9]$/.test(e.key) && !["Backspace", "Delete", "Tab", "Enter", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+                      if (
+                        !/^[0-9]$/.test(e.key) &&
+                        ![
+                          "Backspace",
+                          "Delete",
+                          "Tab",
+                          "Enter",
+                          "ArrowLeft",
+                          "ArrowRight",
+                        ].includes(e.key)
+                      ) {
                         e.preventDefault();
                         return;
                       }
-                      if (/^[0-9]$/.test(e.key) && currentValue.replace(/[^0-9]/g, "").length >= 12) {
+                      if (
+                        /^[0-9]$/.test(e.key) &&
+                        currentValue.replace(/[^0-9]/g, "").length >= 12
+                      ) {
                         e.preventDefault();
                       }
                     }}
@@ -859,7 +884,10 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                         validFormat: (value) => {
                           const digits = value?.replace(/[^0-9]/g, "") || "";
                           const phoneDigits = digits.substring(2);
-                          return phoneDigits.length === 10 || "Phone number must be exactly 10 digits";
+                          return (
+                            phoneDigits.length === 10 ||
+                            "Phone number must be exactly 10 digits"
+                          );
                         },
                       },
                     })}
@@ -966,29 +994,10 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                     type="file"
                     accept="image/*"
                     onChange={handleFileChange}
-                    {...register("profilePhoto", {
-                      validate: {
-                        fileType: (files) => {
-                          if (!files || files.length === 0) return true;
-                          const file = files[0];
-                          const allowedTypes = [
-                            "image/jpeg",
-                            "image/jpg",
-                            "image/png",
-                            "image/gif",
-                            "image/webp",
-                          ];
-                          return (
-                            allowedTypes.includes(file.type) ||
-                            "Only image files (.png, .jpg, .jpeg, .gif, .webp) are allowed"
-                          );
-                        },
-                      },
-                    })}
                   />
-                  {errors.profilePhoto && (
+                  {errors.image && (
                     <span className="text-danger" style={{ fontSize: "10px" }}>
-                      {errors.profilePhoto.message}
+                      {errors.image.message}
                     </span>
                   )}
                 </Form.Group>
