@@ -12,6 +12,7 @@ import Dashboard from './pages/Dashboard';
 import Doctors from './pages/Doctors/Doctors';
 import Patients from './pages/Patients/Patients';
 import PatientDashboard from './pages/Patients/PatientDashboard';
+import TrackingMapPage from './pages/TrackingMapPage';
 // import Notes from './pages/Notes/Notes';
 import NotFound from './pages/NotFound';
 import { SidebarProvider } from './contexts/SidebarContext';
@@ -64,6 +65,16 @@ function App() {
               <ProtectedRoute>
                 <Layout pageName="Patient Dashboard">
                   <PatientDashboard />
+                </Layout>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/tracking-map" 
+            element={
+              <ProtectedRoute>
+                <Layout pageName="GPS Tracking">
+                  <TrackingMapPage />
                 </Layout>
               </ProtectedRoute>
             } 

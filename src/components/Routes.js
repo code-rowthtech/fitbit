@@ -1,6 +1,7 @@
 import { MdDashboard } from 'react-icons/md';
 import { FaUserMd } from 'react-icons/fa';
 import { FaUser } from 'react-icons/fa';
+import { FaMapMarkerAlt } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 
 export const getMenuItems = () => {
@@ -12,6 +13,7 @@ export const getMenuItems = () => {
   const baseItems = [
     // { icon: MdDashboard, label: 'Dashboard', path: '/' },
     { icon: FaUser, label: 'Patients', path: `/patient-dashboard/${PatientData?.[0]?._id}` },
+    { icon: FaMapMarkerAlt, label: 'GPS Tracking', path: '/tracking-map' },
     // { icon: FaStickyNote, label: 'Notes', path: '/notes' },
   ];
 
