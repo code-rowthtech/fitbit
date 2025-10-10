@@ -9,7 +9,7 @@ import {
   Tooltip,
 } from "react-bootstrap";
 import { TbPencilMinus } from "react-icons/tb";
-import { FiSearch, FiFilter } from "react-icons/fi";
+import { FiSearch, FiFilter, FiX } from "react-icons/fi";
 import CreateDoctorModal from "../../components/CreateDoctorModal";
 import UpdateDoctorModal from "../../components/UpdateDoctorModal";
 import { getAllDoctors, updateDoctor } from "../../redux/actions";
@@ -272,6 +272,20 @@ const Doctors = () => {
                     className="form-control border-0"
                     placeholder="Search doctors..."
                   />
+                  {searchTerm && (
+                    <FiX
+                      style={{
+                        position: "absolute",
+                        right: "32px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        color: "#6c757d",
+                        fontSize: "16px",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => setSearchTerm("")}
+                    />
+                  )}
                   <FiSearch
                     style={{
                       position: "absolute",
@@ -306,8 +320,17 @@ const Doctors = () => {
                 <h5 className="text-muted">No Doctors Found</h5>
               </div>
             ) : (
-              <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-                <Table className="mb-0 table-sm" style={{ fontSize: "11px", overflow: "hidden" }}>
+              <div
+                style={{
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <Table
+                  className="mb-0 table-sm"
+                  style={{ fontSize: "11px", overflow: "hidden" }}
+                >
                   <thead
                     className="thead-custom"
                     style={{ position: "sticky", top: 0, zIndex: 10 }}
@@ -315,31 +338,46 @@ const Doctors = () => {
                     <tr>
                       <th
                         className="fw-bold py-2 text-center"
-                        style={{ width: statusFilter === "inactive" ? "4%" : "5%", fontSize: "16px" }}
+                        style={{
+                          width: statusFilter === "inactive" ? "4%" : "5%",
+                          fontSize: "16px",
+                        }}
                       >
                         #
                       </th>
                       <th
                         className="fw-bold py-2 text-start ps-5"
-                        style={{ width: statusFilter === "inactive" ? "25%" : "30%", fontSize: "16px" }}
+                        style={{
+                          width: statusFilter === "inactive" ? "25%" : "30%",
+                          fontSize: "16px",
+                        }}
                       >
                         Name
                       </th>
                       <th
                         className="fw-bold py-2 text-start"
-                        style={{ width: statusFilter === "inactive" ? "20%" : "25%", fontSize: "16px" }}
+                        style={{
+                          width: statusFilter === "inactive" ? "20%" : "25%",
+                          fontSize: "16px",
+                        }}
                       >
                         Email
                       </th>
                       <th
                         className="fw-bold py-2 text-start"
-                        style={{ width: statusFilter === "inactive" ? "18%" : "20%", fontSize: "16px" }}
+                        style={{
+                          width: statusFilter === "inactive" ? "18%" : "20%",
+                          fontSize: "16px",
+                        }}
                       >
                         Specialization
                       </th>
                       <th
                         className="fw-bold py-2 text-center"
-                        style={{ width: statusFilter === "inactive" ? "8%" : "10%", fontSize: "16px" }}
+                        style={{
+                          width: statusFilter === "inactive" ? "8%" : "10%",
+                          fontSize: "16px",
+                        }}
                       >
                         Gender
                       </th>
@@ -353,13 +391,19 @@ const Doctors = () => {
                       )}
                       <th
                         className="fw-bold py-2 text-center"
-                        style={{ width: statusFilter === "inactive" ? "8%" : "10%", fontSize: "16px" }}
+                        style={{
+                          width: statusFilter === "inactive" ? "8%" : "10%",
+                          fontSize: "16px",
+                        }}
                       >
                         Status
                       </th>
                       <th
                         className="fw-bold py-2 text-center"
-                        style={{ width: statusFilter === "inactive" ? "7%" : "10%", fontSize: "16px" }}
+                        style={{
+                          width: statusFilter === "inactive" ? "7%" : "10%",
+                          fontSize: "16px",
+                        }}
                       >
                         Actions
                       </th>
@@ -377,13 +421,20 @@ const Doctors = () => {
                         >
                           <td
                             className="text-center fw-semibold"
-                            style={{ fontSize: "14px", width: statusFilter === "inactive" ? "4%" : "5%" }}
+                            style={{
+                              fontSize: "14px",
+                              width: statusFilter === "inactive" ? "4%" : "5%",
+                            }}
                           >
                             {(currentPage - 1) * 20 + index + 1}
                           </td>
                           <td
                             className="text-start ps-3"
-                            style={{ fontSize: "14px", width: statusFilter === "inactive" ? "25%" : "30%" }}
+                            style={{
+                              fontSize: "14px",
+                              width:
+                                statusFilter === "inactive" ? "25%" : "30%",
+                            }}
                           >
                             <div className="d-flex align-items-center gap-2">
                               {doctor.profilePhoto ? (
@@ -423,13 +474,21 @@ const Doctors = () => {
                           </td>
                           <td
                             className="text-start"
-                            style={{ fontSize: "14px", width: statusFilter === "inactive" ? "20%" : "25%" }}
+                            style={{
+                              fontSize: "14px",
+                              width:
+                                statusFilter === "inactive" ? "20%" : "25%",
+                            }}
                           >
                             {doctor.email}
                           </td>
                           <td
                             className="text-start"
-                            style={{ fontSize: "14px", width: statusFilter === "inactive" ? "18%" : "20%" }}
+                            style={{
+                              fontSize: "14px",
+                              width:
+                                statusFilter === "inactive" ? "18%" : "20%",
+                            }}
                           >
                             {(() => {
                               const fullText =
@@ -459,7 +518,10 @@ const Doctors = () => {
                           </td>
                           <td
                             className="text-center"
-                            style={{ fontSize: "14px", width: statusFilter === "inactive" ? "8%" : "10%" }}
+                            style={{
+                              fontSize: "14px",
+                              width: statusFilter === "inactive" ? "8%" : "10%",
+                            }}
                           >
                             <span className="text-capitalize">
                               {doctor.gender || "-"}
@@ -479,7 +541,12 @@ const Doctors = () => {
                             </td>
                           )}
 
-                          <td className="text-center" style={{ width: statusFilter === "inactive" ? "8%" : "10%" }}>
+                          <td
+                            className="text-center"
+                            style={{
+                              width: statusFilter === "inactive" ? "8%" : "10%",
+                            }}
+                          >
                             <Form.Check
                               type="switch"
                               id={`status-switch-${doctor._id}`}
@@ -488,7 +555,12 @@ const Doctors = () => {
                               style={{ transform: "scale(1.2)" }}
                             />
                           </td>
-                          <td className="text-center" style={{ width: statusFilter === "inactive" ? "7%" : "10%" }}>
+                          <td
+                            className="text-center"
+                            style={{
+                              width: statusFilter === "inactive" ? "7%" : "10%",
+                            }}
+                          >
                             <div className="d-flex justify-content-center gap-1">
                               <button
                                 title="Update"
@@ -529,13 +601,13 @@ const Doctors = () => {
                 Showing{" "}
                 <span className="fw-bold">{(currentPage - 1) * 20 + 1}</span> -{" "}
                 <span className="fw-bold">
-                  {Math.min(currentPage * 20, DoctorCount?.totalRecords || 0)}
+                  {Math.min(currentPage * 20, DoctorCount?.totalDoctors || 0)}
                 </span>{" "}
                 of{" "}
                 <span className="fw-bold">
-                  {DoctorCount?.totalRecords || 0}
+                  {DoctorCount?.totalDoctors || 0}
                 </span>{" "}
-                doctors
+                Docter
               </div>
               <Pagination className="custom-pagination mb-0">
                 <Pagination.First

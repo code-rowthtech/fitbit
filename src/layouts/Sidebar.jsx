@@ -30,7 +30,7 @@ const Sidebar = () => {
   const UpdateResponse = useSelector(
     (state) => state?.updatePatient?.data?.status
   );
-  // console.log(PatientData,'PatientDataPatientData')
+  console.log(PatientData, "PatientDataPatientData");
   useEffect(() => {
     const payload =
       selectedDoctor?.value && selectedDoctor.value !== "all"
@@ -228,12 +228,13 @@ const Sidebar = () => {
                   }}
                 >
                   <div
-                    className="bg-secondary rounded-circle d-flex align-items-center justify-content-center text-uppercase me-2"
+                    className="rounded-circle d-flex align-items-center justify-content-center text-uppercase me-2"
                     style={{
                       width: "36px",
                       height: "36px",
                       fontSize: "12px",
-                      color: "white",
+                      color: "#16213D",
+                      backgroundColor: "#DCE6F5",
                     }}
                   >
                     {patient.firstName?.charAt(0)}
@@ -250,7 +251,13 @@ const Sidebar = () => {
                       className="text-white mt-1"
                       style={{ fontSize: "8px" }}
                     >
-                      {patient?.address?.state?.name || "N/A"}
+                      {(typeof patient?.address?.city === "string"
+                        ? patient?.address?.city
+                        : patient?.address?.city?.name) ||
+                        (typeof patient?.address?.country === "string"
+                          ? patient?.address?.country
+                          : patient?.address?.country?.name) ||
+                        "N/A"}
                     </div>
                   </div>
                   <div className="">

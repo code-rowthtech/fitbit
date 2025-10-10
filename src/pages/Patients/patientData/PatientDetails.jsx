@@ -1,58 +1,83 @@
-import React, { useEffect, useState } from 'react'
-import { FaChevronDown, FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import {
+  FaChevronDown,
+  FaCheckCircle,
+  FaExclamationTriangle,
+} from "react-icons/fa";
 import { FiPhone } from "react-icons/fi";
 import { MdOutlineMailOutline } from "react-icons/md";
 import { GrLocation } from "react-icons/gr";
 import { TbUserEdit } from "react-icons/tb";
-import UpdatePatientModal from '../../../components/UpdatePatientModal';
-import stepsIcon from '../../../assets/images/PatientDashboard/Steps.png';
-import heartRateIcon from '../../../assets/images/PatientDashboard/heart rate.png';
-import sleepIcon from '../../../assets/images/PatientDashboard/Sleep stages.png';
-import waterIntakeIcon from '../../../assets/images/PatientDashboard/water intake.png';
-import { getPatientById } from '../../../redux/actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { useParams, useSearchParams } from 'react-router-dom';
-import { connectToFitbit } from '../../../redux/patientsDashboard/action';
+import UpdatePatientModal from "../../../components/UpdatePatientModal";
+import stepsIcon from "../../../assets/images/PatientDashboard/Steps.png";
+import heartRateIcon from "../../../assets/images/PatientDashboard/heart rate.png";
+import sleepIcon from "../../../assets/images/PatientDashboard/Sleep stages.png";
+import waterIntakeIcon from "../../../assets/images/PatientDashboard/water intake.png";
+import { getPatientById } from "../../../redux/actions";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams, useSearchParams } from "react-router-dom";
+import { connectToFitbit } from "../../../redux/patientsDashboard/action";
 
-const PatientDetails = ({  onShowReports, showReports, activeTab, setActiveTab }) => {
+const PatientDetails = ({
+  onShowReports,
+  showReports,
+  activeTab,
+  setActiveTab,
+}) => {
   const dispatch = useDispatch();
 
   const [accordionOpen, setAccordionOpen] = useState(true);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const { id: pathId } = useParams();
   const [searchParams] = useSearchParams();
-  const id = pathId || searchParams.get('id') || searchParams.get('patientId');
-  const PatientData = useSelector((state) => state?.getPatientByIdReducer?.data?.data?.patient);
-  const isLoading = useSelector((state) => state?.getPatientByIdReducer?.loading);
-  const UpdateResponse = useSelector((state) => state?.updatePatient?.data?.status);
-  const ConnectionStatus = useSelector((state) => state?.connectToFitbit?.data?.success);
-  const connectionLoading = useSelector((state) => state?.connectToFitbit?.loading);
+  const id = pathId || searchParams.get("id") || searchParams.get("patientId");
+  const PatientData = useSelector(
+    (state) => state?.getPatientByIdReducer?.data?.data?.patient
+  );
+  console.log(PatientData, "PatientDataPatientDataPatientData");
+
+  const isLoading = useSelector(
+    (state) => state?.getPatientByIdReducer?.loading
+  );
+  const UpdateResponse = useSelector(
+    (state) => state?.updatePatient?.data?.status
+  );
+  const ConnectionStatus = useSelector(
+    (state) => state?.connectToFitbit?.data?.success
+  );
+  const connectionLoading = useSelector(
+    (state) => state?.connectToFitbit?.loading
+  );
   const FitbitConectionStatus = PatientData?.fitbitStatus;
   const getInitials = (name) => {
-    return name?.split(' ').map(n => n[0]).join('').toUpperCase()
-  }
+    return name
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
+  };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-GB')
-  }
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB");
+  };
 
   const tabs = [
-    'Activity Data',
-    'Sleep Data',
-    'Heart Rate',
-    'Weight & Body Metrics',
-    'Exercise Data',
-    'Nutrition'
-  ]
+    "Activity Data",
+    "Sleep Data",
+    "Heart Rate",
+    "Weight & Body Metrics",
+    "Exercise Data",
+    "Nutrition",
+  ];
 
   useEffect(() => {
-    dispatch(getPatientById(id))
+    dispatch(getPatientById(id));
   }, [id]);
 
   useEffect(() => {
     if (UpdateResponse === 200) {
-      dispatch(getPatientById(id))
+      dispatch(getPatientById(id));
     }
   }, [UpdateResponse]);
 
@@ -68,19 +93,21 @@ const PatientDetails = ({  onShowReports, showReports, activeTab, setActiveTab }
 
   useEffect(() => {
     if (ConnectionStatus === true) {
-      dispatch(getPatientById(id))
+      dispatch(getPatientById(id));
     }
   }, [ConnectionStatus]);
 
   return (
-    <div className='pb-1'
+    <div
+      className="pb-1"
       style={{
-        backgroundColor: 'white',
+        backgroundColor: "white",
         // border: '1px solid #e9ecef',
         // borderBottom: 'none',
-        borderTopLeftRadius: '10px',
-        borderTopRightRadius: '10px'
-      }}>
+        borderTopLeftRadius: "10px",
+        borderTopRightRadius: "10px",
+      }}
+    >
       {!showReports && (
         <div>
           {/* tab section */}
@@ -88,15 +115,23 @@ const PatientDetails = ({  onShowReports, showReports, activeTab, setActiveTab }
             {tabs.map((tab, index) => (
               <div
                 key={tab}
-                className={`patient-tab fw-semibold flex-fill ${activeTab === tab ? 'active' : 'inactive'}`}
+                className={`patient-tab fw-semibold flex-fill ${
+                  activeTab === tab ? "active" : "inactive"
+                }`}
                 onClick={() => setActiveTab(tab)}
                 style={{
-                  cursor: 'pointer',
-                  ...(index === 0 && { borderTopLeftRadius: '10px' }),
-                  ...(index === tabs.length - 1 && { borderTopRightRadius: '10px' })
+                  cursor: "pointer",
+                  ...(index === 0 && { borderTopLeftRadius: "10px" }),
+                  ...(index === tabs.length - 1 && {
+                    borderTopRightRadius: "10px",
+                  }),
                 }}
               >
-                <div className={`patient-tab-content ${index === 0 || index === tabs.length - 1 ? 'straight' : ''}`}>
+                <div
+                  className={`patient-tab-content ${
+                    index === 0 || index === tabs.length - 1 ? "straight" : ""
+                  }`}
+                >
                   {tab}
                   {/* <span className="patient-tab-arrow"><FaChevronDown /></span> */}
                 </div>
@@ -109,68 +144,133 @@ const PatientDetails = ({  onShowReports, showReports, activeTab, setActiveTab }
         <div className="accordion-item">
           <h2 className="accordion-header">
             <button
-              className={`accordion-button border-bottom py-0 ps-0 ${!accordionOpen ? 'collapsed' : ''}`}
+              className={`accordion-button border-bottom py-0 ps-0 ${
+                !accordionOpen ? "collapsed" : ""
+              }`}
               type="button"
               onClick={() => setAccordionOpen(!accordionOpen)}
-              style={{ backgroundColor: '#F6FAFF', border: 'none', overflow: 'hidden', boxShadow: 'none' }}
+              style={{
+                backgroundColor: "#F6FAFF",
+                border: "none",
+                overflow: "hidden",
+                boxShadow: "none",
+              }}
             >
               <div className="d-flex justify-content-between align-items-center w-100 me-3">
                 <div className="d-flex align-items-center">
-                  <div className='pe-5 py-2' style={{ backgroundColor: '#DCE6F5', borderRight: '4px solid #DCE6F5', transform: 'skewX(-20deg)', overflow: 'hidden', marginLeft: '-5px' }}>
-                    <div style={{ transform: 'skewX(20deg)' }}>
-                      <span className='ps-3' style={{ color: '#6c757d', fontSize: '12px', marginRight: '8px' }}>Patients ID:</span>
-                      <span className={`${isLoading ? "placeholder rounded-1 " : ''}`} style={{ color: '#007bff', fontSize: '12px', fontWeight: '500' }}>
+                  <div
+                    className="pe-5 py-2"
+                    style={{
+                      backgroundColor: "#DCE6F5",
+                      borderRight: "4px solid #DCE6F5",
+                      transform: "skewX(-20deg)",
+                      overflow: "hidden",
+                      marginLeft: "-5px",
+                    }}
+                  >
+                    <div style={{ transform: "skewX(20deg)" }}>
+                      <span
+                        className="ps-3"
+                        style={{
+                          color: "#6c757d",
+                          fontSize: "12px",
+                          marginRight: "8px",
+                        }}
+                      >
+                        Patients ID:
+                      </span>
+                      <span
+                        className={`${
+                          isLoading ? "placeholder rounded-1 " : ""
+                        }`}
+                        style={{
+                          color: "#007bff",
+                          fontSize: "12px",
+                          fontWeight: "500",
+                        }}
+                      >
                         {PatientData?.patientId}
                       </span>
                     </div>
                   </div>
-                  <div className='ps-3'>
-                    <span style={{ color: '#6c757d', fontSize: '12px', marginRight: '8px' }}>Date Added:</span>
-                    <span className={`${isLoading ? "placeholder rounded-1 " : ''}`} style={{ fontSize: '12px' }}>{formatDate(PatientData?.registrationDate)}</span>
+                  <div className="ps-3">
+                    <span
+                      style={{
+                        color: "#6c757d",
+                        fontSize: "12px",
+                        marginRight: "8px",
+                      }}
+                    >
+                      Date Added:
+                    </span>
+                    <span
+                      className={`${isLoading ? "placeholder rounded-1 " : ""}`}
+                      style={{ fontSize: "12px" }}
+                    >
+                      {formatDate(PatientData?.registrationDate)}
+                    </span>
                   </div>
                 </div>
                 <div className="d-flex align-items-center">
-                  {FitbitConectionStatus === 'Pending' ? (
-                    <span className='me-3 fw-bold p-1 rounded-1' style={{ color: '#003465', fontSize: '12px', border: '1px solid #003465' }}>Connection Pending</span>
-                  ) : FitbitConectionStatus === 'Not Connected' ? (
-                    <button
-                      className='btn btn-sm me-3 fw-bold'
+                  {FitbitConectionStatus === "Pending" ? (
+                    <span
+                      className="me-3 fw-bold p-1 rounded-1"
                       style={{
-                        fontSize: '12px',
-                        padding: '4px 12px',
-                        borderRadius: '4px',
-                        backgroundColor: '#003465',
-                        color: 'white',
-                        border: '1px solid #003465'
+                        color: "#003465",
+                        fontSize: "12px",
+                        border: "1px solid #003465",
+                      }}
+                    >
+                      Connection Pending
+                    </span>
+                  ) : FitbitConectionStatus === "Not Connected" ? (
+                    <button
+                      className="btn btn-sm me-3 fw-bold"
+                      style={{
+                        fontSize: "12px",
+                        padding: "4px 12px",
+                        borderRadius: "4px",
+                        backgroundColor: "#003465",
+                        color: "white",
+                        border: "1px solid #003465",
                       }}
                       onClick={(e) => {
                         e.stopPropagation();
-                        dispatch(connectToFitbit({ patientId: id }))
+                        dispatch(connectToFitbit({ patientId: id }));
                       }}
                       disabled={connectionLoading}
                     >
                       {connectionLoading ? "Connecting" : "Connect to Fitbit"}
                     </button>
-                  ) : FitbitConectionStatus === 'Connected' ? (
-                    <span className='me-3 fw-bold p-1 rounded-1' style={{ color: '#003465', fontSize: '12px', border: '1px solid #003465' }}>Connected</span>
+                  ) : FitbitConectionStatus === "Connected" ? (
+                    <span
+                      className="me-3 fw-bold p-1 rounded-1"
+                      style={{
+                        color: "#003465",
+                        fontSize: "12px",
+                        border: "1px solid #003465",
+                      }}
+                    >
+                      Connected
+                    </span>
                   ) : null}
                   <TbUserEdit
-                    className='border rounded-2 p-1'
-                    title='Edit Patient'
+                    className="border rounded-2 p-1"
+                    title="Edit Patient"
                     style={{
-                      fontSize: '26px',
-                      color: '#003465',
-                      cursor: 'pointer',
-                      marginRight: '18px',
-                      transition: 'all 0.2s ease'
+                      fontSize: "26px",
+                      color: "#003465",
+                      cursor: "pointer",
+                      marginRight: "18px",
+                      transition: "all 0.2s ease",
                     }}
                     onMouseEnter={(e) => {
                       // e.target.style.color = '003465';
-                      e.target.style.backgroundColor = '#E0ECF8';
+                      e.target.style.backgroundColor = "#E0ECF8";
                     }}
                     onMouseLeave={(e) => {
                       // e.target.style.color = '#003465';
-                      e.target.style.backgroundColor = 'transparent';
+                      e.target.style.backgroundColor = "transparent";
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -178,142 +278,538 @@ const PatientDetails = ({  onShowReports, showReports, activeTab, setActiveTab }
                     }}
                   />
                   <span
-                    className='fw-semibold'
-                    style={{ color: '#003465', fontSize: '12px', marginRight: '8px', textDecoration: 'underline', cursor: 'pointer' }}
+                    className="fw-semibold"
+                    style={{
+                      color: "#003465",
+                      fontSize: "12px",
+                      marginRight: "8px",
+                      textDecoration: "underline",
+                      cursor: "pointer",
+                    }}
                     onClick={(e) => {
                       e.stopPropagation();
                       onShowReports();
                     }}
                   >
-                    {showReports ? 'Back' : 'All Reports'}
+                    {showReports ? "Back" : "All Reports"}
                   </span>
                 </div>
               </div>
             </button>
           </h2>
-          <div className={`accordion-collapse collapse ${accordionOpen ? 'show' : ''} ${isLoading ? "placeholder-glow " : ''}`}>
-            <div className="accordion-body py-2" style={{ backgroundColor: '#F6FAFF' }}>
+          <div
+            className={`accordion-collapse collapse ${
+              accordionOpen ? "show" : ""
+            } ${isLoading ? "placeholder-glow " : ""}`}
+          >
+            <div
+              className="accordion-body py-2"
+              style={{ backgroundColor: "#F6FAFF" }}
+            >
               <div className="d-flex align-items-center justify-content-between">
                 <div className="d-flex align-items-center">
                   {PatientData?.avatar ? (
                     <img
                       src={PatientData?.avatar}
                       alt="Patient Avatar"
-                      className={`me-3 ${isLoading ? "placeholder " : ''}`}
+                      className={`me-3 ${isLoading ? "placeholder " : ""}`}
                       style={{
-                        width: '76px',
-                        height: '84px',
-                        borderRadius: '12px',
-                        objectFit: 'cover'
+                        width: "76px",
+                        height: "84px",
+                        borderRadius: "12px",
+                        objectFit: "cover",
                       }}
                     />
                   ) : (
                     <div
-                      className={`me-3 d-flex align-items-center justify-content-center ${isLoading ? "placeholder " : ''}`}
+                      className={`me-3 d-flex align-items-center justify-content-center ${
+                        isLoading ? "placeholder " : ""
+                      }`}
                       style={{
-                        width: '76px',
-                        height: '84px',
-                        backgroundColor: '#6c757d',
-                        color: 'white',
-                        fontSize: '20px',
-                        fontWeight: 'bold',
-                        borderRadius: '12px'
+                        width: "76px",
+                        height: "84px",
+                        backgroundColor: "#DCE6F5",
+                        color: "white",
+                        fontSize: "20px",
+                        fontWeight: "bold",
+                        borderRadius: "12px",
                       }}
                     >
                       {getInitials(PatientData?.firstName)}
                     </div>
                   )}
                   <div>
-
-                    <div className={`d-flex align-items-center ${isLoading ? "placeholder rounded-1" : ''}`} style={{ gap: '16px' }}>
-                      <h4 className='mb-0 pe-3 text-capitalize ' style={{ fontSize: '18px', fontWeight: '600', borderRight: '1px solid #000000' }}>
+                    <div
+                      className={`d-flex align-items-center ${
+                        isLoading ? "placeholder rounded-1" : ""
+                      }`}
+                      style={{ gap: "16px" }}
+                    >
+                      <h4
+                        className="mb-0 pe-3 text-capitalize "
+                        style={{
+                          fontSize: "18px",
+                          fontWeight: "600",
+                          borderRight: "1px solid #000000",
+                        }}
+                      >
                         {PatientData?.firstName} {PatientData?.lastName}
                       </h4>
-                      <span className='pe-3 fw-bold text-dark text-capitalize' style={{ fontSize: '14px', color: '#6c757d', borderRight: '1px solid #000000' }}>
+                      <span
+                        className="pe-3 fw-bold text-dark text-capitalize"
+                        style={{
+                          fontSize: "14px",
+                          color: "#6c757d",
+                          borderRight: "1px solid #000000",
+                        }}
+                      >
                         {PatientData?.gender}
                       </span>
-                      <span className='pe-3 fw-bold text-dark' style={{ fontSize: '14px', color: '#6c757d', borderRight: '1px solid #000000' }}>
+                      <span
+                        className="pe-3 fw-bold text-dark"
+                        style={{
+                          fontSize: "14px",
+                          color: "#6c757d",
+                          borderRight: "1px solid #000000",
+                        }}
+                      >
                         {formatDate(PatientData?.dateOfBirth)}
                       </span>
-                      <span className='fw-bold text-dark' style={{ fontSize: '14px', color: '#6c757d' }}>
+                      <span
+                        className="fw-bold text-dark"
+                        style={{ fontSize: "14px", color: "#6c757d" }}
+                      >
                         {PatientData?.age} Years Old
                       </span>
                     </div>
-                    <div className="d-flex align-items-center mt-3" style={{ gap: '16px' }}>
+                    <div
+                      className="d-flex align-items-center mt-3"
+                      style={{ gap: "16px" }}
+                    >
                       <div className="d-flex align-items-center">
-                        <FiPhone style={{ fontSize: '12px', marginRight: '4px', color: '#003465' }} />
-                        <span className={`${isLoading ? "placeholder rounded-1 " : ''}`} style={{ fontSize: '12px', color: '#6c757d' }}>
+                        <FiPhone
+                          style={{
+                            fontSize: "12px",
+                            marginRight: "4px",
+                            color: "#003465",
+                          }}
+                        />
+                        <span
+                          className={`${
+                            isLoading ? "placeholder rounded-1 " : ""
+                          }`}
+                          style={{ fontSize: "12px", color: "#6c757d" }}
+                        >
                           {PatientData?.phoneNumber}
                         </span>
                       </div>
                       <div className="d-flex align-items-center">
-                        <MdOutlineMailOutline style={{ fontSize: '12px', marginRight: '4px', color: '#003465' }} />
-                        <span className={`${isLoading ? "placeholder rounded-1 " : ''}`} style={{ fontSize: '12px', color: '#6c757d' }}>
+                        <MdOutlineMailOutline
+                          style={{
+                            fontSize: "12px",
+                            marginRight: "4px",
+                            color: "#003465",
+                          }}
+                        />
+                        <span
+                          className={`${
+                            isLoading ? "placeholder rounded-1 " : ""
+                          }`}
+                          style={{ fontSize: "12px", color: "#6c757d" }}
+                        >
                           {PatientData?.email}
                         </span>
                       </div>
                       <div className="d-flex align-items-center">
-                        <GrLocation style={{ fontSize: '12px', marginRight: '4px', color: '#003465' }} />
-                        <span className={`${isLoading ? "placeholder rounded-1 " : ''}`} style={{ fontSize: '12px', color: '#6c757d' }}>
-                          {PatientData?.address?.city?.name || 'N/A'}-{PatientData?.address?.state?.name || 'N/A'}
+                        <GrLocation
+                          style={{
+                            fontSize: "12px",
+                            marginRight: "4px",
+                            color: "#003465",
+                          }}
+                        />
+                        <span
+                          className={`${
+                            isLoading ? "placeholder rounded-1 " : ""
+                          }`}
+                          style={{ fontSize: "12px", color: "#6c757d" }}
+                        >
+                          {(PatientData?.address?.city?.name || "N/A") +
+                            "-" +
+                            (PatientData?.address?.state?.name || "N/A")}
                         </span>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="d-flex" style={{ gap: '18px' }}>
-                  <div className="d-flex align-items-center p-3 rounded-1 position-relative" style={{ gap: '20px', width: '9vw', backgroundColor: (parseInt(String(PatientData?.weeklyFitbitData?.avgSteps || '').replace(',', '')) || 7000) < 6000 ? '#fef7f7' : 'white', boxShadow: (parseInt(String(PatientData?.weeklyFitbitData?.avgSteps || '').replace(',', '')) || 7000) < 6000 ? '0 0 8px rgba(220, 53, 69, 0.3)' : 'none' }}>
-                    <img src={stepsIcon} alt="Steps" style={{ width: '24px', height: '24px' }} />
+                <div className="d-flex" style={{ gap: "18px" }}>
+                  <div
+                    className="d-flex align-items-center p-3 rounded-1 position-relative"
+                    style={{
+                      gap: "20px",
+                      width: "9vw",
+                      backgroundColor:
+                        (parseInt(
+                          String(
+                            PatientData?.weeklyFitbitData?.avgSteps?.value ||
+                              PatientData?.weeklyFitbitData?.avgSteps ||
+                              ""
+                          ).replace(",", "")
+                        ) || 7000) < 6000
+                          ? "#fef7f7"
+                          : "white",
+                      boxShadow:
+                        (parseInt(
+                          String(
+                            PatientData?.weeklyFitbitData?.avgSteps?.value ||
+                              PatientData?.weeklyFitbitData?.avgSteps ||
+                              ""
+                          ).replace(",", "")
+                        ) || 7000) < 6000
+                          ? "0 0 8px rgba(220, 53, 69, 0.3)"
+                          : "none",
+                    }}
+                  >
+                    <img
+                      src={stepsIcon}
+                      alt="Steps"
+                      style={{ width: "24px", height: "24px" }}
+                    />
                     <div>
-                      <div className='text-nowrap' style={{ fontSize: '12px', color: '#6c757d', marginBottom: '2px' }}>Avg Steps</div>
-                      <div style={{ fontSize: '16px', fontWeight: '600' }} className={`${isLoading ? 'placeholder rounded-1' : ''}`}>
-                        {PatientData?.weeklyFitbitData?.avgSteps || '-'}
+                      <div
+                        className="text-nowrap"
+                        style={{
+                          fontSize: "12px",
+                          color: "#6c757d",
+                          marginBottom: "2px",
+                        }}
+                      >
+                        Avg Steps
+                      </div>
+                      <div
+                        style={{ fontSize: "16px", fontWeight: "600" }}
+                        className={`${
+                          isLoading ? "placeholder rounded-1" : ""
+                        }`}
+                      >
+                        {PatientData?.weeklyFitbitData?.avgSteps?.value ||
+                          (typeof PatientData?.weeklyFitbitData?.avgSteps ===
+                          "number"
+                            ? PatientData?.weeklyFitbitData?.avgSteps
+                            : null) ||
+                          "-"}
                       </div>
                     </div>
-                    {(parseInt(String(PatientData?.weeklyFitbitData?.averageDailySteps || '').replace(',', ''))) >= 6000 ?
-                      <FaCheckCircle style={{ position: 'absolute', bottom: '4px', right: '4px', color: '#28a745', fontSize: '14px' }} /> :
-                      <FaExclamationTriangle style={{ position: 'absolute', bottom: '4px', right: '4px', color: '#dc3545', fontSize: '14px' }} />
-                    }
+                    {parseInt(
+                      String(
+                        PatientData?.weeklyFitbitData?.avgSteps?.value ||
+                          PatientData?.weeklyFitbitData?.avgSteps ||
+                          ""
+                      ).replace(",", "")
+                    ) >= 6000 ? (
+                      <FaCheckCircle
+                        style={{
+                          position: "absolute",
+                          bottom: "4px",
+                          right: "4px",
+                          color: "#28a745",
+                          fontSize: "14px",
+                        }}
+                      />
+                    ) : (
+                      <FaExclamationTriangle
+                        style={{
+                          position: "absolute",
+                          bottom: "4px",
+                          right: "4px",
+                          color: "#de1c1c",
+                          fontSize: "14px",
+                        }}
+                      />
+                    )}
                   </div>
-                  <div className="d-flex align-items-center p-3 rounded-1 position-relative" style={{ gap: '16px', width: '9vw', backgroundColor: ((parseInt(PatientData?.weeklyFitbitData?.heartRate) || 80) < 60 || (parseInt(PatientData?.weeklyFitbitData?.heartRate) || 80) > 100) ? '#fef7f7' : 'white', boxShadow: ((parseInt(PatientData?.weeklyFitbitData?.heartRate) || 80) < 60 || (parseInt(PatientData?.weeklyFitbitData?.heartRate) || 80) > 100) ? '0 0 8px rgba(220, 53, 69, 0.3)' : 'none' }}>
-                    <img src={heartRateIcon} alt="Heart Rate" style={{ width: '26px', height: '26px' }} />
+                  <div
+                    className="d-flex align-items-center p-3 rounded-1 position-relative"
+                    style={{
+                      gap: "16px",
+                      width: "9vw",
+                      backgroundColor:
+                        (parseInt(
+                          PatientData?.weeklyFitbitData?.heartRate?.value ||
+                            (typeof PatientData?.weeklyFitbitData?.heartRate ===
+                            "number"
+                              ? PatientData?.weeklyFitbitData?.heartRate
+                              : null)
+                        ) || 80) < 60 ||
+                        (parseInt(
+                          PatientData?.weeklyFitbitData?.heartRate?.value ||
+                            (typeof PatientData?.weeklyFitbitData?.heartRate ===
+                            "number"
+                              ? PatientData?.weeklyFitbitData?.heartRate
+                              : null)
+                        ) || 80) > 100
+                          ? "#fef7f7"
+                          : "white",
+                      boxShadow:
+                        (parseInt(
+                          PatientData?.weeklyFitbitData?.heartRate?.value ||
+                            (typeof PatientData?.weeklyFitbitData?.heartRate ===
+                            "number"
+                              ? PatientData?.weeklyFitbitData?.heartRate
+                              : null)
+                        ) || 80) < 60 ||
+                        (parseInt(
+                          PatientData?.weeklyFitbitData?.heartRate?.value ||
+                            (typeof PatientData?.weeklyFitbitData?.heartRate ===
+                            "number"
+                              ? PatientData?.weeklyFitbitData?.heartRate
+                              : null)
+                        ) || 80) > 100
+                          ? "0 0 8px rgba(220, 53, 69, 0.3)"
+                          : "none",
+                    }}
+                  >
+                    <img
+                      src={heartRateIcon}
+                      alt="Heart Rate"
+                      style={{ width: "26px", height: "26px" }}
+                    />
                     <div>
-                      <div className='text-nowrap' style={{ fontSize: '12px', color: '#6c757d', marginBottom: '2px' }}>Avg Heart Rate</div>
-                      <div style={{ fontSize: '16px', fontWeight: '600' }} className={`${isLoading ? 'placeholder rounded-1' : ''}`}>
-                        {PatientData?.weeklyFitbitData?.heartRate || '80'} <span style={{ fontSize: '16px' }}>bpm</span>
+                      <div
+                        className="text-nowrap"
+                        style={{
+                          fontSize: "12px",
+                          color: "#6c757d",
+                          marginBottom: "2px",
+                        }}
+                      >
+                        Avg Heart Rate
+                      </div>
+                      <div
+                        style={{ fontSize: "16px", fontWeight: "600" }}
+                        className={`${
+                          isLoading ? "placeholder rounded-1" : ""
+                        }`}
+                      >
+                        {PatientData?.weeklyFitbitData?.heartRate?.value ||
+                          (typeof PatientData?.weeklyFitbitData?.heartRate ===
+                          "number"
+                            ? PatientData?.weeklyFitbitData?.heartRate
+                            : null) ||
+                          "80"}{" "}
+                        <span style={{ fontSize: "16px" }}>bpm</span>
                       </div>
                     </div>
-                    {(parseInt(PatientData?.weeklyFitbitData?.heartRate) || 80) >= 60 && (parseInt(PatientData?.weeklyFitbitData?.heartRate) || 80) <= 100 ?
-                      <FaCheckCircle style={{ position: 'absolute', bottom: '4px', right: '4px', color: '#28a745', fontSize: '14px' }} /> :
-                      <FaExclamationTriangle style={{ position: 'absolute', bottom: '4px', right: '4px', color: '#dc3545', fontSize: '14px' }} />
-                    }
+                    {(parseInt(
+                      PatientData?.weeklyFitbitData?.heartRate?.value ||
+                        (typeof PatientData?.weeklyFitbitData?.heartRate ===
+                        "number"
+                          ? PatientData?.weeklyFitbitData?.heartRate
+                          : null)
+                    ) || 80) >= 60 &&
+                    (parseInt(
+                      PatientData?.weeklyFitbitData?.heartRate?.value ||
+                        (typeof PatientData?.weeklyFitbitData?.heartRate ===
+                        "number"
+                          ? PatientData?.weeklyFitbitData?.heartRate
+                          : null)
+                    ) || 80) <= 100 ? (
+                      <FaCheckCircle
+                        style={{
+                          position: "absolute",
+                          bottom: "4px",
+                          right: "4px",
+                          color: "#28a745",
+                          fontSize: "14px",
+                        }}
+                      />
+                    ) : (
+                      <FaExclamationTriangle
+                        style={{
+                          position: "absolute",
+                          bottom: "4px",
+                          right: "4px",
+                          color: "#de1c1c",
+                          fontSize: "14px",
+                        }}
+                      />
+                    )}
                   </div>
-                  <div className="d-flex align-items-center p-3 rounded-1 position-relative" style={{ gap: '16px', width: '9vw', backgroundColor: (parseInt(PatientData?.weeklyFitbitData?.avgSleepDuration) || 360) < 420 ? '#fef7f7' : 'white', boxShadow: (parseInt(PatientData?.weeklyFitbitData?.avgSleepDuration) || 360) < 420 ? '0 0 8px rgba(220, 53, 69, 0.3)' : 'none' }}>
-                    <img src={sleepIcon} alt="Sleep" style={{ width: '24px', height: '24px' }} />
+                  <div
+                    className="d-flex align-items-center p-3 rounded-1 position-relative"
+                    style={{
+                      gap: "16px",
+                      width: "9vw",
+                      backgroundColor:
+                        (parseInt(
+                          PatientData?.weeklyFitbitData?.avgSleepDuration
+                            ?.value ||
+                            (typeof PatientData?.weeklyFitbitData
+                              ?.avgSleepDuration === "number"
+                              ? PatientData?.weeklyFitbitData?.avgSleepDuration
+                              : null)
+                        ) || 360) < 420
+                          ? "#fef7f7"
+                          : "white",
+                      boxShadow:
+                        (parseInt(
+                          PatientData?.weeklyFitbitData?.avgSleepDuration
+                            ?.value ||
+                            (typeof PatientData?.weeklyFitbitData
+                              ?.avgSleepDuration === "number"
+                              ? PatientData?.weeklyFitbitData?.avgSleepDuration
+                              : null)
+                        ) || 360) < 420
+                          ? "0 0 8px rgba(220, 53, 69, 0.3)"
+                          : "none",
+                    }}
+                  >
+                    <img
+                      src={sleepIcon}
+                      alt="Sleep"
+                      style={{ width: "24px", height: "24px" }}
+                    />
                     <div>
-                      <div className='text-nowrap' style={{ fontSize: '12px', color: '#6c757d', marginBottom: '2px' }}>Avg Sleep Min</div>
-                      <div style={{ fontSize: '16px', fontWeight: '600' }} className={`${isLoading ? 'placeholder rounded-1' : ''}`}>
-                        {PatientData?.weeklyFitbitData?.avgSleepDuration || '-'} <span style={{ fontSize: '16px' }}>min</span>
+                      <div
+                        className="text-nowrap"
+                        style={{
+                          fontSize: "12px",
+                          color: "#6c757d",
+                          marginBottom: "2px",
+                        }}
+                      >
+                        Avg Sleep Min
+                      </div>
+                      <div
+                        style={{ fontSize: "16px", fontWeight: "600" }}
+                        className={`${
+                          isLoading ? "placeholder rounded-1" : ""
+                        }`}
+                      >
+                        {PatientData?.weeklyFitbitData?.avgSleepDuration
+                          ?.value ||
+                          (typeof PatientData?.weeklyFitbitData
+                            ?.avgSleepDuration === "number"
+                            ? PatientData?.weeklyFitbitData?.avgSleepDuration
+                            : null) ||
+                          "-"}{" "}
+                        <span style={{ fontSize: "16px" }}>min</span>
                       </div>
                     </div>
-                    {(parseInt(PatientData?.weeklyFitbitData?.avgSleepDuration)) >= 420 ?
-                      <FaCheckCircle style={{ position: 'absolute', bottom: '4px', right: '4px', color: '#28a745', fontSize: '14px' }} /> :
-                      <FaExclamationTriangle style={{ position: 'absolute', bottom: '4px', right: '4px', color: '#dc3545', fontSize: '14px' }} />
-                    }
+                    {parseInt(
+                      PatientData?.weeklyFitbitData?.avgSleepDuration?.value ||
+                        (typeof PatientData?.weeklyFitbitData
+                          ?.avgSleepDuration === "number"
+                          ? PatientData?.weeklyFitbitData?.avgSleepDuration
+                          : null)
+                    ) >= 420 ? (
+                      <FaCheckCircle
+                        style={{
+                          position: "absolute",
+                          bottom: "4px",
+                          right: "4px",
+                          color: "#28a745",
+                          fontSize: "14px",
+                        }}
+                      />
+                    ) : (
+                      <FaExclamationTriangle
+                        style={{
+                          position: "absolute",
+                          bottom: "4px",
+                          right: "4px",
+                          color: "#de1c1c",
+                          fontSize: "14px",
+                        }}
+                      />
+                    )}
                   </div>
-                  <div className="d-flex align-items-center p-3 rounded-1 position-relative" style={{ gap: '16px', width: '9vw', backgroundColor: (parseFloat(PatientData?.weeklyFitbitData?.avgWater) || 2700) < 2500 ? '#fef7f7' : 'white', boxShadow: (parseFloat(PatientData?.weeklyFitbitData?.avgWater) || 2700) < 2500 ? '0 0 8px rgba(220, 53, 69, 0.3)' : 'none' }}>
-                    <img src={waterIntakeIcon} alt="Water Intake" style={{ width: '24px', height: '24px' }} />
+                  <div
+                    className="d-flex align-items-center p-3 rounded-1 position-relative"
+                    style={{
+                      gap: "16px",
+                      width: "9vw",
+                      backgroundColor:
+                        (parseFloat(
+                          PatientData?.weeklyFitbitData?.avgWater?.value ||
+                            (typeof PatientData?.weeklyFitbitData?.avgWater ===
+                            "number"
+                              ? PatientData?.weeklyFitbitData?.avgWater
+                              : null)
+                        ) || 2700) < 2500
+                          ? "#fef7f7"
+                          : "white",
+                      boxShadow:
+                        (parseFloat(
+                          PatientData?.weeklyFitbitData?.avgWater?.value ||
+                            (typeof PatientData?.weeklyFitbitData?.avgWater ===
+                            "number"
+                              ? PatientData?.weeklyFitbitData?.avgWater
+                              : null)
+                        ) || 2700) < 2500
+                          ? "0 0 8px rgba(220, 53, 69, 0.3)"
+                          : "none",
+                    }}
+                  >
+                    <img
+                      src={waterIntakeIcon}
+                      alt="Water Intake"
+                      style={{ width: "24px", height: "24px" }}
+                    />
                     <div>
-                      <div className='text-nowrap' style={{ fontSize: '12px', color: '#6c757d', marginBottom: '2px' }}>Avg Water Intake</div>
-                      <div style={{ fontSize: '16px', fontWeight: '600' }} className={`${isLoading ? 'placeholder rounded-1' : ''}`}>
-                        {PatientData?.weeklyFitbitData?.avgWater || '-'} <span style={{ fontSize: '16px' }}>ml/Day</span>
+                      <div
+                        className="text-nowrap"
+                        style={{
+                          fontSize: "12px",
+                          color: "#6c757d",
+                          marginBottom: "2px",
+                        }}
+                      >
+                        Avg Water Intake
+                      </div>
+                      <div
+                        style={{ fontSize: "16px", fontWeight: "600" }}
+                        className={`${
+                          isLoading ? "placeholder rounded-1" : ""
+                        }`}
+                      >
+                        {PatientData?.weeklyFitbitData?.avgWater?.value ||
+                          (typeof PatientData?.weeklyFitbitData?.avgWater ===
+                          "number"
+                            ? PatientData?.weeklyFitbitData?.avgWater
+                            : null) ||
+                          "-"}{" "}
+                        <span style={{ fontSize: "16px" }}>ml/Day</span>
                       </div>
                     </div>
-                    {(parseFloat(PatientData?.weeklyFitbitData?.avgWater)) >= 2500 ?
-                      <FaCheckCircle style={{ position: 'absolute', bottom: '4px', right: '4px', color: '#28a745', fontSize: '14px' }} /> :
-                      <FaExclamationTriangle style={{ position: 'absolute', bottom: '4px', right: '4px', color: '#dc3545', fontSize: '14px' }} />
-                    }
+                    {parseFloat(
+                      PatientData?.weeklyFitbitData?.avgWater?.value ||
+                        (typeof PatientData?.weeklyFitbitData?.avgWater ===
+                        "number"
+                          ? PatientData?.weeklyFitbitData?.avgWater
+                          : null)
+                    ) >= 2500 ? (
+                      <FaCheckCircle
+                        style={{
+                          position: "absolute",
+                          bottom: "4px",
+                          right: "4px",
+                          color: "#28a745",
+                          fontSize: "14px",
+                        }}
+                      />
+                    ) : (
+                      <FaExclamationTriangle
+                        style={{
+                          position: "absolute",
+                          bottom: "4px",
+                          right: "4px",
+                          color: "#de1c1c",
+                          fontSize: "14px",
+                        }}
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -327,7 +823,7 @@ const PatientDetails = ({  onShowReports, showReports, activeTab, setActiveTab }
         patientId={id}
       />
     </div>
-  )
-}
+  );
+};
 
-export default PatientDetails
+export default PatientDetails;

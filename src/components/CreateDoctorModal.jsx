@@ -162,7 +162,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
       //   e.target.value = '';
       //   return;
       // }
-      
+
       // Validate file size (5MB limit)
       // const maxSize = 5 * 1024 * 1024; // 5MB
       // if (file.size > maxSize) {
@@ -170,7 +170,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
       //   e.target.value = '';
       //   return;
       // }
-      
+
       setSelectedImage(file);
       console.log("selectedImage set to:", file.name); // Debug log
     } else {
@@ -385,7 +385,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
     const filteredPayload = cleanPayload(payload);
 
     console.log("selectedImage:", selectedImage); // Debug log
-    
+
     // If image selected, send as FormData
     if (selectedImage && selectedImage instanceof File) {
       console.log("Sending as FormData with image"); // Debug log
@@ -464,14 +464,19 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     placeholder="Enter First Name"
                     autoComplete="off"
                     onKeyDown={(e) => {
-                      preventFirstSpace(e);
-                      // Block emojis, numbers, and special characters
+                      // Prevent space as the first character
+                      if (e.key === " " && e.target.selectionStart === 0) {
+                        e.preventDefault();
+                      }
+
                       const isEmoji =
-                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                        /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/u.test(
                           e.key
                         );
+                      const isValidChar = /^[a-zA-Z\s]$/.test(e.key);
+
                       if (
-                        (!/^[a-zA-Z\s]$/.test(e.key) || isEmoji) &&
+                        (!isValidChar || isEmoji) &&
                         e.key.length === 1 &&
                         !["Backspace", "Delete", "Tab", "Enter"].includes(e.key)
                       ) {
@@ -481,7 +486,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     onPaste={(e) => {
                       const pastedText = e.clipboardData.getData("text");
                       const hasEmoji =
-                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                        /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/u.test(
                           pastedText
                         );
                       if (!/^[A-Za-z\s]+$/.test(pastedText) || hasEmoji) {
@@ -495,25 +500,22 @@ const CreateDoctorModal = ({ show, onHide }) => {
                         message: "Name is too short",
                       },
                       pattern: {
-                        value: /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+                        value: /^[A-Za-z]+(?:\s[A-Za-z]+)*\s?$/,
                         message:
-                          "Only alphabets are allowed (no emojis, numbers, or special characters)",
+                          "Only alphabets and single spaces between words are allowed",
                       },
                       validate: {
-                        noLeadingSpace: (value) =>
-                          value?.trim() === value ||
-                          "Name cannot start or end with spaces",
+                        noFirstSpace: (value) =>
+                          !/^\s/.test(value) ||
+                          "Name cannot start with a space",
                         noMultipleSpaces: (value) =>
                           !/\s{2,}/.test(value) ||
                           "Multiple consecutive spaces are not allowed",
-                        noEmojis: (value) =>
-                          !/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
-                            value
-                          ) || "Emojis are not allowed",
                       },
                     })}
                     onChange={(e) => {
                       let value = e.target.value;
+                      // Capitalize first character only
                       if (value.length > 0) {
                         value = value.charAt(0).toUpperCase() + value.slice(1);
                       }
@@ -543,14 +545,19 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     placeholder="Enter Last Name"
                     autoComplete="off"
                     onKeyDown={(e) => {
-                      preventFirstSpace(e);
-                      // Block emojis, numbers, and special characters
+                      // Prevent space as the first character
+                      if (e.key === " " && e.target.selectionStart === 0) {
+                        e.preventDefault();
+                      }
+
                       const isEmoji =
-                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                        /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/u.test(
                           e.key
                         );
+                      const isValidChar = /^[a-zA-Z\s]$/.test(e.key);
+
                       if (
-                        (!/^[a-zA-Z\s]$/.test(e.key) || isEmoji) &&
+                        (!isValidChar || isEmoji) &&
                         e.key.length === 1 &&
                         !["Backspace", "Delete", "Tab", "Enter"].includes(e.key)
                       ) {
@@ -560,7 +567,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
                     onPaste={(e) => {
                       const pastedText = e.clipboardData.getData("text");
                       const hasEmoji =
-                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                        /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/u.test(
                           pastedText
                         );
                       if (!/^[A-Za-z\s]+$/.test(pastedText) || hasEmoji) {
@@ -574,21 +581,17 @@ const CreateDoctorModal = ({ show, onHide }) => {
                         message: "Name is too short",
                       },
                       pattern: {
-                        value: /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+                        value: /^[A-Za-z]+(?:\s[A-Za-z]+)*\s?$/,
                         message:
-                          "Only alphabets are allowed (no emojis, numbers, or special characters)",
+                          "Only alphabets and single spaces between words are allowed",
                       },
                       validate: {
-                        noLeadingSpace: (value) =>
-                          value?.trim() === value ||
-                          "Name cannot start or end with spaces",
+                        noFirstSpace: (value) =>
+                          !/^\s/.test(value) ||
+                          "Name cannot start with a space",
                         noMultipleSpaces: (value) =>
                           !/\s{2,}/.test(value) ||
                           "Multiple consecutive spaces are not allowed",
-                        noEmojis: (value) =>
-                          !/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
-                            value
-                          ) || "Emojis are not allowed",
                       },
                     })}
                     onChange={(e) => {

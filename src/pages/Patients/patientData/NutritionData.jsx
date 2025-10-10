@@ -90,7 +90,8 @@ const NutritionData = ({ isExpanded, onExpand }) => {
         <h2 className="accordion-header">
           <div
             className="py-2 d-flex align-items-center justify-content-between"
-            style={{ backgroundColor: "#f8f9fa", padding: "16px 20px" }}
+            // style={{ backgroundColor: "#f8f9fa", padding: "16px 20px" }}
+            style={{ backgroundColor: "white", padding: "16px 20px" }}
           >
             <div className="d-flex align-items-center">
               <span

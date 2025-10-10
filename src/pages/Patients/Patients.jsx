@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Table, Pagination, Form, Modal, Button } from "react-bootstrap";
 import { FaEye } from "react-icons/fa";
 import { TbPencilMinus } from "react-icons/tb";
-import { FiSearch, FiFilter } from "react-icons/fi";
+import { FiSearch, FiFilter, FiX } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import CreatePatientModal from "../../components/CreatePatientModal";
 import UpdatePatientModal from "../../components/UpdatePatientModal";
@@ -381,6 +381,20 @@ const Patients = () => {
                     className="form-control border-0"
                     placeholder="Search patients..."
                   />
+                  {searchTerm && (
+                    <FiX
+                      style={{
+                        position: "absolute",
+                        right: "32px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        color: "#6c757d",
+                        fontSize: "16px",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => setSearchTerm("")}
+                    />
+                  )}
                   <FiSearch
                     style={{
                       position: "absolute",
