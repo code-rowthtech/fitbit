@@ -9,7 +9,7 @@ import {
   Tooltip,
 } from "react-bootstrap";
 import { TbPencilMinus } from "react-icons/tb";
-import { FiSearch, FiFilter } from "react-icons/fi";
+import { FiSearch, FiFilter, FiX } from "react-icons/fi";
 import CreateDoctorModal from "../../components/CreateDoctorModal";
 import UpdateDoctorModal from "../../components/UpdateDoctorModal";
 import { getAllDoctors, updateDoctor } from "../../redux/actions";
@@ -272,6 +272,20 @@ const Doctors = () => {
                     className="form-control border-0"
                     placeholder="Search doctors..."
                   />
+                  {searchTerm && (
+                    <FiX
+                      style={{
+                        position: "absolute",
+                        right: "32px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        color: "#6c757d",
+                        fontSize: "16px",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => setSearchTerm("")}
+                    />
+                  )}
                   <FiSearch
                     style={{
                       position: "absolute",
