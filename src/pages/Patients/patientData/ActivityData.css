@@ -1,18 +1,18 @@
 .custom-scroll::-webkit-scrollbar {
-    width: 6px;
+  width: 6px;
 }
 
 .custom-scroll::-webkit-scrollbar-track {
-    background: #E8F2FF;
-    border-radius: 10px;
+  background: #e8f2ff;
+  border-radius: 10px;
 }
 
 .custom-scroll::-webkit-scrollbar-thumb {
-    background: #003465;
-    border-radius: 10px;
-    transition: background 0.3s ease;
+  background: #003465;
+  border-radius: 10px;
+  transition: background 0.3s ease;
 }
 
 .custom-scroll::-webkit-scrollbar-thumb:hover {
-    background: #002040;
+  background: #002040;
 }

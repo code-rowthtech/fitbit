@@ -53,7 +53,7 @@
 
 .card-header i {
   font-size: 1.5rem;
-  color: #52C3BF;
+  color: #52c3bf;
 }
 
 .card-content {
@@ -94,8 +94,6 @@
   margin-top: 0.1rem;
 }
 
-
-
 @media (max-width: 768px) {
   .patient-dashboard {
     padding: 1rem;
@@ -116,7 +114,7 @@
   top: 5px;
   right: 5px;
   cursor: pointer;
-  color: #52C3BF;
+  color: #52c3bf;
   font-size: 18px;
   z-index: 10;
 }
@@ -167,7 +165,7 @@
 }
 
 .monthly-table-container tbody tr:nth-child(even) {
-  background-color: #E0ECF8 !important;
+  background-color: #e0ecf8 !important;
 }
 
 .monthly-table-container tbody tr:nth-child(odd) {
@@ -179,7 +177,7 @@
 }
 
 .month-navigation {
-  background-color: #F9FAFB;
+  background-color: #f9fafb;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
 }
@@ -203,7 +201,7 @@
 }
 
 .table-header {
-  background-color: #E0ECF8 !important;
+  background-color: #e0ecf8 !important;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -211,7 +209,7 @@
 
 .sticky-metrics {
   width: 150px;
-  background-color: #E0ECF8 !important;
+  background-color: #e0ecf8 !important;
   position: sticky;
   left: 0;
   z-index: 11;
@@ -219,7 +217,7 @@
 
 .sticky-normal-range {
   width: 300px;
-  background-color: #E0ECF8 !important;
+  background-color: #e0ecf8 !important;
   position: sticky;
   left: 150px;
   z-index: 11;
@@ -228,7 +226,7 @@
 .day-header {
   width: 60px;
   text-align: center;
-  background-color: #E0ECF8 !important;
+  background-color: #e0ecf8 !important;
 }
 
 .metrics-cell {
@@ -248,13 +246,11 @@
   z-index: 5;
   background-color: inherit;
   font-size: 10px !important;
-
 }
 
 .day-data-cell {
   width: 70px;
   font-size: 10px !important;
-
 }
 
 .metric-icon {
