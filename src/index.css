@@ -26,14 +26,15 @@ a {
 }
 
 a:hover {
-  color: #52C3BF;
+  color: #52c3bf;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  font-family: "Proxima Nova Regular", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+  font-family: "Proxima Nova Regular", "Helvetica Neue", Helvetica, Roboto,
+    Arial, sans-serif;
   line-height: 1.5;
   font-weight: 500;
 }
@@ -72,21 +73,19 @@ h1 {
   outline: 4px auto -webkit-focus-ring-color;
 } */
 
-
-
 .table {
   border-collapse: separate !important;
   border-spacing: 0 !important;
 }
 
 .table .thead-custom {
-  background-color: #E0ECF8 !important;
+  background-color: #e0ecf8 !important;
   border-top-left-radius: 8px !important;
   border-top-right-radius: 8px !important;
 }
 
 .table .thead-custom th {
-  background-color: #E0ECF8 !important;
+  background-color: #e0ecf8 !important;
   color: #003465 !important;
   border: none !important;
 }
@@ -100,8 +99,8 @@ h1 {
 }
 
 .badge-active {
-  background-color: #C3F8DB !important;
-  color: #10B95C !important;
+  background-color: #c3f8db !important;
+  color: #10b95c !important;
 }
 
 /* Patient Details Tabs */
@@ -156,14 +155,11 @@ h1 {
   border-color: #dee2e6;
 }
 
-
 .patient-tab-arrow {
   margin-left: 8px;
   font-size: 10px;
   transition: transform 0.3s ease;
 }
-
-
 
 .patient-tab:first-child {
   border-top-left-radius: 10px !important;
