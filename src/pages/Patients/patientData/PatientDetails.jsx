@@ -329,7 +329,7 @@ const PatientDetails = ({
                         width: "76px",
                         height: "84px",
                         backgroundColor: "#DCE6F5",
-                        color: "white",
+                        color: "#16213D",
                         fontSize: "20px",
                         fontWeight: "bold",
                         borderRadius: "12px",
@@ -457,7 +457,7 @@ const PatientDetails = ({
                               ""
                           ).replace(",", "")
                         ) || 7000) < 6000
-                          ? "#fef7f7"
+                          ? "#FFC7C7"
                           : "white",
                       boxShadow:
                         (parseInt(
@@ -498,7 +498,16 @@ const PatientDetails = ({
                           "number"
                             ? PatientData?.weeklyFitbitData?.avgSteps
                             : null) ||
-                          "-"}
+                          "-"}{" "}
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            color: "black",
+                            marginBottom: "2px",
+                          }}
+                        >
+                          steps/Week
+                        </span>
                       </div>
                     </div>
                     {parseInt(
@@ -549,7 +558,7 @@ const PatientDetails = ({
                               ? PatientData?.weeklyFitbitData?.heartRate
                               : null)
                         ) || 80) > 100
-                          ? "#fef7f7"
+                          ? "#FFC7C7"
                           : "white",
                       boxShadow:
                         (parseInt(
@@ -598,7 +607,15 @@ const PatientDetails = ({
                             ? PatientData?.weeklyFitbitData?.heartRate
                             : null) ||
                           "80"}{" "}
-                        <span style={{ fontSize: "16px" }}>bpm</span>
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            color: "black",
+                            marginBottom: "2px",
+                          }}
+                        >
+                          bpm/Week
+                        </span>
                       </div>
                     </div>
                     {(parseInt(
@@ -650,7 +667,7 @@ const PatientDetails = ({
                               ? PatientData?.weeklyFitbitData?.avgSleepDuration
                               : null)
                         ) || 360) < 420
-                          ? "#fef7f7"
+                          ? "#FFC7C7"
                           : "white",
                       boxShadow:
                         (parseInt(
@@ -694,7 +711,15 @@ const PatientDetails = ({
                             ? PatientData?.weeklyFitbitData?.avgSleepDuration
                             : null) ||
                           "-"}{" "}
-                        <span style={{ fontSize: "16px" }}>min</span>
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            color: "black",
+                            marginBottom: "2px",
+                          }}
+                        >
+                          min/Week
+                        </span>
                       </div>
                     </div>
                     {parseInt(
@@ -738,7 +763,7 @@ const PatientDetails = ({
                               ? PatientData?.weeklyFitbitData?.avgWater
                               : null)
                         ) || 2700) < 2500
-                          ? "#fef7f7"
+                          ? "#FFC7C7"
                           : "white",
                       boxShadow:
                         (parseFloat(
@@ -780,7 +805,15 @@ const PatientDetails = ({
                             ? PatientData?.weeklyFitbitData?.avgWater
                             : null) ||
                           "-"}{" "}
-                        <span style={{ fontSize: "16px" }}>ml/Day</span>
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            color: "black",
+                            marginBottom: "2px",
+                          }}
+                        >
+                          ml/Week
+                        </span>
                       </div>
                     </div>
                     {parseFloat(
