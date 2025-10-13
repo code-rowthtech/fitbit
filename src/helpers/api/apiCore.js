@@ -206,8 +206,11 @@ class APICore {
         "Your session has expired. Redirecting you to the login page."
       );
       sessionStorage.removeItem(AUTH_SESSION_KEY);
-      localStorage.clear();
-      window.location.href = "/login";
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 1000);
       return false;
     } else {
       return true;

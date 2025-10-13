@@ -10,6 +10,7 @@ import {
 import { authApiResponseSuccess, authApiResponseError } from "./actions";
 import { AuthActionTypes } from "./constants";
 import { setAuthorization } from "../../helpers/api/apiCore";
+import { clearAuthData } from "../../utils/tokenUtils";
 import api from "../../services/api";
 
 /**
@@ -23,6 +24,7 @@ function* login({ payload: { username, password } }) {
       email: username,
       password: password,
     });
+    console.log("Login Response:", response); // Debug log
     if (response?.status === 200) {
       const userData = {
         id: response?.data?.user?.id,
@@ -35,13 +37,8 @@ function* login({ payload: { username, password } }) {
       };
       localStorage.setItem("token", response?.data?.token);
       localStorage.setItem("user", JSON.stringify(userData));
-
-      // Also store in sessionStorage for APICore compatibility
       sessionStorage.setItem("fitbit_user", JSON.stringify(userData));
-
-      // Set authorization header immediately after login
       setAuthorization(response?.data?.token);
-
       yield put(authApiResponseSuccess(AuthActionTypes.LOGIN_USER, userData));
     } else {
       const errorMessage = response?.data?.message || "Login failed";
@@ -68,16 +65,14 @@ function* logout() {
     }
     yield put(authApiResponseSuccess(AuthActionTypes.LOGOUT_USER, {}));
 
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    sessionStorage.removeItem("fitbit_user");
+    // Use utility function to clear auth data
+    clearAuthData();
 
     // Clear authorization header
     setAuthorization(null);
   } catch (error) {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    sessionStorage.removeItem("fitbit_user");
+    // Use utility function to clear auth data even on error
+    clearAuthData();
     yield put(
       authApiResponseError(
         AuthActionTypes.LOGOUT_USER,
