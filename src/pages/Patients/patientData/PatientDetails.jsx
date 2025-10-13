@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import "./PatientDetails.css";
 import {
   FaChevronDown,
   FaCheckCircle,
@@ -23,10 +24,12 @@ const PatientDetails = ({
   showReports,
   activeTab,
   setActiveTab,
+  accordionOpen: externalAccordionOpen,
 }) => {
   const dispatch = useDispatch();
 
   const [accordionOpen, setAccordionOpen] = useState(true);
+  const isAccordionOpen = externalAccordionOpen !== undefined ? externalAccordionOpen : accordionOpen;
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const { id: pathId } = useParams();
   const [searchParams] = useSearchParams();
@@ -108,7 +111,7 @@ const PatientDetails = ({
         borderTopRightRadius: "10px",
       }}
     >
-      {!showReports && (
+      {!showReports && !isAccordionOpen && (
         <div>
           {/* tab section */}
           <div className="d-flex patient-tabs">
@@ -144,16 +147,16 @@ const PatientDetails = ({
         <div className="accordion-item">
           <h2 className="accordion-header">
             <button
-              className={`accordion-button border-bottom py-0 ps-0 ${
+              className={`accordion-button border-bottom py-0 ps-0 custom-accordion-button ${
                 !accordionOpen ? "collapsed" : ""
               }`}
               type="button"
-              onClick={() => setAccordionOpen(!accordionOpen)}
               style={{
                 backgroundColor: "#F6FAFF",
                 border: "none",
                 overflow: "hidden",
                 boxShadow: "none",
+                pointerEvents: "none",
               }}
             >
               <div className="d-flex justify-content-between align-items-center w-100 me-3">
@@ -219,6 +222,7 @@ const PatientDetails = ({
                         color: "#003465",
                         fontSize: "12px",
                         border: "1px solid #003465",
+                        pointerEvents: "auto",
                       }}
                     >
                       Connection Pending
@@ -233,6 +237,7 @@ const PatientDetails = ({
                         backgroundColor: "#003465",
                         color: "white",
                         border: "1px solid #003465",
+                        pointerEvents: "auto",
                       }}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -249,6 +254,7 @@ const PatientDetails = ({
                         color: "#003465",
                         fontSize: "12px",
                         border: "1px solid #003465",
+                        pointerEvents: "auto",
                       }}
                     >
                       Connected
@@ -263,13 +269,12 @@ const PatientDetails = ({
                       cursor: "pointer",
                       marginRight: "18px",
                       transition: "all 0.2s ease",
+                      pointerEvents: "auto",
                     }}
                     onMouseEnter={(e) => {
-                      // e.target.style.color = '003465';
                       e.target.style.backgroundColor = "#E0ECF8";
                     }}
                     onMouseLeave={(e) => {
-                      // e.target.style.color = '#003465';
                       e.target.style.backgroundColor = "transparent";
                     }}
                     onClick={(e) => {
@@ -285,6 +290,7 @@ const PatientDetails = ({
                       marginRight: "8px",
                       textDecoration: "underline",
                       cursor: "pointer",
+                      pointerEvents: "auto",
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -293,13 +299,25 @@ const PatientDetails = ({
                   >
                     {showReports ? "Back" : "All Reports"}
                   </span>
+                  <FaChevronDown
+                  className="ms-2"
+                    style={{
+                      fontSize: "16px",
+                      color: "#003465",
+                      cursor: "pointer",
+                      transform: accordionOpen ? "rotate(180deg)" : "rotate(0deg)",
+                      transition: "transform 0.2s ease",
+                      pointerEvents: "auto",
+                    }}
+                    onClick={() => setAccordionOpen(!accordionOpen)}
+                  />
                 </div>
               </div>
             </button>
           </h2>
           <div
             className={`accordion-collapse collapse ${
-              accordionOpen ? "show" : ""
+              isAccordionOpen ? "show" : ""
             } ${isLoading ? "placeholder-glow " : ""}`}
           >
             <div
@@ -456,9 +474,19 @@ const PatientDetails = ({
                               PatientData?.weeklyFitbitData?.avgSteps ||
                               ""
                           ).replace(",", "")
-                        ) || 7000) < 6000
-                          ? "#FFC7C7"
+                        ) || 0) < 6000
+                          ? "#FFF0F0"
                           : "white",
+                      border:
+                        (parseInt(
+                          String(
+                            PatientData?.weeklyFitbitData?.avgSteps?.value ||
+                              PatientData?.weeklyFitbitData?.avgSteps ||
+                              ""
+                          ).replace(",", "")
+                        ) || 0) < 6000
+                          ? "1px solid #dc3545"
+                          : "1px solid #e9ecef",
                       boxShadow:
                         (parseInt(
                           String(
@@ -466,8 +494,8 @@ const PatientDetails = ({
                               PatientData?.weeklyFitbitData?.avgSteps ||
                               ""
                           ).replace(",", "")
-                        ) || 7000) < 6000
-                          ? "0 0 8px rgba(220, 53, 69, 0.3)"
+                        ) || 0) < 6000
+                          ? "0 4px 8px rgba(220, 53, 69, 0.3)"
                           : "none",
                     }}
                   >
@@ -501,22 +529,23 @@ const PatientDetails = ({
                           "-"}{" "}
                         <span
                           style={{
-                            fontSize: "12px",
-                            color: "black",
+                            fontSize: "10px",
+                            color: "#6c757d",
+                            fontWeight: "normal",
                             marginBottom: "2px",
                           }}
                         >
-                          steps/Week
+                          <span style={{fontWeight: 'bold', color: 'black'}}>steps</span><span style={{fontSize: '8px', fontWeight: 'normal'}}>/Week</span>
                         </span>
                       </div>
                     </div>
-                    {parseInt(
+                    {(parseInt(
                       String(
                         PatientData?.weeklyFitbitData?.avgSteps?.value ||
                           PatientData?.weeklyFitbitData?.avgSteps ||
                           ""
                       ).replace(",", "")
-                    ) >= 6000 ? (
+                    ) || 0) >= 6000 ? (
                       <FaCheckCircle
                         style={{
                           position: "absolute",
@@ -558,8 +587,25 @@ const PatientDetails = ({
                               ? PatientData?.weeklyFitbitData?.heartRate
                               : null)
                         ) || 80) > 100
-                          ? "#FFC7C7"
+                          ? "#FFF0F0"
                           : "white",
+                      border:
+                        (parseInt(
+                          PatientData?.weeklyFitbitData?.heartRate?.value ||
+                            (typeof PatientData?.weeklyFitbitData?.heartRate ===
+                            "number"
+                              ? PatientData?.weeklyFitbitData?.heartRate
+                              : null)
+                        ) || 80) < 60 ||
+                        (parseInt(
+                          PatientData?.weeklyFitbitData?.heartRate?.value ||
+                            (typeof PatientData?.weeklyFitbitData?.heartRate ===
+                            "number"
+                              ? PatientData?.weeklyFitbitData?.heartRate
+                              : null)
+                        ) || 80) > 100
+                          ? "1px solid #dc3545"
+                          : "1px solid #e9ecef",
                       boxShadow:
                         (parseInt(
                           PatientData?.weeklyFitbitData?.heartRate?.value ||
@@ -575,7 +621,7 @@ const PatientDetails = ({
                               ? PatientData?.weeklyFitbitData?.heartRate
                               : null)
                         ) || 80) > 100
-                          ? "0 0 8px rgba(220, 53, 69, 0.3)"
+                          ? "0 4px 8px rgba(220, 53, 69, 0.3)"
                           : "none",
                     }}
                   >
@@ -609,12 +655,13 @@ const PatientDetails = ({
                           "80"}{" "}
                         <span
                           style={{
-                            fontSize: "12px",
-                            color: "black",
+                            fontSize: "10px",
+                            color: "#6c757d",
+                            fontWeight: "normal",
                             marginBottom: "2px",
                           }}
                         >
-                          bpm/Week
+                          <span style={{fontWeight: 'bold', color: 'black'}}>bpm</span><span style={{fontSize: '8px', fontWeight: 'normal'}}>/Week</span>
                         </span>
                       </div>
                     </div>
@@ -667,8 +714,19 @@ const PatientDetails = ({
                               ? PatientData?.weeklyFitbitData?.avgSleepDuration
                               : null)
                         ) || 360) < 420
-                          ? "#FFC7C7"
+                          ? "#FFF0F0"
                           : "white",
+                      border:
+                        (parseInt(
+                          PatientData?.weeklyFitbitData?.avgSleepDuration
+                            ?.value ||
+                            (typeof PatientData?.weeklyFitbitData
+                              ?.avgSleepDuration === "number"
+                              ? PatientData?.weeklyFitbitData?.avgSleepDuration
+                              : null)
+                        ) || 360) < 420
+                          ? "1px solid #dc3545"
+                          : "1px solid #e9ecef",
                       boxShadow:
                         (parseInt(
                           PatientData?.weeklyFitbitData?.avgSleepDuration
@@ -678,7 +736,7 @@ const PatientDetails = ({
                               ? PatientData?.weeklyFitbitData?.avgSleepDuration
                               : null)
                         ) || 360) < 420
-                          ? "0 0 8px rgba(220, 53, 69, 0.3)"
+                          ? "0 4px 8px rgba(220, 53, 69, 0.3)"
                           : "none",
                     }}
                   >
@@ -713,12 +771,13 @@ const PatientDetails = ({
                           "-"}{" "}
                         <span
                           style={{
-                            fontSize: "12px",
-                            color: "black",
+                            fontSize: "10px",
+                            color: "#6c757d",
+                            fontWeight: "normal",
                             marginBottom: "2px",
                           }}
                         >
-                          min/Week
+                          <span style={{fontWeight: 'bold', color: 'black'}}>min</span><span style={{fontSize: '8px', fontWeight: 'normal'}}>/Week</span>
                         </span>
                       </div>
                     </div>
@@ -756,24 +815,34 @@ const PatientDetails = ({
                       gap: "16px",
                       width: "9vw",
                       backgroundColor:
-                        (parseFloat(
-                          PatientData?.weeklyFitbitData?.avgWater?.value ||
+                        parseFloat(
+                          PatientData?.weeklyFitbitData?.avgWater?.value ??
                             (typeof PatientData?.weeklyFitbitData?.avgWater ===
                             "number"
                               ? PatientData?.weeklyFitbitData?.avgWater
-                              : null)
-                        ) || 2700) < 2500
-                          ? "#FFC7C7"
+                              : 2700)
+                        ) < 2500
+                          ? "#FFF0F0"
                           : "white",
-                      boxShadow:
-                        (parseFloat(
-                          PatientData?.weeklyFitbitData?.avgWater?.value ||
+                      border:
+                        parseFloat(
+                          PatientData?.weeklyFitbitData?.avgWater?.value ??
                             (typeof PatientData?.weeklyFitbitData?.avgWater ===
                             "number"
                               ? PatientData?.weeklyFitbitData?.avgWater
-                              : null)
-                        ) || 2700) < 2500
-                          ? "0 0 8px rgba(220, 53, 69, 0.3)"
+                              : 2700)
+                        ) < 2500
+                          ? "1px solid #dc3545"
+                          : "1px solid #e9ecef",
+                      boxShadow:
+                        parseFloat(
+                          PatientData?.weeklyFitbitData?.avgWater?.value ??
+                            (typeof PatientData?.weeklyFitbitData?.avgWater ===
+                            "number"
+                              ? PatientData?.weeklyFitbitData?.avgWater
+                              : 2700)
+                        ) < 2500
+                          ? "0 4px 8px rgba(220, 53, 69, 0.3)"
                           : "none",
                     }}
                   >
@@ -807,21 +876,22 @@ const PatientDetails = ({
                           "-"}{" "}
                         <span
                           style={{
-                            fontSize: "12px",
-                            color: "black",
+                            fontSize: "10px",
+                            color: "#6c757d",
+                            fontWeight: "normal",
                             marginBottom: "2px",
                           }}
                         >
-                          ml/Week
+                          <span style={{fontWeight: 'bold', color: 'black'}}>ml</span><span style={{fontSize: '8px', fontWeight: 'normal'}}>/Week</span>
                         </span>
                       </div>
                     </div>
                     {parseFloat(
-                      PatientData?.weeklyFitbitData?.avgWater?.value ||
+                      PatientData?.weeklyFitbitData?.avgWater?.value ??
                         (typeof PatientData?.weeklyFitbitData?.avgWater ===
                         "number"
                           ? PatientData?.weeklyFitbitData?.avgWater
-                          : null)
+                          : 2700)
                     ) >= 2500 ? (
                       <FaCheckCircle
                         style={{
