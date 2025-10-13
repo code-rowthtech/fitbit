@@ -50,6 +50,7 @@ import {
   getPatientProfile,
   getPatientSleep,
   getPatientSleepEfficiency,
+  getPatientSleepStages,
   getPatientWater,
   getPatientWeight,
 } from "./patientsDashboard/reducer";
@@ -94,6 +95,7 @@ export default combineReducers({
   getPatientProfile,
   getPatientActivity,
   getPatientSleep,
+  getPatientSleepStages,
   getPatientSleepEfficiency,
   getPatientCaloriesBurned,
   getPatientDistance,

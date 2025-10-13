@@ -1,6 +1,6 @@
 import PATIENT_DASHBOARD_TYPES from './constant';
 import { all, fork, put, takeEvery, call } from 'redux-saga/effects';
-import { getPatientProfileApi, getPatientActivityApi, getPatientSleepApi, getPatientCaloriesBurnedApi, getPatientDistanceApi, getPatientSleepEfficiencyApi, getPatientWaterApi, getPatientHeartApi, getPatientWeightApi, getPatientBodyFatApi, getPatientFoodApi, getPatientDevicesApi, getPatientGpsTrackingApi, connectToFitbitApi, getPatientActiveMinApi, getPatientHeartRateApi, getFilterDataApi, getPatientCaloriesConsumedApi } from './api';
+import { getPatientProfileApi, getPatientActivityApi, getPatientSleepApi, getPatientCaloriesBurnedApi, getPatientDistanceApi, getPatientSleepEfficiencyApi, getPatientWaterApi, getPatientHeartApi, getPatientWeightApi, getPatientBodyFatApi, getPatientFoodApi, getPatientDevicesApi, getPatientGpsTrackingApi, connectToFitbitApi, getPatientActiveMinApi, getPatientHeartRateApi, getFilterDataApi, getPatientCaloriesConsumedApi, getPatientSleepStagesApi } from './api';
 import { toast } from 'react-toastify';
 
 function* getPatientProfileFunction({ payload }) {
@@ -490,6 +490,33 @@ function* getPatientCaloriesConsumedFunction({ payload }) {
     }
 }
 
+function* getPatientSleepStagesFunction({ payload }) {
+    try {
+        yield put({
+            type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_STAGES_LOADING,
+            payload: {},
+        });
+        const response = yield call(getPatientSleepStagesApi, { payload });
+
+        if (response?.data && response?.data?.status === 200) {
+            yield put({
+                type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_STAGES_SUCCESS,
+                payload: response.data,
+            });
+        } else {
+            yield put({
+                type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_STAGES_ERROR,
+                payload: response.data,
+            });
+        }
+    } catch (error) {
+        yield put({
+            type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_STAGES_ERROR,
+            payload: { message: error?.message },
+        });
+    }
+}
+
 export function* getPatientProfileSaga() {
     yield takeEvery(PATIENT_DASHBOARD_TYPES.GET_PATIENT_PROFILE, getPatientProfileFunction);
 }
@@ -562,6 +589,10 @@ export function* getPatientCaloriesConsumedSaga() {
     yield takeEvery(PATIENT_DASHBOARD_TYPES.GET_PATIENT_CALORIES_CONSUMED, getPatientCaloriesConsumedFunction);
 }
 
+export function* getPatientSleepStagesSaga() {
+    yield takeEvery(PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_STAGES, getPatientSleepStagesFunction);
+}
+
 function* PatientDashboardSaga() {
     yield all([
         fork(getPatientProfileSaga),
@@ -582,6 +613,7 @@ function* PatientDashboardSaga() {
         fork(getPatientHeartRateSaga),
         fork(getFilterDataSaga),
         fork(getPatientCaloriesConsumedSaga),
+        fork(getPatientSleepStagesSaga),
     ]);
 }
 
