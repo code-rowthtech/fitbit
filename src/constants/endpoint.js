@@ -37,6 +37,7 @@ export const DOWNLOAD_YEARLY_REPORT = `${baseurl}/reports/patient`;
 export const PATIENT_PROFILE = `${baseurl}/fitbit/profile`;
 export const PATIENT_ACTIVITY = `${baseurl}/fitbit/activity`;
 export const PATIENT_SLEEP = `${baseurl}/fitbit/filter`;
+export const PATIENT_SLEEP_STAGES = `${baseurl}/fitbit/filter`;
 export const PATIENT_SLEEP_EFFICIENCY = `${baseurl}/fitbit/filter`;
 export const PATIENT_CALORIES_BURNED = `${baseurl}/fitbit/filter`;
 export const PATIENT_DISTANCE = `${baseurl}/fitbit/filter`;

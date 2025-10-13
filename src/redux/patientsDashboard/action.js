@@ -90,4 +90,9 @@ export const getPatientCaloriesConsumed = (data) => ({
     payload: data
 })
 
+export const getPatientSleepStages = (data) => ({
+    type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_STAGES,
+    payload: data
+})
+
 
