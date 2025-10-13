@@ -95,6 +95,7 @@ const PatientDashboard = () => {
               showReports={showReports}
               activeTab={activeTab}
               setActiveTab={setActiveTab}
+              accordionOpen={!!expandedCard}
             />
           </div>
         </div>

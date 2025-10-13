@@ -23,10 +23,12 @@ const PatientDetails = ({
   showReports,
   activeTab,
   setActiveTab,
+  accordionOpen: externalAccordionOpen,
 }) => {
   const dispatch = useDispatch();
 
   const [accordionOpen, setAccordionOpen] = useState(true);
+  const isAccordionOpen = externalAccordionOpen !== undefined ? externalAccordionOpen : accordionOpen;
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const { id: pathId } = useParams();
   const [searchParams] = useSearchParams();
@@ -108,7 +110,7 @@ const PatientDetails = ({
         borderTopRightRadius: "10px",
       }}
     >
-      {!showReports && (
+      {!showReports && !isAccordionOpen && (
         <div>
           {/* tab section */}
           <div className="d-flex patient-tabs">
@@ -145,10 +147,10 @@ const PatientDetails = ({
           <h2 className="accordion-header">
             <button
               className={`accordion-button border-bottom py-0 ps-0 ${
-                !accordionOpen ? "collapsed" : ""
+                !isAccordionOpen ? "collapsed" : ""
               }`}
               type="button"
-              onClick={() => setAccordionOpen(!accordionOpen)}
+              onClick={() => externalAccordionOpen === undefined && setAccordionOpen(!accordionOpen)}
               style={{
                 backgroundColor: "#F6FAFF",
                 border: "none",
@@ -299,7 +301,7 @@ const PatientDetails = ({
           </h2>
           <div
             className={`accordion-collapse collapse ${
-              accordionOpen ? "show" : ""
+              isAccordionOpen ? "show" : ""
             } ${isLoading ? "placeholder-glow " : ""}`}
           >
             <div
