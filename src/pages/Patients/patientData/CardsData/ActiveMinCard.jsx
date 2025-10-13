@@ -688,7 +688,7 @@ const ActiveMinCard = ({
                     strokeDasharray="301"
                     strokeDashoffset={
                       301 -
-                      ((AverageData?.todayData?.value || 0) /
+                      Math.min(1, (AverageData?.todayData?.value || 0) /
                         (AverageData?.goals?.activeMinutes || 1)) *
                         301
                     }
@@ -701,11 +701,11 @@ const ActiveMinCard = ({
                     className="fw-bold"
                     style={{ fontSize: "16px", color: "#003465" }}
                   >
-                    {Math.round(
+                    {Math.min(100, Math.round(
                       ((AverageData?.todayData?.value || 0) /
                         (AverageData?.goals?.activeMinutes || 1)) *
                         100
-                    )}
+                    ))}
                     %
                   </div>
                   <div
