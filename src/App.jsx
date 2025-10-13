@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
 // import { Provider } from 'react-redux';
 // import store from './redux/store';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -15,9 +16,18 @@ import PatientDashboard from './pages/Patients/PatientDashboard';
 // import Notes from './pages/Notes/Notes';
 import NotFound from './pages/NotFound';
 import { SidebarProvider } from './contexts/SidebarContext';
+import { checkTokenAndRedirect } from './utils/tokenUtils';
 import './styles/layout.css';
 
 function App() {
+  useEffect(() => {
+    // Check token on app initialization
+    const token = localStorage.getItem('token');
+    if (token && window.location.pathname !== '/login') {
+      checkTokenAndRedirect();
+    }
+  }, []);
+
   return (
       <Router>
         <SidebarProvider>
