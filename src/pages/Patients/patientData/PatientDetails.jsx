@@ -164,8 +164,8 @@ const PatientDetails = ({
                   <div
                     className="pe-5 py-2"
                     style={{
-                      backgroundColor: "#DCE6F5",
-                      borderRight: "4px solid #DCE6F5",
+                      backgroundColor: "#E0ECF8",
+                      borderRight: "4px solid #E0ECF8",
                       transform: "skewX(-20deg)",
                       overflow: "hidden",
                       marginLeft: "-5px",
@@ -349,7 +349,7 @@ const PatientDetails = ({
                       style={{
                         width: "76px",
                         height: "84px",
-                        backgroundColor: "#DCE6F5",
+                        backgroundColor: "#E0ECF8",
                         color: "#16213D",
                         fontSize: "20px",
                         fontWeight: "bold",
