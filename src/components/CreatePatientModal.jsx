@@ -150,7 +150,7 @@ const CreatePatientModal = ({ show, onHide }) => {
   useEffect(() => {
     if (show) {
       if (UserRole !== "doctor") {
-        dispatch(getAllDoctors());
+        dispatch(getAllDoctors({ paginate: false }));
       }
       setCurrentStep(1);
       reset();
@@ -986,7 +986,12 @@ const CreatePatientModal = ({ show, onHide }) => {
                       Assigned to <span className="text-danger">*</span>
                     </Form.Label>
                     <Form.Select
-                      style={{ fontSize: "12px", backgroundColor: "#F9FAFB" }}
+                      style={{
+                        fontSize: "12px",
+                        backgroundColor: "#F9FAFB",
+                        minHeight: "48px",
+                        maxHeight: "48px",
+                      }}
                       className="py-3"
                       autoComplete="off"
                       {...register("doctorId", {

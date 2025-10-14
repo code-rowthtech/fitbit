@@ -30,7 +30,6 @@ const Sidebar = () => {
   const UpdateResponse = useSelector(
     (state) => state?.updatePatient?.data?.status
   );
-  console.log(PatientData, "PatientDataPatientData");
   useEffect(() => {
     const payload =
       selectedDoctor?.value && selectedDoctor.value !== "all"
