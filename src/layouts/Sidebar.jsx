@@ -30,7 +30,6 @@ const Sidebar = () => {
   const UpdateResponse = useSelector(
     (state) => state?.updatePatient?.data?.status
   );
-  console.log(PatientData, "PatientDataPatientData");
   useEffect(() => {
     const payload =
       selectedDoctor?.value && selectedDoctor.value !== "all"
@@ -234,7 +233,7 @@ const Sidebar = () => {
                       height: "36px",
                       fontSize: "12px",
                       color: "#16213D",
-                      backgroundColor: "#DCE6F5",
+                      backgroundColor: "#E0ECF8",
                     }}
                   >
                     {patient.firstName?.charAt(0)}

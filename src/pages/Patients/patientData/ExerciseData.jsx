@@ -83,7 +83,7 @@ const ExerciseData = ({ isExpanded, onExpand }) => {
       <div className="accordion-item" style={{ border: "none" }}>
         <h2 className="accordion-header">
           <div
-            className="py-2 d-flex align-items-center justify-content-between"
+            className="pt-2 pb-0 d-flex align-items-center justify-content-between"
             // style={{ backgroundColor: "#f8f9fa", padding: "16px 20px" }}
             style={{ backgroundColor: "white", padding: "16px 20px" }}
           >

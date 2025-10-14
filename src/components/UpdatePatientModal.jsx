@@ -155,7 +155,7 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
   useEffect(() => {
     if (show) {
       if (UserRole !== "doctor") {
-        dispatch(getAllDoctors());
+        dispatch(getAllDoctors({ paginate: false }));
       }
       setCurrentStep(1);
     }
@@ -189,7 +189,14 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
       }
       setValue("maritalStatus", PatientData.maritalStatus || "");
       const phoneNumber = PatientData.phoneNumber || "";
-      setValue("phoneNumber", phoneNumber.startsWith("+91") ? phoneNumber.replace("+91", "+91 ") : phoneNumber ? "+91 " + phoneNumber.replace(/^\+91\s*/, "") : "+91 ");
+      setValue(
+        "phoneNumber",
+        phoneNumber.startsWith("+91")
+          ? phoneNumber.replace("+91", "+91 ")
+          : phoneNumber
+          ? "+91 " + phoneNumber.replace(/^\+91\s*/, "")
+          : "+91 "
+      );
       setValue("street", PatientData.address?.street || "");
 
       // Load cities if state exists and not already loaded
@@ -253,7 +260,8 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
       setValue("notes", PatientData.notes || "");
 
       const doctorId =
-        typeof PatientData.doctorId === "object" && PatientData.doctorId !== null
+        typeof PatientData.doctorId === "object" &&
+        PatientData.doctorId !== null
           ? PatientData.doctorId._id
           : PatientData.doctorId;
       const doctorExists = DoctorData?.find((doc) => doc._id === doctorId);
@@ -650,15 +658,31 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                     value={watch("phoneNumber") || "+91 "}
                     onKeyDown={(e) => {
                       const currentValue = e.target.value;
-                      if (currentValue.length <= 4 && ["Backspace", "Delete"].includes(e.key)) {
+                      if (
+                        currentValue.length <= 4 &&
+                        ["Backspace", "Delete"].includes(e.key)
+                      ) {
                         e.preventDefault();
                         return;
                       }
-                      if (!/^[0-9]$/.test(e.key) && !["Backspace", "Delete", "Tab", "Enter", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+                      if (
+                        !/^[0-9]$/.test(e.key) &&
+                        ![
+                          "Backspace",
+                          "Delete",
+                          "Tab",
+                          "Enter",
+                          "ArrowLeft",
+                          "ArrowRight",
+                        ].includes(e.key)
+                      ) {
                         e.preventDefault();
                         return;
                       }
-                      if (/^[0-9]$/.test(e.key) && currentValue.replace(/[^0-9]/g, "").length >= 12) {
+                      if (
+                        /^[0-9]$/.test(e.key) &&
+                        currentValue.replace(/[^0-9]/g, "").length >= 12
+                      ) {
                         e.preventDefault();
                       }
                     }}
@@ -679,7 +703,10 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                         validFormat: (value) => {
                           const digits = value?.replace(/[^0-9]/g, "") || "";
                           const phoneDigits = digits.substring(2);
-                          return phoneDigits.length === 10 || "Phone number must be exactly 10 digits";
+                          return (
+                            phoneDigits.length === 10 ||
+                            "Phone number must be exactly 10 digits"
+                          );
                         },
                       },
                     })}
