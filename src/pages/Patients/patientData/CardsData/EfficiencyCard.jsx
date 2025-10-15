@@ -32,24 +32,26 @@ const EfficiencyCard = ({
     (state) =>
       state?.getPatientSleepEfficiency?.data?.response?.todayData?.sleepSessions
   );
-  const efficiencyDataTotal = efficiencyData.map((item) => ({
-    efficiency: item.efficiency,
-  }));
-  console.log(efficiencyDataTotal, "efficiencyDataTotal");
+  const efficiencyDataTotal =
+    efficiencyData?.map((item) => ({
+      efficiency: item.efficiency,
+    })) || [];
 
-  const data = useSelector(
-    (state) => state?.getPatientSleepEfficiency?.data?.response?.todayData
+  const totalEfficiency = useSelector(
+    (state) =>
+      state?.getPatientSleepEfficiency?.data?.response?.todayData
+        ?.totalEfficiency
   );
-  console.log(data, "efficiencyData");
+  console.log(totalEfficiency, "totalEfficiency");
 
   // Calculate average efficiency
-  const averageEfficiency =
-    efficiencyData?.length > 0
-      ? Math.round(
-          efficiencyData.reduce((sum, item) => sum + item.efficiency, 0) /
-            efficiencyData.length
-        )
-      : 0;
+  //   const averageEfficiency =
+  //     efficiencyData?.length > 0
+  //       ? Math.round(
+  //           efficiencyData.reduce((sum, item) => sum + item.efficiency, 0) /
+  //             efficiencyData.length
+  //         )
+  //       : 0;
   useEffect(() => {
     if (patientId) {
       const date = new Date(currentDate);
@@ -78,7 +80,7 @@ const EfficiencyCard = ({
         end: formatDate(end),
         field: "sleepEfficiency",
       };
-      if (activeTab === "Month") payload.period = "month";
+      //   if (activeTab === "Month") payload.period = "month";
       if (activeTab === "Year") payload.period = "year";
       dispatch(getPatientSleepEfficiency(payload));
     }
@@ -249,7 +251,7 @@ const EfficiencyCard = ({
           end: formatDate(end),
           field: "sleepEfficiency",
         };
-        if (activeTab === "Month") payload.period = "month";
+        // if (activeTab === "Month") payload.period = "month";
         if (activeTab === "Year") payload.period = "year";
         dispatch(getPatientSleepEfficiency(payload));
       }
@@ -288,7 +290,7 @@ const EfficiencyCard = ({
           end: formatDate(end),
           field: "sleepEfficiency",
         };
-        if (tab === "Month") payload.period = "month";
+        // if (tab === "Month") payload.period = "month";
         if (tab === "Year") payload.period = "year";
         dispatch(getPatientSleepEfficiency(payload));
       }
@@ -595,6 +597,18 @@ const EfficiencyCard = ({
                         fontSize: "10px",
                         borderRadius: "2px",
                         border: "1px solid #E8F2FF",
+                        cursor: activeTab === "Year" ? "pointer" : "default",
+                      }}
+                      onClick={() => {
+                        if (activeTab === "Year") {
+                          const newDate = new Date(
+                            currentDate.getFullYear(),
+                            index,
+                            1
+                          );
+                          onDateChange(newDate);
+                          onTabChange("Month");
+                        }
                       }}
                     >
                       <span style={{ color: "#003465" }}>{item.period}</span>
@@ -639,7 +653,7 @@ const EfficiencyCard = ({
                     stroke="#003465"
                     strokeWidth="4"
                     strokeDasharray="301"
-                    strokeDashoffset={301 - (averageEfficiency / 100) * 301}
+                    strokeDashoffset={301 - (totalEfficiency / 100) * 301}
                     strokeLinecap="round"
                     transform="rotate(-90 60 60)"
                   />
@@ -649,7 +663,7 @@ const EfficiencyCard = ({
                     className="fw-bold"
                     style={{ fontSize: "16px", color: "#003465" }}
                   >
-                    {averageEfficiency}%
+                    {totalEfficiency}%
                   </div>
                   <div
                     style={{
@@ -686,7 +700,7 @@ const EfficiencyCard = ({
                     className="fw-bold"
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
-                    {averageEfficiency || "-"}%
+                    {totalEfficiency || "-"}%
                   </div>
                   <div
                     style={{
@@ -699,31 +713,6 @@ const EfficiencyCard = ({
                   </div>
                 </div>
               </div>
-              {/* <div className="col-6">
-                <div
-                  className="text-center py-1 px-2 rounded-2"
-                  style={{
-                    backgroundColor: "white",
-                    border: "1px solid #E8F2FF",
-                  }}
-                >
-                  <div
-                    className="fw-bold"
-                    style={{ fontSize: "14px", color: "#003465" }}
-                  >
-                    {AverageData?.todayData?.sleepData?.[0]?.efficiency}%
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "9px",
-                      color: "#666",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Goal
-                  </div>
-                </div>
-              </div> */}
             </div>
           </div>
         )}
