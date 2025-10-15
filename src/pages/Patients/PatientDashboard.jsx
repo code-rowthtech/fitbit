@@ -161,7 +161,7 @@ const PatientDashboard = () => {
                     </div>
                   </div>
                 )}
-              {activeTab === "Weight & Body Metrics" &&
+              {/* {activeTab === "Weight & Body Metrics" &&
                 (!expandedCard || expandedCard === "weight") && (
                   <div className="row justify-content-center">
                     <div className="col-lg-12 col-md-12 mb-1">
@@ -171,7 +171,7 @@ const PatientDashboard = () => {
                       />
                     </div>
                   </div>
-                )}
+                )} */}
               {activeTab === "Exercise Data" &&
                 (!expandedCard || expandedCard === "exercise") && (
                   <div className="row justify-content-center">
@@ -229,7 +229,7 @@ const PatientDashboard = () => {
                     </div>
                   </div>
                 )}
-              {activeTab !== "Weight & Body Metrics" &&
+              {/* {activeTab !== "Weight & Body Metrics" &&
                 (!expandedCard || expandedCard === "weight") && (
                   <div className="row justify-content-center">
                     <div className="col-lg-12 col-md-12 mb-1">
@@ -239,7 +239,7 @@ const PatientDashboard = () => {
                       />
                     </div>
                   </div>
-                )}
+                )} */}
               {activeTab !== "Exercise Data" &&
                 (!expandedCard || expandedCard === "exercise") && (
                   <div className="row justify-content-center">

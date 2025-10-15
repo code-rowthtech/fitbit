@@ -110,14 +110,32 @@ const WeightCard = ({
         })
 
         const data = apiData.map((item, index) => {
-            // If today's value is 0, use previous day's value
-            if (item.value === 0 && index > 0) {
-                return apiData[index - 1].value
+            // If current value is null, 0, or undefined, find the last valid value
+            if ((item.value === null || item.value === 0 || item.value === undefined) && index > 0) {
+                // Look backwards to find the last non-null, non-zero value
+                for (let i = index - 1; i >= 0; i--) {
+                    if (apiData[i].value !== null && apiData[i].value !== 0 && apiData[i].value !== undefined) {
+                        return apiData[i].value
+                    }
+                }
+                // If no valid previous value found, return null to hide point
+                return null
             }
             return item.value
         })
 
-        const tableData = apiData.map((item) => {
+        // Create point styles array to hide markers for null/0 values
+        const pointBackgroundColors = apiData.map(item => 
+            (item.value === null || item.value === 0 || item.value === undefined) ? 'transparent' : '#003465'
+        )
+        const pointBorderColors = apiData.map(item => 
+            (item.value === null || item.value === 0 || item.value === undefined) ? 'transparent' : '#003465'
+        )
+        const pointRadii = apiData.map(item => 
+            (item.value === null || item.value === 0 || item.value === undefined) ? 0 : 4
+        )
+
+        const tableData = apiData.map((item, index) => {
             let period
 
             if (activeTab === "Month" && item.date.includes("Week")) {
@@ -143,13 +161,24 @@ const WeightCard = ({
                 }
             }
 
+            // Use the same logic as chart data for consistency
+            let displayValue = item.value
+            if ((item.value === null || item.value === 0 || item.value === undefined) && index > 0) {
+                for (let i = index - 1; i >= 0; i--) {
+                    if (apiData[i].value !== null && apiData[i].value !== 0 && apiData[i].value !== undefined) {
+                        displayValue = apiData[i].value
+                        break
+                    }
+                }
+            }
+
             return {
                 period,
-                value: item.value ? `${item.value} kg` : "0 kg",
+                value: displayValue ? `${displayValue} kg` : "0 kg",
             }
         })
 
-        return { labels, data, tableData }
+        return { labels, data, tableData, pointBackgroundColors, pointBorderColors, pointRadii }
     }
 
     const chartData = getChartData()
@@ -349,10 +378,11 @@ const WeightCard = ({
                                             borderColor: '#003465',
                                             backgroundColor: 'rgba(0, 52, 101, 0.1)',
                                             borderWidth: 2,
-                                            pointBackgroundColor: '#003465',
-                                            pointBorderColor: '#003465',
-                                            pointRadius: 4,
-                                            fill: true
+                                            pointBackgroundColor: chartData.pointBackgroundColors,
+                                            pointBorderColor: chartData.pointBorderColors,
+                                            pointRadius: chartData.pointRadii,
+                                            fill: true,
+                                            spanGaps: true
                                         }]
                                     }}
                                     options={{
