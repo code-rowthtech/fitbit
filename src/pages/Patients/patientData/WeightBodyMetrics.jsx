@@ -88,7 +88,7 @@ const WeightBodyMetrics = ({ isExpanded, onExpand }) => {
       <div className="accordion-item" style={{ border: "none" }}>
         <h2 className="accordion-header">
           <div
-            className="py-2 d-flex align-items-center justify-content-between"
+            className="pt-2 pb-0 d-flex align-items-center justify-content-between"
             // style={{ backgroundColor: "#f8f9fa", padding: "16px 20px" }}
             style={{ backgroundColor: "white", padding: "16px 20px" }}
           >
@@ -102,24 +102,6 @@ const WeightBodyMetrics = ({ isExpanded, onExpand }) => {
               >
                 Weight and Body Metrics
               </span>
-              {/* <div ref={datePickerRef} style={{ position: 'relative' }}>
-                                <button
-                                    className="form-control rounded-3 border-0 text-start d-flex justify-content-between align-items-center"
-                                    style={{ fontSize: '10px', height: '26px', width: '170px', color: '#003465', backgroundColor: 'transparent' }}
-                                    onClick={() => setShowDatePicker(!showDatePicker)}
-                                >
-                                    <span>{dateRange[0].startDate.toLocaleDateString()} - {dateRange[0].endDate.toLocaleDateString()}</span>
-                                    <IoCalendarClearOutline style={{ fontSize: '15px', color: '#003465', marginLeft: '10px' }} />
-                                </button>
-                                {showDatePicker && (
-                                    <div style={{ position: 'absolute', top: '40px', zIndex: 1000, backgroundColor: 'white', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
-                                        <DateRangePicker
-                                            ranges={dateRange}
-                                            onChange={(ranges) => setDateRange([ranges.selection])}
-                                        />
-                                    </div>
-                                )}
-                            </div> */}
             </div>
             <div
               onClick={() => setIsOpen(!isOpen)}
@@ -162,7 +144,7 @@ const WeightBodyMetrics = ({ isExpanded, onExpand }) => {
               )}
 
               {/* BMI Card */}
-              {(!expandedCard || expandedCard === "bmi") && (
+              {/* {(!expandedCard || expandedCard === "bmi") && (
                 <div
                   style={{
                     flex: 1,
@@ -523,10 +505,10 @@ const WeightBodyMetrics = ({ isExpanded, onExpand }) => {
                     )}
                   </div>
                 </div>
-              )}
+              )} */}
 
               {/* Body Fat Percentage Card */}
-              {(!expandedCard || expandedCard === "bodyFat") && (
+              {/* {(!expandedCard || expandedCard === "bodyFat") && (
                 <div
                   style={{
                     flex: 1,
@@ -887,7 +869,16 @@ const WeightBodyMetrics = ({ isExpanded, onExpand }) => {
                     )}
                   </div>
                 </div>
-              )}
+              )} */}
+
+              <div
+                style={{
+                  flex: 1,
+                }}></div>
+              <div
+                style={{
+                  flex: 1,
+                }}></div>
             </div>
           </div>
         </div>

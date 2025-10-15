@@ -89,7 +89,7 @@ const PatientDashboard = () => {
       {/* Patient Details Section - Hide when report is expanded */}
       {!expandedReport && (
         <div className="row justify-content-center">
-          <div className="col-lg-12 col-md-12">
+          <div className="col-lg-12 col-md-12 mb-1">
             <PatientDetails
               onShowReports={() => setShowReports(!showReports)}
               showReports={showReports}
@@ -103,7 +103,7 @@ const PatientDashboard = () => {
 
       {showReports ? (
         <div className="row justify-content-center">
-          <div className="col-lg-12 col-md-12">
+          <div className="col-lg-12 col-md-12 mb-1">
             <PatientReport
               patientData={patientData}
               isExpanded={expandedReport}
@@ -116,7 +116,7 @@ const PatientDashboard = () => {
           {FitbitConnection === "Not Connected" ||
           FitbitConnection === "Pending" ? (
             <div className="row justify-content-center">
-              <div className="col-lg-12 col-md-12">
+              <div className="col-lg-12 col-md-12 mb-1">
                 <p
                   className="text-center mt-5 pt-5"
                   style={{ color: "#003465" }}
@@ -131,7 +131,7 @@ const PatientDashboard = () => {
               {activeTab === "Activity Data" &&
                 (!expandedCard || expandedCard === "activity") && (
                   <div className="row justify-content-center">
-                    <div className="col-lg-12 col-md-12">
+                    <div className="col-lg-12 col-md-12 mb-1">
                       <ActivityData
                         isExpanded={expandedCard === "activity"}
                         onExpand={() => handleCardExpand("activity")}
@@ -142,7 +142,7 @@ const PatientDashboard = () => {
               {activeTab === "Sleep Data" &&
                 (!expandedCard || expandedCard === "sleep") && (
                   <div className="row justify-content-center">
-                    <div className="col-lg-12 col-md-12">
+                    <div className="col-lg-12 col-md-12 mb-1">
                       <SleepData
                         isExpanded={expandedCard === "sleep"}
                         onExpand={() => handleCardExpand("sleep")}
@@ -153,7 +153,7 @@ const PatientDashboard = () => {
               {activeTab === "Heart Rate" &&
                 (!expandedCard || expandedCard === "heartrate") && (
                   <div className="row justify-content-center">
-                    <div className="col-lg-12 col-md-12">
+                    <div className="col-lg-12 col-md-12 mb-1">
                       <HeartRateData
                         isExpanded={expandedCard === "heartrate"}
                         onExpand={() => handleCardExpand("heartrate")}
@@ -161,21 +161,21 @@ const PatientDashboard = () => {
                     </div>
                   </div>
                 )}
-              {activeTab === "Weight & Body Metrics" &&
+              {/* {activeTab === "Weight & Body Metrics" &&
                 (!expandedCard || expandedCard === "weight") && (
                   <div className="row justify-content-center">
-                    <div className="col-lg-12 col-md-12">
+                    <div className="col-lg-12 col-md-12 mb-1">
                       <WeightBodyMetrics
                         isExpanded={expandedCard === "weight"}
                         onExpand={() => handleCardExpand("weight")}
                       />
                     </div>
                   </div>
-                )}
+                )} */}
               {activeTab === "Exercise Data" &&
                 (!expandedCard || expandedCard === "exercise") && (
                   <div className="row justify-content-center">
-                    <div className="col-lg-12 col-md-12">
+                    <div className="col-lg-12 col-md-12 mb-1">
                       <ExerciseData
                         isExpanded={expandedCard === "exercise"}
                         onExpand={() => handleCardExpand("exercise")}
@@ -186,7 +186,7 @@ const PatientDashboard = () => {
               {activeTab === "Nutrition" &&
                 (!expandedCard || expandedCard === "nutrition") && (
                   <div className="row justify-content-center">
-                    <div className="col-lg-12 col-md-12">
+                    <div className="col-lg-12 col-md-12 mb-1">
                       <NutritionData
                         isExpanded={expandedCard === "nutrition"}
                         onExpand={() => handleCardExpand("nutrition")}
@@ -199,7 +199,7 @@ const PatientDashboard = () => {
               {activeTab !== "Activity Data" &&
                 (!expandedCard || expandedCard === "activity") && (
                   <div className="row justify-content-center">
-                    <div className="col-lg-12 col-md-12">
+                    <div className="col-lg-12 col-md-12 mb-1">
                       <ActivityData
                         isExpanded={expandedCard === "activity"}
                         onExpand={() => handleCardExpand("activity")}
@@ -210,7 +210,7 @@ const PatientDashboard = () => {
               {activeTab !== "Sleep Data" &&
                 (!expandedCard || expandedCard === "sleep") && (
                   <div className="row justify-content-center">
-                    <div className="col-lg-12 col-md-12">
+                    <div className="col-lg-12 col-md-12 mb-1">
                       <SleepData
                         isExpanded={expandedCard === "sleep"}
                         onExpand={() => handleCardExpand("sleep")}
@@ -221,7 +221,7 @@ const PatientDashboard = () => {
               {activeTab !== "Heart Rate" &&
                 (!expandedCard || expandedCard === "heartrate") && (
                   <div className="row justify-content-center">
-                    <div className="col-lg-12 col-md-12">
+                    <div className="col-lg-12 col-md-12 mb-1">
                       <HeartRateData
                         isExpanded={expandedCard === "heartrate"}
                         onExpand={() => handleCardExpand("heartrate")}
@@ -229,21 +229,21 @@ const PatientDashboard = () => {
                     </div>
                   </div>
                 )}
-              {activeTab !== "Weight & Body Metrics" &&
+              {/* {activeTab !== "Weight & Body Metrics" &&
                 (!expandedCard || expandedCard === "weight") && (
                   <div className="row justify-content-center">
-                    <div className="col-lg-12 col-md-12">
+                    <div className="col-lg-12 col-md-12 mb-1">
                       <WeightBodyMetrics
                         isExpanded={expandedCard === "weight"}
                         onExpand={() => handleCardExpand("weight")}
                       />
                     </div>
                   </div>
-                )}
+                )} */}
               {activeTab !== "Exercise Data" &&
                 (!expandedCard || expandedCard === "exercise") && (
                   <div className="row justify-content-center">
-                    <div className="col-lg-12 col-md-12">
+                    <div className="col-lg-12 col-md-12 mb-1">
                       <ExerciseData
                         isExpanded={expandedCard === "exercise"}
                         onExpand={() => handleCardExpand("exercise")}
