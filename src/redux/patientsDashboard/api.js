@@ -77,7 +77,7 @@ export function getPatientActiveMinApi(data) {
 }
 
 export function getPatientHeartRateApi(data) {
-    const baseUrl = `${URL.PATIENT_HEART_Rate}/${data.payload.patientId}?field=${data.payload.field}&start=${data.payload.start}&end=${data.payload.end}`;
+    const baseUrl = `${URL.PATIENT_HEART_RATE}/${data.payload.patientId}?field=${data.payload.field}&start=${data.payload.start}&end=${data.payload.end}`;
     const url = data.payload.period ? `${baseUrl}&period=${data.payload.period}` : baseUrl;
     return api.get(url);
 }
