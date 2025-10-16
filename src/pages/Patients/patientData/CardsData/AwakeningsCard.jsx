@@ -530,7 +530,7 @@ const AwakeningsCard = ({
     (state) =>
       state?.getPatientSleepStages?.data?.response?.todayData?.sleepData
   );
-  console.log(awakeningsData, "awakeningsData");
+  // console.log(awakeningsData, "awakeningsData");
 
   // Initial API call when component mounts
   useEffect(() => {

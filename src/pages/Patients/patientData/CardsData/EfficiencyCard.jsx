@@ -39,8 +39,7 @@ const EfficiencyCard = ({
 
   const totalEfficiency = useSelector(
     (state) =>
-      state?.getPatientSleepEfficiency?.data?.response?.todayData
-        ?.totalEfficiency
+      state?.getPatientSleepEfficiency?.data?.response?.todayData?.value || 0
   );
   console.log(totalEfficiency, "totalEfficiency");
 
