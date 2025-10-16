@@ -920,7 +920,7 @@ const SleepStagesCard = ({
                           ? (event, elements) => {
                               if (elements.length > 0) {
                                 const clickedIndex = elements[0].index;
-                                const clickedMonth = clickedIndex; 
+                                const clickedMonth = clickedIndex;
                                 const newDate = new Date(
                                   currentDate.getFullYear(),
                                   clickedMonth,
@@ -1066,31 +1066,6 @@ const SleepStagesCard = ({
                         fontSize: "10px",
                         borderRadius: "2px",
                         border: "1px solid #E8F2FF",
-                        cursor: (activeTab === "Year" || activeTab === "Month") ? "pointer" : "default",
-                      }}
-                      onClick={() => {
-                        if (activeTab === "Year") {
-                          const newDate = new Date(
-                            currentDate.getFullYear(),
-                            index,
-                            1
-                          );
-                          onDateChange(newDate);
-                          onTabChange("Month");
-                        } else if (activeTab === "Month") {
-                          // Extract day number from period like "Oct 15" -> 15
-                          const dayMatch = item.period.match(/\d+/);
-                          if (dayMatch) {
-                            const clickedDay = parseInt(dayMatch[0]);
-                            const clickedDate = new Date(
-                              currentDate.getFullYear(),
-                              currentDate.getMonth(),
-                              clickedDay
-                            );
-                            onDateChange(clickedDate);
-                            onTabChange("Day");
-                          }
-                        }
                       }}
                     >
                       <span style={{ color: "#003465" }}>{item.period}</span>
