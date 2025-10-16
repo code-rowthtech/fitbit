@@ -72,6 +72,7 @@ const SleepJourneyChart = ({
 
     // Calculate total sleep duration and start/end times
     const startTime = new Date(levelsData[0].dateTime);
+    console.log("Start time:", startTime);
     const lastItem = levelsData[levelsData.length - 1];
     const endTime = new Date(
       new Date(lastItem.dateTime).getTime() + lastItem.seconds * 1000
@@ -140,12 +141,12 @@ const SleepJourneyChart = ({
     });
 
     return {
-      bedtime: startTime.toLocaleTimeString("en-US", {
+      bedtime: startTime.toLocaleTimeString("en-IN", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
       }),
-      wakeup: endTime.toLocaleTimeString("en-US", {
+      wakeup: endTime.toLocaleTimeString("en-IN", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
@@ -185,6 +186,7 @@ const SleepJourneyChart = ({
     () => processApiData(),
     [FilterData, currentDate, selectedSessionIndex]
   );
+  console.log("Sleep data:", sleepData);
 
   // If no detailed sleep data, show message
   if (!sleepData) {
@@ -542,7 +544,7 @@ const SleepStagesCard = ({
 
   // Initial API call when component mounts
   useEffect(() => {
-    if (patientId) {
+    if (patientId && currentDate) {
       const date = new Date(currentDate);
       let start, end;
 
@@ -572,11 +574,10 @@ const SleepStagesCard = ({
         end: formatDate(end),
         field: "sleep",
       };
-      // if (activeTab === "Month")  // payload.period = "month";
       if (activeTab === "Year") payload.period = "year";
       dispatch(getPatientSleepStages(payload));
     }
-  }, [patientId, dispatch, formatDate]);
+  }, [patientId, activeTab, currentDate, dispatch, formatDate]);
 
   // Get chart data based on active tab and API response
   const getChartData = () => {
@@ -659,6 +660,8 @@ const SleepStagesCard = ({
 
   // Get navigation label based on active tab
   const getNavigationLabel = () => {
+    if (!currentDate) return "Current Period";
+
     const date = new Date(currentDate);
 
     switch (activeTab) {
@@ -920,7 +923,7 @@ const SleepStagesCard = ({
                           ? (event, elements) => {
                               if (elements.length > 0) {
                                 const clickedIndex = elements[0].index;
-                                const clickedMonth = clickedIndex; 
+                                const clickedMonth = clickedIndex;
                                 const newDate = new Date(
                                   currentDate.getFullYear(),
                                   clickedMonth,
@@ -1066,31 +1069,6 @@ const SleepStagesCard = ({
                         fontSize: "10px",
                         borderRadius: "2px",
                         border: "1px solid #E8F2FF",
-                        cursor: (activeTab === "Year" || activeTab === "Month") ? "pointer" : "default",
-                      }}
-                      onClick={() => {
-                        if (activeTab === "Year") {
-                          const newDate = new Date(
-                            currentDate.getFullYear(),
-                            index,
-                            1
-                          );
-                          onDateChange(newDate);
-                          onTabChange("Month");
-                        } else if (activeTab === "Month") {
-                          // Extract day number from period like "Oct 15" -> 15
-                          const dayMatch = item.period.match(/\d+/);
-                          if (dayMatch) {
-                            const clickedDay = parseInt(dayMatch[0]);
-                            const clickedDate = new Date(
-                              currentDate.getFullYear(),
-                              currentDate.getMonth(),
-                              clickedDay
-                            );
-                            onDateChange(clickedDate);
-                            onTabChange("Day");
-                          }
-                        }
                       }}
                     >
                       <span style={{ color: "#003465" }}>{item.period}</span>
