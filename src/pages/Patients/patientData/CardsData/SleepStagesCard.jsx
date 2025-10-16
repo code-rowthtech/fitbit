@@ -72,7 +72,7 @@ const SleepJourneyChart = ({
 
     // Calculate total sleep duration and start/end times
     const startTime = new Date(levelsData[0].dateTime);
-    console.log("Start time:", startTime)
+    console.log("Start time:", startTime);
     const lastItem = levelsData[levelsData.length - 1];
     const endTime = new Date(
       new Date(lastItem.dateTime).getTime() + lastItem.seconds * 1000
@@ -186,7 +186,7 @@ const SleepJourneyChart = ({
     () => processApiData(),
     [FilterData, currentDate, selectedSessionIndex]
   );
-console.log("Sleep data:", sleepData)
+  console.log("Sleep data:", sleepData);
 
   // If no detailed sleep data, show message
   if (!sleepData) {
@@ -544,7 +544,7 @@ const SleepStagesCard = ({
 
   // Initial API call when component mounts
   useEffect(() => {
-    if (patientId) {
+    if (patientId && currentDate) {
       const date = new Date(currentDate);
       let start, end;
 
@@ -574,11 +574,10 @@ const SleepStagesCard = ({
         end: formatDate(end),
         field: "sleep",
       };
-      // if (activeTab === "Month")  // payload.period = "month";
       if (activeTab === "Year") payload.period = "year";
       dispatch(getPatientSleepStages(payload));
     }
-  }, [patientId, dispatch, formatDate]);
+  }, [patientId, activeTab, currentDate, dispatch, formatDate]);
 
   // Get chart data based on active tab and API response
   const getChartData = () => {
@@ -661,6 +660,8 @@ const SleepStagesCard = ({
 
   // Get navigation label based on active tab
   const getNavigationLabel = () => {
+    if (!currentDate) return "Current Period";
+
     const date = new Date(currentDate);
 
     switch (activeTab) {
