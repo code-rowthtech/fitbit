@@ -72,6 +72,7 @@ const SleepJourneyChart = ({
 
     // Calculate total sleep duration and start/end times
     const startTime = new Date(levelsData[0].dateTime);
+    console.log("Start time:", startTime)
     const lastItem = levelsData[levelsData.length - 1];
     const endTime = new Date(
       new Date(lastItem.dateTime).getTime() + lastItem.seconds * 1000
@@ -123,12 +124,12 @@ const SleepJourneyChart = ({
     const totalSeconds = Object.values(stageTotals).reduce((a, b) => a + b, 0);
 
     return {
-      bedtime: startTime.toLocaleTimeString("en-US", {
+      bedtime: startTime.toLocaleTimeString("en-IN", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
       }),
-      wakeup: endTime.toLocaleTimeString("en-US", {
+      wakeup: endTime.toLocaleTimeString("en-IN", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
@@ -167,6 +168,7 @@ const SleepJourneyChart = ({
     () => processApiData(),
     [FilterData, currentDate, selectedSessionIndex]
   );
+console.log("Sleep data:", sleepData)
 
   // If no detailed sleep data, show message
   if (!sleepData) {
