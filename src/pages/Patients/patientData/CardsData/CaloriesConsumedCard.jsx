@@ -58,7 +58,7 @@ const CaloriesConsumedCard = ({
         end: formatDate(end),
         field: "caloriesIn",
       };
-      //   if (activeTab === "Month") payload.period = "month";
+      //   if (activeTab === "Month")  // payload.period = "month";
       if (activeTab === "Year") payload.period = "year";
       dispatch(getPatientCaloriesConsumed(payload));
     }
@@ -156,9 +156,15 @@ const CaloriesConsumedCard = ({
       return date.toLocaleDateString("en-US", { weekday: "short" });
     });
 
-    const proteinData = CaloriesData.map((item) => item.calories?.nutrients?.protein || 0);
-    const fatData = CaloriesData.map((item) => item.calories?.nutrients?.fat || 0);
-    const carbsData = CaloriesData.map((item) => item.calories?.nutrients?.carbs || 0);
+    const proteinData = CaloriesData.map(
+      (item) => item.calories?.nutrients?.protein || 0
+    );
+    const fatData = CaloriesData.map(
+      (item) => item.calories?.nutrients?.fat || 0
+    );
+    const carbsData = CaloriesData.map(
+      (item) => item.calories?.nutrients?.carbs || 0
+    );
 
     return {
       labels,
@@ -311,7 +317,7 @@ const CaloriesConsumedCard = ({
           end: formatDate(end),
           field: "caloriesIn",
         };
-        // if (activeTab === "Month") payload.period = "month";
+        // if (activeTab === "Month")  // payload.period = "month";
         if (activeTab === "Year") payload.period = "year";
         dispatch(getPatientCaloriesConsumed(payload));
       }
@@ -350,7 +356,7 @@ const CaloriesConsumedCard = ({
           end: formatDate(end),
           field: "caloriesIn",
         };
-        // if (tab === "Month") payload.period = "month";
+        // if (tab === "Month")  // payload.period = "month";
         if (tab === "Year") payload.period = "year";
         dispatch(getPatientCaloriesConsumed(payload));
       }
@@ -420,7 +426,9 @@ const CaloriesConsumedCard = ({
                     style={{
                       top: "10px",
                       right: "10px",
-                      backgroundColor: showNutritionPreview ? "#003465" : "white",
+                      backgroundColor: showNutritionPreview
+                        ? "#003465"
+                        : "white",
                       color: showNutritionPreview ? "white" : "#003465",
                       border: "1px solid #003465",
                       borderRadius: "12px",
@@ -429,22 +437,38 @@ const CaloriesConsumedCard = ({
                       padding: "4px 12px",
                       zIndex: 10,
                     }}
-                    onClick={() => setShowNutritionPreview(!showNutritionPreview)}
+                    onClick={() =>
+                      setShowNutritionPreview(!showNutritionPreview)
+                    }
                   >
-                    {showNutritionPreview ? "Calories Preview" : "Nutrition Preview"}
+                    {showNutritionPreview
+                      ? "Calories Preview"
+                      : "Nutrition Preview"}
                   </button>
                 )}
                 {selectedDayData && activeTab === "Week" ? (
                   /* Detailed Day View */
-                  <div className="p-3 pt-1" style={{ height: "480px", overflowY: "auto" }}>
+                  <div
+                    className="p-3 pt-1"
+                    style={{ height: "480px", overflowY: "auto" }}
+                  >
                     <div className="d-flex justify-content-between mb-3">
                       {/* Date Header */}
-                      <h6 style={{ color: "#003465", fontSize: "14px", fontWeight: "600" }}>
-                        {new Date(selectedDayData.date).toLocaleDateString("en-US", {
-                          weekday: "long",
-                          month: "short",
-                          day: "numeric",
-                        })}
+                      <h6
+                        style={{
+                          color: "#003465",
+                          fontSize: "14px",
+                          fontWeight: "600",
+                        }}
+                      >
+                        {new Date(selectedDayData.date).toLocaleDateString(
+                          "en-US",
+                          {
+                            weekday: "long",
+                            month: "short",
+                            day: "numeric",
+                          }
+                        )}
                       </h6>
                       {/* Back Button */}
                       <button
@@ -464,71 +488,156 @@ const CaloriesConsumedCard = ({
 
                     <div className="row">
                       {/* Nutrition Section */}
-                      <div className="col-6 pe-3" style={{ borderRight: "2px solid #E8F2FF" }}>
-                        <div className="p-3 rounded-3" style={{ backgroundColor: "white", border: "1px solid #E8F2FF",height:'415px' }}>
-                          <h6 style={{ fontSize: "14px", fontWeight: "700", color: "#003465", marginBottom: "30px", borderBottom: "2px solid #E8F2FF", paddingBottom: "8px" }}>
+                      <div
+                        className="col-6 pe-3"
+                        style={{ borderRight: "2px solid #E8F2FF" }}
+                      >
+                        <div
+                          className="p-3 rounded-3"
+                          style={{
+                            backgroundColor: "white",
+                            border: "1px solid #E8F2FF",
+                            height: "415px",
+                          }}
+                        >
+                          <h6
+                            style={{
+                              fontSize: "14px",
+                              fontWeight: "700",
+                              color: "#003465",
+                              marginBottom: "30px",
+                              borderBottom: "2px solid #E8F2FF",
+                              paddingBottom: "8px",
+                            }}
+                          >
                             Micronutrients
                           </h6>
                           {/* Concentric Circular Progress Bars */}
                           <div className="d-flex justify-content-center mb-4">
-                            <div className="position-relative" style={{ width: "200px", height: "200px" }}>
-                              <svg width="200" height="200" className="position-absolute">
+                            <div
+                              className="position-relative"
+                              style={{ width: "200px", height: "200px" }}
+                            >
+                              <svg
+                                width="200"
+                                height="200"
+                                className="position-absolute"
+                              >
                                 {(() => {
                                   const nutrition = getSelectedDayNutrition();
                                   const proteinGoal = 150;
                                   const fatGoal = 65;
                                   const carbsGoal = 250;
-                                  
+
                                   return [
                                     // Outer circle - Carbs (largest)
-                                    <circle key="carbs-bg" cx="100" cy="100" r="85" fill="none" stroke="#E8F2FF" strokeWidth="10" />,
+                                    <circle
+                                      key="carbs-bg"
+                                      cx="100"
+                                      cy="100"
+                                      r="85"
+                                      fill="none"
+                                      stroke="#E8F2FF"
+                                      strokeWidth="10"
+                                    />,
                                     <circle
                                       key="carbs"
-                                      cx="100" cy="100" r="85"
+                                      cx="100"
+                                      cy="100"
+                                      r="85"
                                       fill="none"
                                       stroke="#B8E6C1"
                                       strokeWidth="10"
                                       strokeDasharray={2 * Math.PI * 85}
-                                      strokeDashoffset={2 * Math.PI * 85 - (nutrition.carbs / carbsGoal) * 2 * Math.PI * 85}
+                                      strokeDashoffset={
+                                        2 * Math.PI * 85 -
+                                        (nutrition.carbs / carbsGoal) *
+                                          2 *
+                                          Math.PI *
+                                          85
+                                      }
                                       strokeLinecap="round"
                                       transform="rotate(-90 100 100)"
                                     />,
-                                    
+
                                     // Middle circle - Fat
-                                    <circle key="fat-bg" cx="100" cy="100" r="65" fill="none" stroke="#E8F2FF" strokeWidth="10" />,
+                                    <circle
+                                      key="fat-bg"
+                                      cx="100"
+                                      cy="100"
+                                      r="65"
+                                      fill="none"
+                                      stroke="#E8F2FF"
+                                      strokeWidth="10"
+                                    />,
                                     <circle
                                       key="fat"
-                                      cx="100" cy="100" r="65"
+                                      cx="100"
+                                      cy="100"
+                                      r="65"
                                       fill="none"
                                       stroke="#FFD280"
                                       strokeWidth="10"
                                       strokeDasharray={2 * Math.PI * 65}
-                                      strokeDashoffset={2 * Math.PI * 65 - (nutrition.fat / fatGoal) * 2 * Math.PI * 65}
+                                      strokeDashoffset={
+                                        2 * Math.PI * 65 -
+                                        (nutrition.fat / fatGoal) *
+                                          2 *
+                                          Math.PI *
+                                          65
+                                      }
                                       strokeLinecap="round"
                                       transform="rotate(-90 100 100)"
                                     />,
-                                    
+
                                     // Inner circle - Protein (smallest)
-                                    <circle key="protein-bg" cx="100" cy="100" r="45" fill="none" stroke="#E8F2FF" strokeWidth="10" />,
+                                    <circle
+                                      key="protein-bg"
+                                      cx="100"
+                                      cy="100"
+                                      r="45"
+                                      fill="none"
+                                      stroke="#E8F2FF"
+                                      strokeWidth="10"
+                                    />,
                                     <circle
                                       key="protein"
-                                      cx="100" cy="100" r="45"
+                                      cx="100"
+                                      cy="100"
+                                      r="45"
                                       fill="none"
                                       stroke="#8CC8FF"
                                       strokeWidth="10"
                                       strokeDasharray={2 * Math.PI * 45}
-                                      strokeDashoffset={2 * Math.PI * 45 - (nutrition.protein / proteinGoal) * 2 * Math.PI * 45}
+                                      strokeDashoffset={
+                                        2 * Math.PI * 45 -
+                                        (nutrition.protein / proteinGoal) *
+                                          2 *
+                                          Math.PI *
+                                          45
+                                      }
                                       strokeLinecap="round"
                                       transform="rotate(-90 100 100)"
-                                    />
+                                    />,
                                   ];
                                 })()}
                               </svg>
                               <div className="position-absolute top-50 start-50 translate-middle text-center">
-                                <div className="fw-bold" style={{ fontSize: "24px", color: "#003465" }}>
+                                <div
+                                  className="fw-bold"
+                                  style={{ fontSize: "24px", color: "#003465" }}
+                                >
                                   {selectedDayData.value || 0}
                                 </div>
-                                <div style={{ fontSize: "12px", color: "#666", fontWeight: "500" }}>KCAL</div>
+                                <div
+                                  style={{
+                                    fontSize: "12px",
+                                    color: "#666",
+                                    fontWeight: "500",
+                                  }}
+                                >
+                                  KCAL
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -536,24 +645,114 @@ const CaloriesConsumedCard = ({
                           {/* Nutrition Legend */}
                           <div className="row g-2">
                             <div className="col-4">
-                              <div className="text-center p-2 rounded-2" style={{ backgroundColor: "#F0F9FF", border: "1px solid #8CC8FF" }}>
-                                <div style={{ fontSize: "12px", color: "#8CC8FF", fontWeight: "700" }}>●</div>
-                                <div style={{ fontSize: "10px", color: "#003465", fontWeight: "600" }}>Protein</div>
-                                <div style={{ fontSize: "11px", color: "#003465", fontWeight: "700" }}>{getSelectedDayNutrition().protein}g</div>
+                              <div
+                                className="text-center p-2 rounded-2"
+                                style={{
+                                  backgroundColor: "#F0F9FF",
+                                  border: "1px solid #8CC8FF",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    fontSize: "12px",
+                                    color: "#8CC8FF",
+                                    fontWeight: "700",
+                                  }}
+                                >
+                                  ●
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: "10px",
+                                    color: "#003465",
+                                    fontWeight: "600",
+                                  }}
+                                >
+                                  Protein
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: "11px",
+                                    color: "#003465",
+                                    fontWeight: "700",
+                                  }}
+                                >
+                                  {getSelectedDayNutrition().protein}g
+                                </div>
                               </div>
                             </div>
                             <div className="col-4">
-                              <div className="text-center p-2 rounded-2" style={{ backgroundColor: "#FFFBF0", border: "1px solid #FFD280" }}>
-                                <div style={{ fontSize: "12px", color: "#FFD280", fontWeight: "700" }}>●</div>
-                                <div style={{ fontSize: "10px", color: "#003465", fontWeight: "600" }}>Fat</div>
-                                <div style={{ fontSize: "11px", color: "#003465", fontWeight: "700" }}>{getSelectedDayNutrition().fat}g</div>
+                              <div
+                                className="text-center p-2 rounded-2"
+                                style={{
+                                  backgroundColor: "#FFFBF0",
+                                  border: "1px solid #FFD280",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    fontSize: "12px",
+                                    color: "#FFD280",
+                                    fontWeight: "700",
+                                  }}
+                                >
+                                  ●
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: "10px",
+                                    color: "#003465",
+                                    fontWeight: "600",
+                                  }}
+                                >
+                                  Fat
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: "11px",
+                                    color: "#003465",
+                                    fontWeight: "700",
+                                  }}
+                                >
+                                  {getSelectedDayNutrition().fat}g
+                                </div>
                               </div>
                             </div>
                             <div className="col-4">
-                              <div className="text-center p-2 rounded-2" style={{ backgroundColor: "#F0FFF4", border: "1px solid #B8E6C1" }}>
-                                <div style={{ fontSize: "12px", color: "#B8E6C1", fontWeight: "700" }}>●</div>
-                                <div style={{ fontSize: "10px", color: "#003465", fontWeight: "600" }}>Carbs</div>
-                                <div style={{ fontSize: "11px", color: "#003465", fontWeight: "700" }}>{getSelectedDayNutrition().carbs}g</div>
+                              <div
+                                className="text-center p-2 rounded-2"
+                                style={{
+                                  backgroundColor: "#F0FFF4",
+                                  border: "1px solid #B8E6C1",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    fontSize: "12px",
+                                    color: "#B8E6C1",
+                                    fontWeight: "700",
+                                  }}
+                                >
+                                  ●
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: "10px",
+                                    color: "#003465",
+                                    fontWeight: "600",
+                                  }}
+                                >
+                                  Carbs
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: "11px",
+                                    color: "#003465",
+                                    fontWeight: "700",
+                                  }}
+                                >
+                                  {getSelectedDayNutrition().carbs}g
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -562,35 +761,76 @@ const CaloriesConsumedCard = ({
 
                       {/* Food Logs Section */}
                       <div className="col-6 ps-3">
-                        <div className="p-3 rounded-3" style={{ backgroundColor: "white", border: "1px solid #E8F2FF", height: "415px", overflowY: "auto" }}>
-                          <h6 style={{ fontSize: "14px", fontWeight: "700", color: "#003465", marginBottom: "15px", borderBottom: "2px solid #E8F2FF", paddingBottom: "8px" }}>
+                        <div
+                          className="p-3 rounded-3"
+                          style={{
+                            backgroundColor: "white",
+                            border: "1px solid #E8F2FF",
+                            height: "415px",
+                            overflowY: "auto",
+                          }}
+                        >
+                          <h6
+                            style={{
+                              fontSize: "14px",
+                              fontWeight: "700",
+                              color: "#003465",
+                              marginBottom: "15px",
+                              borderBottom: "2px solid #E8F2FF",
+                              paddingBottom: "8px",
+                            }}
+                          >
                             Food Logs
                           </h6>
-                          {selectedDayData.foodLogs && Object.keys(selectedDayData.foodLogs).length > 0 ? (
-                            Object.entries(selectedDayData.foodLogs).map(([mealType, foods]) => (
-                              <div key={mealType} className="mb-3">
-                                <h6 style={{ fontSize: "12px", fontWeight: "600", color: "#003465", marginBottom: "8px" }}>
-                                  {mealType}
-                                </h6>
-                                {foods.map((food, index) => (
-                                  <div
-                                    key={index}
-                                    className="d-flex justify-content-between p-2 mb-1"
+                          {selectedDayData.foodLogs &&
+                          Object.keys(selectedDayData.foodLogs).length > 0 ? (
+                            Object.entries(selectedDayData.foodLogs).map(
+                              ([mealType, foods]) => (
+                                <div key={mealType} className="mb-3">
+                                  <h6
                                     style={{
-                                      backgroundColor: "#F8FBFF",
-                                      border: "1px solid #E8F2FF",
-                                      borderRadius: "6px",
-                                      fontSize: "10px",
+                                      fontSize: "12px",
+                                      fontWeight: "600",
+                                      color: "#003465",
+                                      marginBottom: "8px",
                                     }}
                                   >
-                                    <span style={{ color: "#003465", flex: 1 }}>{food.name}</span>
-                                    <span style={{ color: "#003465", fontWeight: "600" }}>{food.calories} cal</span>
-                                  </div>
-                                ))}
-                              </div>
-                            ))
+                                    {mealType}
+                                  </h6>
+                                  {foods.map((food, index) => (
+                                    <div
+                                      key={index}
+                                      className="d-flex justify-content-between p-2 mb-1"
+                                      style={{
+                                        backgroundColor: "#F8FBFF",
+                                        border: "1px solid #E8F2FF",
+                                        borderRadius: "6px",
+                                        fontSize: "10px",
+                                      }}
+                                    >
+                                      <span
+                                        style={{ color: "#003465", flex: 1 }}
+                                      >
+                                        {food.name}
+                                      </span>
+                                      <span
+                                        style={{
+                                          color: "#003465",
+                                          fontWeight: "600",
+                                        }}
+                                      >
+                                        {food.calories} cal
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )
+                            )
                           ) : (
-                            <div className="text-center" style={{ color: "#666", fontSize: "11px" }}>
+                            <div
+                              className="text-center"
+                              style={{ color: "#666", fontSize: "11px" }}
+                            >
                               No food logs available
                             </div>
                           )}
@@ -661,24 +901,24 @@ const CaloriesConsumedCard = ({
                             afterBody:
                               activeTab === "Week" && CaloriesStatsData
                                 ? () => [
-                                  `Min: ${parseFloat(
-                                    CaloriesStatsData.min
-                                  ).toFixed(0)} cal`,
-                                  `Max: ${parseFloat(
-                                    CaloriesStatsData.max
-                                  ).toFixed(0)} cal`,
-                                ]
+                                    `Min: ${parseFloat(
+                                      CaloriesStatsData.min
+                                    ).toFixed(0)} cal`,
+                                    `Max: ${parseFloat(
+                                      CaloriesStatsData.max
+                                    ).toFixed(0)} cal`,
+                                  ]
                                 : activeTab === "Month" && CaloriesData
-                                  ? (context) => {
+                                ? (context) => {
                                     const dataIndex = context[0]?.dataIndex;
                                     return dataIndex !== undefined &&
                                       CaloriesData[dataIndex]
                                       ? [
-                                        `Days: ${CaloriesData[dataIndex].dayRange}`,
-                                      ]
+                                          `Days: ${CaloriesData[dataIndex].dayRange}`,
+                                        ]
                                       : [];
                                   }
-                                  : undefined,
+                                : undefined,
                           },
                         },
                       },
@@ -692,16 +932,16 @@ const CaloriesConsumedCard = ({
                           min:
                             activeTab === "Week" && CaloriesStatsData
                               ? Math.min(
-                                0,
-                                parseFloat(CaloriesStatsData.min) - 100
-                              )
+                                  0,
+                                  parseFloat(CaloriesStatsData.min) - 100
+                                )
                               : 0,
                           max:
                             activeTab === "Week" && CaloriesStatsData
                               ? Math.max(
-                                ...chartData.data,
-                                parseFloat(CaloriesStatsData.max) + 100
-                              )
+                                  ...chartData.data,
+                                  parseFloat(CaloriesStatsData.max) + 100
+                                )
                               : undefined,
                           grid: { color: "#f0f0f0" },
                           ticks: { color: "#666", fontSize: 10 },
@@ -788,8 +1028,9 @@ const CaloriesConsumedCard = ({
                     width: "24px",
                     height: "24px",
                     backgroundColor: isNextDisabled() ? "#f5f5f5" : "white",
-                    border: `1px solid ${isNextDisabled() ? "#ccc" : "#003465"
-                      }`,
+                    border: `1px solid ${
+                      isNextDisabled() ? "#ccc" : "#003465"
+                    }`,
                     borderRadius: "4px",
                     color: isNextDisabled() ? "#ccc" : "#003465",
                     cursor: isNextDisabled() ? "not-allowed" : "pointer",
@@ -867,13 +1108,19 @@ const CaloriesConsumedCard = ({
                       key={`${activeTab}-${item.period}-${index}`}
                       className="d-flex justify-content-between p-2 mb-1"
                       style={{
-                        backgroundColor: selectedDayData && CaloriesData[index]?.date === selectedDayData.date ? "#E8F2FF" : "white",
+                        backgroundColor:
+                          selectedDayData &&
+                          CaloriesData[index]?.date === selectedDayData.date
+                            ? "#E8F2FF"
+                            : "white",
                         fontSize: "10px",
                         borderRadius: "2px",
                         border: "1px solid #E8F2FF",
                         cursor: activeTab === "Week" ? "pointer" : "default",
                       }}
-                      onClick={() => activeTab === "Week" && handleDaySelect(index)}
+                      onClick={() =>
+                        activeTab === "Week" && handleDaySelect(index)
+                      }
                     >
                       <span style={{ color: "#003465" }}>{item.period}</span>
                       <span style={{ color: "#003465" }}>{item.value}</span>
@@ -892,76 +1139,273 @@ const CaloriesConsumedCard = ({
           </div>
         ) : (
           /* Nutrients Section */
-          <div className="rounded-3 px-2 mt-1 pb-2" style={{ backgroundColor: '#F8FBFF' }}>
+          <div
+            className="rounded-3 px-2 mt-1 pb-2"
+            style={{ backgroundColor: "#F8FBFF" }}
+          >
             <div className="row">
               <div className="col-8">
                 <div className="d-flex justify-content-center mb-2">
-                  <div className="position-relative" style={{ width: '120px', height: '120px' }}>
+                  <div
+                    className="position-relative"
+                    style={{ width: "120px", height: "120px" }}
+                  >
                     <svg width="120" height="120" className="position-absolute">
-                      <circle cx="60" cy="60" r="48" fill="none" stroke="#E8F2FF" strokeWidth="6" />
-                      <circle cx="60" cy="60" r="48" fill="none" stroke="#003465" strokeWidth="4" strokeDasharray="301" strokeDashoffset={301 - (((AverageData?.todayData?.value || 0) / (AverageData?.goals?.caloriesInGoals || 1)) * 301)} strokeLinecap="round" transform="rotate(-90 60 60)" />
+                      <circle
+                        cx="60"
+                        cy="60"
+                        r="48"
+                        fill="none"
+                        stroke="#E8F2FF"
+                        strokeWidth="6"
+                      />
+                      <circle
+                        cx="60"
+                        cy="60"
+                        r="48"
+                        fill="none"
+                        stroke="#003465"
+                        strokeWidth="4"
+                        strokeDasharray="301"
+                        strokeDashoffset={
+                          301 -
+                          ((AverageData?.todayData?.value || 0) /
+                            (AverageData?.goals?.caloriesInGoals || 1)) *
+                            301
+                        }
+                        strokeLinecap="round"
+                        transform="rotate(-90 60 60)"
+                      />
                     </svg>
                     <div className="position-absolute top-50 start-50 translate-middle text-center">
-                      <div className="fw-bold" style={{ fontSize: '16px', color: '#003465' }}>{AverageData?.todayData?.value}</div>
-                      <div style={{ fontSize: '9px', color: '#666', fontWeight: '500' }}>KCAL</div>
+                      <div
+                        className="fw-bold"
+                        style={{ fontSize: "16px", color: "#003465" }}
+                      >
+                        {AverageData?.todayData?.value}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "9px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        KCAL
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="text-center mb-2">
-                  <p className="mb-0" style={{ fontSize: '10px', color: '#666', fontWeight: '500' }}>Daily nutrition intake</p>
+                  <p
+                    className="mb-0"
+                    style={{
+                      fontSize: "10px",
+                      color: "#666",
+                      fontWeight: "500",
+                    }}
+                  >
+                    Daily nutrition intake
+                  </p>
                 </div>
 
                 <div className="row g-1">
                   <div className="col-4">
-                    <div className="text-center py-1 px-1 rounded-2" style={{ backgroundColor: 'white', border: '1px solid #E8F2FF' }}>
-                      <div className="fw-bold" style={{ fontSize: '12px', color: '#003465' }}>{AverageData?.todayData?.calories?.nutrients?.fat}g</div>
-                      <div style={{ fontSize: '8px', color: '#666', fontWeight: '500' }}>Fat</div>
+                    <div
+                      className="text-center py-1 px-1 rounded-2"
+                      style={{
+                        backgroundColor: "white",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <div
+                        className="fw-bold"
+                        style={{ fontSize: "12px", color: "#003465" }}
+                      >
+                        {AverageData?.todayData?.calories?.nutrients?.fat}g
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "8px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Fat
+                      </div>
                     </div>
                   </div>
                   <div className="col-4">
-                    <div className="text-center py-1 px-1 rounded-2" style={{ backgroundColor: 'white', border: '1px solid #E8F2FF' }}>
-                      <div className="fw-bold" style={{ fontSize: '12px', color: '#003465' }}>{AverageData?.todayData?.calories?.nutrients?.carbs}g</div>
-                      <div style={{ fontSize: '8px', color: '#666', fontWeight: '500' }}>Carbs</div>
+                    <div
+                      className="text-center py-1 px-1 rounded-2"
+                      style={{
+                        backgroundColor: "white",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <div
+                        className="fw-bold"
+                        style={{ fontSize: "12px", color: "#003465" }}
+                      >
+                        {AverageData?.todayData?.calories?.nutrients?.carbs}g
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "8px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Carbs
+                      </div>
                     </div>
                   </div>
                   <div className="col-4">
-                    <div className="text-center py-1 px-1 rounded-2" style={{ backgroundColor: 'white', border: '1px solid #E8F2FF' }}>
-                      <div className="fw-bold" style={{ fontSize: '12px', color: '#003465' }}>{AverageData?.todayData?.calories?.nutrients?.protein}g</div>
-                      <div style={{ fontSize: '8px', color: '#666', fontWeight: '500' }}>Protein</div>
+                    <div
+                      className="text-center py-1 px-1 rounded-2"
+                      style={{
+                        backgroundColor: "white",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <div
+                        className="fw-bold"
+                        style={{ fontSize: "12px", color: "#003465" }}
+                      >
+                        {AverageData?.todayData?.calories?.nutrients?.protein}g
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "8px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Protein
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="col-4 px-1 pt-1" style={{ borderLeft: '1px solid #ddd' }}>
-                <div className='mb-2 text-start' style={{ fontSize: '12px', fontWeight: '700', color: '#003465', letterSpacing: '0.5px' }}>Nutrition Goals:</div>
-
-                <div className='p-3 mb-2 rounded-3 shadow-sm position-relative' style={{ backgroundColor: 'white', border: '2px solid #E8F2FF' }}>
-                  <div className='position-absolute top-0 start-0 w-100 h-1 rounded-top' style={{ backgroundColor: '#003465' }}></div>
-                  <div className='d-flex align-items-center mb-1'>
-                    <div className='rounded-circle me-2' style={{ width: '8px', height: '8px', backgroundColor: '#003465' }}></div>
-                    <div style={{ fontSize: '11px', color: '#003465', fontWeight: '600' }}>Daily Target</div>
-                  </div>
-                  <div style={{ fontSize: '10px', color: '#003465', fontWeight: '500', lineHeight: '1.3' }}>Goal: <span className='fw-bold'>{AverageData?.goals?.caloriesInGoals} kcal</span> per day</div>
+              <div
+                className="col-4 px-1 pt-1"
+                style={{ borderLeft: "1px solid #ddd" }}
+              >
+                <div
+                  className="mb-2 text-start"
+                  style={{
+                    fontSize: "12px",
+                    fontWeight: "700",
+                    color: "#003465",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  Nutrition Goals:
                 </div>
 
-                <div className='p-3 rounded-3 shadow-sm position-relative' style={{ backgroundColor: 'white', border: '2px solid #E8F2FF' }}>
-                  <div className='position-absolute top-0 start-0 w-100 h-1 rounded-top' style={{ backgroundColor: '#003465' }}></div>
-                  <div className='d-flex align-items-center mb-1'>
-                    <div className='rounded-circle me-2' style={{ width: '8px', height: '8px', backgroundColor: '#003465' }}></div>
-                    <div style={{ fontSize: '11px', color: '#003465', fontWeight: '600' }}>Progress</div>
+                <div
+                  className="p-3 mb-2 rounded-3 shadow-sm position-relative"
+                  style={{
+                    backgroundColor: "white",
+                    border: "2px solid #E8F2FF",
+                  }}
+                >
+                  <div
+                    className="position-absolute top-0 start-0 w-100 h-1 rounded-top"
+                    style={{ backgroundColor: "#003465" }}
+                  ></div>
+                  <div className="d-flex align-items-center mb-1">
+                    <div
+                      className="rounded-circle me-2"
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        backgroundColor: "#003465",
+                      }}
+                    ></div>
+                    <div
+                      style={{
+                        fontSize: "11px",
+                        color: "#003465",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Daily Target
+                    </div>
                   </div>
-                  <div style={{ fontSize: '10px', color: '#003465', fontWeight: '500', lineHeight: '1.3' }}><span className='fw-bold'>{Math.max(0, (AverageData?.goals?.caloriesInGoals || 0) - (AverageData?.todayData?.value || 0))} kcal</span> remaining for today</div>
+                  <div
+                    style={{
+                      fontSize: "10px",
+                      color: "#003465",
+                      fontWeight: "500",
+                      lineHeight: "1.3",
+                    }}
+                  >
+                    Goal:{" "}
+                    <span className="fw-bold">
+                      {AverageData?.goals?.caloriesInGoals} kcal
+                    </span>{" "}
+                    per day
+                  </div>
+                </div>
+
+                <div
+                  className="p-3 rounded-3 shadow-sm position-relative"
+                  style={{
+                    backgroundColor: "white",
+                    border: "2px solid #E8F2FF",
+                  }}
+                >
+                  <div
+                    className="position-absolute top-0 start-0 w-100 h-1 rounded-top"
+                    style={{ backgroundColor: "#003465" }}
+                  ></div>
+                  <div className="d-flex align-items-center mb-1">
+                    <div
+                      className="rounded-circle me-2"
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        backgroundColor: "#003465",
+                      }}
+                    ></div>
+                    <div
+                      style={{
+                        fontSize: "11px",
+                        color: "#003465",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Progress
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "10px",
+                      color: "#003465",
+                      fontWeight: "500",
+                      lineHeight: "1.3",
+                    }}
+                  >
+                    <span className="fw-bold">
+                      {Math.max(
+                        0,
+                        (AverageData?.goals?.caloriesInGoals || 0) -
+                          (AverageData?.todayData?.value || 0)
+                      )}{" "}
+                      kcal
+                    </span>{" "}
+                    remaining for today
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         )}
-
-
       </div>
-    </div >
+    </div>
   );
 };
 

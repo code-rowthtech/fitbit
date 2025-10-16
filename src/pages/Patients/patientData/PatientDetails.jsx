@@ -38,7 +38,7 @@ const PatientDetails = ({
   const PatientData = useSelector(
     (state) => state?.getPatientByIdReducer?.data?.data?.patient
   );
-
+  console.log("PatientData", PatientData);
   const isLoading = useSelector(
     (state) => state?.getPatientByIdReducer?.loading
   );
@@ -471,35 +471,20 @@ const PatientDetails = ({
                       gap: "20px",
                       width: "9vw",
                       backgroundColor:
-                        (parseInt(
-                          String(
-                            PatientData?.weeklyFitbitData?.avgSteps?.value ||
-                              PatientData?.weeklyFitbitData?.avgSteps ||
-                              ""
-                          ).replace(",", "")
-                        ) || 0) < 6000
-                          ? "#FFF0F0"
-                          : "white",
+                        PatientData?.weeklyFitbitData?.avgSteps?.type ===
+                        "normal"
+                          ? "#F0FFF0"
+                          : "#FFF0F0",
                       border:
-                        (parseInt(
-                          String(
-                            PatientData?.weeklyFitbitData?.avgSteps?.value ||
-                              PatientData?.weeklyFitbitData?.avgSteps ||
-                              ""
-                          ).replace(",", "")
-                        ) || 0) < 6000
-                          ? "1px solid #dc3545"
-                          : "1px solid #e9ecef",
+                        PatientData?.weeklyFitbitData?.avgSteps?.type ===
+                        "normal"
+                          ? "1px solid #28a745"
+                          : "1px solid #dc3545",
                       boxShadow:
-                        (parseInt(
-                          String(
-                            PatientData?.weeklyFitbitData?.avgSteps?.value ||
-                              PatientData?.weeklyFitbitData?.avgSteps ||
-                              ""
-                          ).replace(",", "")
-                        ) || 0) < 6000
-                          ? "0 4px 8px rgba(220, 53, 69, 0.3)"
-                          : "none",
+                        PatientData?.weeklyFitbitData?.avgSteps?.type ===
+                        "normal"
+                          ? "0 4px 8px rgba(40, 167, 69, 0.3)"
+                          : "0 4px 8px rgba(220, 53, 69, 0.3)",
                     }}
                   >
                     <img
@@ -549,13 +534,8 @@ const PatientDetails = ({
                         </span>
                       </div>
                     </div>
-                    {(parseInt(
-                      String(
-                        PatientData?.weeklyFitbitData?.avgSteps?.value ||
-                          PatientData?.weeklyFitbitData?.avgSteps ||
-                          ""
-                      ).replace(",", "")
-                    ) || 0) >= 6000 ? (
+                    {PatientData?.weeklyFitbitData?.avgSteps?.type ===
+                    "normal" ? (
                       <FaCheckCircle
                         style={{
                           position: "absolute",
@@ -583,56 +563,47 @@ const PatientDetails = ({
                       gap: "16px",
                       width: "9vw",
                       backgroundColor:
-                        (parseInt(
-                          PatientData?.weeklyFitbitData?.heartRate?.value ||
-                            (typeof PatientData?.weeklyFitbitData?.heartRate ===
-                            "number"
-                              ? PatientData?.weeklyFitbitData?.heartRate
-                              : null)
-                        ) || 80) < 60 ||
-                        (parseInt(
-                          PatientData?.weeklyFitbitData?.heartRate?.value ||
-                            (typeof PatientData?.weeklyFitbitData?.heartRate ===
-                            "number"
-                              ? PatientData?.weeklyFitbitData?.heartRate
-                              : null)
-                        ) || 80) > 100
-                          ? "#FFF0F0"
-                          : "white",
+                        PatientData?.weeklyFitbitData?.heartRate?.type ===
+                          "normal" ||
+                        (!PatientData?.weeklyFitbitData?.heartRate?.type &&
+                          parseInt(
+                            PatientData?.weeklyFitbitData?.heartRate?.value ||
+                              80
+                          ) >= 60 &&
+                          parseInt(
+                            PatientData?.weeklyFitbitData?.heartRate?.value ||
+                              80
+                          ) <= 100)
+                          ? "#F0FFF0"
+                          : "#FFF0F0",
                       border:
-                        (parseInt(
-                          PatientData?.weeklyFitbitData?.heartRate?.value ||
-                            (typeof PatientData?.weeklyFitbitData?.heartRate ===
-                            "number"
-                              ? PatientData?.weeklyFitbitData?.heartRate
-                              : null)
-                        ) || 80) < 60 ||
-                        (parseInt(
-                          PatientData?.weeklyFitbitData?.heartRate?.value ||
-                            (typeof PatientData?.weeklyFitbitData?.heartRate ===
-                            "number"
-                              ? PatientData?.weeklyFitbitData?.heartRate
-                              : null)
-                        ) || 80) > 100
-                          ? "1px solid #dc3545"
-                          : "1px solid #e9ecef",
+                        PatientData?.weeklyFitbitData?.heartRate?.type ===
+                          "normal" ||
+                        (!PatientData?.weeklyFitbitData?.heartRate?.type &&
+                          parseInt(
+                            PatientData?.weeklyFitbitData?.heartRate?.value ||
+                              80
+                          ) >= 60 &&
+                          parseInt(
+                            PatientData?.weeklyFitbitData?.heartRate?.value ||
+                              80
+                          ) <= 100)
+                          ? "1px solid #28a745"
+                          : "1px solid #dc3545",
                       boxShadow:
-                        (parseInt(
-                          PatientData?.weeklyFitbitData?.heartRate?.value ||
-                            (typeof PatientData?.weeklyFitbitData?.heartRate ===
-                            "number"
-                              ? PatientData?.weeklyFitbitData?.heartRate
-                              : null)
-                        ) || 80) < 60 ||
-                        (parseInt(
-                          PatientData?.weeklyFitbitData?.heartRate?.value ||
-                            (typeof PatientData?.weeklyFitbitData?.heartRate ===
-                            "number"
-                              ? PatientData?.weeklyFitbitData?.heartRate
-                              : null)
-                        ) || 80) > 100
-                          ? "0 4px 8px rgba(220, 53, 69, 0.3)"
-                          : "none",
+                        PatientData?.weeklyFitbitData?.heartRate?.type ===
+                          "normal" ||
+                        (!PatientData?.weeklyFitbitData?.heartRate?.type &&
+                          parseInt(
+                            PatientData?.weeklyFitbitData?.heartRate?.value ||
+                              80
+                          ) >= 60 &&
+                          parseInt(
+                            PatientData?.weeklyFitbitData?.heartRate?.value ||
+                              80
+                          ) <= 100)
+                          ? "0 4px 8px rgba(40, 167, 69, 0.3)"
+                          : "0 4px 8px rgba(220, 53, 69, 0.3)",
                     }}
                   >
                     <img
@@ -682,20 +653,15 @@ const PatientDetails = ({
                         </span>
                       </div>
                     </div>
-                    {(parseInt(
-                      PatientData?.weeklyFitbitData?.heartRate?.value ||
-                        (typeof PatientData?.weeklyFitbitData?.heartRate ===
-                        "number"
-                          ? PatientData?.weeklyFitbitData?.heartRate
-                          : null)
-                    ) || 80) >= 60 &&
-                    (parseInt(
-                      PatientData?.weeklyFitbitData?.heartRate?.value ||
-                        (typeof PatientData?.weeklyFitbitData?.heartRate ===
-                        "number"
-                          ? PatientData?.weeklyFitbitData?.heartRate
-                          : null)
-                    ) || 80) <= 100 ? (
+                    {PatientData?.weeklyFitbitData?.heartRate?.type ===
+                      "normal" ||
+                    (!PatientData?.weeklyFitbitData?.heartRate?.type &&
+                      parseInt(
+                        PatientData?.weeklyFitbitData?.heartRate?.value || 80
+                      ) >= 60 &&
+                      parseInt(
+                        PatientData?.weeklyFitbitData?.heartRate?.value || 80
+                      ) <= 100) ? (
                       <FaCheckCircle
                         style={{
                           position: "absolute",
@@ -723,38 +689,20 @@ const PatientDetails = ({
                       gap: "16px",
                       width: "9vw",
                       backgroundColor:
-                        (parseInt(
-                          PatientData?.weeklyFitbitData?.avgSleepDuration
-                            ?.value ||
-                            (typeof PatientData?.weeklyFitbitData
-                              ?.avgSleepDuration === "number"
-                              ? PatientData?.weeklyFitbitData?.avgSleepDuration
-                              : null)
-                        ) || 360) < 420
-                          ? "#FFF0F0"
-                          : "white",
+                        PatientData?.weeklyFitbitData?.avgSleepDuration
+                          ?.type === "normal"
+                          ? "#F0FFF0"
+                          : "#FFF0F0",
                       border:
-                        (parseInt(
-                          PatientData?.weeklyFitbitData?.avgSleepDuration
-                            ?.value ||
-                            (typeof PatientData?.weeklyFitbitData
-                              ?.avgSleepDuration === "number"
-                              ? PatientData?.weeklyFitbitData?.avgSleepDuration
-                              : null)
-                        ) || 360) < 420
-                          ? "1px solid #dc3545"
-                          : "1px solid #e9ecef",
+                        PatientData?.weeklyFitbitData?.avgSleepDuration
+                          ?.type === "normal"
+                          ? "1px solid #28a745"
+                          : "1px solid #dc3545",
                       boxShadow:
-                        (parseInt(
-                          PatientData?.weeklyFitbitData?.avgSleepDuration
-                            ?.value ||
-                            (typeof PatientData?.weeklyFitbitData
-                              ?.avgSleepDuration === "number"
-                              ? PatientData?.weeklyFitbitData?.avgSleepDuration
-                              : null)
-                        ) || 360) < 420
-                          ? "0 4px 8px rgba(220, 53, 69, 0.3)"
-                          : "none",
+                        PatientData?.weeklyFitbitData?.avgSleepDuration
+                          ?.type === "normal"
+                          ? "0 4px 8px rgba(40, 167, 69, 0.3)"
+                          : "0 4px 8px rgba(220, 53, 69, 0.3)",
                     }}
                   >
                     <img
@@ -805,13 +753,8 @@ const PatientDetails = ({
                         </span>
                       </div>
                     </div>
-                    {parseInt(
-                      PatientData?.weeklyFitbitData?.avgSleepDuration?.value ||
-                        (typeof PatientData?.weeklyFitbitData
-                          ?.avgSleepDuration === "number"
-                          ? PatientData?.weeklyFitbitData?.avgSleepDuration
-                          : null)
-                    ) >= 420 ? (
+                    {PatientData?.weeklyFitbitData?.avgSleepDuration?.type ===
+                    "normal" ? (
                       <FaCheckCircle
                         style={{
                           position: "absolute",
@@ -839,35 +782,20 @@ const PatientDetails = ({
                       gap: "16px",
                       width: "9vw",
                       backgroundColor:
-                        parseFloat(
-                          PatientData?.weeklyFitbitData?.avgWater?.value ??
-                            (typeof PatientData?.weeklyFitbitData?.avgWater ===
-                            "number"
-                              ? PatientData?.weeklyFitbitData?.avgWater
-                              : 2700)
-                        ) < 2500
-                          ? "#FFF0F0"
-                          : "white",
+                        PatientData?.weeklyFitbitData?.avgWater?.type ===
+                        "normal"
+                          ? "#F0FFF0"
+                          : "#FFF0F0",
                       border:
-                        parseFloat(
-                          PatientData?.weeklyFitbitData?.avgWater?.value ??
-                            (typeof PatientData?.weeklyFitbitData?.avgWater ===
-                            "number"
-                              ? PatientData?.weeklyFitbitData?.avgWater
-                              : 2700)
-                        ) < 2500
-                          ? "1px solid #dc3545"
-                          : "1px solid #e9ecef",
+                        PatientData?.weeklyFitbitData?.avgWater?.type ===
+                        "normal"
+                          ? "1px solid #28a745"
+                          : "1px solid #dc3545",
                       boxShadow:
-                        parseFloat(
-                          PatientData?.weeklyFitbitData?.avgWater?.value ??
-                            (typeof PatientData?.weeklyFitbitData?.avgWater ===
-                            "number"
-                              ? PatientData?.weeklyFitbitData?.avgWater
-                              : 2700)
-                        ) < 2500
-                          ? "0 4px 8px rgba(220, 53, 69, 0.3)"
-                          : "none",
+                        PatientData?.weeklyFitbitData?.avgWater?.type ===
+                        "normal"
+                          ? "0 4px 8px rgba(40, 167, 69, 0.3)"
+                          : "0 4px 8px rgba(220, 53, 69, 0.3)",
                     }}
                   >
                     <img
@@ -917,13 +845,8 @@ const PatientDetails = ({
                         </span>
                       </div>
                     </div>
-                    {parseFloat(
-                      PatientData?.weeklyFitbitData?.avgWater?.value ??
-                        (typeof PatientData?.weeklyFitbitData?.avgWater ===
-                        "number"
-                          ? PatientData?.weeklyFitbitData?.avgWater
-                          : 2700)
-                    ) >= 2500 ? (
+                    {PatientData?.weeklyFitbitData?.avgWater?.type ===
+                    "normal" ? (
                       <FaCheckCircle
                         style={{
                           position: "absolute",

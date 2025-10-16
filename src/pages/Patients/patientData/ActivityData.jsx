@@ -122,7 +122,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
         end: formatDate(end),
         field: "steps",
       };
-      // if (activeTab === "Month") payload.period = "month";
+      // if (activeTab === "Month")  // payload.period = "month";
       if (activeTab === "Year") payload.period = "year";
       dispatch(getFilterData(payload));
     }
@@ -224,7 +224,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                               end: formatDate(endDate),
                               field: "steps",
                             };
-                            if (activeTab === "Month") payload.period = "month";
+                            if (activeTab === "Month")  // payload.period = "month";
                             if (activeTab === "Year") payload.period = "year";
                             dispatch(getFilterData(payload));
                           }

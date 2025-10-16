@@ -123,6 +123,23 @@ const SleepJourneyChart = ({
 
     const totalSeconds = Object.values(stageTotals).reduce((a, b) => a + b, 0);
 
+    // Calculate transition points for dotted lines
+    const transitionPoints = [];
+    levelsData.forEach((item, index) => {
+      if (index > 0) {
+        const prevLevel =
+          levelsData[index - 1].level === "awake"
+            ? "wake"
+            : levelsData[index - 1].level;
+        const currentLevel = item.level === "awake" ? "wake" : item.level;
+        if (prevLevel !== currentLevel) {
+          const transitionMs = new Date(item.dateTime) - startTime;
+          const transitionPercent = (transitionMs / totalDurationMs) * 100;
+          transitionPoints.push(transitionPercent);
+        }
+      }
+    });
+
     return {
       bedtime: startTime.toLocaleTimeString("en-IN", {
         hour: "2-digit",
@@ -161,6 +178,7 @@ const SleepJourneyChart = ({
           segments: stageGroups.rem,
         },
       },
+      transitionPoints,
     };
   };
 
@@ -262,7 +280,7 @@ console.log("Sleep data:", sleepData)
 
       {/* Enhanced Timeline */}
       <div
-        className="flex-grow-1"
+        className="flex-grow-1 position-relative"
         style={{
           background: "white",
           borderRadius: "8px",
@@ -282,16 +300,79 @@ console.log("Sleep data:", sleepData)
             Sleep Stages Distribution
           </h6>
         </div>
+
+        {/* Dotted vertical lines connecting sleep stages */}
+        {sleepData.transitionPoints?.length > 0 && (
+          <div
+            className="position-absolute"
+            style={{
+              top: "50px",
+              left: "12px",
+              right: "12px",
+              bottom: "12px",
+              pointerEvents: "none",
+              zIndex: 1,
+            }}
+          >
+            {sleepData.transitionPoints.map((position, index) => (
+              <div
+                key={index}
+                style={{
+                  position: "absolute",
+                  left: `${position}%`,
+                  top: "0",
+                  bottom: "0",
+                  width: "1px",
+                  background:
+                    "repeating-linear-gradient(to bottom, #666 0px, #666 2px, transparent 2px, transparent 6px)",
+                  opacity: 0.5,
+                }}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Dotted vertical lines at sleep stage transitions */}
+        {sleepData.transitionPoints?.length > 0 && (
+          <div
+            className="position-absolute"
+            style={{
+              top: "50px",
+              left: "12px",
+              right: "12px",
+              bottom: "12px",
+              pointerEvents: "none",
+              zIndex: 1,
+            }}
+          >
+            {sleepData.transitionPoints.map((position, index) => (
+              <div
+                key={index}
+                style={{
+                  position: "absolute",
+                  left: `${position}%`,
+                  top: "0",
+                  bottom: "0",
+                  width: "1px",
+                  background:
+                    "repeating-linear-gradient(to bottom, #999 0px, #999 2px, transparent 2px, transparent 6px)",
+                  opacity: 0.6,
+                }}
+              />
+            ))}
+          </div>
+        )}
         {Object.entries(sleepData.stages).map(
           ([stageName, stageData], index) => (
             <div
               key={stageName}
-              className="mb-3"
+              className="mb-3 position-relative"
               style={{
                 background: `${stageData.color}08`,
                 borderRadius: "8px",
                 padding: "8px",
                 border: `1px solid ${stageData.color}20`,
+                zIndex: 2,
               }}
             >
               <div className="d-flex align-items-center justify-content-between mb-2">
@@ -493,7 +574,7 @@ const SleepStagesCard = ({
         end: formatDate(end),
         field: "sleep",
       };
-      if (activeTab === "Month") payload.period = "month";
+      // if (activeTab === "Month")  // payload.period = "month";
       if (activeTab === "Year") payload.period = "year";
       dispatch(getPatientSleepStages(payload));
     }
@@ -693,7 +774,7 @@ const SleepStagesCard = ({
           end: formatDate(end),
           field: "sleep",
         };
-        if (activeTab === "Month") payload.period = "month";
+        // if (activeTab === "Month")  // payload.period = "month";
         if (activeTab === "Year") payload.period = "year";
         dispatch(getPatientSleepStages(payload));
       }
@@ -736,7 +817,7 @@ const SleepStagesCard = ({
           end: formatDate(end),
           field: "sleep",
         };
-        if (tab === "Month") payload.period = "month";
+        // if (tab === "Month")  // payload.period = "month";
         if (tab === "Year") payload.period = "year";
         dispatch(getPatientSleepStages(payload));
       }
@@ -836,6 +917,22 @@ const SleepStagesCard = ({
                         },
                       },
                       categoryPercentage: 0.6,
+                      onClick:
+                        activeTab === "Year"
+                          ? (event, elements) => {
+                              if (elements.length > 0) {
+                                const clickedIndex = elements[0].index;
+                                const clickedMonth = clickedIndex; 
+                                const newDate = new Date(
+                                  currentDate.getFullYear(),
+                                  clickedMonth,
+                                  1
+                                );
+                                onDateChange(newDate);
+                                handleTabChange("Month");
+                              }
+                            }
+                          : undefined,
                     }}
                   />
                 )}
@@ -971,6 +1068,31 @@ const SleepStagesCard = ({
                         fontSize: "10px",
                         borderRadius: "2px",
                         border: "1px solid #E8F2FF",
+                        cursor: (activeTab === "Year" || activeTab === "Month") ? "pointer" : "default",
+                      }}
+                      onClick={() => {
+                        if (activeTab === "Year") {
+                          const newDate = new Date(
+                            currentDate.getFullYear(),
+                            index,
+                            1
+                          );
+                          onDateChange(newDate);
+                          onTabChange("Month");
+                        } else if (activeTab === "Month") {
+                          // Extract day number from period like "Oct 15" -> 15
+                          const dayMatch = item.period.match(/\d+/);
+                          if (dayMatch) {
+                            const clickedDay = parseInt(dayMatch[0]);
+                            const clickedDate = new Date(
+                              currentDate.getFullYear(),
+                              currentDate.getMonth(),
+                              clickedDay
+                            );
+                            onDateChange(clickedDate);
+                            onTabChange("Day");
+                          }
+                        }
                       }}
                     >
                       <span style={{ color: "#003465" }}>{item.period}</span>

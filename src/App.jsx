@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard';
 import Doctors from './pages/Doctors/Doctors';
 import Patients from './pages/Patients/Patients';
 import PatientDashboard from './pages/Patients/PatientDashboard';
+import FitbitSuccess from './pages/FitbitSuccess';
 // import Notes from './pages/Notes/Notes';
 import NotFound from './pages/NotFound';
 import { SidebarProvider } from './contexts/SidebarContext';
@@ -38,6 +39,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/verify-otp" element={<VerifyOTP />} />
           <Route path="/change-password" element={<ChangePassword />} />
+          <Route path="/fitbit-success" element={<FitbitSuccess />} />
           {/* <Route 
             path="/" 
             element={

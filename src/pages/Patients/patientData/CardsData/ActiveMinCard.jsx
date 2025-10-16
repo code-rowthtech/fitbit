@@ -74,8 +74,10 @@ const ActiveMinCard = ({
         end: formatDate(end),
         field: "activeMinutes",
       };
-      if (activeTab === "Month") payload.period = "month";
-      if (activeTab === "Year") payload.period = "year";
+      if (activeTab === "Month")
+        if (activeTab === "Year")
+          // payload.period = "month";
+          payload.period = "year";
       console.log("Dispatching getPatientActiveMin with payload:", payload);
       dispatch(getPatientActiveMin(payload));
     } else {
@@ -317,8 +319,10 @@ const ActiveMinCard = ({
           end: formatDate(end),
           field: "activeMinutes",
         };
-        if (tab === "Month") payload.period = "month";
-        if (tab === "Year") payload.period = "year";
+        if (tab === "Month")
+          if (tab === "Year")
+            // payload.period = "month";
+            payload.period = "year";
         dispatch(getPatientActiveMin(payload));
       }
     }, 0);
@@ -688,8 +692,11 @@ const ActiveMinCard = ({
                     strokeDasharray="301"
                     strokeDashoffset={
                       301 -
-                      Math.min(1, (AverageData?.todayData?.value || 0) /
-                        (AverageData?.goals?.activeMinutes || 1)) *
+                      Math.min(
+                        1,
+                        (AverageData?.todayData?.value || 0) /
+                          (AverageData?.goals?.activeMinutes || 1)
+                      ) *
                         301
                     }
                     strokeLinecap="round"
@@ -701,11 +708,14 @@ const ActiveMinCard = ({
                     className="fw-bold"
                     style={{ fontSize: "16px", color: "#003465" }}
                   >
-                    {Math.min(100, Math.round(
-                      ((AverageData?.todayData?.value || 0) /
-                        (AverageData?.goals?.activeMinutes || 1)) *
-                        100
-                    ))}
+                    {Math.min(
+                      100,
+                      Math.round(
+                        ((AverageData?.todayData?.value || 0) /
+                          (AverageData?.goals?.activeMinutes || 1)) *
+                          100
+                      )
+                    )}
                     %
                   </div>
                   <div
