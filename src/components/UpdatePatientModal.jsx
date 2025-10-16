@@ -1404,7 +1404,7 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                         textTransform: "uppercase",
                       }}
                     >
-                      SUBMIT
+                      UPDATE
                     </Button>
                     {currentStep < 4 && (
                       <Button
