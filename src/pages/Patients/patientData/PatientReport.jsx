@@ -314,15 +314,29 @@ const PatientReport = ({ isExpanded, onExpand }) => {
     <div className='bg-white py-2 px-2'>
       {/* Navigation */}
       <div className="d-flex justify-content-between align-items-center px-4 py-2  month-navigation">
-        <span onClick={viewType === 'Monthly' ? handlePreviousMonth : handlePreviousYear} className="month-navigation span">
-          <FaAngleLeft style={{ color: '#003465' }} />
-        </span>
-        <h6 className="mb-0 fw-bold text-center month-navigation" style={{ fontSize: '14px', color: '#003465' }}>
-          {viewType === 'Monthly' ? currentMonth.format('MMMM YYYY') : currentYear.format('YYYY')}
-          <span>
-            <IoCalendarClearOutline className='mb-1' style={{ fontSize: '18px', marginLeft: '8px', color: '#003465' }} />
-          </span>
-        </h6>
+        <div></div>
+        <div className="d-flex align-items-center gap-3">
+          <button 
+            onClick={viewType === 'Monthly' ? handlePreviousMonth : handlePreviousYear} 
+            className="btn btn-sm d-flex align-items-center justify-content-center"
+            style={{ width: '24px', height: '24px', backgroundColor: '#003465', color: 'white', border: 'none' }}
+          >
+            <FaAngleLeft />
+          </button>
+          <h6 className="mb-0 fw-bold text-center month-navigation" style={{ fontSize: '14px', color: '#003465' }}>
+            {viewType === 'Monthly' ? currentMonth.format('MMMM YYYY') : currentYear.format('YYYY')}
+            <span>
+              <IoCalendarClearOutline className='mb-1' style={{ fontSize: '18px', marginLeft: '8px', color: '#003465' }} />
+            </span>
+          </h6>
+          <button 
+            onClick={viewType === 'Monthly' ? handleNextMonth : handleNextYear} 
+            className="btn btn-sm d-flex align-items-center justify-content-center"
+            style={{ width: '24px', height: '24px', backgroundColor: '#003465', color: 'white', border: 'none' }}
+          >
+            <FaAngleRight />
+          </button>
+        </div>
         <div className="d-flex align-items-center">
           <div className="d-flex align-items-center gap-2 me-3">
             <div className="d-flex align-items-center gap-1" style={{ fontSize: '12.4px', color: viewType === 'Monthly' ? '#003465' : '#6c757d' }}>
@@ -380,7 +394,7 @@ const PatientReport = ({ isExpanded, onExpand }) => {
               onClick={handleDownloadReport}
             />
           </OverlayTrigger>
-          <FaAngleRight style={{ color: '#003465', cursor: 'pointer' }} onClick={viewType === 'Monthly' ? handleNextMonth : handleNextYear} />
+
         </div>
       </div>
 
