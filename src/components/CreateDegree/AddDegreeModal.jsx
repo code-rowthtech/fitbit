@@ -29,6 +29,10 @@ const AddDegreeModal = ({ show, onHide }) => {
       return;
     }
 
+    // Capitalize first letter of each word
+    value = value.replace(/\b\w/g, (char) => char.toUpperCase());
+    e.target.value = value;
+
     onChange(e);
   };
 
@@ -110,16 +114,6 @@ const AddDegreeModal = ({ show, onHide }) => {
                         e.preventDefault();
                       }
                     }}
-                    onPaste={(e) => {
-                      const pastedText = e.clipboardData.getData("text");
-                      const hasEmoji =
-                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
-                          pastedText
-                        );
-                      if (!/^[A-Za-z\s]+$/.test(pastedText) || hasEmoji) {
-                        e.preventDefault();
-                      }
-                    }}
                     {...register("degree", {
                       required: "Degree name is required",
                       minLength: {
@@ -137,8 +131,8 @@ const AddDegreeModal = ({ show, onHide }) => {
                       },
                       validate: {
                         noLeadingSpace: (value) =>
-                          value?.trim() === value ||
-                          "Name cannot start or end with spaces",
+                          !value?.startsWith(" ") ||
+                          "Name cannot start with spaces",
                         noMultipleSpaces: (value) =>
                           !/\s{2,}/.test(value) ||
                           "Multiple consecutive spaces are not allowed",
@@ -160,13 +154,13 @@ const AddDegreeModal = ({ show, onHide }) => {
                   )}
                 </Form.Group>
               </Col>
-              <Col md={12}>
+              {/* <Col md={12}>
                 <Form.Group className="mb-3">
                   <Form.Label
                     className="mb-1 fw-semibold opacity-75"
                     style={{ fontSize: "14px", color: "#16213DB2" }}
                   >
-                    Description <span className="text-danger">*</span>
+                    Description
                   </Form.Label>
                   <Form.Control
                     style={{ fontSize: "12px", backgroundColor: "#F9FAFB" }}
@@ -176,43 +170,24 @@ const AddDegreeModal = ({ show, onHide }) => {
                     placeholder="Enter Description"
                     autoComplete="off"
                     onKeyDown={(e) => {
-                      preventFirstSpace(e);
-                      // Block emojis
-                      const isEmoji =
-                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
-                          e.key
-                        );
-                      if (isEmoji && e.key.length === 1) {
-                        e.preventDefault();
-                      }
-                    }}
-                    onPaste={(e) => {
-                      const pastedText = e.clipboardData.getData("text");
-                      const hasEmoji =
-                        /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
-                          pastedText
-                        );
-                      if (hasEmoji) {
+                      if (e.target.value.length === 0 && e.key === " ") {
                         e.preventDefault();
                       }
                     }}
                     {...register("description", {
-                      required: "Description is required",
-                      minLength: {
-                        value: 10,
-                        message: "Description is too short",
-                      },
                       validate: {
-                        noLeadingSpace: (value) =>
-                          value?.trim() === value ||
-                          "Description cannot start or end with spaces",
-                        noMultipleSpaces: (value) =>
-                          !/\s{2,}/.test(value) ||
-                          "Multiple consecutive spaces are not allowed",
-                        noEmojis: (value) =>
-                          !/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
-                            value
-                          ) || "Emojis are not allowed",
+                        wordCount: (value) => {
+                          if (!value) return true;
+                          const wordCount = value
+                            .trim()
+                            .split(/\s+/)
+                            .filter((word) => word.length > 0).length;
+                          if (wordCount < 150)
+                            return "Description must be at least 150 words";
+                          if (wordCount > 200)
+                            return "Description cannot exceed 200 words";
+                          return true;
+                        },
                       },
                       onChange: (e) =>
                         handleInputChange(e, (e) =>
@@ -226,7 +201,7 @@ const AddDegreeModal = ({ show, onHide }) => {
                     </span>
                   )}
                 </Form.Group>
-              </Col>
+              </Col> */}
             </Row>
 
             <div className="d-flex justify-content-end gap-2 mt-4">

@@ -1044,7 +1044,7 @@ const SleepStagesCard = ({
                 <span style={{ color: "#003465" }}>Average</span>
                 <span style={{ color: "#003465" }}>
                   {Math.round((AverageData?.stats?.average || 0) / 60)}h{" "}
-                  {(AverageData?.stats?.average || 0) % 60}m
+                  {Math.round((AverageData?.stats?.average || 0) % 60)}m
                 </span>
               </div>
 
