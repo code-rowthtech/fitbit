@@ -302,7 +302,7 @@ const AddSpecialSkillModal = ({ show, onHide }) => {
                   )}
                 </Form.Group>
               </Col>
-              <Col md={12}>
+              {/* <Col md={12}>
                 <Form.Group className="mb-3">
                   <Form.Label
                     className="mb-1 fw-semibold opacity-75"
@@ -368,7 +368,7 @@ const AddSpecialSkillModal = ({ show, onHide }) => {
                     </span>
                   )}
                 </Form.Group>
-              </Col>
+              </Col> */}
             </Row>
 
             <div className="d-flex justify-content-end gap-2 mt-4">

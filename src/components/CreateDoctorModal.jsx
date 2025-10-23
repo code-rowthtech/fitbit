@@ -689,6 +689,14 @@ const CreateDoctorModal = ({ show, onHide }) => {
                       ) {
                         e.preventDefault();
                       }
+                      // Prevent first digit if not 6-9
+                      if (
+                        /^[0-9]$/.test(e.key) &&
+                        currentValue === "+91 " &&
+                        !/^[6-9]$/.test(e.key)
+                      ) {
+                        e.preventDefault();
+                      }
                     }}
                     onChange={(e) => {
                       let value = e.target.value;
@@ -706,10 +714,16 @@ const CreateDoctorModal = ({ show, onHide }) => {
                         validFormat: (value) => {
                           const digits = value?.replace(/[^0-9]/g, "") || "";
                           const phoneDigits = digits.substring(2);
-                          return (
-                            phoneDigits.length === 10 ||
-                            "Phone number must be exactly 10 digits"
-                          );
+                          if (phoneDigits.length !== 10) {
+                            return "Phone number must be exactly 10 digits";
+                          }
+                          if (!/^[6-9]/.test(phoneDigits)) {
+                            return "Invalid mobile number. Please enter a valid 10-digit number starting with 6–9.";
+                          }
+                          if (/^0+$/.test(phoneDigits)) {
+                            return "Invalid mobile number. Please enter a valid 10-digit number starting with 6–9.";
+                          }
+                          return true;
                         },
                       },
                     })}
@@ -800,7 +814,9 @@ const CreateDoctorModal = ({ show, onHide }) => {
                       placeholder="Enter Password"
                       autoComplete="off"
                       onKeyDown={(e) => {
-                        preventFirstSpace(e);
+                        if (e.key === " ") {
+                          e.preventDefault();
+                        }
                         const isEmoji =
                           /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
                             e.key
@@ -815,7 +831,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
                           /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
                             pastedText
                           );
-                        if (hasEmoji) {
+                        if (hasEmoji || pastedText.includes(" ")) {
                           e.preventDefault();
                         }
                       }}

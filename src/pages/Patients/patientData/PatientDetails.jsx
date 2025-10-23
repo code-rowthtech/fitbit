@@ -356,7 +356,9 @@ const PatientDetails = ({
                         borderRadius: "12px",
                       }}
                     >
-                      {getInitials(PatientData?.firstName)}
+                      {getInitials(
+                        PatientData?.firstName + " " + PatientData?.lastName
+                      )}
                     </div>
                   )}
                   <div>

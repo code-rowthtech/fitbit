@@ -375,6 +375,8 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
 
     if (currentStep === 1) {
       fieldsToValidate = ["firstName", "lastName", "email"];
+    } else if (currentStep === 2) {
+      fieldsToValidate = ["specialization", "qualification"];
     }
 
     const isValid = await trigger(fieldsToValidate);
@@ -867,6 +869,14 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                       ) {
                         e.preventDefault();
                       }
+                      // Prevent first digit if not 6-9
+                      if (
+                        /^[0-9]$/.test(e.key) &&
+                        currentValue === "+91 " &&
+                        !/^[6-9]$/.test(e.key)
+                      ) {
+                        e.preventDefault();
+                      }
                     }}
                     onChange={(e) => {
                       let value = e.target.value;
@@ -884,10 +894,16 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                         validFormat: (value) => {
                           const digits = value?.replace(/[^0-9]/g, "") || "";
                           const phoneDigits = digits.substring(2);
-                          return (
-                            phoneDigits.length === 10 ||
-                            "Phone number must be exactly 10 digits"
-                          );
+                          if (phoneDigits.length !== 10) {
+                            return "Phone number must be exactly 10 digits";
+                          }
+                          if (!/^[6-9]/.test(phoneDigits)) {
+                            return "Invalid mobile number. Please enter a valid 10-digit number starting with 6–9.";
+                          }
+                          if (/^0+$/.test(phoneDigits)) {
+                            return "Invalid mobile number. Please enter a valid 10-digit number starting with 6–9.";
+                          }
+                          return true;
                         },
                       },
                     })}
@@ -1048,7 +1064,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                     className="mb-1 fw-semibold opacity-75"
                     style={{ fontSize: "14px", color: "#16213DB2" }}
                   >
-                    Specialization
+                    Specialization <span className="text-danger">*</span>
                     <span
                       className="ms-2"
                       style={{ cursor: "pointer" }}
@@ -1063,6 +1079,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                   <Controller
                     name="specialization"
                     control={control}
+                    rules={{ required: "Specialization is required" }}
                     render={({ field }) => (
                       <Select
                         {...field}
@@ -1075,6 +1092,11 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                       />
                     )}
                   />
+                  {errors.specialization && (
+                    <span className="text-danger" style={{ fontSize: "10px" }}>
+                      {errors.specialization.message}
+                    </span>
+                  )}
                 </Form.Group>
               </Col>
               <Col md={6}>
@@ -1083,7 +1105,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                     className="mb-1 fw-semibold opacity-75"
                     style={{ fontSize: "14px", color: "#16213DB2" }}
                   >
-                    Qualification
+                    Qualification <span className="text-danger">*</span>
                     <span
                       className="ms-2"
                       style={{ cursor: "pointer" }}
@@ -1098,6 +1120,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                   <Controller
                     name="qualification"
                     control={control}
+                    rules={{ required: "Qualification is required" }}
                     render={({ field }) => (
                       <Select
                         {...field}
@@ -1110,6 +1133,11 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                       />
                     )}
                   />
+                  {errors.qualification && (
+                    <span className="text-danger" style={{ fontSize: "10px" }}>
+                      {errors.qualification.message}
+                    </span>
+                  )}
                 </Form.Group>
               </Col>
               <Col md={6}>
