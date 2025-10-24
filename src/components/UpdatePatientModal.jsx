@@ -47,7 +47,7 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
     (state) => state?.getPatientByIdReducer?.data?.data?.patient
   );
 
-  console.log("PatientData in UpdatePatientModal:", PatientData);
+  // console.log("PatientData in UpdatePatientModal:", PatientData);
 
   const StatesData = useSelector(
     (state) => state?.getStatesReducer?.data?.data

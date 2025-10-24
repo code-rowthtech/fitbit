@@ -87,7 +87,7 @@ function* getPatientSleepFunction({ payload }) {
       payload: {},
     });
     const response = yield call(getPatientSleepApi, { payload });
-    console.log("getPatientSleepFunction response:", response);
+    // console.log("getPatientSleepFunction response:", response);
 
     if (response?.data && response?.data?.status === 200) {
       yield put({

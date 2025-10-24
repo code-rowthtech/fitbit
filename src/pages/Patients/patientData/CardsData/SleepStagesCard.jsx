@@ -30,7 +30,7 @@ const SleepJourneyChart = ({
     selectedDate.setHours(0, 0, 0, 0);
     const isToday = selectedDate.getTime() === today.getTime();
 
-    console.log("Processing data for date:", currentDate, "Is today:", isToday);
+    // console.log("Processing data for date:", currentDate, "Is today:", isToday);
 
     if (isToday && FilterData?.todayData?.sleepData?.[0]?.levels?.data) {
       // Today's data
@@ -46,33 +46,33 @@ const SleepJourneyChart = ({
       }
     }
 
-    console.log("Selected sleep session index:", selectedSessionIndex);
-    console.log("Sleep data source:", sleepDataSource);
-    console.log("Levels data length:", levelsData.length);
+    // console.log("Selected sleep session index:", selectedSessionIndex);
+    // console.log("Sleep data source:", sleepDataSource);
+    // console.log("Levels data length:", levelsData.length);
 
     // If still no data, return null
     if (!levelsData || levelsData.length === 0) {
-      console.log("No sleep levels data found for timeline", {
-        FilterData,
-        currentDate,
-        isToday,
-        sleepSessions: FilterData?.data?.[0]?.sleepData?.length || 0,
-      });
+      // console.log("No sleep levels data found for timeline", {
+      //   FilterData,
+      //   currentDate,
+      //   isToday,
+      //   sleepSessions: FilterData?.data?.[0]?.sleepData?.length || 0,
+      // });
       return null;
     }
 
-    console.log(
-      "Processing sleep data for date:",
-      currentDate,
-      "Data length:",
-      levelsData.length,
-      "Is today:",
-      isToday
-    );
+    // console.log(
+    //   "Processing sleep data for date:",
+    //   currentDate,
+    //   "Data length:",
+    //   levelsData.length,
+    //   "Is today:",
+    //   isToday
+    // );
 
     // Calculate total sleep duration and start/end times
     const startTime = new Date(levelsData[0].dateTime);
-    console.log("Start time:", startTime);
+    // console.log("Start time:", startTime);
     const lastItem = levelsData[levelsData.length - 1];
     const endTime = new Date(
       new Date(lastItem.dateTime).getTime() + lastItem.seconds * 1000
@@ -186,7 +186,7 @@ const SleepJourneyChart = ({
     () => processApiData(),
     [FilterData, currentDate, selectedSessionIndex]
   );
-  console.log("Sleep data:", sleepData);
+  // console.log("Sleep data:", sleepData);
 
   // If no detailed sleep data, show message
   if (!sleepData) {

@@ -51,7 +51,7 @@ const AddSpecialSkillModal = ({ show, onHide }) => {
       category: data.category?.value || data?.category,
       description: data.description,
     };
-    console.log("Submitted Data:", skillData);
+    // console.log("Submitted Data:", skillData);
     dispatch(createSkills(skillData));
   };
 
