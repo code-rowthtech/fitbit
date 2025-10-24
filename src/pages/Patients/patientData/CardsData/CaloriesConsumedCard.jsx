@@ -31,8 +31,10 @@ const CaloriesConsumedCard = ({
 
   // Fetch calories data on component mount and when dependencies change
   useEffect(() => {
-    if (patientId) {
+    if (patientId && currentDate && formatDate && expandedCard === "calories") {
       const date = new Date(currentDate);
+      if (isNaN(date.getTime())) return;
+      
       let start, end;
 
       switch (activeTab) {
@@ -52,17 +54,19 @@ const CaloriesConsumedCard = ({
           break;
       }
 
-      const payload = {
-        patientId: patientId,
-        start: formatDate(start),
-        end: formatDate(end),
-        field: "caloriesIn",
-      };
-      //   if (activeTab === "Month")  // payload.period = "month";
-      if (activeTab === "Year") payload.period = "year";
-      dispatch(getPatientCaloriesConsumed(payload));
+      if (start && end && !isNaN(start.getTime()) && !isNaN(end.getTime())) {
+        const payload = {
+          patientId: patientId,
+          start: formatDate(start),
+          end: formatDate(end),
+          field: "caloriesIn",
+        };
+        //   if (activeTab === "Month")  // payload.period = "month";
+        if (activeTab === "Year") payload.period = "year";
+        dispatch(getPatientCaloriesConsumed(payload));
+      }
     }
-  }, [patientId, dispatch, activeTab, currentDate, formatDate]);
+  }, [patientId, dispatch, activeTab, currentDate, formatDate, expandedCard]);
 
   // Convert calories string to number
   const convertCalories = (value) => {
@@ -309,58 +313,66 @@ const CaloriesConsumedCard = ({
     }
 
     // Fetch new data after navigation
-    setTimeout(() => {
-      if (patientId) {
-        const payload = {
-          patientId: patientId,
-          start: formatDate(start),
-          end: formatDate(end),
-          field: "caloriesIn",
-        };
-        // if (activeTab === "Month")  // payload.period = "month";
-        if (activeTab === "Year") payload.period = "year";
-        dispatch(getPatientCaloriesConsumed(payload));
-      }
-    }, 0);
+    if (expandedCard === "calories" && formatDate && start && end && !isNaN(start.getTime()) && !isNaN(end.getTime())) {
+      setTimeout(() => {
+        if (patientId) {
+          const payload = {
+            patientId: patientId,
+            start: formatDate(start),
+            end: formatDate(end),
+            field: "caloriesIn",
+          };
+          // if (activeTab === "Month")  // payload.period = "month";
+          if (activeTab === "Year") payload.period = "year";
+          dispatch(getPatientCaloriesConsumed(payload));
+        }
+      }, 0);
+    }
   };
 
   // Handle tab change
   const handleTabChange = (tab) => {
     onTabChange(tab);
     // Fetch data for new tab
-    setTimeout(() => {
-      if (patientId) {
-        const date = new Date(currentDate);
-        let start, end;
+    if (expandedCard === "calories" && currentDate && formatDate) {
+      setTimeout(() => {
+        if (patientId) {
+          const date = new Date(currentDate);
+          if (isNaN(date.getTime())) return;
+          
+          let start, end;
 
-        switch (tab) {
-          case "Week":
-            start = new Date(date);
-            start.setDate(date.getDate() - date.getDay());
-            end = new Date(start);
-            end.setDate(start.getDate() + 6);
-            break;
-          case "Month":
-            start = new Date(date.getFullYear(), date.getMonth(), 1);
-            end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-            break;
-          case "Year":
-            start = new Date(date.getFullYear(), 0, 1);
-            end = new Date(date.getFullYear(), 11, 31);
-            break;
+          switch (tab) {
+            case "Week":
+              start = new Date(date);
+              start.setDate(date.getDate() - date.getDay());
+              end = new Date(start);
+              end.setDate(start.getDate() + 6);
+              break;
+            case "Month":
+              start = new Date(date.getFullYear(), date.getMonth(), 1);
+              end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+              break;
+            case "Year":
+              start = new Date(date.getFullYear(), 0, 1);
+              end = new Date(date.getFullYear(), 11, 31);
+              break;
+          }
+
+          if (start && end && !isNaN(start.getTime()) && !isNaN(end.getTime())) {
+            const payload = {
+              patientId: patientId,
+              start: formatDate(start),
+              end: formatDate(end),
+              field: "caloriesIn",
+            };
+            // if (tab === "Month")  // payload.period = "month";
+            if (tab === "Year") payload.period = "year";
+            dispatch(getPatientCaloriesConsumed(payload));
+          }
         }
-
-        const payload = {
-          patientId: patientId,
-          start: formatDate(start),
-          end: formatDate(end),
-          field: "caloriesIn",
-        };
-        // if (tab === "Month")  // payload.period = "month";
-        if (tab === "Year") payload.period = "year";
-        dispatch(getPatientCaloriesConsumed(payload));
-      }
-    }, 0);
+      }, 0);
+    }
   };
 
   return (
