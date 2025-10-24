@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Form, Row, Col, Button } from "react-bootstrap";
 import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
@@ -51,7 +51,7 @@ const AddSpecialSkillModal = ({ show, onHide }) => {
       category: data.category?.value || data?.category,
       description: data.description,
     };
-    console.log("Submitted Data:", skillData);
+    // console.log("Submitted Data:", skillData);
     dispatch(createSkills(skillData));
   };
 

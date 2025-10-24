@@ -24,7 +24,7 @@ function* login({ payload: { username, password } }) {
       email: username,
       password: password,
     });
-    console.log("Login Response:", response); // Debug log
+    // console.log("Login Response:", response); // Debug log
     if (response?.status === 200) {
       const userData = {
         id: response?.data?.user?.id,

@@ -19,7 +19,7 @@ const Doctors = () => {
   const dispatch = useDispatch();
   const Store = useSelector((state) => state);
   const DoctorCount = Store?.getAllDoctors?.data;
-  console.log(DoctorCount, "DoctorCount");
+  // console.log(DoctorCount, "DoctorCount");
   const DoctorData = Store?.getAllDoctors?.data?.doctors;
   const loading = Store?.getAllDoctors?.loading || false;
   const CreateResponse = useSelector(

@@ -41,7 +41,7 @@ const EfficiencyCard = ({
     (state) =>
       state?.getPatientSleepEfficiency?.data?.response?.todayData?.value || 0
   );
-  console.log(totalEfficiency, "totalEfficiency");
+  // console.log(totalEfficiency, "totalEfficiency");
 
   // Calculate average efficiency
   //   const averageEfficiency =

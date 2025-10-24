@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from "react";
 import RestingHeartRate_Icon from "../../../../assets/images/PatientDashboard/heart rate.png";
 import { IoIosExpand } from "react-icons/io";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { Bar } from "react-chartjs-2";
-import { useDispatch, useSelector } from 'react-redux'
-import { getPatientHeartRate } from '../../../../redux/patientsDashboard/action'
+import { useDispatch, useSelector } from "react-redux";
+import { getPatientHeartRate } from "../../../../redux/patientsDashboard/action";
 
 const RestingHeartRateCard = ({
   patientId,
@@ -14,139 +14,139 @@ const RestingHeartRateCard = ({
   onTabChange,
   currentDate,
   onDateChange,
-  formatDate
+  formatDate,
 }) => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const FilterData = useSelector(
     (state) => state?.getPatientHeartRate?.data?.response?.data
-  )
+  );
   const HeartRateStatsData = useSelector(
     (state) => state?.getPatientHeartRate?.data?.response?.targetRange
-  )
+  );
   const AverageData = useSelector(
     (state) => state?.getPatientHeartRate?.data?.response
-  )
-  console.log(AverageData,'AverageDataAverageData')
+  );
+  // console.log(AverageData,'AverageDataAverageData')
   // Fetch data on component mount and when dependencies change
   useEffect(() => {
     if (patientId) {
-      const date = new Date(currentDate)
-      let start, end
+      const date = new Date(currentDate);
+      let start, end;
 
       switch (activeTab) {
-        case 'Day':
-          start = new Date(date)
-          end = new Date(date)
-          break
-        case 'Week':
-          start = new Date(date)
-          start.setDate(date.getDate() - date.getDay())
-          end = new Date(start)
-          end.setDate(start.getDate() + 6)
-          break
-        case 'Month':
-          start = new Date(date.getFullYear(), date.getMonth(), 1)
-          end = new Date(date.getFullYear(), date.getMonth() + 1, 0)
-          break
-        case 'Year':
-          start = new Date(date.getFullYear(), 0, 1)
-          end = new Date(date.getFullYear(), 11, 31)
-          break
+        case "Day":
+          start = new Date(date);
+          end = new Date(date);
+          break;
+        case "Week":
+          start = new Date(date);
+          start.setDate(date.getDate() - date.getDay());
+          end = new Date(start);
+          end.setDate(start.getDate() + 6);
+          break;
+        case "Month":
+          start = new Date(date.getFullYear(), date.getMonth(), 1);
+          end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+          break;
+        case "Year":
+          start = new Date(date.getFullYear(), 0, 1);
+          end = new Date(date.getFullYear(), 11, 31);
+          break;
       }
 
       const payload = {
         patientId: patientId,
         start: formatDate(start),
         end: formatDate(end),
-        field: "heartRate"
-      }
-      if (activeTab === 'Year') payload.period = 'year'
-      if (activeTab === 'Day') payload.intraday = true
-      dispatch(getPatientHeartRate(payload))
+        field: "heartRate",
+      };
+      if (activeTab === "Year") payload.period = "year";
+      if (activeTab === "Day") payload.intraday = true;
+      dispatch(getPatientHeartRate(payload));
     }
-  }, [patientId, currentDate, activeTab, dispatch, formatDate])
+  }, [patientId, currentDate, activeTab, dispatch, formatDate]);
 
   // Get chart data based on active tab and API response
   const getChartData = () => {
     if (!FilterData || FilterData.length === 0) {
-      return { labels: [], data: [], tableData: [] }
+      return { labels: [], data: [], tableData: [] };
     }
 
-    const apiData = FilterData
+    const apiData = FilterData;
 
     // Handle Day view with intraday data
     if (activeTab === "Day" && apiData[0]?.intradayData) {
-      const intradayData = apiData[0].intradayData
-      const labels = intradayData.map((item) => item.timeRange)
-      const data = intradayData.map((item) => item.restingHeartRate)
+      const intradayData = apiData[0].intradayData;
+      const labels = intradayData.map((item) => item.timeRange);
+      const data = intradayData.map((item) => item.restingHeartRate);
       const tableData = intradayData.map((item) => ({
         period: item.timeRange,
         value: item.restingHeartRate ? `${item.restingHeartRate} bpm` : "0 bpm",
-      }))
-      return { labels, data, tableData }
+      }));
+      return { labels, data, tableData };
     }
 
     const labels = apiData.map((item) => {
       if (activeTab === "Month" && item.date.includes("Week")) {
-        const weekMatch = item.date.match(/Week (\d+)/)
-        return weekMatch ? `Week ${weekMatch[1]}` : item.date
+        const weekMatch = item.date.match(/Week (\d+)/);
+        return weekMatch ? `Week ${weekMatch[1]}` : item.date;
       }
 
-      const date = new Date(item.date)
+      const date = new Date(item.date);
       switch (activeTab) {
         case "Week":
-          return date.toLocaleDateString("en-US", { weekday: "short" })
+          return date.toLocaleDateString("en-US", { weekday: "short" });
         case "Month":
-          return date.toLocaleDateString("en-US", { day: "numeric" })
+          return date.toLocaleDateString("en-US", { day: "numeric" });
         case "Year":
-          return date.toLocaleDateString("en-US", { month: "short" })
+          return date.toLocaleDateString("en-US", { month: "short" });
         default:
-          return date.toLocaleDateString()
+          return date.toLocaleDateString();
       }
-    })
+    });
 
     const data = apiData.map((item, index) => {
       // If today's value is 0, use previous day's value
       if (item.value === 0 && index > 0) {
-        return apiData[index - 1].value
+        return apiData[index - 1].value;
       }
-      return item.value
-    })
+      return item.value;
+    });
 
     const tableData = apiData.map((item) => {
-      let period
+      let period;
 
       if (activeTab === "Month" && item.date.includes("Week")) {
-        const weekMatch = item.date.match(/Week (\d+)/)
-        period = weekMatch ? `Week ${weekMatch[1]}` : item.date
+        const weekMatch = item.date.match(/Week (\d+)/);
+        period = weekMatch ? `Week ${weekMatch[1]}` : item.date;
       } else {
-        const date = new Date(item.date)
+        const date = new Date(item.date);
         switch (activeTab) {
           case "Week":
-            period = date.toLocaleDateString("en-US", { weekday: "long" })
-            break
+            period = date.toLocaleDateString("en-US", { weekday: "long" });
+            break;
           case "Month":
             period = date.toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
-            })
-            break
+            });
+            break;
           case "Year":
-            period = date.toLocaleDateString("en-US", { month: "long" })
-            break
+            period = date.toLocaleDateString("en-US", { month: "long" });
+            break;
           default:
-            period = date.toLocaleDateString()
+            period = date.toLocaleDateString();
         }
       }
 
       return {
         period,
         value: item.value ? `${item.value} bpm` : "0 bpm",
-      }
-    })
+      };
+    });
 
-    return { labels, data, tableData }
-  }
+    return { labels, data, tableData };
+  };
 
   const chartData = getChartData();
 
@@ -207,48 +207,50 @@ const RestingHeartRateCard = ({
   };
 
   const handleNavigation = (direction) => {
-    if (direction === 'next' && isNextDisabled()) return
+    if (direction === "next" && isNextDisabled()) return;
 
-    const newDate = new Date(currentDate)
+    const newDate = new Date(currentDate);
 
     switch (activeTab) {
-      case 'Day':
-        newDate.setDate(newDate.getDate() + (direction === 'next' ? 1 : -1))
-        break
-      case 'Week':
-        newDate.setDate(newDate.getDate() + (direction === 'next' ? 7 : -7))
-        break
-      case 'Month':
-        newDate.setMonth(newDate.getMonth() + (direction === 'next' ? 1 : -1))
-        break
-      case 'Year':
-        newDate.setFullYear(newDate.getFullYear() + (direction === 'next' ? 1 : -1))
-        break
+      case "Day":
+        newDate.setDate(newDate.getDate() + (direction === "next" ? 1 : -1));
+        break;
+      case "Week":
+        newDate.setDate(newDate.getDate() + (direction === "next" ? 7 : -7));
+        break;
+      case "Month":
+        newDate.setMonth(newDate.getMonth() + (direction === "next" ? 1 : -1));
+        break;
+      case "Year":
+        newDate.setFullYear(
+          newDate.getFullYear() + (direction === "next" ? 1 : -1)
+        );
+        break;
     }
 
-    onDateChange(newDate)
+    onDateChange(newDate);
 
     // Calculate new date range based on the new current date
-    let start, end
+    let start, end;
     switch (activeTab) {
-      case 'Day':
-        start = new Date(newDate)
-        end = new Date(newDate)
-        break
-      case 'Week':
-        start = new Date(newDate)
-        start.setDate(newDate.getDate() - newDate.getDay())
-        end = new Date(start)
-        end.setDate(start.getDate() + 6)
-        break
-      case 'Month':
-        start = new Date(newDate.getFullYear(), newDate.getMonth(), 1)
-        end = new Date(newDate.getFullYear(), newDate.getMonth() + 1, 0)
-        break
-      case 'Year':
-        start = new Date(newDate.getFullYear(), 0, 1)
-        end = new Date(newDate.getFullYear(), 11, 31)
-        break
+      case "Day":
+        start = new Date(newDate);
+        end = new Date(newDate);
+        break;
+      case "Week":
+        start = new Date(newDate);
+        start.setDate(newDate.getDate() - newDate.getDay());
+        end = new Date(start);
+        end.setDate(start.getDate() + 6);
+        break;
+      case "Month":
+        start = new Date(newDate.getFullYear(), newDate.getMonth(), 1);
+        end = new Date(newDate.getFullYear(), newDate.getMonth() + 1, 0);
+        break;
+      case "Year":
+        start = new Date(newDate.getFullYear(), 0, 1);
+        end = new Date(newDate.getFullYear(), 11, 31);
+        break;
     }
 
     // Fetch new data after navigation
@@ -259,41 +261,41 @@ const RestingHeartRateCard = ({
           start: formatDate(start),
           end: formatDate(end),
           field: "heartRate",
-        }
-        if (activeTab === "Year") payload.period = "year"
-        if (activeTab === "Day") payload.intraday = true
-        dispatch(getPatientHeartRate(payload))
+        };
+        if (activeTab === "Year") payload.period = "year";
+        if (activeTab === "Day") payload.intraday = true;
+        dispatch(getPatientHeartRate(payload));
       }
-    }, 0)
-  }
+    }, 0);
+  };
 
   const handleTabChange = (tab) => {
-    onTabChange(tab)
+    onTabChange(tab);
     // Fetch data for new tab
     setTimeout(() => {
       if (patientId) {
-        const date = new Date(currentDate)
-        let start, end
+        const date = new Date(currentDate);
+        let start, end;
 
         switch (tab) {
           case "Day":
-            start = new Date(date)
-            end = new Date(date)
-            break
+            start = new Date(date);
+            end = new Date(date);
+            break;
           case "Week":
-            start = new Date(date)
-            start.setDate(date.getDate() - date.getDay())
-            end = new Date(start)
-            end.setDate(start.getDate() + 6)
-            break
+            start = new Date(date);
+            start.setDate(date.getDate() - date.getDay());
+            end = new Date(start);
+            end.setDate(start.getDate() + 6);
+            break;
           case "Month":
-            start = new Date(date.getFullYear(), date.getMonth(), 1)
-            end = new Date(date.getFullYear(), date.getMonth() + 1, 0)
-            break
+            start = new Date(date.getFullYear(), date.getMonth(), 1);
+            end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+            break;
           case "Year":
-            start = new Date(date.getFullYear(), 0, 1)
-            end = new Date(date.getFullYear(), 11, 31)
-            break
+            start = new Date(date.getFullYear(), 0, 1);
+            end = new Date(date.getFullYear(), 11, 31);
+            break;
         }
 
         const payload = {
@@ -301,13 +303,13 @@ const RestingHeartRateCard = ({
           start: formatDate(start),
           end: formatDate(end),
           field: "heartRate",
-        }
-        if (tab === "Year") payload.period = "year"
-        if (tab === "Day") payload.intraday = true
-        dispatch(getPatientHeartRate(payload))
+        };
+        if (tab === "Year") payload.period = "year";
+        if (tab === "Day") payload.intraday = true;
+        dispatch(getPatientHeartRate(payload));
       }
-    }, 0)
-  }
+    }, 0);
+  };
 
   return (
     <div
@@ -399,7 +401,10 @@ const RestingHeartRateCard = ({
                         beginAtZero: false,
                         min:
                           activeTab === "Week" && HeartRateStatsData
-                            ? Math.min(0, parseFloat(HeartRateStatsData.min) - 5)
+                            ? Math.min(
+                                0,
+                                parseFloat(HeartRateStatsData.min) - 5
+                              )
                             : chartData.data.length > 0
                             ? Math.min(...chartData.data) - 5
                             : 0,
@@ -518,20 +523,40 @@ const RestingHeartRateCard = ({
               >
                 <span style={{ color: "#003465" }}>Average</span>
                 <span style={{ color: "#003465" }}>
-                  {AverageData?.stats?.average ? `${AverageData.stats.average} bpm` : "-"}
+                  {AverageData?.stats?.average
+                    ? `${AverageData.stats.average} bpm`
+                    : "-"}
                 </span>
               </div>
 
               {/* Min/Max Rows - Only show in Week tab */}
               {activeTab === "Week" && HeartRateStatsData && (
                 <>
-                  <div className="d-flex justify-content-between p-2 mb-1" style={{ backgroundColor: "#FFE8E8", fontSize: "10px", fontWeight: "600" }}>
+                  <div
+                    className="d-flex justify-content-between p-2 mb-1"
+                    style={{
+                      backgroundColor: "#FFE8E8",
+                      fontSize: "10px",
+                      fontWeight: "600",
+                    }}
+                  >
                     <span style={{ color: "#ff6b6b" }}>Min</span>
-                    <span style={{ color: "#ff6b6b" }}>{HeartRateStatsData.min} bpm</span>
+                    <span style={{ color: "#ff6b6b" }}>
+                      {HeartRateStatsData.min} bpm
+                    </span>
                   </div>
-                  <div className="d-flex justify-content-between p-2 mb-1" style={{ backgroundColor: "#E8F8E8", fontSize: "10px", fontWeight: "600" }}>
+                  <div
+                    className="d-flex justify-content-between p-2 mb-1"
+                    style={{
+                      backgroundColor: "#E8F8E8",
+                      fontSize: "10px",
+                      fontWeight: "600",
+                    }}
+                  >
                     <span style={{ color: "#51cf66" }}>Max</span>
-                    <span style={{ color: "#51cf66" }}>{HeartRateStatsData.max} bpm</span>
+                    <span style={{ color: "#51cf66" }}>
+                      {HeartRateStatsData.max} bpm
+                    </span>
                   </div>
                 </>
               )}
@@ -600,7 +625,9 @@ const RestingHeartRateCard = ({
                     stroke="#003465"
                     strokeWidth="4"
                     strokeDasharray="301"
-                    strokeDashoffset={301 - (((AverageData?.todayData?.value || 0) / 100) * 301)}
+                    strokeDashoffset={
+                      301 - ((AverageData?.todayData?.value || 0) / 100) * 301
+                    }
                     strokeLinecap="round"
                     transform="rotate(-90 60 60)"
                   />

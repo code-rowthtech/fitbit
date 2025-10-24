@@ -29,7 +29,7 @@ const SleepJourneyChart = ({
     selectedDate.setHours(0, 0, 0, 0);
     const isToday = selectedDate.getTime() === today.getTime();
 
-    console.log("Processing data for date:", currentDate, "Is today:", isToday);
+    // console.log("Processing data for date:", currentDate, "Is today:", isToday);
 
     if (isToday && FilterData?.todayData?.sleepData?.[0]?.levels?.data) {
       // Today's data
@@ -47,12 +47,12 @@ const SleepJourneyChart = ({
 
     // If still no data, return null
     if (!levelsData || levelsData.length === 0) {
-      console.log("No sleep levels data found for timeline", {
-        FilterData,
-        currentDate,
-        isToday,
-        sleepSessions: FilterData?.data?.[0]?.sleepData?.length || 0,
-      });
+      // console.log("No sleep levels data found for timeline", {
+      //   FilterData,
+      //   currentDate,
+      //   isToday,
+      //   sleepSessions: FilterData?.data?.[0]?.sleepData?.length || 0,
+      // });
       return null;
     }
 
