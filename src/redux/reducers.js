@@ -35,6 +35,7 @@ import {
 } from "./reports/reducer";
 import {
   connectToFitbit,
+  getExerciseSessions,
   getFilterData,
   getPatientActiveMin,
   getPatientActivity,
@@ -111,4 +112,5 @@ export default combineReducers({
   getFilterData,
   getPatientHeartRate,
   getPatientCaloriesConsumed,
+  getExerciseSessions,
 });

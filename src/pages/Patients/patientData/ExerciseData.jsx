@@ -133,6 +133,7 @@ const ExerciseData = ({ isExpanded, onExpand }) => {
                   onTabChange={setActiveTab}
                   currentDate={currentDate}
                   onDateChange={setCurrentDate}
+                  formatDate={formatDate}
                 />
               )}
 
