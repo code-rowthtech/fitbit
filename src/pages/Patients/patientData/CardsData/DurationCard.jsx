@@ -48,12 +48,12 @@ const SleepJourneyChart = ({
 
     // If still no data, return null
     if (!levelsData || levelsData.length === 0) {
-      console.log("No sleep levels data found for timeline", {
-        FilterData,
-        currentDate,
-        isToday,
-        sleepSessions: FilterData?.data?.[0]?.sleepData?.length || 0,
-      });
+      // console.log("No sleep levels data found for timeline", {
+      //   FilterData,
+      //   currentDate,
+      //   isToday,
+      //   sleepSessions: FilterData?.data?.[0]?.sleepData?.length || 0,
+      // });
       return null;
     }
 
@@ -528,12 +528,12 @@ const DurationCard = ({
     (state) =>
       state?.getPatientSleepStages?.data?.response?.todayData?.sleepData
   );
-  console.log(durationData, "durationData");
+  // console.log(durationData, "durationData");
   const AverageData = useSelector(
     (state) => state?.getPatientSleepStages?.data?.response
   );
 
-  console.log(AverageData, "AverageData");
+  // console.log(AverageData, "AverageData");
 
   // Initial API call when component mounts
   useEffect(() => {
@@ -1254,12 +1254,14 @@ const DurationCard = ({
                       301 -
                       Math.min(
                         1,
-                        (durationData?.length
+                        durationData?.length
                           ? durationData.reduce(
                               (total, session) => total + session.minutesAsleep,
                               0
-                            ) / 60 / 8
-                          : 0)
+                            ) /
+                              60 /
+                              8
+                          : 0
                       ) *
                         301
                     }
@@ -1340,7 +1342,8 @@ const DurationCard = ({
                           (durationData.reduce(
                             (total, session) => total + session.minutesAsleep,
                             0
-                          ) / 60) *
+                          ) /
+                            60) *
                             10
                         ) / 10
                       : "-"}

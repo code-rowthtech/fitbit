@@ -38,7 +38,7 @@ const PatientDetails = ({
   const PatientData = useSelector(
     (state) => state?.getPatientByIdReducer?.data?.data?.patient
   );
-  console.log("PatientData", PatientData);
+  // console.log("PatientData", PatientData);
   const isLoading = useSelector(
     (state) => state?.getPatientByIdReducer?.loading
   );

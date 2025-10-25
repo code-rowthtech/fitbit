@@ -392,6 +392,10 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
     }
   };
 
+  const handleStepClick = (stepId) => {
+    setCurrentStep(stepId);
+  };
+
   const onSubmit = (data) => {
     const selectedState = stateOptions?.find(
       (state) => state?.value === data?.state?.value
@@ -1584,7 +1588,11 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                 </h4>
                 {steps.map((step, index) => (
                   <div key={step.id} className="position-relative mb-5 pb-2">
-                    <div className="d-flex align-items-center">
+                    <div 
+                      className="d-flex align-items-center"
+                      onClick={() => handleStepClick(step.id)}
+                      style={{ cursor: "pointer" }}
+                    >
                       <div
                         className={`rounded-circle d-flex align-items-center justify-content-center me-3 ${
                           step.completed || currentStep === step.id

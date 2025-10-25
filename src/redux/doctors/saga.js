@@ -115,7 +115,7 @@ function* updateDoctorFunction(data) {
     });
 
     const response = yield call(updateDoctorApi, data);
-    console.log("Update doctor response:", response?.data);
+    // console.log("Update doctor response:", response?.data);
 
     // ✅ Corrected condition
     if (response?.data?.status === 200) {

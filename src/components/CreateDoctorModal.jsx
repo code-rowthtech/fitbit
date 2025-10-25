@@ -153,7 +153,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    console.log("File selected:", file); // Debug log
+    // console.log("File selected:", file); // Debug log
     if (file) {
       // Validate file type
       // const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
@@ -172,10 +172,10 @@ const CreateDoctorModal = ({ show, onHide }) => {
       // }
 
       setSelectedImage(file);
-      console.log("selectedImage set to:", file.name); // Debug log
+      // console.log("selectedImage set to:", file.name); // Debug log
     } else {
       setSelectedImage(null);
-      console.log("selectedImage set to null"); // Debug log
+      // console.log("selectedImage set to null"); // Debug log
     }
   };
 
@@ -384,11 +384,11 @@ const CreateDoctorModal = ({ show, onHide }) => {
 
     const filteredPayload = cleanPayload(payload);
 
-    console.log("selectedImage:", selectedImage); // Debug log
+    // console.log("selectedImage:", selectedImage); // Debug log
 
     // If image selected, send as FormData
     if (selectedImage && selectedImage instanceof File) {
-      console.log("Sending as FormData with image"); // Debug log
+      // console.log("Sending as FormData with image"); // Debug log
       const formData = new FormData();
       Object.keys(filteredPayload).forEach((key) => {
         const value = filteredPayload[key];
@@ -402,7 +402,7 @@ const CreateDoctorModal = ({ show, onHide }) => {
       formData.append("image", selectedImage);
       dispatch(createDoctor(formData));
     } else {
-      console.log("Sending as JSON payload"); // Debug log
+      // console.log("Sending as JSON payload"); // Debug log
       dispatch(createDoctor(filteredPayload));
     }
   };

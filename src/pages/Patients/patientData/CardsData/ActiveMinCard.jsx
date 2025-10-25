@@ -78,10 +78,10 @@ const ActiveMinCard = ({
         if (activeTab === "Year")
           // payload.period = "month";
           payload.period = "year";
-      console.log("Dispatching getPatientActiveMin with payload:", payload);
+      // console.log("Dispatching getPatientActiveMin with payload:", payload);
       dispatch(getPatientActiveMin(payload));
     } else {
-      console.log("patientId is missing, API call skipped");
+      // console.log("patientId is missing, API call skipped");
     }
   }, [patientId, currentDate, activeTab, dispatch, formatDate]);
 
