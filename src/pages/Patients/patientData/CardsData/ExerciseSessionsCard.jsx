@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ExerciseSessions_Icon from "../../../../assets/images/PatientDashboard/Exercise sessions.png";
 import { IoIosExpand } from "react-icons/io";
-import { IoChevronBack, IoChevronForward } from "react-icons/io5";
+import { IoChevronBack, IoChevronForward, IoCheckmark } from "react-icons/io5";
 import { Bar } from "react-chartjs-2";
 import { useDispatch, useSelector } from "react-redux";
 import { getExerciseSessions } from "../../../../redux/patientsDashboard/action";
@@ -508,6 +508,16 @@ const ExerciseSessionsCard = ({
                           </div>
                         </div>
                       </div>
+                      {(ExerciseData?.[0]?.exerciseSessions?.[selectedSessionIndex]?.steps || 0) > 0 && (
+                        <div className="col-4">
+                          <div className="p-2 rounded d-flex flex-column justify-content-center" style={{ backgroundColor: "white", border: "1px solid #E8F2FF", height: "60px" }}>
+                            <div style={{ fontSize: "10px", color: "#666", marginBottom: "2px" }}>Steps</div>
+                            <div style={{ fontSize: "12px", fontWeight: "600", color: "#003465" }}>
+                              {ExerciseData?.[0]?.exerciseSessions?.[selectedSessionIndex]?.steps || 0}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                       </>
                     ) : (
@@ -748,7 +758,7 @@ const ExerciseSessionsCard = ({
             <div className="d-flex justify-content-between align-items-end py-4">
               <div>
                 <div className="d-flex align-items-baseline mt-3 mb-3">
-                  <span style={{ fontSize: "48px", fontWeight: "400", color: "#000" }}>
+                  <span style={{ fontSize: "48px", fontWeight: "400", color: "#003465" }}>
                     {AverageData?.currentWeekData?.filter(day => day.hasData).length || 0}
                   </span>
                   <span style={{ fontSize: "24px", fontWeight: "400", color: "#666", marginLeft: "8px" }}>of 5</span>
@@ -763,13 +773,17 @@ const ExerciseSessionsCard = ({
                     return (
                       <div
                         key={index}
-                        className="rounded-pill"
+                        className="rounded-pill d-flex align-items-center justify-content-center"
                         style={{
                           width: "24px",
                           height: "68px",
                           backgroundColor: dayData?.hasData ? "#003465" : "#B8D4E3"
                         }}
-                      />
+                      >
+                        {dayData?.hasData && (
+                          <IoCheckmark style={{ color: "white", fontSize: "16px", strokeWidth: "40" }} />
+                        )}
+                      </div>
                     );
                   })}
                 </div>
