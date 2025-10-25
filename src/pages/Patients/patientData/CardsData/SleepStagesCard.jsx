@@ -71,12 +71,9 @@ const SleepJourneyChart = ({
     // );
 
     // Calculate total sleep duration and start/end times
-    const startTime = new Date(levelsData[0].dateTime);
-    // console.log("Start time:", startTime);
-    const lastItem = levelsData[levelsData.length - 1];
-    const endTime = new Date(
-      new Date(lastItem.dateTime).getTime() + lastItem.seconds * 1000
-    );
+    // Use the actual startTime and endTime from the sleep session data
+    const startTime = new Date(sleepDataSource.startTime);
+    const endTime = new Date(sleepDataSource.endTime);
     const totalDurationMs = endTime - startTime;
 
     // Group segments by sleep stage
@@ -95,6 +92,7 @@ const SleepJourneyChart = ({
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
+        timeZone: "UTC",
       });
       const endTimeStr = new Date(
         new Date(item.dateTime).getTime() + item.seconds * 1000
@@ -102,6 +100,7 @@ const SleepJourneyChart = ({
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
+        timeZone: "UTC",
       });
 
       stageGroups[level].push({
@@ -141,15 +140,17 @@ const SleepJourneyChart = ({
     });
 
     return {
-      bedtime: startTime.toLocaleTimeString("en-IN", {
+      bedtime: startTime.toLocaleTimeString("en-US", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
+        timeZone: "UTC",
       }),
-      wakeup: endTime.toLocaleTimeString("en-IN", {
+      wakeup: endTime.toLocaleTimeString("en-US", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
+        timeZone: "UTC",
       }),
       totalSleep: formatDuration(totalSeconds),
       stages: {
@@ -278,13 +279,13 @@ const SleepJourneyChart = ({
         </div>
       </div>
 
-      {/* Enhanced Timeline */}
+      {/* Sleep Cycle Chart */}
       <div
         className="flex-grow-1 position-relative"
         style={{
           background: "white",
           borderRadius: "8px",
-          padding: "12px",
+          padding: "16px",
           boxShadow: "0 2px 4px rgba(0,52,101,0.08)",
         }}
       >
@@ -295,190 +296,180 @@ const SleepJourneyChart = ({
               fontWeight: "600",
               color: "#003465",
               marginBottom: "8px",
+              textAlign: "center",
             }}
           >
-            Sleep Stages Distribution
+            CYCLES OF SLEEP
           </h6>
         </div>
 
-        {/* Dotted vertical lines connecting sleep stages */}
-        {sleepData.transitionPoints?.length > 0 && (
-          <div
-            className="position-absolute"
-            style={{
-              top: "50px",
-              left: "12px",
-              right: "12px",
-              bottom: "12px",
-              pointerEvents: "none",
-              zIndex: 1,
-            }}
-          >
-            {sleepData.transitionPoints.map((position, index) => (
-              <div
-                key={index}
-                style={{
-                  position: "absolute",
-                  left: `${position}%`,
-                  top: "0",
-                  bottom: "0",
-                  width: "1px",
-                  background:
-                    "repeating-linear-gradient(to bottom, #666 0px, #666 2px, transparent 2px, transparent 6px)",
-                  opacity: 0.5,
-                }}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Dotted vertical lines at sleep stage transitions */}
-        {sleepData.transitionPoints?.length > 0 && (
-          <div
-            className="position-absolute"
-            style={{
-              top: "50px",
-              left: "12px",
-              right: "12px",
-              bottom: "12px",
-              pointerEvents: "none",
-              zIndex: 1,
-            }}
-          >
-            {sleepData.transitionPoints.map((position, index) => (
-              <div
-                key={index}
-                style={{
-                  position: "absolute",
-                  left: `${position}%`,
-                  top: "0",
-                  bottom: "0",
-                  width: "1px",
-                  background:
-                    "repeating-linear-gradient(to bottom, #999 0px, #999 2px, transparent 2px, transparent 6px)",
-                  opacity: 0.6,
-                }}
-              />
-            ))}
-          </div>
-        )}
-        {Object.entries(sleepData.stages).map(
-          ([stageName, stageData], index) => (
-            <div
-              key={stageName}
-              className="mb-3 position-relative"
-              style={{
-                background: `${stageData.color}08`,
-                borderRadius: "8px",
-                padding: "8px",
-                border: `1px solid ${stageData.color}20`,
-                zIndex: 2,
-              }}
-            >
-              <div className="d-flex align-items-center justify-content-between mb-2">
-                <div className="d-flex align-items-center">
+        {/* Sleep Cycle Visualization */}
+        <div className="position-relative" style={{ height: "250px", margin: "15px 0 10px 0" }}>
+          {/* Y-axis labels */}
+          <div className="position-absolute" style={{ left: "0", top: "0", bottom: "0", width: "80px" }}>
+            {Object.entries(sleepData.stages).map(([stageName, stageData], index) => {
+              const stageOrder = { wake: 0, light: 1, deep: 2, rem: 3 };
+              const yPosition = (stageOrder[stageName] || 0) * 50 + 20;
+              return (
+                <div
+                  key={stageName}
+                  className="position-absolute d-flex align-items-center"
+                  style={{
+                    top: `${yPosition + 10}px`,
+                    right: stageName === "wake" ? "32px" : "10px",
+                    fontSize: "10px",
+                    fontWeight: "600",
+                    color: stageData.color,
+                    textTransform: "uppercase",
+                  }}
+                >
                   <div
                     style={{
-                      width: "12px",
-                      height: "12px",
+                      width: "8px",
+                      height: "8px",
                       backgroundColor: stageData.color,
-                      borderRadius: "3px",
-                      marginRight: "8px",
-                      boxShadow: `0 2px 4px ${stageData.color}40`,
+                      borderRadius: "50%",
+                      marginRight: "6px",
                     }}
-                  ></div>
-                  <span
+                  />
+                  {stageName === "wake" ? "WAKE" : stageName === "light" ? "LIGHT SLEEP" : stageName === "deep" ? "DEEP SLEEP" : "REM SLEEP"}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Chart area */}
+          <div className="position-absolute" style={{ left: "80px", right: "0", top: "0", bottom: "0" }}>
+
+
+            {/* Stage transition lines */}
+            {sleepData.transitionPoints?.map((position, index) => {
+              // Get the stages at this transition point
+              let fromStage = null;
+              let toStage = null;
+              
+              // Find which stages are active before and after this transition
+              Object.entries(sleepData.stages).forEach(([stageName, stageData]) => {
+                stageData.segments.forEach(segment => {
+                  const segmentEnd = segment.start + segment.width;
+                  if (Math.abs(segmentEnd - position) < 0.1) {
+                    fromStage = stageName;
+                  }
+                  if (Math.abs(segment.start - position) < 0.1) {
+                    toStage = stageName;
+                  }
+                });
+              });
+              
+              if (!fromStage || !toStage || fromStage === toStage) return null;
+              
+              const stageOrder = { wake: 0, light: 1, deep: 2, rem: 3 };
+              const fromY = stageOrder[fromStage] * 50 + 20 + 9;
+              const toY = stageOrder[toStage] * 50 + 20 + 9;
+              
+              return (
+                <div
+                  key={`transition-${index}`}
+                  className="position-absolute"
+                  style={{
+                    left: `${position}%`,
+                    top: `${Math.min(fromY, toY)}px`,
+                    height: `${Math.abs(toY - fromY)}px`,
+                    width: "1px",
+                    background: "repeating-linear-gradient(to bottom, #999 0px, #999 2px, transparent 2px, transparent 4px)",
+                    opacity: 0.7,
+                  }}
+                />
+              );
+            }).filter(Boolean)}
+
+            {/* Sleep stage bars */}
+            {Object.entries(sleepData.stages).map(([stageName, stageData]) => {
+              const stageOrder = { wake: 0, light: 1, deep: 2, rem: 3 };
+              const yPosition = (stageOrder[stageName] || 0) * 50 + 20;
+              
+              return stageData.segments.map((segment, segIndex) => (
+                <div
+                  key={`${stageName}-${segIndex}`}
+                  className="position-absolute"
+                  style={{
+                    left: `${segment.start}%`,
+                    width: `${segment.width}%`,
+                    top: `${yPosition}px`,
+                    height: "18px",
+                    background: `linear-gradient(135deg, ${stageData.color} 0%, ${stageData.color}E6 50%, ${stageData.color} 100%)`,
+                    borderRadius: "9px",
+                    cursor: "pointer",
+                    transition: "all 0.3s ease",
+                    boxShadow: `0 3px 8px ${stageData.color}50, inset 0 1px 0 rgba(255,255,255,0.3)`,
+                    border: `1px solid ${stageData.color}80`,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = "translateY(-1px)";
+                    e.target.style.boxShadow = `0 4px 12px ${stageData.color}60, inset 0 1px 0 rgba(255,255,255,0.4)`;
+                    handleMouseEnter(e, stageName, segment);
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = "translateY(0)";
+                    e.target.style.boxShadow = `0 3px 8px ${stageData.color}50, inset 0 1px 0 rgba(255,255,255,0.3)`;
+                    handleMouseLeave();
+                  }}
+                />
+              ));
+            })}
+          </div>
+
+
+
+
+        </div>
+
+        {/* Sleep stages summary */}
+        <div className="mt-1">
+          <div className="row g-2">
+            {Object.entries(sleepData.stages).map(([stageName, stageData]) => (
+              <div key={stageName} className="col-3">
+                <div
+                  className="text-center p-2"
+                  style={{
+                    background: `${stageData.color}10`,
+                    borderRadius: "6px",
+                    border: `1px solid ${stageData.color}30`,
+                  }}
+                >
+                  <div
                     style={{
-                      fontSize: "12px",
-                      fontWeight: "700",
-                      color: "#003465",
-                      textTransform: "capitalize",
-                      minWidth: "50px",
+                      fontSize: "10px",
+                      fontWeight: "600",
+                      color: stageData.color,
+                      textTransform: "uppercase",
+                      marginBottom: "2px",
                     }}
                   >
-                    {stageName === "wake" ? "Awake" : stageName}
-                  </span>
-                </div>
-                <div className="d-flex align-items-center gap-3">
-                  <span
+                    {stageName === "wake" ? "WAKE" : stageName}
+                  </div>
+                  <div
                     style={{
                       fontSize: "11px",
-                      color: "#666",
-                      fontWeight: "500",
-                      backgroundColor: "white",
-                      padding: "2px 6px",
-                      borderRadius: "6px",
+                      fontWeight: "700",
+                      color: "#003465",
                     }}
                   >
                     {stageData.duration}
-                  </span>
-                  <span
+                  </div>
+                  <div
                     style={{
-                      fontSize: "10px",
-                      color: "white",
-                      fontWeight: "700",
-                      backgroundColor: stageData.color,
-                      padding: "3px 6px",
-                      borderRadius: "8px",
-                      minWidth: "35px",
-                      textAlign: "center",
-                      boxShadow: `0 2px 4px ${stageData.color}40`,
+                      fontSize: "9px",
+                      color: "#666",
                     }}
                   >
                     {stageData.percentage}%
-                  </span>
+                  </div>
                 </div>
               </div>
-              <div
-                className="position-relative"
-                style={{
-                  height: "20px",
-                  backgroundColor: "white",
-                  borderRadius: "10px",
-                  border: `2px solid ${stageData.color}20`,
-                  overflow: "hidden",
-                  boxShadow: "inset 0 1px 3px rgba(0,0,0,0.1)",
-                }}
-              >
-                {stageData.segments.map((segment, segIndex) => (
-                  <div
-                    key={segIndex}
-                    style={{
-                      position: "absolute",
-                      left: `${segment.start}%`,
-                      width: `${segment.width}%`,
-                      height: "100%",
-                      background: `linear-gradient(135deg, ${stageData.color} 0%, ${stageData.color}CC 100%)`,
-                      borderRadius: "2px",
-                      cursor: "pointer",
-                      transition: "all 0.3s ease",
-                      boxShadow: `0 1px 3px ${stageData.color}60`,
-                    }}
-                    onMouseEnter={(e) =>
-                      handleMouseEnter(e, stageName, segment)
-                    }
-                    onMouseLeave={handleMouseLeave}
-                  />
-                ))}
-                {/* Enhanced Grid lines */}
-                {[25, 50, 75].map((position) => (
-                  <div
-                    key={position}
-                    style={{
-                      position: "absolute",
-                      left: `${position}%`,
-                      top: "0",
-                      bottom: "0",
-                      width: "1px",
-                      backgroundColor: "#003465",
-                      opacity: 0.2,
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-          )
-        )}
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Enhanced Custom Tooltip */}
