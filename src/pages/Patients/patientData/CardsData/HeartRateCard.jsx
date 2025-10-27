@@ -4,7 +4,7 @@ import { IoIosExpand } from "react-icons/io";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { Bar } from "react-chartjs-2";
 import { useDispatch, useSelector } from "react-redux";
-import { getPatientHeartRate } from "../../../../redux/patientsDashboard/action";
+import { getPatientHeart } from "../../../../redux/patientsDashboard/action";
 
 const HeartRateCard = ({
   patientId,
@@ -18,12 +18,12 @@ const HeartRateCard = ({
 }) => {
   const dispatch = useDispatch();
   const HeartRateData = useSelector(
-    (state) => state?.getPatientHeartRate?.data?.response?.data
+    (state) => state?.getPatientHeart?.data?.response?.data
   );
   const HeartRateStatsData = useSelector(
-    (state) => state?.getPatientHeartRate?.data?.response?.targetRange
+    (state) => state?.getPatientHeart?.data?.response?.targetRange
   ) || { min: 60, max: 100 };
-  const Loading = useSelector((state) => state?.getPatientHeartRate?.loading);
+  const Loading = useSelector((state) => state?.getPatientHeart?.loading);
   // Use static data for display
   const AverageData = {
     stats: { average: 76 },
@@ -79,7 +79,7 @@ const HeartRateCard = ({
       };
       if (activeTab === "Month") payload.period = "month";
       if (activeTab === "Year") payload.period = "year";
-      dispatch(getPatientHeartRate(payload));
+      dispatch(getPatientHeart(payload));
     }
   }, [patientId, currentDate, activeTab]);
 
@@ -360,7 +360,7 @@ const HeartRateCard = ({
           field: "heartRate",
         };
         if (activeTab === "Year") payload.period = "year";
-        dispatch(getPatientHeartRate(payload));
+        dispatch(getPatientHeart(payload));
       }
     }, 0);
   };
@@ -402,7 +402,7 @@ const HeartRateCard = ({
         };
         if (tab === "Month") payload.period = "month";
         if (tab === "Year") payload.period = "year";
-        dispatch(getPatientHeartRate(payload));
+        dispatch(getPatientHeart(payload));
       }
     }, 0);
   };

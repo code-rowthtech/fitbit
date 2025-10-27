@@ -41,7 +41,9 @@ export function getPatientWaterApi(data) {
 }
 
 export function getPatientHeartApi(data) {
-    return api.get(URL.PATIENT_HEART.replace(':id', data.payload.id));
+    const baseUrl = `${URL.PATIENT_HEART}/${data.payload.patientId}?field=${data.payload.field}&start=${data.payload.start}&end=${data.payload.end}`;
+    const url = data.payload.period ? `${baseUrl}&period=${data.payload.period}` : baseUrl;
+    return api.get(url);
 }
 
 export function getPatientWeightApi(data) {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import RestingHeartRate_Icon from "../../../../assets/images/PatientDashboard/heart rate.png";
 import { IoIosExpand } from "react-icons/io";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
-import { Bar } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 import { useDispatch, useSelector } from "react-redux";
 import { getPatientHeartRate } from "../../../../redux/patientsDashboard/action";
 
@@ -74,14 +74,14 @@ const RestingHeartRateCard = ({
 
     const apiData = FilterData;
 
-    // Handle Day view with intraday data
-    if (activeTab === "Day" && apiData[0]?.intradayData) {
-      const intradayData = apiData[0].intradayData;
-      const labels = intradayData.map((item) => item.timeRange);
-      const data = intradayData.map((item) => item.restingHeartRate);
+    // Handle Day view with heartRateIntraday data
+    if (activeTab === "Day" && apiData[0]?.heartRateIntraday) {
+      const intradayData = apiData[0].heartRateIntraday;
+      const labels = intradayData.map((item) => item.time);
+      const data = intradayData.map((item) => item.value);
       const tableData = intradayData.map((item) => ({
-        period: item.timeRange,
-        value: item.restingHeartRate ? `${item.restingHeartRate} bpm` : "0 bpm",
+        period: item.time,
+        value: item.value ? `${item.value} bpm` : "0 bpm",
       }));
       return { labels, data, tableData };
     }
@@ -362,40 +362,89 @@ const RestingHeartRateCard = ({
               <div
                 className="border rounded-2"
                 style={{
-                  padding: "10px",
-                  backgroundColor: "#F6FAFF",
+                  padding: "15px",
+                  backgroundColor: "#FAFCFF",
                   height: "500px",
+                  position: "relative"
                 }}
               >
-                <Bar
+                <Line
                   key={`chart-${activeTab}-${chartData.data.length}`}
                   data={{
-                    labels: chartData.labels,
+                    labels: activeTab === "Day" && chartData.labels.length > 50 
+                      ? chartData.labels.filter((_, index) => index % Math.ceil(chartData.labels.length / 24) === 0)
+                      : chartData.labels,
                     datasets: [
                       {
-                        data: chartData.data,
-                        backgroundColor: "#003465",
-                        borderRadius: 3,
-                        barThickness: 15,
+                        data: activeTab === "Day" && chartData.data.length > 50
+                          ? chartData.data.filter((_, index) => index % Math.ceil(chartData.data.length / 24) === 0)
+                          : chartData.data,
+                        borderColor: "#003465",
+                        backgroundColor: activeTab === "Day" ? "rgba(0, 52, 101, 0.05)" : "rgba(0, 52, 101, 0.1)",
+                        borderWidth: activeTab === "Day" ? 2 : 2,
+                        pointBackgroundColor: "#003465",
+                        pointBorderColor: "#ffffff",
+                        pointBorderWidth: activeTab === "Day" ? 2 : 1,
+                        pointRadius: activeTab === "Day" ? 4 : 3,
+                        pointHoverRadius: activeTab === "Day" ? 6 : 5,
+                        fill: activeTab === "Day" ? false : true,
+                        tension: activeTab === "Day" ? 0.4 : 0.1,
                       },
                     ],
                   }}
                   options={{
                     maintainAspectRatio: false,
+                    interaction: {
+                      intersect: false,
+                      mode: 'index'
+                    },
                     plugins: {
                       legend: { display: false },
                       tooltip: {
+                        backgroundColor: 'rgba(0, 52, 101, 0.9)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#003465',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        displayColors: false,
                         callbacks: {
+                          title: (context) => {
+                            return activeTab === "Day" ? `Time: ${context[0].label}` : context[0].label;
+                          },
                           label: (context) => {
-                            return `${context.parsed.y} bpm`;
+                            return `Heart Rate: ${context.parsed.y} bpm`;
                           },
                         },
                       },
                     },
                     scales: {
                       x: {
-                        grid: { display: false },
-                        ticks: { color: "#666", fontSize: 10 },
+                        grid: { 
+                          display: activeTab === "Day" ? true : false,
+                          color: 'rgba(0, 0, 0, 0.05)',
+                          drawOnChartArea: true,
+                          drawTicks: false
+                        },
+                        ticks: { 
+                          color: "#666", 
+                          fontSize: 10,
+                          maxRotation: 0,
+                          ...(activeTab === "Day" && {
+                            maxTicksLimit: 6,
+                            callback: function(value, index, values) {
+                              const label = this.getLabelForValue(value);
+                              if (label.includes(':')) {
+                                const time = label.split(' ')[1] || label;
+                                return time.length > 5 ? time.substring(0, 5) : time;
+                              }
+                              return label;
+                            }
+                          })
+                        },
+                        border: {
+                          display: false
+                        }
                       },
                       y: {
                         beginAtZero: false,
@@ -406,7 +455,7 @@ const RestingHeartRateCard = ({
                                 parseFloat(HeartRateStatsData.min) - 5
                               )
                             : chartData.data.length > 0
-                            ? Math.min(...chartData.data) - 5
+                            ? Math.min(...chartData.data) - 10
                             : 0,
                         max:
                           activeTab === "Week" && HeartRateStatsData
@@ -415,13 +464,25 @@ const RestingHeartRateCard = ({
                                 parseFloat(HeartRateStatsData.max) + 5
                               )
                             : chartData.data.length > 0
-                            ? Math.max(...chartData.data) + 5
+                            ? Math.max(...chartData.data) + 10
                             : 100,
-                        grid: { color: "#f0f0f0" },
-                        ticks: { color: "#666", fontSize: 10 },
+                        grid: { 
+                          color: "rgba(0, 0, 0, 0.08)",
+                          drawTicks: false
+                        },
+                        ticks: { 
+                          color: "#666", 
+                          fontSize: 10,
+                          padding: 10,
+                          callback: function(value) {
+                            return Math.round(value) + ' bpm';
+                          }
+                        },
+                        border: {
+                          display: false
+                        }
                       },
                     },
-                    categoryPercentage: 0.6,
                   }}
                 />
               </div>
