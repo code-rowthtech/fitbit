@@ -17,6 +17,9 @@ const RestingHeartRateCard = ({
   formatDate,
 }) => {
   const dispatch = useDispatch();
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [isTabSwitching, setIsTabSwitching] = useState(false);
+
   const FilterData = useSelector(
     (state) => state?.getPatientHeartRate?.data?.response?.data
   );
@@ -27,7 +30,14 @@ const RestingHeartRateCard = ({
     (state) => state?.getPatientHeartRate?.data?.response
   );
   const Loading = useSelector((state) => state?.getPatientHeartRate?.loading);
-  // console.log(AverageData,'AverageDataAverageData')
+  // Reset loading states when data loading completes
+  useEffect(() => {
+    if (!Loading) {
+      setIsNavigating(false);
+      setIsTabSwitching(false);
+    }
+  }, [Loading]);
+
   // Fetch data on component mount and when dependencies change
   useEffect(() => {
     if (patientId) {
@@ -78,9 +88,17 @@ const RestingHeartRateCard = ({
     // Handle Day view with heartRateIntraday data
     if (activeTab === "Day" && apiData[0]?.heartRateIntraday) {
       const intradayData = apiData[0].heartRateIntraday;
-      const labels = intradayData.map((item) => item.time);
-      const data = intradayData.map((item) => item.value);
-      const tableData = intradayData.map((item) => ({
+      
+      // Filter data to show every 30 minutes
+      const filteredData = intradayData.filter((item, index) => {
+        const time = item.time;
+        const minutes = parseInt(time.split(':')[1]);
+        return minutes % 30 === 0; // Show data points at 00, 30
+      });
+      
+      const labels = filteredData.map((item) => item.time);
+      const data = filteredData.map((item) => item.value);
+      const tableData = filteredData.map((item) => ({
         period: item.time,
         value: item.value ? `${item.value} bpm` : "0 bpm",
       }));
@@ -209,7 +227,9 @@ const RestingHeartRateCard = ({
 
   const handleNavigation = (direction) => {
     if (direction === "next" && isNextDisabled()) return;
+    if (isNavigating) return;
 
+    setIsNavigating(true);
     const newDate = new Date(currentDate);
 
     switch (activeTab) {
@@ -271,6 +291,9 @@ const RestingHeartRateCard = ({
   };
 
   const handleTabChange = (tab) => {
+    if (isTabSwitching || tab === activeTab) return;
+
+    setIsTabSwitching(true);
     onTabChange(tab);
     // Fetch data for new tab
     setTimeout(() => {
@@ -341,7 +364,7 @@ const RestingHeartRateCard = ({
           <span
             style={{ fontSize: "12px", fontWeight: "600", color: "#003465" }}
           >
-            Resting Heart Rate
+            Heart Rate
           </span>
         </div>
         <div className="d-flex">
@@ -369,123 +392,171 @@ const RestingHeartRateCard = ({
                   position: "relative"
                 }}
               >
-                <Line
-                  key={`chart-${activeTab}-${chartData.data.length}`}
-                  data={{
-                    labels: activeTab === "Day" && chartData.labels.length > 50 
-                      ? chartData.labels.filter((_, index) => index % Math.ceil(chartData.labels.length / 24) === 0)
-                      : chartData.labels,
-                    datasets: [
-                      {
-                        data: activeTab === "Day" && chartData.data.length > 50
-                          ? chartData.data.filter((_, index) => index % Math.ceil(chartData.data.length / 24) === 0)
-                          : chartData.data,
-                        borderColor: "#003465",
-                        backgroundColor: activeTab === "Day" ? "rgba(0, 52, 101, 0.05)" : "rgba(0, 52, 101, 0.1)",
-                        borderWidth: activeTab === "Day" ? 2 : 2,
-                        pointBackgroundColor: "#003465",
-                        pointBorderColor: "#ffffff",
-                        pointBorderWidth: activeTab === "Day" ? 2 : 1,
-                        pointRadius: activeTab === "Day" ? 4 : 3,
-                        pointHoverRadius: activeTab === "Day" ? 6 : 5,
-                        fill: activeTab === "Day" ? false : true,
-                        tension: activeTab === "Day" ? 0.4 : 0.1,
+                {(Loading || isNavigating || isTabSwitching) ? (
+                  <div className="d-flex flex-column h-100">
+                    {/* Chart Skeleton */}
+                    <div className="position-relative flex-grow-1">
+                      {/* Y-axis skeleton */}
+                      <div className="position-absolute" style={{ left: "0", top: "0", bottom: "30px", width: "30px" }}>
+                        {[...Array(6)].map((_, i) => (
+                          <div key={i} className="placeholder rounded-1 mb-3" style={{ height: "8px", width: "25px" }}></div>
+                        ))}
+                      </div>
+
+                      {/* Chart area skeleton */}
+                      <div className="position-absolute" style={{ left: "40px", right: "0", top: "0", bottom: "30px" }}>
+                        <svg width="100%" height="100%" className="placeholder-glow">
+                          {/* Grid lines */}
+                          {[...Array(5)].map((_, i) => (
+                            <line key={`grid-${i}`} x1="0" y1={`${(i + 1) * 20}%`} x2="100%" y2={`${(i + 1) * 20}%`} stroke="#E8F2FF" strokeWidth="1" />
+                          ))}
+
+                          {/* Skeleton chart line */}
+                          <path
+                            d={`M 0 60% Q 25% 40% 50% 50% T 100% 45%`}
+                            fill="none"
+                            stroke="#E8F2FF"
+                            strokeWidth="3"
+                            className="placeholder"
+                          />
+
+                          {/* Skeleton data points */}
+                          {[...Array(8)].map((_, i) => (
+                            <circle
+                              key={`point-${i}`}
+                              cx={`${(i * 14) + 5}%`}
+                              cy={`${45 + Math.sin(i) * 15}%`}
+                              r="3"
+                              fill="#E8F2FF"
+                              className="placeholder"
+                            />
+                          ))}
+                        </svg>
+                      </div>
+
+                      {/* X-axis skeleton */}
+                      <div className="position-absolute d-flex justify-content-between" style={{ left: "40px", right: "0", bottom: "0", height: "20px" }}>
+                        {[...Array(6)].map((_, i) => (
+                          <div key={i} className="placeholder rounded-1" style={{ height: "8px", width: "20px" }}></div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <Line
+                    key={`chart-${activeTab}-${chartData.data.length}`}
+                    data={{
+                      labels: chartData.labels,
+                      datasets: [
+                        {
+                          data: chartData.data,
+                          borderColor: "#003465",
+                          backgroundColor: activeTab === "Day" ? "rgba(0, 52, 101, 0.05)" : "rgba(0, 52, 101, 0.1)",
+                          borderWidth: activeTab === "Day" ? 2 : 2,
+                          pointBackgroundColor: "#003465",
+                          pointBorderColor: "#ffffff",
+                          pointBorderWidth: activeTab === "Day" ? 2 : 1,
+                          pointRadius: activeTab === "Day" ? 0 : 3,
+                          pointHoverRadius: activeTab === "Day" ? 6 : 5,
+                          fill: activeTab === "Day" ? false : true,
+                          tension: activeTab === "Day" ? 0.4 : 0.1,
+                        },
+                      ],
+                    }}
+                    options={{
+                      maintainAspectRatio: false,
+                      interaction: {
+                        intersect: false,
+                        mode: 'index'
                       },
-                    ],
-                  }}
-                  options={{
-                    maintainAspectRatio: false,
-                    interaction: {
-                      intersect: false,
-                      mode: 'index'
-                    },
-                    plugins: {
-                      legend: { display: false },
-                      tooltip: {
-                        backgroundColor: 'rgba(0, 52, 101, 0.9)',
-                        titleColor: '#ffffff',
-                        bodyColor: '#ffffff',
-                        borderColor: '#003465',
-                        borderWidth: 1,
-                        cornerRadius: 8,
-                        displayColors: false,
-                        callbacks: {
-                          title: (context) => {
-                            return activeTab === "Day" ? `Time: ${context[0].label}` : context[0].label;
-                          },
-                          label: (context) => {
-                            return `Heart Rate: ${context.parsed.y} bpm`;
+                      plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                          backgroundColor: 'rgba(0, 52, 101, 0.9)',
+                          titleColor: '#ffffff',
+                          bodyColor: '#ffffff',
+                          borderColor: '#003465',
+                          borderWidth: 1,
+                          cornerRadius: 8,
+                          displayColors: false,
+                          callbacks: {
+                            title: (context) => {
+                              return activeTab === "Day" ? `Time: ${context[0].label}` : context[0].label;
+                            },
+                            label: (context) => {
+                              return `Heart Rate: ${context.parsed.y} bpm`;
+                            },
                           },
                         },
                       },
-                    },
-                    scales: {
-                      x: {
-                        grid: { 
-                          display: activeTab === "Day" ? true : false,
-                          color: 'rgba(0, 0, 0, 0.05)',
-                          drawOnChartArea: true,
-                          drawTicks: false
-                        },
-                        ticks: { 
-                          color: "#666", 
-                          fontSize: 10,
-                          maxRotation: 0,
-                          ...(activeTab === "Day" && {
-                            maxTicksLimit: 6,
-                            callback: function(value, index, values) {
-                              const label = this.getLabelForValue(value);
-                              if (label.includes(':')) {
-                                const time = label.split(' ')[1] || label;
-                                return time.length > 5 ? time.substring(0, 5) : time;
+                      scales: {
+                        x: {
+                          grid: {
+                            display: activeTab === "Day" ? true : false,
+                            color: 'rgba(0, 0, 0, 0.05)',
+                            drawOnChartArea: true,
+                            drawTicks: false
+                          },
+                          ticks: {
+                            color: "#666",
+                            fontSize: 10,
+                            maxRotation: 0,
+                            ...(activeTab === "Day" && {
+                              maxTicksLimit: 12,
+                              callback: function (value, index, values) {
+                                const label = this.getLabelForValue(value);
+                                if (label.includes(':')) {
+                                  const time = label.split(' ')[1] || label;
+                                  return time.length > 5 ? time.substring(0, 5) : time;
+                                }
+                                return label;
                               }
-                              return label;
-                            }
-                          })
+                            })
+                          },
+                          border: {
+                            display: false
+                          }
                         },
-                        border: {
-                          display: false
-                        }
-                      },
-                      y: {
-                        beginAtZero: false,
-                        min:
-                          activeTab === "Week" && HeartRateStatsData
-                            ? Math.min(
+                        y: {
+                          beginAtZero: false,
+                          min:
+                            activeTab === "Week" && HeartRateStatsData
+                              ? Math.min(
                                 0,
                                 parseFloat(HeartRateStatsData.min) - 5
                               )
-                            : chartData.data.length > 0
-                            ? Math.min(...chartData.data) - 10
-                            : 0,
-                        max:
-                          activeTab === "Week" && HeartRateStatsData
-                            ? Math.max(
+                              : chartData.data.length > 0
+                                ? Math.min(...chartData.data) - 10
+                                : 0,
+                          max:
+                            activeTab === "Week" && HeartRateStatsData
+                              ? Math.max(
                                 ...chartData.data,
                                 parseFloat(HeartRateStatsData.max) + 5
                               )
-                            : chartData.data.length > 0
-                            ? Math.max(...chartData.data) + 10
-                            : 100,
-                        grid: { 
-                          color: "rgba(0, 0, 0, 0.08)",
-                          drawTicks: false
-                        },
-                        ticks: { 
-                          color: "#666", 
-                          fontSize: 10,
-                          padding: 10,
-                          callback: function(value) {
-                            return Math.round(value) + ' bpm';
+                              : chartData.data.length > 0
+                                ? Math.max(...chartData.data) + 10
+                                : 100,
+                          grid: {
+                            color: "rgba(0, 0, 0, 0.08)",
+                            drawTicks: false
+                          },
+                          ticks: {
+                            color: "#666",
+                            fontSize: 10,
+                            padding: 10,
+                            callback: function (value) {
+                              return Math.round(value) + ' bpm';
+                            }
+                          },
+                          border: {
+                            display: false
                           }
                         },
-                        border: {
-                          display: false
-                        }
                       },
-                    },
-                  }}
-                />
+                    }}
+                  />
+                )}
               </div>
             </div>
             <div
@@ -499,31 +570,46 @@ const RestingHeartRateCard = ({
                 {["Day", "Week", "Month", "Year"].map((tab, index) => (
                   <div
                     key={index}
-                    className="px-3 py-2 rounded-pill text-center flex-fill"
+                    className="px-3 py-2 rounded-pill text-center flex-fill d-flex align-items-center justify-content-center"
                     style={{
                       backgroundColor:
                         tab === activeTab ? "#003465" : "transparent",
                       color: tab === activeTab ? "white" : "#003465",
-                      cursor: "pointer",
+                      cursor: isTabSwitching ? "not-allowed" : "pointer",
                       fontSize: "11px",
                       fontWeight: "500",
                       transition: "all 0.2s ease",
                       border: "none",
                       minWidth: "45px",
+                      opacity: isTabSwitching && tab !== activeTab ? 0.6 : 1,
                     }}
                     onClick={() => handleTabChange(tab)}
                     onMouseEnter={(e) => {
-                      if (tab !== activeTab) {
+                      if (tab !== activeTab && !isTabSwitching) {
                         e.target.style.backgroundColor = "#E8F2FF";
                       }
                     }}
                     onMouseLeave={(e) => {
-                      if (tab !== activeTab) {
+                      if (tab !== activeTab && !isTabSwitching) {
                         e.target.style.backgroundColor = "transparent";
                       }
                     }}
                   >
-                    {tab}
+                    {isTabSwitching && tab === activeTab ? (
+                      <div className="d-flex align-items-center gap-1">
+                        <div
+                          className="spinner-border"
+                          style={{
+                            width: "10px",
+                            height: "10px",
+                            borderWidth: "1px"
+                          }}
+                        ></div>
+                        <span>{tab}</span>
+                      </div>
+                    ) : (
+                      tab
+                    )}
                   </div>
                 ))}
               </div>
@@ -537,14 +623,27 @@ const RestingHeartRateCard = ({
                   style={{
                     width: "24px",
                     height: "24px",
-                    backgroundColor: "white",
-                    border: "1px solid #003465",
+                    backgroundColor: isNavigating ? "#f5f5f5" : "white",
+                    border: `1px solid ${isNavigating ? "#ccc" : "#003465"}`,
                     borderRadius: "4px",
-                    color: "#003465",
+                    color: isNavigating ? "#ccc" : "#003465",
+                    cursor: isNavigating ? "not-allowed" : "pointer",
                   }}
                   onClick={() => handleNavigation("prev")}
+                  disabled={isNavigating}
                 >
-                  <IoChevronBack style={{ fontSize: "12px" }} />
+                  {isNavigating ? (
+                    <div
+                      className="spinner-border"
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        borderWidth: "1px"
+                      }}
+                    ></div>
+                  ) : (
+                    <IoChevronBack style={{ fontSize: "12px" }} />
+                  )}
                 </button>
                 <span
                   style={{
@@ -560,18 +659,28 @@ const RestingHeartRateCard = ({
                   style={{
                     width: "24px",
                     height: "24px",
-                    backgroundColor: isNextDisabled() ? "#f5f5f5" : "white",
-                    border: `1px solid ${
-                      isNextDisabled() ? "#ccc" : "#003465"
-                    }`,
+                    backgroundColor: (isNextDisabled() || isNavigating) ? "#f5f5f5" : "white",
+                    border: `1px solid ${(isNextDisabled() || isNavigating) ? "#ccc" : "#003465"
+                      }`,
                     borderRadius: "4px",
-                    color: isNextDisabled() ? "#ccc" : "#003465",
-                    cursor: isNextDisabled() ? "not-allowed" : "pointer",
+                    color: (isNextDisabled() || isNavigating) ? "#ccc" : "#003465",
+                    cursor: (isNextDisabled() || isNavigating) ? "not-allowed" : "pointer",
                   }}
                   onClick={() => handleNavigation("next")}
-                  disabled={isNextDisabled()}
+                  disabled={isNextDisabled() || isNavigating}
                 >
-                  <IoChevronForward style={{ fontSize: "12px" }} />
+                  {isNavigating ? (
+                    <div
+                      className="spinner-border"
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        borderWidth: "1px"
+                      }}
+                    ></div>
+                  ) : (
+                    <IoChevronForward style={{ fontSize: "12px" }} />
+                  )}
                 </button>
               </div>
 
@@ -633,7 +742,24 @@ const RestingHeartRateCard = ({
                 }}
                 className="custom-scroll"
               >
-                {chartData.tableData.length > 0 ? (
+                {(Loading || isNavigating || isTabSwitching) ? (
+                  // Table skeleton
+                  [...Array(8)].map((_, index) => (
+                    <div
+                      key={`skeleton-${index}`}
+                      className="d-flex justify-content-between p-2 mb-1 placeholder-glow"
+                      style={{
+                        backgroundColor: "white",
+                        fontSize: "10px",
+                        borderRadius: "2px",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <span className="placeholder rounded-1" style={{ width: "60px", height: "10px" }}></span>
+                      <span className="placeholder rounded-1" style={{ width: "40px", height: "10px" }}></span>
+                    </div>
+                  ))
+                ) : chartData.tableData.length > 0 ? (
                   chartData.tableData.map((item, index) => (
                     <div
                       key={`${activeTab}-${item.period}-${index}`}
@@ -662,9 +788,8 @@ const RestingHeartRateCard = ({
           </div>
         ) : (
           <div
-            className={`rounded-3 px-2 mt-1 d-flex flex-column ${
-              Loading ? "placeholder-glow" : ""
-            }`}
+            className={`rounded-3 px-2 mt-1 d-flex flex-column ${Loading ? "placeholder-glow" : ""
+              }`}
             style={{ backgroundColor: "#F8FBFF", height: "200px" }}
           >
             <div className="d-flex justify-content-center mb-2">
@@ -698,9 +823,8 @@ const RestingHeartRateCard = ({
                 </svg>
                 <div className="position-absolute top-50 start-50 translate-middle text-center">
                   <div
-                    className={`fw-bold ${
-                      Loading ? "placeholder rounded-1" : ""
-                    }`}
+                    className={`fw-bold ${Loading ? "placeholder rounded-1" : ""
+                      }`}
                     style={{ fontSize: "16px", color: "#003465" }}
                   >
                     {AverageData?.todayData?.value || 0}
@@ -737,9 +861,8 @@ const RestingHeartRateCard = ({
                   }}
                 >
                   <div
-                    className={`fw-bold ${
-                      Loading ? "placeholder rounded-1" : ""
-                    }`}
+                    className={`fw-bold ${Loading ? "placeholder rounded-1" : ""
+                      }`}
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
                     {AverageData?.todayData?.restingHeartRate || "0"} bpm
@@ -764,9 +887,8 @@ const RestingHeartRateCard = ({
                   }}
                 >
                   <div
-                    className={`fw-bold ${
-                      Loading ? "placeholder rounded-1" : ""
-                    }`}
+                    className={`fw-bold ${Loading ? "placeholder rounded-1" : ""
+                      }`}
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
                     {AverageData?.stats?.average || "-"} bpm
