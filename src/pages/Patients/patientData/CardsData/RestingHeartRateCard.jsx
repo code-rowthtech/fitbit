@@ -26,6 +26,7 @@ const RestingHeartRateCard = ({
   const AverageData = useSelector(
     (state) => state?.getPatientHeartRate?.data?.response
   );
+  const Loading = useSelector((state) => state?.getPatientHeartRate?.loading);
   // console.log(AverageData,'AverageDataAverageData')
   // Fetch data on component mount and when dependencies change
   useEffect(() => {
@@ -661,7 +662,9 @@ const RestingHeartRateCard = ({
           </div>
         ) : (
           <div
-            className=" rounded-3 px-2 mt-1 d-flex flex-column"
+            className={`rounded-3 px-2 mt-1 d-flex flex-column ${
+              Loading ? "placeholder-glow" : ""
+            }`}
             style={{ backgroundColor: "#F8FBFF", height: "200px" }}
           >
             <div className="d-flex justify-content-center mb-2">
@@ -695,7 +698,9 @@ const RestingHeartRateCard = ({
                 </svg>
                 <div className="position-absolute top-50 start-50 translate-middle text-center">
                   <div
-                    className="fw-bold"
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "16px", color: "#003465" }}
                   >
                     {AverageData?.todayData?.value || 0}
@@ -715,7 +720,7 @@ const RestingHeartRateCard = ({
 
             <div className="text-center mb-2">
               <p
-                className="mb-0"
+                className={`mb-0 ${Loading ? "placeholder rounded-1" : ""}`}
                 style={{ fontSize: "10px", color: "#666", fontWeight: "500" }}
               >
                 Current resting heart rate
@@ -732,7 +737,9 @@ const RestingHeartRateCard = ({
                   }}
                 >
                   <div
-                    className="fw-bold"
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
                     {AverageData?.todayData?.restingHeartRate || "0"} bpm
@@ -757,7 +764,9 @@ const RestingHeartRateCard = ({
                   }}
                 >
                   <div
-                    className="fw-bold"
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
                     {AverageData?.stats?.average || "-"} bpm

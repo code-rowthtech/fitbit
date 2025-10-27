@@ -41,6 +41,11 @@ const EfficiencyCard = ({
     (state) =>
       state?.getPatientSleepEfficiency?.data?.response?.todayData?.value || 0
   );
+
+  const Loading = useSelector(
+    (state) => state?.getPatientSleepEfficiency?.loading
+  );
+
   // console.log(totalEfficiency, "totalEfficiency");
 
   // Calculate average efficiency
@@ -627,7 +632,9 @@ const EfficiencyCard = ({
           </div>
         ) : (
           <div
-            className=" rounded-3 px-2 mt-1 d-flex flex-column"
+            className={`rounded-3 px-2 mt-1 d-flex flex-column ${
+              Loading ? "placeholder-glow" : ""
+            }`}
             style={{ backgroundColor: "#F8FBFF", height: "200px" }}
           >
             <div className="d-flex justify-content-center mb-2">
@@ -659,7 +666,9 @@ const EfficiencyCard = ({
                 </svg>
                 <div className="position-absolute top-50 start-50 translate-middle text-center">
                   <div
-                    className="fw-bold"
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "16px", color: "#003465" }}
                   >
                     {totalEfficiency}%
@@ -679,7 +688,7 @@ const EfficiencyCard = ({
 
             <div className="text-center mb-2">
               <p
-                className="mb-0"
+                className={`mb-0 ${Loading ? "placeholder rounded-1" : ""}`}
                 style={{ fontSize: "10px", color: "#666", fontWeight: "500" }}
               >
                 Sleep efficiency today
@@ -696,7 +705,9 @@ const EfficiencyCard = ({
                   }}
                 >
                   <div
-                    className="fw-bold"
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
                     {totalEfficiency || "-"}%
