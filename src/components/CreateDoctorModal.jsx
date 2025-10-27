@@ -10,7 +10,6 @@ import {
   getSkills,
   getSpecializations,
   getQualification,
-  getAllDoctors,
 } from "../redux/actions";
 import { FaTimes, FaEye, FaEyeSlash } from "react-icons/fa";
 import { RiAddLine } from "react-icons/ri";
@@ -19,7 +18,6 @@ import { MdDone } from "react-icons/md";
 import AddSpecialSkillModal from "./SpecialSkill/AddSpecialSkillModal";
 import AddSpecializationModal from "./Specialization/AddSpecializationModal";
 import AddDegreeModal from "./CreateDegree/AddDegreeModal";
-import { toast } from "react-toastify";
 
 // CSS for custom radio label styling
 const customRadioStyle = `
