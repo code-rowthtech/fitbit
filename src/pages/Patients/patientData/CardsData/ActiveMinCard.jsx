@@ -26,6 +26,7 @@ const ActiveMinCard = ({
   const AverageData = useSelector(
     (state) => state?.getPatientActiveMin?.data?.response
   );
+  const Loading = useSelector((state) => state?.getPatientActiveMin?.loading);
 
   // Get date range based on active tab and current date
   const getDateRange = () => {
@@ -665,7 +666,9 @@ const ActiveMinCard = ({
           </div>
         ) : (
           <div
-            className=" rounded-3 px-2 mt-1 d-flex flex-column"
+            className={`rounded-3 px-2 mt-1 d-flex flex-column ${
+              Loading ? "placeholder-glow" : ""
+            }`}
             style={{ backgroundColor: "#F8FBFF", height: "200px" }}
           >
             <div className="d-flex justify-content-center mb-2">
@@ -705,7 +708,9 @@ const ActiveMinCard = ({
                 </svg>
                 <div className="position-absolute top-50 start-50 translate-middle text-center">
                   <div
-                    className="fw-bold"
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "16px", color: "#003465" }}
                   >
                     {Math.min(
@@ -733,7 +738,7 @@ const ActiveMinCard = ({
 
             <div className="text-center mb-2">
               <p
-                className="mb-0"
+                className={`mb-0 ${Loading ? "placeholder rounded-1" : ""}`}
                 style={{ fontSize: "10px", color: "#666", fontWeight: "500" }}
               >
                 {Math.max(
@@ -755,7 +760,9 @@ const ActiveMinCard = ({
                   }}
                 >
                   <div
-                    className="fw-bold"
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
                     {AverageData?.todayData?.value || "-"}
@@ -780,7 +787,9 @@ const ActiveMinCard = ({
                   }}
                 >
                   <div
-                    className="fw-bold"
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
                     {AverageData?.goals?.activeMinutes || "-"}

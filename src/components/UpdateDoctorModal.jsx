@@ -1588,7 +1588,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                 </h4>
                 {steps.map((step, index) => (
                   <div key={step.id} className="position-relative mb-5 pb-2">
-                    <div 
+                    <div
                       className="d-flex align-items-center"
                       onClick={() => handleStepClick(step.id)}
                       style={{ cursor: "pointer" }}
