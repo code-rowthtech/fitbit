@@ -20,12 +20,15 @@ const WaterIntakeCard = ({
   const WaterData = useSelector(
     (state) => state?.getPatientWater?.data?.response?.data
   );
+  console.log(WaterData, "WaterData");
   const WaterStatsData = useSelector(
     (state) => state?.getPatientWater?.data?.response?.targetRange
   );
   const AverageData = useSelector(
     (state) => state?.getPatientWater?.data?.response
   );
+
+  const Loading = useSelector((state) => state?.getPatientWater?.loading);
 
   // Fetch water data on component mount and when dependencies change
   useEffect(() => {
@@ -708,7 +711,9 @@ const WaterIntakeCard = ({
           </div>
         ) : (
           <div
-            className=" rounded-3 px-2 mt-1 d-flex flex-column"
+            className={`rounded-3 px-2 mt-1 d-flex flex-column ${
+              Loading ? "placeholder-glow" : ""
+            }`}
             style={{ backgroundColor: "#F8FBFF", height: "200px" }}
           >
             <div className="d-flex justify-content-center mb-2">
@@ -748,7 +753,9 @@ const WaterIntakeCard = ({
                 </svg>
                 <div className="position-absolute top-50 start-50 translate-middle text-center">
                   <div
-                    className="fw-bold"
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "16px", color: "#003465" }}
                   >
                     {Math.min(
@@ -777,7 +784,7 @@ const WaterIntakeCard = ({
 
             <div className="text-center mb-2">
               <p
-                className="mb-0"
+                className={`mb-0 ${Loading ? "placeholder rounded-1" : ""}`}
                 style={{ fontSize: "10px", color: "#666", fontWeight: "500" }}
               >
                 {Math.max(
@@ -799,7 +806,9 @@ const WaterIntakeCard = ({
                   }}
                 >
                   <div
-                    className="fw-bold"
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
                     {AverageData?.todayData?.value
@@ -828,7 +837,9 @@ const WaterIntakeCard = ({
                   }}
                 >
                   <div
-                    className="fw-bold"
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
                     {getDailyGoal().toFixed(1)}

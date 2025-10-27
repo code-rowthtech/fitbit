@@ -14,17 +14,23 @@ const ExerciseSessionsCard = ({
   onTabChange,
   currentDate,
   onDateChange,
-  formatDate
+  formatDate,
 }) => {
   const dispatch = useDispatch();
-  const ExerciseData = useSelector((state) => state?.getExerciseSessions?.data?.response?.data);
-  const AverageData = useSelector((state) => state?.getExerciseSessions?.data?.response);
+  const ExerciseData = useSelector(
+    (state) => state?.getExerciseSessions?.data?.response?.data
+  );
+  const AverageData = useSelector(
+    (state) => state?.getExerciseSessions?.data?.response
+  );
+  const Loading = useSelector((state) => state?.getExerciseSessions?.loading);
   const [expandedSession, setExpandedSession] = useState(null);
   const [selectedSessionIndex, setSelectedSessionIndex] = useState(0);
 
   const { id: pathId } = useParams();
   const [searchParams] = useSearchParams();
-  const patientId = pathId || searchParams.get('id') || searchParams.get('patientId');
+  const patientId =
+    pathId || searchParams.get("id") || searchParams.get("patientId");
 
   const formatDuration = (milliseconds) => {
     const minutes = Math.floor(milliseconds / 60000);
@@ -50,8 +56,6 @@ const ExerciseSessionsCard = ({
     }
   };
 
-
-
   const getChartData = () => {
     if (!ExerciseData || ExerciseData.length === 0) {
       return { labels: [], data: [], tableData: [] };
@@ -59,49 +63,60 @@ const ExerciseSessionsCard = ({
 
     const apiData = ExerciseData;
 
-    const labels = apiData.map(item => {
-      if (activeTab === 'Month' && item.date.includes('Week')) {
+    const labels = apiData.map((item) => {
+      if (activeTab === "Month" && item.date.includes("Week")) {
         const weekMatch = item.date.match(/Week (\d+)/);
         return weekMatch ? `Week ${weekMatch[1]}` : item.date;
       }
 
       const date = new Date(item.date);
       switch (activeTab) {
-        case 'Day':
-          return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-        case 'Week':
-          return date.toLocaleDateString('en-US', { weekday: 'short' });
-        case 'Month':
-          return date.toLocaleDateString('en-US', { day: 'numeric' });
-        case 'Year':
-          return date.toLocaleDateString('en-US', { month: 'short' });
+        case "Day":
+          return date.toLocaleDateString("en-US", {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+          });
+        case "Week":
+          return date.toLocaleDateString("en-US", { weekday: "short" });
+        case "Month":
+          return date.toLocaleDateString("en-US", { day: "numeric" });
+        case "Year":
+          return date.toLocaleDateString("en-US", { month: "short" });
         default:
           return date.toLocaleDateString();
       }
     });
 
-    const data = apiData.map(item => item.value);
+    const data = apiData.map((item) => item.value);
 
-    const tableData = apiData.map(item => {
+    const tableData = apiData.map((item) => {
       let period;
 
-      if (activeTab === 'Month' && item.date.includes('Week')) {
+      if (activeTab === "Month" && item.date.includes("Week")) {
         const weekMatch = item.date.match(/Week (\d+)/);
         period = weekMatch ? `Week ${weekMatch[1]}` : item.date;
       } else {
         const date = new Date(item.date);
         switch (activeTab) {
-          case 'Day':
-            period = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+          case "Day":
+            period = date.toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+            });
             break;
-          case 'Week':
-            period = date.toLocaleDateString('en-US', { weekday: 'long' });
+          case "Week":
+            period = date.toLocaleDateString("en-US", { weekday: "long" });
             break;
-          case 'Month':
-            period = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          case "Month":
+            period = date.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            });
             break;
-          case 'Year':
-            period = date.toLocaleDateString('en-US', { month: 'long' });
+          case "Year":
+            period = date.toLocaleDateString("en-US", { month: "long" });
             break;
           default:
             period = date.toLocaleDateString();
@@ -110,7 +125,7 @@ const ExerciseSessionsCard = ({
 
       return {
         period,
-        value: item.value || 0
+        value: item.value || 0,
       };
     });
 
@@ -126,20 +141,20 @@ const ExerciseSessionsCard = ({
       let start, end;
 
       switch (activeTab) {
-        case 'Day':
+        case "Day":
           start = end = new Date(date);
           break;
-        case 'Week':
+        case "Week":
           start = new Date(date);
           start.setDate(date.getDate() - date.getDay());
           end = new Date(start);
           end.setDate(start.getDate() + 6);
           break;
-        case 'Month':
+        case "Month":
           start = new Date(date.getFullYear(), date.getMonth(), 1);
           end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
           break;
-        case 'Year':
+        case "Year":
           start = new Date(date.getFullYear(), 0, 1);
           end = new Date(date.getFullYear(), 11, 31);
           break;
@@ -149,9 +164,9 @@ const ExerciseSessionsCard = ({
         patientId: patientId,
         start: formatDate(start),
         end: formatDate(end),
-        field: "exerciseSessions"
+        field: "exerciseSessions",
       };
-      if (activeTab === 'Year') payload.period = 'year';
+      if (activeTab === "Year") payload.period = "year";
       dispatch(getExerciseSessions(payload));
     }
   }, [patientId, currentDate, activeTab, dispatch, formatDate]);
@@ -239,20 +254,20 @@ const ExerciseSessionsCard = ({
     // Calculate new date range based on the new current date
     let start, end;
     switch (activeTab) {
-      case 'Day':
+      case "Day":
         start = end = new Date(newDate);
         break;
-      case 'Week':
+      case "Week":
         start = new Date(newDate);
         start.setDate(newDate.getDate() - newDate.getDay());
         end = new Date(start);
         end.setDate(start.getDate() + 6);
         break;
-      case 'Month':
+      case "Month":
         start = new Date(newDate.getFullYear(), newDate.getMonth(), 1);
         end = new Date(newDate.getFullYear(), newDate.getMonth() + 1, 0);
         break;
-      case 'Year':
+      case "Year":
         start = new Date(newDate.getFullYear(), 0, 1);
         end = new Date(newDate.getFullYear(), 11, 31);
         break;
@@ -265,9 +280,9 @@ const ExerciseSessionsCard = ({
           patientId: patientId,
           start: formatDate(start),
           end: formatDate(end),
-          field: "exerciseSessions"
+          field: "exerciseSessions",
         };
-        if (activeTab === 'Year') payload.period = 'year';
+        if (activeTab === "Year") payload.period = "year";
         dispatch(getExerciseSessions(payload));
       }
     }, 0);
@@ -282,20 +297,20 @@ const ExerciseSessionsCard = ({
         let start, end;
 
         switch (tab) {
-          case 'Day':
+          case "Day":
             start = end = new Date(date);
             break;
-          case 'Week':
+          case "Week":
             start = new Date(date);
             start.setDate(date.getDate() - date.getDay());
             end = new Date(start);
             end.setDate(start.getDate() + 6);
             break;
-          case 'Month':
+          case "Month":
             start = new Date(date.getFullYear(), date.getMonth(), 1);
             end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
             break;
-          case 'Year':
+          case "Year":
             start = new Date(date.getFullYear(), 0, 1);
             end = new Date(date.getFullYear(), 11, 31);
             break;
@@ -305,10 +320,10 @@ const ExerciseSessionsCard = ({
           patientId: patientId,
           start: formatDate(start),
           end: formatDate(end),
-          field: "exerciseSessions"
+          field: "exerciseSessions",
         };
-        if (tab === 'Month') payload.period = 'month';
-        if (tab === 'Year') payload.period = 'year';
+        if (tab === "Month") payload.period = "month";
+        if (tab === "Year") payload.period = "year";
         dispatch(getExerciseSessions(payload));
       }
     }, 0);
@@ -370,9 +385,10 @@ const ExerciseSessionsCard = ({
               >
                 {activeTab === "Day" ? (
                   <div className="h-100">
-                    {ExerciseData && ExerciseData.length > 0 && ExerciseData[0]?.exerciseSessions?.length > 0 ? (
+                    {ExerciseData &&
+                    ExerciseData.length > 0 &&
+                    ExerciseData[0]?.exerciseSessions?.length > 0 ? (
                       <>
-
                         <div
                           className="mb-3"
                           style={{
@@ -382,148 +398,457 @@ const ExerciseSessionsCard = ({
                             boxShadow: "0 2px 4px rgba(0,52,101,0.08)",
                           }}
                         >
-                      <div
-                        className="d-flex justify-content-between align-items-center pt-2"
-                        style={{
-                          borderTop: "2px solid #E8F2FF",
-                          background:
-                            "linear-gradient(90deg, #F8FBFF 0%, #E8F2FF 50%, #F8FBFF 100%)",
-                          borderRadius: "8px",
-                          padding: "8px 12px",
-                        }}
-                      >
-                        <div className="text-center">
                           <div
-                            style={{ fontSize: "12px", fontWeight: "700", color: "#003465" }}
+                            className="d-flex justify-content-between align-items-center pt-2"
+                            style={{
+                              borderTop: "2px solid #E8F2FF",
+                              background:
+                                "linear-gradient(90deg, #F8FBFF 0%, #E8F2FF 50%, #F8FBFF 100%)",
+                              borderRadius: "8px",
+                              padding: "8px 12px",
+                            }}
                           >
-                            {ExerciseData?.[0]?.exerciseSessions?.[selectedSessionIndex] ? 
-                              new Date(ExerciseData[0].exerciseSessions[selectedSessionIndex].startTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : 
-                              '9:26 am'
-                            }
-                          </div>
-                          <div style={{ fontSize: "9px", color: "#666", fontWeight: "500" }}>
-                            Start Time
-                          </div>
-                        </div>
-                        <div className="text-center">
-                          <div style={{ fontSize: "11px", fontWeight: "600", color: "#666" }}>
-                            {ExerciseData?.[0]?.exerciseSessions?.[selectedSessionIndex]?.activityName || 'Exercise'}
-                          </div>
-                          <div style={{ fontSize: "8px", color: "#999" }}>
-                            {ExerciseData?.[0]?.exerciseSessions?.[selectedSessionIndex]?.source?.name || 'Device'}
-                          </div>
-                        </div>
-                        <div className="text-center">
-                          <div
-                            style={{ fontSize: "12px", fontWeight: "700", color: "#003465" }}
-                          >
-                            Today
-                          </div>
-                          <div style={{ fontSize: "9px", color: "#666", fontWeight: "500" }}>
-                            {ExerciseData?.[0]?.exerciseSessions?.[selectedSessionIndex] ? 
-                              new Date(ExerciseData[0].exerciseSessions[selectedSessionIndex].startTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 
-                              'Oct 25, 2024'
-                            }
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="row g-2">
-                      <div className="col-4">
-                        <div className="p-2 rounded d-flex flex-column justify-content-center" style={{ backgroundColor: "white", border: "1px solid #E8F2FF", height: "60px" }}>
-                          <div style={{ fontSize: "10px", color: "#666", marginBottom: "2px" }}>Duration</div>
-                          <div style={{ fontSize: "12px", fontWeight: "600", color: "#003465" }}>
-                            {ExerciseData?.[0]?.exerciseSessions?.[selectedSessionIndex]?.duration || '0m'}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-4">
-                        <div className="p-2 rounded d-flex flex-column justify-content-center" style={{ backgroundColor: "white", border: "1px solid #E8F2FF", height: "60px" }}>
-                          <div style={{ fontSize: "10px", color: "#666", marginBottom: "2px" }}>Distance</div>
-                          <div style={{ fontSize: "12px", fontWeight: "600", color: "#003465" }}>
-                            {ExerciseData?.[0]?.exerciseSessions?.[selectedSessionIndex] ? 
-                              `${ExerciseData[0].exerciseSessions[selectedSessionIndex].distance?.toFixed(2) || 0} ${ExerciseData[0].exerciseSessions[selectedSessionIndex].distanceUnit?.toLowerCase() || 'mi'}` : 
-                              '0 mi'
-                            }
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-4">
-                        <div className="p-2 rounded d-flex flex-column justify-content-center" style={{ backgroundColor: "white", border: "1px solid #E8F2FF", height: "60px" }}>
-                          <div style={{ fontSize: "10px", color: "#666", marginBottom: "2px" }}>Avg Speed</div>
-                          <div style={{ fontSize: "12px", fontWeight: "600", color: "#003465" }}>
-                            {ExerciseData?.[0]?.exerciseSessions?.[selectedSessionIndex] ? 
-                              `${(ExerciseData[0].exerciseSessions[selectedSessionIndex].speed * 2.237).toFixed(1)} mph` : 
-                              '0 mph'
-                            }
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-4">
-                        <div className="p-2 rounded d-flex flex-column justify-content-center" style={{ backgroundColor: "white", border: "1px solid #E8F2FF", height: "60px" }}>
-                          <div style={{ fontSize: "10px", color: "#666", marginBottom: "2px" }}>Avg Heart Rate</div>
-                          <div style={{ fontSize: "12px", fontWeight: "600", color: "#003465" }}>
-                            {ExerciseData?.[0]?.exerciseSessions?.[selectedSessionIndex]?.averageHeartRate || 0} bpm
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-4">
-                        <div className="p-2 rounded d-flex flex-column justify-content-center" style={{ backgroundColor: "white", border: "1px solid #E8F2FF", height: "60px" }}>
-                          <div style={{ fontSize: "10px", color: "#666", marginBottom: "2px" }}>Energy burned</div>
-                          <div style={{ fontSize: "12px", fontWeight: "600", color: "#003465" }}>
-                            {ExerciseData?.[0]?.exerciseSessions?.[selectedSessionIndex]?.calories || 0} cal
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-4">
-                        <div className="p-2 rounded d-flex flex-column justify-content-center" style={{ backgroundColor: "white", border: "1px solid #E8F2FF", height: "60px" }}>
-                          <div style={{ fontSize: "10px", color: "#666", marginBottom: "2px" }}>Elevation Gain</div>
-                          <div style={{ fontSize: "12px", fontWeight: "600", color: "#003465" }}>
-                            {ExerciseData?.[0]?.exerciseSessions?.[selectedSessionIndex]?.elevationGain || 0} ft
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-4">
-                        <div className="p-2 rounded d-flex flex-column justify-content-center" style={{ backgroundColor: "white", border: "1px solid #E8F2FF", height: "60px" }}>
-                          <div style={{ fontSize: "10px", color: "#666", marginBottom: "2px" }}>Cardio Load</div>
-                          <div style={{ fontSize: "12px", fontWeight: "600", color: "#003465" }}>
-                            {ExerciseData?.[0]?.exerciseSessions?.[selectedSessionIndex] ? Math.round(ExerciseData[0].exerciseSessions[selectedSessionIndex].cl || 0) : 0}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-4">
-                        <div className="p-2 rounded d-flex flex-column justify-content-center" style={{ backgroundColor: "white", border: "1px solid #E8F2FF", height: "60px" }}>
-                          <div style={{ fontSize: "10px", color: "#666", marginBottom: "2px" }}>Zone Min</div>
-                          <div style={{ fontSize: "12px", fontWeight: "600", color: "#003465" }}>
-                            {ExerciseData?.[0]?.exerciseSessions?.[selectedSessionIndex]?.activeZoneMinutes?.totalMinutes || 0}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-4">
-                        <div className="p-2 rounded d-flex flex-column justify-content-center" style={{ backgroundColor: "white", border: "1px solid #E8F2FF", height: "60px" }}>
-                          <div style={{ fontSize: "10px", color: "#666", marginBottom: "2px" }}>Swim Lengths</div>
-                          <div style={{ fontSize: "12px", fontWeight: "600", color: "#003465" }}>
-                            {ExerciseData?.[0]?.exerciseSessions?.[selectedSessionIndex]?.swimLengths || 0}
-                          </div>
-                        </div>
-                      </div>
-                      {(ExerciseData?.[0]?.exerciseSessions?.[selectedSessionIndex]?.steps || 0) > 0 && (
-                        <div className="col-4">
-                          <div className="p-2 rounded d-flex flex-column justify-content-center" style={{ backgroundColor: "white", border: "1px solid #E8F2FF", height: "60px" }}>
-                            <div style={{ fontSize: "10px", color: "#666", marginBottom: "2px" }}>Steps</div>
-                            <div style={{ fontSize: "12px", fontWeight: "600", color: "#003465" }}>
-                              {ExerciseData?.[0]?.exerciseSessions?.[selectedSessionIndex]?.steps || 0}
+                            <div className="text-center">
+                              <div
+                                style={{
+                                  fontSize: "12px",
+                                  fontWeight: "700",
+                                  color: "#003465",
+                                }}
+                              >
+                                {ExerciseData?.[0]?.exerciseSessions?.[
+                                  selectedSessionIndex
+                                ]
+                                  ? new Date(
+                                      ExerciseData[0].exerciseSessions[
+                                        selectedSessionIndex
+                                      ].startTime
+                                    ).toLocaleTimeString("en-US", {
+                                      hour: "numeric",
+                                      minute: "2-digit",
+                                      hour12: true,
+                                    })
+                                  : "9:26 am"}
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: "9px",
+                                  color: "#666",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                Start Time
+                              </div>
+                            </div>
+                            <div className="text-center">
+                              <div
+                                style={{
+                                  fontSize: "11px",
+                                  fontWeight: "600",
+                                  color: "#666",
+                                }}
+                              >
+                                {ExerciseData?.[0]?.exerciseSessions?.[
+                                  selectedSessionIndex
+                                ]?.activityName || "Exercise"}
+                              </div>
+                              <div style={{ fontSize: "8px", color: "#999" }}>
+                                {ExerciseData?.[0]?.exerciseSessions?.[
+                                  selectedSessionIndex
+                                ]?.source?.name || "Device"}
+                              </div>
+                            </div>
+                            <div className="text-center">
+                              <div
+                                style={{
+                                  fontSize: "12px",
+                                  fontWeight: "700",
+                                  color: "#003465",
+                                }}
+                              >
+                                Today
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: "9px",
+                                  color: "#666",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                {ExerciseData?.[0]?.exerciseSessions?.[
+                                  selectedSessionIndex
+                                ]
+                                  ? new Date(
+                                      ExerciseData[0].exerciseSessions[
+                                        selectedSessionIndex
+                                      ].startTime
+                                    ).toLocaleDateString("en-US", {
+                                      month: "short",
+                                      day: "numeric",
+                                      year: "numeric",
+                                    })
+                                  : "Oct 25, 2024"}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      )}
-                    </div>
+
+                        <div className="row g-2">
+                          <div className="col-4">
+                            <div
+                              className="p-2 rounded d-flex flex-column justify-content-center"
+                              style={{
+                                backgroundColor: "white",
+                                border: "1px solid #E8F2FF",
+                                height: "60px",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  fontSize: "10px",
+                                  color: "#666",
+                                  marginBottom: "2px",
+                                }}
+                              >
+                                Duration
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                  color: "#003465",
+                                }}
+                              >
+                                {ExerciseData?.[0]?.exerciseSessions?.[
+                                  selectedSessionIndex
+                                ]?.duration || "0m"}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-4">
+                            <div
+                              className="p-2 rounded d-flex flex-column justify-content-center"
+                              style={{
+                                backgroundColor: "white",
+                                border: "1px solid #E8F2FF",
+                                height: "60px",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  fontSize: "10px",
+                                  color: "#666",
+                                  marginBottom: "2px",
+                                }}
+                              >
+                                Distance
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                  color: "#003465",
+                                }}
+                              >
+                                {ExerciseData?.[0]?.exerciseSessions?.[
+                                  selectedSessionIndex
+                                ]
+                                  ? `${
+                                      ExerciseData[0].exerciseSessions[
+                                        selectedSessionIndex
+                                      ].distance?.toFixed(2) || 0
+                                    } ${
+                                      ExerciseData[0].exerciseSessions[
+                                        selectedSessionIndex
+                                      ].distanceUnit?.toLowerCase() || "mi"
+                                    }`
+                                  : "0 mi"}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-4">
+                            <div
+                              className="p-2 rounded d-flex flex-column justify-content-center"
+                              style={{
+                                backgroundColor: "white",
+                                border: "1px solid #E8F2FF",
+                                height: "60px",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  fontSize: "10px",
+                                  color: "#666",
+                                  marginBottom: "2px",
+                                }}
+                              >
+                                Avg Speed
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                  color: "#003465",
+                                }}
+                              >
+                                {ExerciseData?.[0]?.exerciseSessions?.[
+                                  selectedSessionIndex
+                                ]
+                                  ? `${(
+                                      ExerciseData[0].exerciseSessions[
+                                        selectedSessionIndex
+                                      ].speed * 2.237
+                                    ).toFixed(1)} mph`
+                                  : "0 mph"}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-4">
+                            <div
+                              className="p-2 rounded d-flex flex-column justify-content-center"
+                              style={{
+                                backgroundColor: "white",
+                                border: "1px solid #E8F2FF",
+                                height: "60px",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  fontSize: "10px",
+                                  color: "#666",
+                                  marginBottom: "2px",
+                                }}
+                              >
+                                Avg Heart Rate
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                  color: "#003465",
+                                }}
+                              >
+                                {ExerciseData?.[0]?.exerciseSessions?.[
+                                  selectedSessionIndex
+                                ]?.averageHeartRate || 0}{" "}
+                                bpm
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-4">
+                            <div
+                              className="p-2 rounded d-flex flex-column justify-content-center"
+                              style={{
+                                backgroundColor: "white",
+                                border: "1px solid #E8F2FF",
+                                height: "60px",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  fontSize: "10px",
+                                  color: "#666",
+                                  marginBottom: "2px",
+                                }}
+                              >
+                                Energy burned
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                  color: "#003465",
+                                }}
+                              >
+                                {ExerciseData?.[0]?.exerciseSessions?.[
+                                  selectedSessionIndex
+                                ]?.calories || 0}{" "}
+                                cal
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-4">
+                            <div
+                              className="p-2 rounded d-flex flex-column justify-content-center"
+                              style={{
+                                backgroundColor: "white",
+                                border: "1px solid #E8F2FF",
+                                height: "60px",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  fontSize: "10px",
+                                  color: "#666",
+                                  marginBottom: "2px",
+                                }}
+                              >
+                                Elevation Gain
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                  color: "#003465",
+                                }}
+                              >
+                                {ExerciseData?.[0]?.exerciseSessions?.[
+                                  selectedSessionIndex
+                                ]?.elevationGain || 0}{" "}
+                                ft
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-4">
+                            <div
+                              className="p-2 rounded d-flex flex-column justify-content-center"
+                              style={{
+                                backgroundColor: "white",
+                                border: "1px solid #E8F2FF",
+                                height: "60px",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  fontSize: "10px",
+                                  color: "#666",
+                                  marginBottom: "2px",
+                                }}
+                              >
+                                Cardio Load
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                  color: "#003465",
+                                }}
+                              >
+                                {ExerciseData?.[0]?.exerciseSessions?.[
+                                  selectedSessionIndex
+                                ]
+                                  ? Math.round(
+                                      ExerciseData[0].exerciseSessions[
+                                        selectedSessionIndex
+                                      ].cl || 0
+                                    )
+                                  : 0}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-4">
+                            <div
+                              className="p-2 rounded d-flex flex-column justify-content-center"
+                              style={{
+                                backgroundColor: "white",
+                                border: "1px solid #E8F2FF",
+                                height: "60px",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  fontSize: "10px",
+                                  color: "#666",
+                                  marginBottom: "2px",
+                                }}
+                              >
+                                Zone Min
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                  color: "#003465",
+                                }}
+                              >
+                                {ExerciseData?.[0]?.exerciseSessions?.[
+                                  selectedSessionIndex
+                                ]?.activeZoneMinutes?.totalMinutes || 0}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-4">
+                            <div
+                              className="p-2 rounded d-flex flex-column justify-content-center"
+                              style={{
+                                backgroundColor: "white",
+                                border: "1px solid #E8F2FF",
+                                height: "60px",
+                              }}
+                            >
+                              <div
+                                style={{
+                                  fontSize: "10px",
+                                  color: "#666",
+                                  marginBottom: "2px",
+                                }}
+                              >
+                                Swim Lengths
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                  color: "#003465",
+                                }}
+                              >
+                                {ExerciseData?.[0]?.exerciseSessions?.[
+                                  selectedSessionIndex
+                                ]?.swimLengths || 0}
+                              </div>
+                            </div>
+                          </div>
+                          {(ExerciseData?.[0]?.exerciseSessions?.[
+                            selectedSessionIndex
+                          ]?.steps || 0) > 0 && (
+                            <div className="col-4">
+                              <div
+                                className="p-2 rounded d-flex flex-column justify-content-center"
+                                style={{
+                                  backgroundColor: "white",
+                                  border: "1px solid #E8F2FF",
+                                  height: "60px",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    fontSize: "10px",
+                                    color: "#666",
+                                    marginBottom: "2px",
+                                  }}
+                                >
+                                  Steps
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: "12px",
+                                    fontWeight: "600",
+                                    color: "#003465",
+                                  }}
+                                >
+                                  {ExerciseData?.[0]?.exerciseSessions?.[
+                                    selectedSessionIndex
+                                  ]?.steps || 0}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </>
                     ) : (
                       <div className="d-flex justify-content-center align-items-center h-100">
-                        <div style={{ color: "#666", fontSize: "16px", textAlign: "center" }}>
-                          <div style={{ marginBottom: "8px", fontSize: "18px" }}>📊</div>
+                        <div
+                          style={{
+                            color: "#666",
+                            fontSize: "16px",
+                            textAlign: "center",
+                          }}
+                        >
+                          <div
+                            style={{ marginBottom: "8px", fontSize: "18px" }}
+                          >
+                            📊
+                          </div>
                           <div>No data present for this day</div>
                         </div>
                       </div>
@@ -672,11 +997,15 @@ const ExerciseSessionsCard = ({
                     const sessionCount = parseInt(item.value) || 0;
                     const originalItem = ExerciseData[index];
                     return (
-                      <div key={`${activeTab}-${item.period}-${index}`} className="mb-1">
+                      <div
+                        key={`${activeTab}-${item.period}-${index}`}
+                        className="mb-1"
+                      >
                         <div
                           className="d-flex justify-content-between align-items-center p-2"
                           style={{
-                            backgroundColor: sessionCount === 0 ? "#ffebee" : "white",
+                            backgroundColor:
+                              sessionCount === 0 ? "#ffebee" : "white",
                             fontSize: "10px",
                             borderRadius: "4px",
                             border: "1px solid #E8F2FF",
@@ -684,58 +1013,96 @@ const ExerciseSessionsCard = ({
                           }}
                           onClick={() => handleSessionClick(item, index)}
                         >
-                          <span style={{ color: "#003465", fontWeight: "500" }}>{item.period}</span>
+                          <span style={{ color: "#003465", fontWeight: "500" }}>
+                            {item.period}
+                          </span>
                           <div className="d-flex align-items-center">
-                            <span style={{ color: "#003465", fontWeight: "500" }}>
-                              {sessionCount} {sessionCount === 1 ? 'session' : 'sessions'}
+                            <span
+                              style={{ color: "#003465", fontWeight: "500" }}
+                            >
+                              {sessionCount}{" "}
+                              {sessionCount === 1 ? "session" : "sessions"}
                             </span>
                             {sessionCount > 0 && (
-                              <span style={{ color: "#003465", marginLeft: "4px", fontSize: "8px" }}>
-                                {expandedSession === index ? '▼' : '▶'}
+                              <span
+                                style={{
+                                  color: "#003465",
+                                  marginLeft: "4px",
+                                  fontSize: "8px",
+                                }}
+                              >
+                                {expandedSession === index ? "▼" : "▶"}
                               </span>
                             )}
                           </div>
                         </div>
-                        {expandedSession === index && sessionCount > 0 && originalItem?.exerciseSessions && (
-                          <div 
-                            className="mt-1 p-2"
-                            style={{
-                              backgroundColor: "#f8fbff",
-                              borderRadius: "4px",
-                              border: "1px solid #e3f2fd",
-                            }}
-                          >
-                            {originalItem.exerciseSessions.map((session, sessionIndex) => (
-                              <div
-                                key={sessionIndex}
-                                className="d-flex justify-content-between align-items-center py-1 px-2"
-                                style={{
-                                  fontSize: "10px",
-                                  borderBottom: sessionIndex < originalItem.exerciseSessions.length - 1 ? "1px solid #e3f2fd" : "none",
-                                  cursor: activeTab === "Day" ? "pointer" : "default",
-                                  backgroundColor: activeTab === "Day" && selectedSessionIndex === sessionIndex ? "#E8F2FF" : "transparent"
-                                }}
-                                onClick={() => {
-                                  if (activeTab === "Day") {
-                                    setSelectedSessionIndex(sessionIndex);
-                                  } else if (activeTab === "Week") {
-                                    // Switch to Day tab and set date to this day
-                                    const originalItem = ExerciseData[index];
-                                    if (originalItem?.date) {
-                                      const clickedDate = new Date(originalItem.date);
-                                      onDateChange(clickedDate);
-                                      onTabChange("Day");
-                                      setSelectedSessionIndex(sessionIndex);
-                                    }
-                                  }
-                                }}
-                              >
-                                <span style={{ color: "#003465", fontWeight: "500" }}>{session.activityName}</span>
-                                <span style={{ color: "#003465" }}>{(session.duration || '-')}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                        {expandedSession === index &&
+                          sessionCount > 0 &&
+                          originalItem?.exerciseSessions && (
+                            <div
+                              className="mt-1 p-2"
+                              style={{
+                                backgroundColor: "#f8fbff",
+                                borderRadius: "4px",
+                                border: "1px solid #e3f2fd",
+                              }}
+                            >
+                              {originalItem.exerciseSessions.map(
+                                (session, sessionIndex) => (
+                                  <div
+                                    key={sessionIndex}
+                                    className="d-flex justify-content-between align-items-center py-1 px-2"
+                                    style={{
+                                      fontSize: "10px",
+                                      borderBottom:
+                                        sessionIndex <
+                                        originalItem.exerciseSessions.length - 1
+                                          ? "1px solid #e3f2fd"
+                                          : "none",
+                                      cursor:
+                                        activeTab === "Day"
+                                          ? "pointer"
+                                          : "default",
+                                      backgroundColor:
+                                        activeTab === "Day" &&
+                                        selectedSessionIndex === sessionIndex
+                                          ? "#E8F2FF"
+                                          : "transparent",
+                                    }}
+                                    onClick={() => {
+                                      if (activeTab === "Day") {
+                                        setSelectedSessionIndex(sessionIndex);
+                                      } else if (activeTab === "Week") {
+                                        // Switch to Day tab and set date to this day
+                                        const originalItem =
+                                          ExerciseData[index];
+                                        if (originalItem?.date) {
+                                          const clickedDate = new Date(
+                                            originalItem.date
+                                          );
+                                          onDateChange(clickedDate);
+                                          onTabChange("Day");
+                                          setSelectedSessionIndex(sessionIndex);
+                                        }
+                                      }
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        color: "#003465",
+                                        fontWeight: "500",
+                                      }}
+                                    >
+                                      {session.activityName}
+                                    </span>
+                                    <span style={{ color: "#003465" }}>
+                                      {session.duration || "-"}
+                                    </span>
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          )}
                       </div>
                     );
                   })
@@ -752,43 +1119,74 @@ const ExerciseSessionsCard = ({
           </div>
         ) : (
           <div
-            className="rounded-3 px-3 py-3 mt-1"
+            className={`rounded-3 px-3 py-3 mt-1 ${
+              Loading ? "placeholder-glow" : ""
+            }`}
             style={{ backgroundColor: "#F8FBFF" }}
           >
             <div className="d-flex justify-content-between align-items-end py-4">
               <div>
                 <div className="d-flex align-items-baseline mt-3 mb-3">
-                  <span style={{ fontSize: "48px", fontWeight: "400", color: "#003465" }}>
-                    {AverageData?.currentWeekData?.filter(day => day.hasData).length || 0}
+                  <span
+                    className={`${Loading ? "placeholder rounded-1" : ""}`}
+                    style={{
+                      fontSize: "48px",
+                      fontWeight: "400",
+                      color: "#003465",
+                    }}
+                  >
+                    {AverageData?.currentWeekData?.filter((day) => day.hasData)
+                      .length || 0}
                   </span>
-                  <span style={{ fontSize: "24px", fontWeight: "400", color: "#666", marginLeft: "8px" }}>of 5</span>
+                  <span
+                    style={{
+                      fontSize: "24px",
+                      fontWeight: "400",
+                      color: "#666",
+                      marginLeft: "8px",
+                    }}
+                  >
+                    of 5
+                  </span>
                 </div>
-                <div style={{ fontSize: "12px", color: "#666" }}>Days of this week</div>
+                <div style={{ fontSize: "12px", color: "#666" }}>
+                  Days of this week
+                </div>
               </div>
 
               <div className="d-flex flex-column align-items-end">
                 <div className="d-flex gap-1 mb-2">
-                  {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => {
+                  {["M", "T", "W", "T", "F", "S", "S"].map((day, index) => {
                     const dayData = AverageData?.currentWeekData?.[index];
                     return (
                       <div
                         key={index}
-                        className="rounded-pill d-flex align-items-center justify-content-center"
+                        className={`rounded-pill d-flex align-items-center justify-content-center ${
+                          Loading ? "placeholder" : ""
+                        }`}
                         style={{
                           width: "24px",
                           height: "68px",
-                          backgroundColor: dayData?.hasData ? "#003465" : "#B8D4E3"
+                          backgroundColor: dayData?.hasData
+                            ? "#003465"
+                            : "#B8D4E3",
                         }}
                       >
                         {dayData?.hasData && (
-                          <IoCheckmark style={{ color: "white", fontSize: "16px", strokeWidth: "40" }} />
+                          <IoCheckmark
+                            style={{
+                              color: "white",
+                              fontSize: "16px",
+                              strokeWidth: "40",
+                            }}
+                          />
                         )}
                       </div>
                     );
                   })}
                 </div>
                 <div className="d-flex gap-1">
-                  {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => {
+                  {["M", "T", "W", "T", "F", "S", "S"].map((day, index) => {
                     const dayData = AverageData?.currentWeekData?.[index];
                     return (
                       <div
@@ -798,7 +1196,7 @@ const ExerciseSessionsCard = ({
                           width: "24px",
                           fontSize: "14px",
                           color: dayData?.hasData ? "#000" : "#666",
-                          fontWeight: dayData?.hasData ? "600" : "400"
+                          fontWeight: dayData?.hasData ? "600" : "400",
                         }}
                       >
                         {day}

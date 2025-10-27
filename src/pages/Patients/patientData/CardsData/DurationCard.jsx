@@ -533,6 +533,8 @@ const DurationCard = ({
     (state) => state?.getPatientSleepStages?.data?.response
   );
 
+  const Loading = useSelector((state) => state?.getPatientSleepStages?.loading);
+
   // console.log(AverageData, "AverageData");
 
   // Initial API call when component mounts
@@ -1225,7 +1227,9 @@ const DurationCard = ({
           </div>
         ) : (
           <div
-            className=" rounded-3 px-2 mt-1 d-flex flex-column"
+            className={`rounded-3 px-2 mt-1 d-flex flex-column ${
+              Loading ? "placeholder-glow" : ""
+            }`}
             style={{ backgroundColor: "#F8FBFF", height: "200px" }}
           >
             <div className="d-flex justify-content-center mb-2">
@@ -1271,7 +1275,9 @@ const DurationCard = ({
                 </svg>
                 <div className="position-absolute top-50 start-50 translate-middle text-center">
                   <div
-                    className="fw-bold"
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "16px", color: "#003465" }}
                   >
                     {Math.min(
@@ -1304,7 +1310,7 @@ const DurationCard = ({
 
             <div className="text-center mb-2">
               <p
-                className="mb-0"
+                className={`mb-0 ${Loading ? "placeholder rounded-1" : ""}`}
                 style={{ fontSize: "10px", color: "#666", fontWeight: "500" }}
               >
                 {Math.max(
@@ -1334,7 +1340,9 @@ const DurationCard = ({
                   }}
                 >
                   <div
-                    className="fw-bold"
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
                     {durationData?.length
@@ -1369,7 +1377,9 @@ const DurationCard = ({
                   }}
                 >
                   <div
-                    className="fw-bold"
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
                     {AverageData?.goals?.duration || 8}h

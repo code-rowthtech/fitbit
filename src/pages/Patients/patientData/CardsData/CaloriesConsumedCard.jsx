@@ -29,12 +29,18 @@ const CaloriesConsumedCard = ({
     (state) => state?.getPatientCaloriesConsumed?.data?.response
   );
 
+  const Loading = useSelector(
+    (state) => state?.getPatientCaloriesConsumed?.loading
+  );
+
+  console.log(Loading, "Loading CaloriesConsumedCard");
+
   // Fetch calories data on component mount and when dependencies change
   useEffect(() => {
     if (patientId && currentDate && formatDate && expandedCard === "calories") {
       const date = new Date(currentDate);
       if (isNaN(date.getTime())) return;
-      
+
       let start, end;
 
       switch (activeTab) {
@@ -313,7 +319,14 @@ const CaloriesConsumedCard = ({
     }
 
     // Fetch new data after navigation
-    if (expandedCard === "calories" && formatDate && start && end && !isNaN(start.getTime()) && !isNaN(end.getTime())) {
+    if (
+      expandedCard === "calories" &&
+      formatDate &&
+      start &&
+      end &&
+      !isNaN(start.getTime()) &&
+      !isNaN(end.getTime())
+    ) {
       setTimeout(() => {
         if (patientId) {
           const payload = {
@@ -339,7 +352,7 @@ const CaloriesConsumedCard = ({
         if (patientId) {
           const date = new Date(currentDate);
           if (isNaN(date.getTime())) return;
-          
+
           let start, end;
 
           switch (tab) {
@@ -359,7 +372,12 @@ const CaloriesConsumedCard = ({
               break;
           }
 
-          if (start && end && !isNaN(start.getTime()) && !isNaN(end.getTime())) {
+          if (
+            start &&
+            end &&
+            !isNaN(start.getTime()) &&
+            !isNaN(end.getTime())
+          ) {
             const payload = {
               patientId: patientId,
               start: formatDate(start),
