@@ -402,7 +402,7 @@ const PatientDetails = ({
                         className="fw-bold text-dark"
                         style={{ fontSize: "14px", color: "#6c757d" }}
                       >
-                        {PatientData?.age} Years Old
+                        {PatientData?.age || (PatientData?.dateOfBirth ? new Date().getFullYear() - new Date(PatientData.dateOfBirth).getFullYear() : 'N/A')} Years Old
                       </span>
                     </div>
                     <div

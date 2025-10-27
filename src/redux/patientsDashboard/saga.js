@@ -20,6 +20,7 @@ import {
   getFilterDataApi,
   getPatientCaloriesConsumedApi,
   getPatientSleepStagesApi,
+  getExerciseSessionsApi,
 } from "./api";
 import { toast } from "react-toastify";
 
@@ -540,6 +541,33 @@ function* getPatientSleepStagesFunction({ payload }) {
   }
 }
 
+function* getExerciseSessionsFunction({ payload }) {
+  try {
+    yield put({
+      type: PATIENT_DASHBOARD_TYPES.GET_EXERCISE_SESSIONS_LOADING,
+      payload: {},
+    });
+    const response = yield call(getExerciseSessionsApi, { payload });
+
+    if (response?.data && response?.data?.status === 200) {
+      yield put({
+        type: PATIENT_DASHBOARD_TYPES.GET_EXERCISE_SESSIONS_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      yield put({
+        type: PATIENT_DASHBOARD_TYPES.GET_EXERCISE_SESSIONS_ERROR,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: PATIENT_DASHBOARD_TYPES.GET_EXERCISE_SESSIONS_ERROR,
+      payload: { message: error?.message },
+    });
+  }
+}
+
 export function* getPatientProfileSaga() {
   yield takeEvery(
     PATIENT_DASHBOARD_TYPES.GET_PATIENT_PROFILE,
@@ -673,6 +701,13 @@ export function* getPatientSleepStagesSaga() {
   );
 }
 
+export function* getExerciseSessionsSaga() {
+  yield takeEvery(
+    PATIENT_DASHBOARD_TYPES.GET_EXERCISE_SESSIONS,
+    getExerciseSessionsFunction
+  );
+}
+
 function* PatientDashboardSaga() {
   yield all([
     fork(getPatientProfileSaga),
@@ -694,6 +729,7 @@ function* PatientDashboardSaga() {
     fork(getFilterDataSaga),
     fork(getPatientCaloriesConsumedSaga),
     fork(getPatientSleepStagesSaga),
+    fork(getExerciseSessionsSaga),
   ]);
 }
 

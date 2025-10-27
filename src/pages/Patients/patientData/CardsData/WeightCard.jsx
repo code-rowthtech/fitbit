@@ -39,9 +39,11 @@ const WeightCard = ({
     formatDate
 }) => {
     const dispatch = useDispatch()
+    const [chartType, setChartType] = useState('weight')
     const FilterData = useSelector(
         (state) => state?.getPatientWeight?.data?.response?.data
     )
+    console.log(FilterData,'FilterData')
     const WeightStatsData = useSelector(
         (state) => state?.getPatientWeight?.data?.response?.targetRange
     )
@@ -110,30 +112,86 @@ const WeightCard = ({
         })
 
         const data = apiData.map((item, index) => {
+            let currentValue
+            switch (chartType) {
+                case 'bmi':
+                    currentValue = item.weightData?.bmi
+                    break
+                case 'bodyFat':
+                    currentValue = item.weightData?.bodyFat
+                    break
+                default:
+                    currentValue = item.value
+            }
+            
             // If current value is null, 0, or undefined, find the last valid value
-            if ((item.value === null || item.value === 0 || item.value === undefined) && index > 0) {
+            if ((currentValue === null || currentValue === 0 || currentValue === undefined) && index > 0) {
                 // Look backwards to find the last non-null, non-zero value
                 for (let i = index - 1; i >= 0; i--) {
-                    if (apiData[i].value !== null && apiData[i].value !== 0 && apiData[i].value !== undefined) {
-                        return apiData[i].value
+                    let prevValue
+                    switch (chartType) {
+                        case 'bmi':
+                            prevValue = apiData[i].weightData?.bmi
+                            break
+                        case 'bodyFat':
+                            prevValue = apiData[i].weightData?.bodyFat
+                            break
+                        default:
+                            prevValue = apiData[i].value
+                    }
+                    if (prevValue !== null && prevValue !== 0 && prevValue !== undefined) {
+                        return prevValue
                     }
                 }
                 // If no valid previous value found, return null to hide point
                 return null
             }
-            return item.value
+            return currentValue
         })
 
         // Create point styles array to hide markers for null/0 values
-        const pointBackgroundColors = apiData.map(item => 
-            (item.value === null || item.value === 0 || item.value === undefined) ? 'transparent' : '#003465'
-        )
-        const pointBorderColors = apiData.map(item => 
-            (item.value === null || item.value === 0 || item.value === undefined) ? 'transparent' : '#003465'
-        )
-        const pointRadii = apiData.map(item => 
-            (item.value === null || item.value === 0 || item.value === undefined) ? 0 : 4
-        )
+        const pointBackgroundColors = apiData.map(item => {
+            let currentValue
+            switch (chartType) {
+                case 'bmi':
+                    currentValue = item.weightData?.bmi
+                    break
+                case 'bodyFat':
+                    currentValue = item.weightData?.bodyFat
+                    break
+                default:
+                    currentValue = item.value
+            }
+            return (currentValue === null || currentValue === 0 || currentValue === undefined) ? 'transparent' : '#003465'
+        })
+        const pointBorderColors = apiData.map(item => {
+            let currentValue
+            switch (chartType) {
+                case 'bmi':
+                    currentValue = item.weightData?.bmi
+                    break
+                case 'bodyFat':
+                    currentValue = item.weightData?.bodyFat
+                    break
+                default:
+                    currentValue = item.value
+            }
+            return (currentValue === null || currentValue === 0 || currentValue === undefined) ? 'transparent' : '#003465'
+        })
+        const pointRadii = apiData.map(item => {
+            let currentValue
+            switch (chartType) {
+                case 'bmi':
+                    currentValue = item.weightData?.bmi
+                    break
+                case 'bodyFat':
+                    currentValue = item.weightData?.bodyFat
+                    break
+                default:
+                    currentValue = item.value
+            }
+            return (currentValue === null || currentValue === 0 || currentValue === undefined) ? 0 : 4
+        })
 
         const tableData = apiData.map((item, index) => {
             let period
@@ -162,19 +220,42 @@ const WeightCard = ({
             }
 
             // Use the same logic as chart data for consistency
-            let displayValue = item.value
-            if ((item.value === null || item.value === 0 || item.value === undefined) && index > 0) {
+            let displayValue
+            switch (chartType) {
+                case 'bmi':
+                    displayValue = item.weightData?.bmi
+                    break
+                case 'bodyFat':
+                    displayValue = item.weightData?.bodyFat
+                    break
+                default:
+                    displayValue = item.value
+            }
+            
+            if ((displayValue === null || displayValue === 0 || displayValue === undefined) && index > 0) {
                 for (let i = index - 1; i >= 0; i--) {
-                    if (apiData[i].value !== null && apiData[i].value !== 0 && apiData[i].value !== undefined) {
-                        displayValue = apiData[i].value
+                    let prevValue
+                    switch (chartType) {
+                        case 'bmi':
+                            prevValue = apiData[i].weightData?.bmi
+                            break
+                        case 'bodyFat':
+                            prevValue = apiData[i].weightData?.bodyFat
+                            break
+                        default:
+                            prevValue = apiData[i].value
+                    }
+                    if (prevValue !== null && prevValue !== 0 && prevValue !== undefined) {
+                        displayValue = prevValue
                         break
                     }
                 }
             }
 
+            const unit = chartType === 'weight' ? 'kg' : chartType === 'bodyFat' ? '%' : ''
             return {
                 period,
-                value: displayValue ? `${displayValue} kg` : "0 kg",
+                value: displayValue ? `${displayValue} ${unit}` : `0 ${unit}`,
             }
         })
 
@@ -367,13 +448,56 @@ const WeightCard = ({
                 {expandedCard === 'weight' ? (
                     <div className='row p-3'>
                         <div className='col-8 pe-2'>
-                            <div className='border rounded-2' style={{ padding: '10px', backgroundColor: '#F6FAFF', height: '500px' }}>
+                            <div className='border rounded-2 position-relative' style={{ padding: '10px', backgroundColor: '#F6FAFF', height: '500px' }}>
+                                <div className='position-absolute' style={{ top: '10px', right: '10px', zIndex: 10 }}>
+                                    <div className='d-flex gap-1'>
+                                        <button
+                                            className='btn btn-sm'
+                                            style={{
+                                                backgroundColor: chartType === 'weight' ? '#003465' : 'white',
+                                                color: chartType === 'weight' ? 'white' : '#003465',
+                                                border: '1px solid #003465',
+                                                fontSize: '10px',
+                                                padding: '4px 8px'
+                                            }}
+                                            onClick={() => setChartType('weight')}
+                                        >
+                                            Weight
+                                        </button>
+                                        <button
+                                            className='btn btn-sm'
+                                            style={{
+                                                backgroundColor: chartType === 'bmi' ? '#003465' : 'white',
+                                                color: chartType === 'bmi' ? 'white' : '#003465',
+                                                border: '1px solid #003465',
+                                                fontSize: '10px',
+                                                padding: '4px 8px'
+                                            }}
+                                            onClick={() => setChartType('bmi')}
+                                        >
+                                            BMI
+                                        </button>
+                                        <button
+                                            className='btn btn-sm'
+                                            style={{
+                                                backgroundColor: chartType === 'bodyFat' ? '#003465' : 'white',
+                                                color: chartType === 'bodyFat' ? 'white' : '#003465',
+                                                border: '1px solid #003465',
+                                                fontSize: '10px',
+                                                padding: '4px 8px'
+                                            }}
+                                            onClick={() => setChartType('bodyFat')}
+                                        >
+                                            Body Fat
+                                        </button>
+                                    </div>
+                                </div>
                                 <Line
-                                    key={`chart-${activeTab}-${chartData.data.length}`}
+                                    key={`chart-${activeTab}-${chartType}-${chartData.data.length}`}
                                     data={{
                                         labels: chartData.labels,
                                         datasets: [{
-                                            label: 'Weight',
+                                            label: chartType === 'weight' ? 'Weight' : chartType === 'bmi' ? 'BMI' : 'Body Fat',
                                             data: chartData.data,
                                             borderColor: '#003465',
                                             backgroundColor: 'rgba(0, 52, 101, 0.1)',
@@ -391,7 +515,10 @@ const WeightCard = ({
                                             legend: { display: false },
                                             tooltip: {
                                                 callbacks: {
-                                                    label: (context) => `${context.parsed.y} kg`,
+                                                    label: (context) => {
+                                                        const unit = chartType === 'weight' ? 'kg' : chartType === 'bodyFat' ? '%' : ''
+                                                        return `${context.parsed.y} ${unit}`
+                                                    },
                                                     afterBody:
                                                         activeTab === "Week" && WeightStatsData
                                                             ? () => [
@@ -598,16 +725,28 @@ const WeightCard = ({
                                 </div>
 
                                 <div className="row g-1">
-                                    <div className="col-6">
+                                    <div className="col-3">
                                         <div className="text-center py-1 px-2 rounded-2" style={{ backgroundColor: 'white', border: '1px solid #E8F2FF' }}>
                                             <div className="fw-bold" style={{ fontSize: '14px', color: '#003465' }}>{AverageData?.todayData?.value || '-'}kg</div>
                                             <div style={{ fontSize: '9px', color: '#666', fontWeight: '500' }}>Today</div>
                                         </div>
                                     </div>
-                                    <div className="col-6">
+                                    <div className="col-3">
                                         <div className="text-center py-1 px-2 rounded-2" style={{ backgroundColor: 'white', border: '1px solid #E8F2FF' }}>
                                             <div className="fw-bold" style={{ fontSize: '14px', color: '#003465' }}>{AverageData?.goals?.weightGoal?.weight || '-'}kg</div>
                                             <div style={{ fontSize: '9px', color: '#666', fontWeight: '500' }}>Goal</div>
+                                        </div>
+                                    </div>
+                                    <div className="col-3">
+                                        <div className="text-center py-1 px-2 rounded-2" style={{ backgroundColor: 'white', border: '1px solid #E8F2FF' }}>
+                                            <div className="fw-bold" style={{ fontSize: '14px', color: '#003465' }}>{AverageData?.todayData?.weightData?.bmi || '-'}</div>
+                                            <div style={{ fontSize: '9px', color: '#666', fontWeight: '500' }}>BMI</div>
+                                        </div>
+                                    </div>
+                                    <div className="col-3">
+                                        <div className="text-center py-1 px-2 rounded-2" style={{ backgroundColor: 'white', border: '1px solid #E8F2FF' }}>
+                                            <div className="fw-bold" style={{ fontSize: '14px', color: '#003465' }}>{AverageData?.todayData?.weightData?.bodyFat || '-'}%</div>
+                                            <div style={{ fontSize: '9px', color: '#666', fontWeight: '500' }}>Body Fat</div>
                                         </div>
                                     </div>
                                 </div>

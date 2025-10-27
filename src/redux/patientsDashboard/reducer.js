@@ -114,6 +114,12 @@ const GET_PATIENT_SLEEP_STAGES_INITIAL_STATE = {
     loading: false,
 };
 
+const GET_EXERCISE_SESSIONS_INITIAL_STATE = {
+    data: {},
+    message: '',
+    loading: false,
+};
+
 export const getPatientProfile = (state = GET_PATIENT_PROFILE_INITIAL_STATE, action) => {
     switch (action.type) {
         case PATIENT_DASHBOARD_TYPES.GET_PATIENT_PROFILE_LOADING:
@@ -523,6 +529,28 @@ export const getPatientSleepStages = (state = GET_PATIENT_SLEEP_STAGES_INITIAL_S
                 data: action?.payload,
             };
         case PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_STAGES_ERROR:
+            return {
+                loading: false,
+                message: action?.payload,
+            };
+        default:
+            return state;
+    }
+};
+
+export const getExerciseSessions = (state = GET_EXERCISE_SESSIONS_INITIAL_STATE, action) => {
+    switch (action.type) {
+        case PATIENT_DASHBOARD_TYPES.GET_EXERCISE_SESSIONS_LOADING:
+            return {
+                loading: true,
+                data: state.data,
+            };
+        case PATIENT_DASHBOARD_TYPES.GET_EXERCISE_SESSIONS_SUCCESS:
+            return {
+                loading: false,
+                data: action?.payload,
+            };
+        case PATIENT_DASHBOARD_TYPES.GET_EXERCISE_SESSIONS_ERROR:
             return {
                 loading: false,
                 message: action?.payload,
