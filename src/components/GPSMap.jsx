@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from "react";
 
 const GPSMap = ({ trackData }) => {
   const mapRef = useRef(null);
@@ -17,26 +17,26 @@ const GPSMap = ({ trackData }) => {
         zoom: 15,
         center: {
           lat: parseFloat(startPoint.position.latitude),
-          lng: parseFloat(startPoint.position.longitude)
+          lng: parseFloat(startPoint.position.longitude),
         },
-        mapTypeId: 'roadmap'
+        mapTypeId: "roadmap",
       });
 
       mapInstanceRef.current = map;
 
       // Convert track points to coordinates
-      const path = trackPoints.map(point => ({
+      const path = trackPoints.map((point) => ({
         lat: parseFloat(point.position.latitude),
-        lng: parseFloat(point.position.longitude)
+        lng: parseFloat(point.position.longitude),
       }));
 
       // Create polyline for the route
       const routePath = new window.google.maps.Polyline({
         path: path,
         geodesic: true,
-        strokeColor: '#003465',
+        strokeColor: "#003465",
         strokeOpacity: 1.0,
-        strokeWeight: 3
+        strokeWeight: 3,
       });
 
       routePath.setMap(map);
@@ -45,35 +45,39 @@ const GPSMap = ({ trackData }) => {
       new window.google.maps.Marker({
         position: path[0],
         map: map,
-        title: 'Start',
+        title: "Start",
         icon: {
-          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+          url:
+            "data:image/svg+xml;charset=UTF-8," +
+            encodeURIComponent(`
             <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
               <circle cx="10" cy="10" r="8" fill="#00ff00" stroke="#fff" stroke-width="2"/>
             </svg>
           `),
-          scaledSize: new window.google.maps.Size(20, 20)
-        }
+          scaledSize: new window.google.maps.Size(20, 20),
+        },
       });
 
       // Add end marker
       new window.google.maps.Marker({
         position: path[path.length - 1],
         map: map,
-        title: 'End',
+        title: "End",
         icon: {
-          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+          url:
+            "data:image/svg+xml;charset=UTF-8," +
+            encodeURIComponent(`
             <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
               <circle cx="10" cy="10" r="8" fill="#ff0000" stroke="#fff" stroke-width="2"/>
             </svg>
           `),
-          scaledSize: new window.google.maps.Size(20, 20)
-        }
+          scaledSize: new window.google.maps.Size(20, 20),
+        },
       });
 
       // Fit map to show entire route
       const bounds = new window.google.maps.LatLngBounds();
-      path.forEach(point => bounds.extend(point));
+      path.forEach((point) => bounds.extend(point));
       map.fitBounds(bounds);
     };
 
@@ -81,7 +85,7 @@ const GPSMap = ({ trackData }) => {
       initMap();
     } else {
       // Load Google Maps API
-      const script = document.createElement('script');
+      const script = document.createElement("script");
       script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap`;
       script.async = true;
       script.defer = true;
@@ -104,14 +108,20 @@ const GPSMap = ({ trackData }) => {
     );
   }
 
-  const totalDistance = trackData.trackPoints[trackData.trackPoints.length - 1]?.distance || 0;
-  const duration = trackData.trackPoints.length > 1 ? 
-    new Date(trackData.trackPoints[trackData.trackPoints.length - 1].time) - new Date(trackData.trackPoints[0].time) : 0;
+  const totalDistance =
+    trackData.trackPoints[trackData.trackPoints.length - 1]?.distance || 0;
+  const duration =
+    trackData.trackPoints.length > 1
+      ? new Date(trackData.trackPoints[trackData.trackPoints.length - 1].time) -
+        new Date(trackData.trackPoints[0].time)
+      : 0;
 
   return (
     <div className="w-full">
       <div className="mb-4 p-4 bg-blue-50 rounded-lg">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">Activity Summary</h3>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">
+          Activity Summary
+        </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
             <span className="text-gray-600">Sport:</span>
@@ -119,7 +129,9 @@ const GPSMap = ({ trackData }) => {
           </div>
           <div>
             <span className="text-gray-600">Distance:</span>
-            <p className="font-medium">{(parseFloat(totalDistance) / 1000).toFixed(2)} km</p>
+            <p className="font-medium">
+              {(parseFloat(totalDistance) / 1000).toFixed(2)} km
+            </p>
           </div>
           <div>
             <span className="text-gray-600">Duration:</span>
@@ -131,10 +143,10 @@ const GPSMap = ({ trackData }) => {
           </div>
         </div>
       </div>
-      <div 
-        ref={mapRef} 
+      <div
+        ref={mapRef}
         className="w-full h-96 rounded-lg border border-gray-300"
-        style={{ minHeight: '400px' }}
+        style={{ minHeight: "400px" }}
       />
     </div>
   );
