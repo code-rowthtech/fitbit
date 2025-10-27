@@ -23,7 +23,7 @@ const HeartRateCard = ({
   const HeartRateStatsData = useSelector(
     (state) => state?.getPatientHeartRate?.data?.response?.targetRange
   ) || { min: 60, max: 100 };
-  const Loading = useSelector((state) => state?.getFilterData?.loading);
+  const Loading = useSelector((state) => state?.getPatientHeartRate?.loading);
   // Use static data for display
   const AverageData = {
     stats: { average: 76 },
@@ -780,7 +780,9 @@ const HeartRateCard = ({
                 </svg>
                 <div className="position-absolute top-50 start-50 translate-middle text-center">
                   <div
-                    className={`fw-bold ${Loading ? "placeholder rounded-1" : ""}`}
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "16px", color: "#003465" }}
                   >
                     {AverageData?.todayData?.value || 0}
@@ -817,7 +819,9 @@ const HeartRateCard = ({
                   }}
                 >
                   <div
-                    className={`fw-bold ${Loading ? "placeholder rounded-1" : ""}`}
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
                     {AverageData?.todayData?.value || "-"}
@@ -842,7 +846,9 @@ const HeartRateCard = ({
                   }}
                 >
                   <div
-                    className={`fw-bold ${Loading ? "placeholder rounded-1" : ""}`}
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
                     {AverageData?.stats?.average || "-"}

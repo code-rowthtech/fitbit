@@ -26,7 +26,9 @@ const CaloriesCard = ({
   const AverageData = useSelector(
     (state) => state?.getPatientCaloriesBurned?.data?.response
   );
-  const Loading = useSelector((state) => state?.getFilterData?.loading);
+  const Loading = useSelector(
+    (state) => state?.getPatientCaloriesBurned?.loading
+  );
 
   // Get chart data based on active tab and API response
   const getChartData = () => {

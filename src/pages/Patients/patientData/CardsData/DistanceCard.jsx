@@ -26,7 +26,7 @@ const DistanceCard = ({
   const AverageData = useSelector(
     (state) => state?.getPatientDistance?.data?.response
   );
-  const Loading = useSelector((state) => state?.getFilterData?.loading);
+  const Loading = useSelector((state) => state?.getPatientDistance?.loading);
 
   // Get chart data based on active tab and API response
   const getChartData = () => {

@@ -26,7 +26,7 @@ const ActiveMinCard = ({
   const AverageData = useSelector(
     (state) => state?.getPatientActiveMin?.data?.response
   );
-  const Loading = useSelector((state) => state?.getFilterData?.loading);
+  const Loading = useSelector((state) => state?.getPatientActiveMin?.loading);
 
   // Get date range based on active tab and current date
   const getDateRange = () => {
