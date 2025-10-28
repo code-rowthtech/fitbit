@@ -474,7 +474,7 @@ const SleepJourneyChart = ({
               </div>
             ))}
           </div>
-        </div>}
+        </div>
       </div>
 
       {/* Enhanced Custom Tooltip */}
