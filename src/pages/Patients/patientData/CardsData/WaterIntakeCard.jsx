@@ -20,7 +20,7 @@ const WaterIntakeCard = ({
   const WaterData = useSelector(
     (state) => state?.getPatientWater?.data?.response?.data
   );
-  console.log(WaterData, "WaterData");
+  // console.log(WaterData, "WaterData");
   const WaterStatsData = useSelector(
     (state) => state?.getPatientWater?.data?.response?.targetRange
   );
