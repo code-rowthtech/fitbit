@@ -4,6 +4,7 @@ import DoctorSaga from './doctors/saga';
 import PatientSaga from './patients/saga';
 import ReportSaga from './reports/saga';
 import PatientDashboardSaga from './patientsDashboard/saga';
+import NotesSaga from './notes/saga';
 
 export default function* rootSaga() {
   yield all([
@@ -12,5 +13,6 @@ export default function* rootSaga() {
     PatientSaga(),
     ReportSaga(),
     PatientDashboardSaga(),
+    NotesSaga(),
   ]);
 }

@@ -55,6 +55,12 @@ import {
   getPatientWater,
   getPatientWeight,
 } from "./patientsDashboard/reducer";
+import {
+  addNotesReducer,
+  deleteNotesReducer,
+  getNotesReducer,
+  updateNotesReducer
+} from "./notes/reducer";
 
 export default combineReducers({
   // Auth
@@ -113,4 +119,10 @@ export default combineReducers({
   getPatientHeartRate,
   getPatientCaloriesConsumed,
   getExerciseSessions,
+
+  // Notes
+  addNotesReducer,
+  getNotesReducer,
+  updateNotesReducer,
+  deleteNotesReducer,
 });

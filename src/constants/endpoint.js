@@ -55,3 +55,9 @@ export const CONNECT_TO_FITBIT = `${baseurl}/fitbit/connect`;
 export const GET_FILTER_DATA = `${baseurl}/fitbit/filter`;
 export const GET_EXERCISE_SESSIONS = `${baseurl}/fitbit/filter`;
 
+// Notes
+export const ADD_NOTES = `${baseurl}/notes/create`;
+export const GET_NOTES = `${baseurl}/notes/patient`;
+export const UPDATE_NOTES = `${baseurl}/notes`;
+export const DELETE_NOTES = `${baseurl}/notes`;
+
