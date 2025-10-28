@@ -38,7 +38,8 @@ const PatientDetails = ({
   const PatientData = useSelector(
     (state) => state?.getPatientByIdReducer?.data?.data?.patient
   );
-  // console.log("PatientData", PatientData);
+
+  // console.log("PatientDetails PatientData", PatientData);
   const isLoading = useSelector(
     (state) => state?.getPatientByIdReducer?.loading
   );
@@ -570,44 +571,44 @@ const PatientDetails = ({
                       gap: "16px",
                       width: "9vw",
                       backgroundColor:
-                        PatientData?.weeklyFitbitData?.heartRate?.type ===
+                        PatientData?.weeklyFitbitData?.avgHeartRate?.type ===
                           "normal" ||
-                        (!PatientData?.weeklyFitbitData?.heartRate?.type &&
+                        (!PatientData?.weeklyFitbitData?.avgHeartRate?.type &&
                           parseInt(
-                            PatientData?.weeklyFitbitData?.heartRate?.value ||
-                              80
+                            PatientData?.weeklyFitbitData?.avgHeartRate
+                              ?.value || 80
                           ) >= 60 &&
                           parseInt(
-                            PatientData?.weeklyFitbitData?.heartRate?.value ||
-                              80
+                            PatientData?.weeklyFitbitData?.avgHeartRate
+                              ?.value || 80
                           ) <= 100)
                           ? "#F0FFF0"
                           : "#FFF0F0",
                       border:
-                        PatientData?.weeklyFitbitData?.heartRate?.type ===
+                        PatientData?.weeklyFitbitData?.avgHeartRate?.type ===
                           "normal" ||
-                        (!PatientData?.weeklyFitbitData?.heartRate?.type &&
+                        (!PatientData?.weeklyFitbitData?.avgHeartRate?.type &&
                           parseInt(
-                            PatientData?.weeklyFitbitData?.heartRate?.value ||
-                              80
+                            PatientData?.weeklyFitbitData?.avgHeartRate
+                              ?.value || 80
                           ) >= 60 &&
                           parseInt(
-                            PatientData?.weeklyFitbitData?.heartRate?.value ||
-                              80
+                            PatientData?.weeklyFitbitData?.avgHeartRate
+                              ?.value || 80
                           ) <= 100)
                           ? "1px solid #28a745"
                           : "1px solid #dc3545",
                       boxShadow:
-                        PatientData?.weeklyFitbitData?.heartRate?.type ===
+                        PatientData?.weeklyFitbitData?.avgHeartRate?.type ===
                           "normal" ||
-                        (!PatientData?.weeklyFitbitData?.heartRate?.type &&
+                        (!PatientData?.weeklyFitbitData?.avgHeartRate?.type &&
                           parseInt(
-                            PatientData?.weeklyFitbitData?.heartRate?.value ||
-                              80
+                            PatientData?.weeklyFitbitData?.avgHeartRate
+                              ?.value || 80
                           ) >= 60 &&
                           parseInt(
-                            PatientData?.weeklyFitbitData?.heartRate?.value ||
-                              80
+                            PatientData?.weeklyFitbitData?.avgHeartRate
+                              ?.value || 80
                           ) <= 100)
                           ? "0 4px 8px rgba(40, 167, 69, 0.3)"
                           : "0 4px 8px rgba(220, 53, 69, 0.3)",
@@ -635,10 +636,10 @@ const PatientDetails = ({
                           isLoading ? "placeholder rounded-1" : ""
                         }`}
                       >
-                        {PatientData?.weeklyFitbitData?.heartRate?.value ||
-                          (typeof PatientData?.weeklyFitbitData?.heartRate ===
-                          "number"
-                            ? PatientData?.weeklyFitbitData?.heartRate
+                        {PatientData?.weeklyFitbitData?.avgHeartRate?.value ||
+                          (typeof PatientData?.weeklyFitbitData
+                            ?.avgHeartRate === "number"
+                            ? PatientData?.weeklyFitbitData?.avgHeartRate
                             : null) ||
                           "80"}{" "}
                         <span
@@ -660,14 +661,14 @@ const PatientDetails = ({
                         </span>
                       </div>
                     </div>
-                    {PatientData?.weeklyFitbitData?.heartRate?.type ===
+                    {PatientData?.weeklyFitbitData?.avgHeartRate?.type ===
                       "normal" ||
-                    (!PatientData?.weeklyFitbitData?.heartRate?.type &&
+                    (!PatientData?.weeklyFitbitData?.avgHeartRate?.type &&
                       parseInt(
-                        PatientData?.weeklyFitbitData?.heartRate?.value || 80
+                        PatientData?.weeklyFitbitData?.avgHeartRate?.value || 80
                       ) >= 60 &&
                       parseInt(
-                        PatientData?.weeklyFitbitData?.heartRate?.value || 80
+                        PatientData?.weeklyFitbitData?.avgHeartRate?.value || 80
                       ) <= 100) ? (
                       <FaCheckCircle
                         style={{

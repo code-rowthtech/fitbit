@@ -305,7 +305,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
               )}
 
               {/* Heart Rate Card */}
-              {(!expandedCard || expandedCard === "heartRate") && (
+              {/* {(!expandedCard || expandedCard === "heartRate") && (
                 <HeartRateCard
                   patientId={patientId}
                   expandedCard={expandedCard}
@@ -316,7 +316,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                   onDateChange={setCurrentDate}
                   formatDate={formatDate}
                 />
-              )}
+              )} */}
 
               {/* Distance Card */}
               {(!expandedCard || expandedCard === "distance") && (
