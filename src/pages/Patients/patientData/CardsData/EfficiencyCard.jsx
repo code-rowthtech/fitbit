@@ -1,10 +1,523 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Efficiency_Icon from "../../../../assets/images/PatientDashboard/efficiency.png";
 import { IoIosExpand } from "react-icons/io";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { Bar } from "react-chartjs-2";
 import { useDispatch, useSelector } from "react-redux";
-import { getPatientSleepEfficiency } from "../../../../redux/patientsDashboard/action";
+import {
+  getPatientSleepEfficiency,
+  getPatientSleepStages,
+} from "../../../../redux/patientsDashboard/action";
+
+// Sleep Journey Chart Component from SleepStagesCard
+const SleepJourneyChart = ({
+  FilterData,
+  currentDate,
+  selectedSessionIndex = 0,
+}) => {
+  const [tooltip, setTooltip] = React.useState({
+    show: false,
+    content: "",
+    x: 0,
+    y: 0,
+  });
+
+  // Process API data to create timeline
+  const processApiData = () => {
+    let sleepDataSource = null;
+    let levelsData = [];
+
+    // Check if this is today's data or past data
+    const selectedDate = new Date(currentDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
+    const isToday = selectedDate.getTime() === today.getTime();
+
+    if (isToday && FilterData?.todayData?.sleepData?.[0]?.levels?.data) {
+      // Today's data
+      sleepDataSource = FilterData.todayData.sleepData[0];
+      levelsData = sleepDataSource.levels.data;
+    } else if (FilterData?.data?.[0]?.sleepData) {
+      // Past data - use selected session index
+      const sleepSessions = FilterData.data[0].sleepData;
+
+      console.log(sleepSessions, "sleepSessions");
+
+      if (sleepSessions[selectedSessionIndex]?.levels?.data) {
+        sleepDataSource = sleepSessions[selectedSessionIndex];
+        levelsData = sleepDataSource.levels.data;
+      }
+    }
+
+    // If still no data, return null
+    if (!levelsData || levelsData.length === 0) {
+      return null;
+    }
+
+    // Calculate total sleep duration and start/end times
+    const startTime = new Date(sleepDataSource.startTime);
+    const endTime = new Date(sleepDataSource.endTime);
+    const totalDurationMs = endTime - startTime;
+
+    // Group segments by sleep stage
+    const stageGroups = { wake: [], light: [], deep: [], rem: [] };
+    const stageTotals = { wake: 0, light: 0, deep: 0, rem: 0 };
+
+    levelsData.forEach((item, index) => {
+      let level = item.level;
+      // Map nap levels to standard sleep stages
+      if (level === "awake") level = "wake";
+      if (level === "asleep") level = "light";
+      if (level === "restless") level = "wake";
+
+      if (!stageGroups[level]) return;
+
+      const startMs = new Date(item.dateTime) - startTime;
+      const startPercent = (startMs / totalDurationMs) * 100;
+      const widthPercent = ((item.seconds * 1000) / totalDurationMs) * 100;
+
+      const startTimeStr = new Date(item.dateTime).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "UTC",
+      });
+      const endTimeStr = new Date(
+        new Date(item.dateTime).getTime() + item.seconds * 1000
+      ).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "UTC",
+      });
+
+      stageGroups[level].push({
+        start: startPercent,
+        width: widthPercent,
+        time: `${startTimeStr}-${endTimeStr}`,
+        duration: item.seconds,
+      });
+
+      stageTotals[level] += item.seconds;
+    });
+
+    // Format durations
+    const formatDuration = (seconds) => {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+    };
+
+    const totalSeconds = Object.values(stageTotals).reduce((a, b) => a + b, 0);
+
+    // Calculate transition points for dotted lines
+    const transitionPoints = [];
+    levelsData.forEach((item, index) => {
+      if (index > 0) {
+        const prevLevel =
+          levelsData[index - 1].level === "awake"
+            ? "wake"
+            : levelsData[index - 1].level;
+        const currentLevel = item.level === "awake" ? "wake" : item.level;
+        if (prevLevel !== currentLevel) {
+          const transitionMs = new Date(item.dateTime) - startTime;
+          const transitionPercent = (transitionMs / totalDurationMs) * 100;
+          transitionPoints.push(transitionPercent);
+        }
+      }
+    });
+
+    return {
+      bedtime: startTime.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "UTC",
+      }),
+      wakeup: endTime.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: "UTC",
+      }),
+      totalSleep: formatDuration(totalSeconds),
+      stages: {
+        wake: {
+          duration: formatDuration(stageTotals.wake),
+          color: "#E67E22",
+          percentage: Math.round((stageTotals.wake / totalSeconds) * 100),
+          segments: stageGroups.wake,
+        },
+        light: {
+          duration: formatDuration(stageTotals.light),
+          color: "#3498DB",
+          percentage: Math.round((stageTotals.light / totalSeconds) * 100),
+          segments: stageGroups.light,
+        },
+        deep: {
+          duration: formatDuration(stageTotals.deep),
+          color: "#2C3E50",
+          percentage: Math.round((stageTotals.deep / totalSeconds) * 100),
+          segments: stageGroups.deep,
+        },
+        rem: {
+          duration: formatDuration(stageTotals.rem),
+          color: "#9B59B6",
+          percentage: Math.round((stageTotals.rem / totalSeconds) * 100),
+          segments: stageGroups.rem,
+        },
+      },
+      transitionPoints,
+    };
+  };
+
+  const sleepData = React.useMemo(
+    () => processApiData(),
+    [FilterData, currentDate, selectedSessionIndex]
+  );
+
+  // If no detailed sleep data, show message
+  if (!sleepData) {
+    return (
+      <div className="h-100 d-flex align-items-center justify-content-center flex-column">
+        <span style={{ fontSize: "12px", color: "#666", marginBottom: "8px" }}>
+          No detailed sleep data available
+        </span>
+        <span style={{ fontSize: "10px", color: "#999" }}>
+          Timeline view requires sleep stage data
+        </span>
+      </div>
+    );
+  }
+
+  const handleMouseEnter = (e, stageName, segment) => {
+    const rect = e.target.getBoundingClientRect();
+    setTooltip({
+      show: true,
+      content: `${stageName.toUpperCase()}: ${segment.time} (${
+        segment.width
+      }% of night)`,
+      x: rect.left + rect.width / 2,
+      y: rect.top - 10,
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setTooltip({ show: false, content: "", x: 0, y: 0 });
+  };
+
+  return (
+    <div
+      className="h-100 d-flex flex-column"
+      style={{
+        padding: "8px",
+        position: "relative",
+        background: "linear-gradient(135deg, #F8FBFF 0%, #E8F2FF 100%)",
+        borderRadius: "8px",
+      }}
+    >
+      {/* Enhanced Header */}
+      <div
+        className="mb-3"
+        style={{
+          background: "white",
+          borderRadius: "8px",
+          padding: "8px",
+          boxShadow: "0 2px 4px rgba(0,52,101,0.08)",
+        }}
+      >
+        {/* Enhanced Time Labels */}
+        <div
+          className="d-flex justify-content-between align-items-center pt-2"
+          style={{
+            borderTop: "2px solid #E8F2FF",
+            background:
+              "linear-gradient(90deg, #F8FBFF 0%, #E8F2FF 50%, #F8FBFF 100%)",
+            borderRadius: "8px",
+            padding: "8px 12px",
+          }}
+        >
+          <div className="text-center">
+            <div
+              style={{ fontSize: "12px", fontWeight: "700", color: "#003465" }}
+            >
+              {sleepData.bedtime}
+            </div>
+            <div style={{ fontSize: "9px", color: "#666", fontWeight: "500" }}>
+              Sleep Start
+            </div>
+          </div>
+          <div className="text-center">
+            <div style={{ fontSize: "11px", fontWeight: "600", color: "#666" }}>
+              Sleep Journey
+            </div>
+            <div style={{ fontSize: "8px", color: "#999" }}>Timeline</div>
+          </div>
+          <div className="text-center">
+            <div
+              style={{ fontSize: "12px", fontWeight: "700", color: "#003465" }}
+            >
+              {sleepData.wakeup}
+            </div>
+            <div style={{ fontSize: "9px", color: "#666", fontWeight: "500" }}>
+              Wake Up
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Sleep Cycle Chart */}
+      <div
+        className="flex-grow-1 position-relative"
+        style={{
+          background: "white",
+          borderRadius: "8px",
+          padding: "16px",
+          boxShadow: "0 2px 4px rgba(0,52,101,0.08)",
+        }}
+      >
+        <div className="mb-3">
+          <h6
+            style={{
+              fontSize: "13px",
+              fontWeight: "600",
+              color: "#003465",
+              marginBottom: "8px",
+              textAlign: "center",
+            }}
+          >
+            CYCLES OF SLEEP
+          </h6>
+        </div>
+
+        {/* Sleep Cycle Visualization */}
+        <div
+          className="position-relative"
+          style={{ height: "250px", margin: "15px 0 10px 0" }}
+        >
+          {/* Y-axis labels */}
+          <div
+            className="position-absolute"
+            style={{ left: "0", top: "0", bottom: "0", width: "80px" }}
+          >
+            {Object.entries(sleepData.stages).map(
+              ([stageName, stageData], index) => {
+                const stageOrder = { wake: 0, light: 1, deep: 2, rem: 3 };
+                const yPosition = (stageOrder[stageName] || 0) * 50 + 20;
+                return (
+                  <div
+                    key={stageName}
+                    className="position-absolute d-flex align-items-center"
+                    style={{
+                      top: `${yPosition + 10}px`,
+                      right: stageName === "wake" ? "32px" : "10px",
+                      fontSize: "10px",
+                      fontWeight: "600",
+                      color: stageData.color,
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        backgroundColor: stageData.color,
+                        borderRadius: "50%",
+                        marginRight: "6px",
+                      }}
+                    />
+                    {stageName === "wake"
+                      ? "WAKE"
+                      : stageName === "light"
+                      ? "LIGHT SLEEP"
+                      : stageName === "deep"
+                      ? "DEEP SLEEP"
+                      : "REM SLEEP"}
+                  </div>
+                );
+              }
+            )}
+          </div>
+
+          {/* Chart area */}
+          <div
+            className="position-absolute"
+            style={{ left: "80px", right: "0", top: "0", bottom: "0" }}
+          >
+            {/* Stage transition lines */}
+            {sleepData.transitionPoints
+              ?.map((position, index) => {
+                // Get the stages at this transition point
+                let fromStage = null;
+                let toStage = null;
+
+                // Find which stages are active before and after this transition
+                Object.entries(sleepData.stages).forEach(
+                  ([stageName, stageData]) => {
+                    stageData.segments.forEach((segment) => {
+                      const segmentEnd = segment.start + segment.width;
+                      if (Math.abs(segmentEnd - position) < 0.1) {
+                        fromStage = stageName;
+                      }
+                      if (Math.abs(segment.start - position) < 0.1) {
+                        toStage = stageName;
+                      }
+                    });
+                  }
+                );
+
+                if (!fromStage || !toStage || fromStage === toStage)
+                  return null;
+
+                const stageOrder = { wake: 0, light: 1, deep: 2, rem: 3 };
+                const fromY = stageOrder[fromStage] * 50 + 20 + 9;
+                const toY = stageOrder[toStage] * 50 + 20 + 9;
+
+                return (
+                  <div
+                    key={`transition-${index}`}
+                    className="position-absolute"
+                    style={{
+                      left: `${position}%`,
+                      top: `${Math.min(fromY, toY)}px`,
+                      height: `${Math.abs(toY - fromY)}px`,
+                      width: "1px",
+                      background:
+                        "repeating-linear-gradient(to bottom, #999 0px, #999 2px, transparent 2px, transparent 4px)",
+                      opacity: 0.7,
+                    }}
+                  />
+                );
+              })
+              .filter(Boolean)}
+
+            {/* Sleep stage bars */}
+            {Object.entries(sleepData.stages).map(([stageName, stageData]) => {
+              const stageOrder = { wake: 0, light: 1, deep: 2, rem: 3 };
+              const yPosition = (stageOrder[stageName] || 0) * 50 + 20;
+
+              return stageData.segments.map((segment, segIndex) => (
+                <div
+                  key={`${stageName}-${segIndex}`}
+                  className="position-absolute"
+                  style={{
+                    left: `${segment.start}%`,
+                    width: `${segment.width}%`,
+                    top: `${yPosition}px`,
+                    height: "18px",
+                    background: `linear-gradient(135deg, ${stageData.color} 0%, ${stageData.color}E6 50%, ${stageData.color} 100%)`,
+                    borderRadius: "9px",
+                    cursor: "pointer",
+                    transition: "all 0.3s ease",
+                    boxShadow: `0 3px 8px ${stageData.color}50, inset 0 1px 0 rgba(255,255,255,0.3)`,
+                    border: `1px solid ${stageData.color}80`,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = "translateY(-1px)";
+                    e.target.style.boxShadow = `0 4px 12px ${stageData.color}60, inset 0 1px 0 rgba(255,255,255,0.4)`;
+                    handleMouseEnter(e, stageName, segment);
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = "translateY(0)";
+                    e.target.style.boxShadow = `0 3px 8px ${stageData.color}50, inset 0 1px 0 rgba(255,255,255,0.3)`;
+                    handleMouseLeave();
+                  }}
+                />
+              ));
+            })}
+          </div>
+        </div>
+
+        {/* Sleep stages summary */}
+        <div className="mt-1">
+          <div className="row g-2">
+            {Object.entries(sleepData.stages).map(([stageName, stageData]) => (
+              <div key={stageName} className="col-3">
+                <div
+                  className="text-center p-2"
+                  style={{
+                    background: `${stageData.color}10`,
+                    borderRadius: "6px",
+                    border: `1px solid ${stageData.color}30`,
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "10px",
+                      fontWeight: "600",
+                      color: stageData.color,
+                      textTransform: "uppercase",
+                      marginBottom: "2px",
+                    }}
+                  >
+                    {stageName === "wake" ? "WAKE" : stageName}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: "700",
+                      color: "#003465",
+                    }}
+                  >
+                    {stageData.duration}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "9px",
+                      color: "#666",
+                    }}
+                  >
+                    {stageData.percentage}%
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Enhanced Custom Tooltip */}
+      {tooltip.show && (
+        <div
+          style={{
+            position: "fixed",
+            left: tooltip.x,
+            top: tooltip.y,
+            transform: "translateX(-50%) translateY(-100%)",
+            background: "linear-gradient(135deg, #003465 0%, #004080 100%)",
+            color: "white",
+            padding: "8px 12px",
+            borderRadius: "8px",
+            fontSize: "11px",
+            fontWeight: "600",
+            zIndex: 1000,
+            whiteSpace: "nowrap",
+            boxShadow:
+              "0 4px 12px rgba(0,52,101,0.3), 0 2px 4px rgba(0,0,0,0.1)",
+            pointerEvents: "none",
+            border: "1px solid rgba(255,255,255,0.2)",
+          }}
+        >
+          {tooltip.content}
+          <div
+            style={{
+              position: "absolute",
+              top: "100%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 0,
+              height: 0,
+              borderLeft: "6px solid transparent",
+              borderRight: "6px solid transparent",
+              borderTop: "6px solid #003465",
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
 
 const EfficiencyCard = ({
   patientId,
@@ -17,6 +530,7 @@ const EfficiencyCard = ({
   formatDate,
 }) => {
   const dispatch = useDispatch();
+  const [selectedSessionIndex, setSelectedSessionIndex] = useState(0);
   const FilterData = useSelector(
     (state) => state?.getPatientSleepEfficiency?.data?.response?.data
   );
@@ -27,6 +541,13 @@ const EfficiencyCard = ({
   const AverageData = useSelector(
     (state) => state?.getPatientSleepEfficiency?.data?.response
   );
+
+  // Get sleep stages data for the expanded view
+  const SleepStagesData = useSelector(
+    (state) => state?.getPatientSleepStages?.data?.response
+  );
+
+  console.log(SleepStagesData, "SleepStagesData");
 
   const efficiencyData = useSelector(
     (state) =>
@@ -62,6 +583,9 @@ const EfficiencyCard = ({
       let start, end;
 
       switch (activeTab) {
+        case "Day":
+          start = end = new Date(date);
+          break;
         case "Week":
           start = new Date(date);
           start.setDate(date.getDate() - date.getDay());
@@ -84,19 +608,34 @@ const EfficiencyCard = ({
         end: formatDate(end),
         field: "sleepEfficiency",
       };
-      //   if (activeTab === "Month") payload.period = "month";
       if (activeTab === "Year") payload.period = "year";
       dispatch(getPatientSleepEfficiency(payload));
-    }
-  }, [patientId, dispatch, formatDate]);
 
-  // Get chart data based on active tab and API response
+      // Also fetch sleep stages data for expanded view
+      if (expandedCard === "efficiency") {
+        const sleepPayload = {
+          patientId: patientId,
+          start: formatDate(start),
+          end: formatDate(end),
+          field: "sleep",
+        };
+        if (activeTab === "Year") sleepPayload.period = "year";
+        dispatch(getPatientSleepStages(sleepPayload));
+      }
+    }
+  }, [patientId, dispatch, formatDate, expandedCard]);
+
+  // Get chart data based on active tab and API response - use SleepStagesData for expanded view
   const getChartData = () => {
-    if (!FilterData || FilterData.length === 0) {
+    // Use SleepStagesData when expanded, otherwise use FilterData
+    const dataSource =
+      expandedCard === "efficiency" ? SleepStagesData?.data : FilterData;
+
+    if (!dataSource || dataSource.length === 0) {
       return { labels: [], data: [], tableData: [] };
     }
 
-    const apiData = FilterData;
+    const apiData = dataSource;
 
     const labels = apiData.map((item) => {
       if (activeTab === "Month" && item.date.includes("Week")) {
@@ -106,6 +645,12 @@ const EfficiencyCard = ({
 
       const date = new Date(item.date);
       switch (activeTab) {
+        case "Day":
+          return date.toLocaleDateString("en-US", {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+          });
         case "Week":
           return date.toLocaleDateString("en-US", { weekday: "short" });
         case "Month":
@@ -128,6 +673,13 @@ const EfficiencyCard = ({
       } else {
         const date = new Date(item.date);
         switch (activeTab) {
+          case "Day":
+            period = date.toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+            });
+            break;
           case "Week":
             period = date.toLocaleDateString("en-US", { weekday: "long" });
             break;
@@ -147,20 +699,38 @@ const EfficiencyCard = ({
 
       return {
         period,
-        value: item.value ? `${item.value}%` : "0%",
+        value:
+          expandedCard === "efficiency"
+            ? item.value
+              ? `${item.value} minutes`
+              : "0 stages"
+            : item.value
+            ? `${item.value}%`
+            : "0%",
       };
     });
 
     return { labels, data, tableData };
   };
 
-  const chartData = getChartData();
+  const chartData = React.useMemo(
+    () => getChartData(),
+    [FilterData, SleepStagesData, activeTab, expandedCard, selectedSessionIndex]
+  );
 
   // Get navigation label based on active tab
   const getNavigationLabel = () => {
+    if (!currentDate) return "Current Period";
+
     const date = new Date(currentDate);
 
     switch (activeTab) {
+      case "Day":
+        return date.toLocaleDateString("en-US", {
+          weekday: "long",
+          month: "short",
+          day: "numeric",
+        });
       case "Week":
         const startOfWeek = new Date(date);
         startOfWeek.setDate(date.getDate() - date.getDay());
@@ -191,6 +761,9 @@ const EfficiencyCard = ({
     const testDate = new Date(currentDate);
 
     switch (activeTab) {
+      case "Day":
+        testDate.setDate(testDate.getDate() + 1);
+        return testDate > today;
       case "Week":
         testDate.setDate(testDate.getDate() + 7);
         return testDate > today;
@@ -209,9 +782,13 @@ const EfficiencyCard = ({
   const handleNavigation = (direction) => {
     if (direction === "next" && isNextDisabled()) return;
 
+    setSelectedSessionIndex(0); // Reset to first session
     const newDate = new Date(currentDate);
 
     switch (activeTab) {
+      case "Day":
+        newDate.setDate(newDate.getDate() + (direction === "next" ? 1 : -1));
+        break;
       case "Week":
         newDate.setDate(newDate.getDate() + (direction === "next" ? 7 : -7));
         break;
@@ -230,6 +807,9 @@ const EfficiencyCard = ({
     // Calculate new date range based on the new current date
     let start, end;
     switch (activeTab) {
+      case "Day":
+        start = end = new Date(newDate);
+        break;
       case "Week":
         start = new Date(newDate);
         start.setDate(newDate.getDate() - newDate.getDay());
@@ -258,12 +838,25 @@ const EfficiencyCard = ({
         // if (activeTab === "Month") payload.period = "month";
         if (activeTab === "Year") payload.period = "year";
         dispatch(getPatientSleepEfficiency(payload));
+
+        // Also fetch sleep stages data for expanded view
+        if (expandedCard === "efficiency") {
+          const sleepPayload = {
+            patientId: patientId,
+            start: formatDate(start),
+            end: formatDate(end),
+            field: "sleep",
+          };
+          if (activeTab === "Year") sleepPayload.period = "year";
+          dispatch(getPatientSleepStages(sleepPayload));
+        }
       }
     }, 0);
   };
 
   // Handle tab change
   const handleTabChange = (tab) => {
+    setSelectedSessionIndex(0); // Reset to first session
     onTabChange(tab);
     // Fetch data for new tab
     setTimeout(() => {
@@ -272,6 +865,9 @@ const EfficiencyCard = ({
         let start, end;
 
         switch (tab) {
+          case "Day":
+            start = end = new Date(date);
+            break;
           case "Week":
             start = new Date(date);
             start.setDate(date.getDate() - date.getDay());
@@ -294,9 +890,20 @@ const EfficiencyCard = ({
           end: formatDate(end),
           field: "sleepEfficiency",
         };
-        // if (tab === "Month") payload.period = "month";
         if (tab === "Year") payload.period = "year";
         dispatch(getPatientSleepEfficiency(payload));
+
+        // Also fetch sleep stages data for expanded view
+        if (expandedCard === "efficiency") {
+          const sleepPayload = {
+            patientId: patientId,
+            start: formatDate(start),
+            end: formatDate(end),
+            field: "sleep",
+          };
+          if (tab === "Year") sleepPayload.period = "year";
+          dispatch(getPatientSleepStages(sleepPayload));
+        }
       }
     }, 0);
   };
@@ -352,112 +959,125 @@ const EfficiencyCard = ({
               <div
                 className="border rounded-2"
                 style={{
-                  padding: "10px",
+                  padding: "5px",
                   backgroundColor: "#F6FAFF",
                   height: "500px",
                 }}
               >
-                <Bar
-                  key={`chart-${activeTab}-${chartData.data.length}`}
-                  data={{
-                    labels: chartData.labels,
-                    datasets: [
-                      {
-                        data: chartData.data,
-                        backgroundColor: "#003465",
-                        borderRadius: 3,
-                        barThickness: 15,
-                      },
-                    ],
-                  }}
-                  options={{
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: { display: false },
-                      tooltip: {
-                        callbacks: {
-                          afterBody:
-                            activeTab === "Week" && StatsData
-                              ? () => [
-                                  `Min: ${parseInt(StatsData.min)}%`,
-                                  `Max: ${parseInt(StatsData.max)}%`,
-                                ]
-                              : undefined,
+                {activeTab === "Day" ? (
+                  <SleepJourneyChart
+                    key={`${currentDate}-${activeTab}-${selectedSessionIndex}`}
+                    FilterData={SleepStagesData}
+                    currentDate={currentDate}
+                    selectedSessionIndex={selectedSessionIndex}
+                  />
+                ) : (
+                  <Bar
+                    key={`chart-${activeTab}-${chartData.data.length}`}
+                    data={{
+                      labels: chartData.labels,
+                      datasets: [
+                        {
+                          data: chartData.data,
+                          backgroundColor: "#003465",
+                          borderRadius: 3,
+                          barThickness: 15,
+                        },
+                      ],
+                    }}
+                    options={{
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                          callbacks: {
+                            afterBody:
+                              activeTab === "Week" && StatsData
+                                ? () => [
+                                    `Min: ${parseInt(StatsData.min)}%`,
+                                    `Max: ${parseInt(StatsData.max)}%`,
+                                  ]
+                                : undefined,
+                          },
                         },
                       },
-                    },
-                    scales: {
-                      x: {
-                        grid: { display: false },
-                        ticks: { color: "#666", fontSize: 10 },
+                      scales: {
+                        x: {
+                          grid: { display: false },
+                          ticks: { color: "#666", fontSize: 10 },
+                        },
+                        y: {
+                          beginAtZero: true,
+                          min:
+                            activeTab === "Week" && StatsData
+                              ? Math.min(0, parseInt(StatsData.min) - 1)
+                              : 0,
+                          max:
+                            activeTab === "Week" && StatsData
+                              ? Math.max(
+                                  ...chartData.data,
+                                  parseInt(StatsData.max) + 1
+                                )
+                              : undefined,
+                          grid: { color: "#f0f0f0" },
+                          ticks: { color: "#666", fontSize: 10 },
+                        },
                       },
-                      y: {
-                        beginAtZero: true,
-                        min:
-                          activeTab === "Week" && StatsData
-                            ? Math.min(0, parseInt(StatsData.min) - 1)
-                            : 0,
-                        max:
-                          activeTab === "Week" && StatsData
-                            ? Math.max(
-                                ...chartData.data,
-                                parseInt(StatsData.max) + 1
-                              )
-                            : undefined,
-                        grid: { color: "#f0f0f0" },
-                        ticks: { color: "#666", fontSize: 10 },
-                      },
-                    },
-                    categoryPercentage: 0.6,
-                    onHover:
-                      activeTab === "Week" && StatsData
-                        ? (event, elements, chart) => {
-                            const ctx = chart.ctx;
-                            const chartArea = chart.chartArea;
+                      categoryPercentage: 0.6,
+                      onHover:
+                        activeTab === "Week" && StatsData
+                          ? (event, elements, chart) => {
+                              const ctx = chart.ctx;
+                              const chartArea = chart.chartArea;
 
-                            if (chartArea) {
-                              const yScale = chart.scales.y;
-                              const minY = yScale.getPixelForValue(
-                                parseInt(StatsData.min)
-                              );
-                              const maxY = yScale.getPixelForValue(
-                                parseInt(StatsData.max)
-                              );
+                              if (chartArea) {
+                                const yScale = chart.scales.y;
+                                const minY = yScale.getPixelForValue(
+                                  parseInt(StatsData.min)
+                                );
+                                const maxY = yScale.getPixelForValue(
+                                  parseInt(StatsData.max)
+                                );
 
-                              // Draw min line
-                              ctx.save();
-                              ctx.strokeStyle = "#ff6b6b";
-                              ctx.lineWidth = 1;
-                              ctx.setLineDash([5, 5]);
-                              ctx.beginPath();
-                              ctx.moveTo(chartArea.left, minY);
-                              ctx.lineTo(chartArea.right, minY);
-                              ctx.stroke();
+                                // Draw min line
+                                ctx.save();
+                                ctx.strokeStyle = "#ff6b6b";
+                                ctx.lineWidth = 1;
+                                ctx.setLineDash([5, 5]);
+                                ctx.beginPath();
+                                ctx.moveTo(chartArea.left, minY);
+                                ctx.lineTo(chartArea.right, minY);
+                                ctx.stroke();
 
-                              // Draw max line
-                              ctx.strokeStyle = "#51cf66";
-                              ctx.beginPath();
-                              ctx.moveTo(chartArea.left, maxY);
-                              ctx.lineTo(chartArea.right, maxY);
-                              ctx.stroke();
-                              ctx.restore();
+                                // Draw max line
+                                ctx.strokeStyle = "#51cf66";
+                                ctx.beginPath();
+                                ctx.moveTo(chartArea.left, maxY);
+                                ctx.lineTo(chartArea.right, maxY);
+                                ctx.stroke();
+                                ctx.restore();
+                              }
                             }
-                          }
-                        : undefined,
-                  }}
-                />
+                          : undefined,
+                    }}
+                  />
+                )}
               </div>
             </div>
             <div
               className="col-4 ps-2 border rounded-2"
-              style={{ backgroundColor: "#F8FBFF" }}
+              style={{
+                backgroundColor: "#F8FBFF",
+                maxHeight: "500px",
+                overflowY: "auto",
+              }}
             >
               {/* Tabs Row */}
               <div
                 className="d-flex justify-content-center my-3 p-0 rounded-pill"
                 style={{ backgroundColor: "#F0F7FF", gap: "4px" }}
               >
-                {["Week", "Month", "Year"].map((tab, index) => (
+                {["Day", "Week", "Month", "Year"].map((tab, index) => (
                   <div
                     key={index}
                     className="px-3 py-2 rounded-pill text-center flex-fill"
@@ -548,7 +1168,8 @@ const EfficiencyCard = ({
               >
                 <span style={{ color: "#003465" }}>Average</span>
                 <span style={{ color: "#003465" }}>
-                  {AverageData?.stats?.average}%
+                  {Math.round((SleepStagesData?.stats?.average || 0) / 60)}h{" "}
+                  {Math.round((SleepStagesData?.stats?.average || 0) % 60)}m
                 </span>
               </div>
 
@@ -597,26 +1218,97 @@ const EfficiencyCard = ({
                       key={`${activeTab}-${item.period}-${index}`}
                       className="d-flex justify-content-between p-2 mb-1"
                       style={{
-                        backgroundColor: "white",
+                        backgroundColor:
+                          activeTab === "Day" &&
+                          expandedCard === "efficiency" &&
+                          chartData.tableData[index]?.sessionIndex ===
+                            selectedSessionIndex
+                            ? "#003465"
+                            : "white",
+                        color:
+                          activeTab === "Day" &&
+                          expandedCard === "efficiency" &&
+                          chartData.tableData[index]?.sessionIndex ===
+                            selectedSessionIndex
+                            ? "white"
+                            : "#003465",
                         fontSize: "10px",
                         borderRadius: "2px",
-                        border: "1px solid #E8F2FF",
-                        cursor: activeTab === "Year" ? "pointer" : "default",
+                        border: `1px solid ${
+                          activeTab === "Day" &&
+                          expandedCard === "efficiency" &&
+                          chartData.tableData[index]?.sessionIndex ===
+                            selectedSessionIndex
+                            ? "#003465"
+                            : "#E8F2FF"
+                        }`,
+                        cursor:
+                          activeTab === "Year" ||
+                          activeTab === "Month" ||
+                          (activeTab === "Day" && expandedCard === "efficiency")
+                            ? "pointer"
+                            : "default",
                       }}
                       onClick={() => {
-                        if (activeTab === "Year") {
+                        if (
+                          activeTab === "Day" &&
+                          expandedCard === "efficiency" &&
+                          chartData.tableData[index]?.sessionIndex !== undefined
+                        ) {
+                          // Select the session for Day tab
+                          setSelectedSessionIndex(
+                            chartData.tableData[index].sessionIndex
+                          );
+                        } else if (activeTab === "Year") {
                           const newDate = new Date(
                             currentDate.getFullYear(),
                             index,
                             1
                           );
                           onDateChange(newDate);
-                          onTabChange("Month");
+                          handleTabChange("Month");
+                        } else if (activeTab === "Month") {
+                          // Extract day number from period like "Oct 15" -> 15
+                          const dayMatch = item.period.match(/\d+/);
+                          if (dayMatch) {
+                            const clickedDay = parseInt(dayMatch[0]);
+                            const clickedDate = new Date(
+                              currentDate.getFullYear(),
+                              currentDate.getMonth(),
+                              clickedDay
+                            );
+                            onDateChange(clickedDate);
+                            handleTabChange("Day");
+                          }
                         }
                       }}
                     >
-                      <span style={{ color: "#003465" }}>{item.period}</span>
-                      <span style={{ color: "#003465" }}>{item.value}</span>
+                      <span
+                        style={{
+                          color:
+                            activeTab === "Day" &&
+                            expandedCard === "efficiency" &&
+                            chartData.tableData[index]?.sessionIndex ===
+                              selectedSessionIndex
+                              ? "white"
+                              : "#003465",
+                        }}
+                      >
+                        {item.period}
+                      </span>
+                      <span
+                        style={{
+                          color:
+                            activeTab === "Day" &&
+                            expandedCard === "efficiency" &&
+                            chartData.tableData[index]?.sessionIndex ===
+                              selectedSessionIndex
+                              ? "white"
+                              : "#003465",
+                        }}
+                      >
+                        {item.value}
+                      </span>
                     </div>
                   ))
                 ) : (
@@ -628,6 +1320,118 @@ const EfficiencyCard = ({
                   </div>
                 )}
               </div>
+
+              {/* Sleep Session Cards - Only for Day tab and past days */}
+              {activeTab === "Day" &&
+                (() => {
+                  const selectedDate = new Date(currentDate);
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0); // Reset time to start of day
+                  selectedDate.setHours(0, 0, 0, 0); // Reset time to start of day
+                  const isPastDay = selectedDate < today;
+                  let sleepSessions = [];
+
+                  // Only show sleep sessions for past days, not today or future
+                  if (isPastDay && SleepStagesData?.data?.[0]?.sleepData) {
+                    sleepSessions = SleepStagesData.data[0].sleepData;
+                  }
+
+                  if (sleepSessions && sleepSessions.length > 1) {
+                    return (
+                      <div className="mb-2">
+                        <div
+                          className="text-center mb-2 p-1"
+                          style={{
+                            fontSize: "10px",
+                            fontWeight: "600",
+                            color: "#003465",
+                            backgroundColor: "#E8F2FF",
+                            borderRadius: "4px",
+                          }}
+                        >
+                          Sleep Sessions
+                        </div>
+                        {sleepSessions.map((session, index) => {
+                          const startTime = new Date(session.startTime);
+                          const endTime = new Date(session.endTime);
+                          const duration = Math.round(
+                            (endTime - startTime) / (1000 * 60)
+                          );
+                          const hours = Math.floor(duration / 60);
+                          const minutes = duration % 60;
+
+                          const isMainSleep =
+                            session.isMainSleep || duration > 180; // 3+ hours considered main sleep
+                          const sessionType = isMainSleep
+                            ? "Main Sleep"
+                            : "Nap";
+
+                          return (
+                            <div
+                              key={index}
+                              className="p-2 mb-1 rounded-2"
+                              style={{
+                                backgroundColor:
+                                  selectedSessionIndex === index
+                                    ? "#003465"
+                                    : "white",
+                                color:
+                                  selectedSessionIndex === index
+                                    ? "white"
+                                    : "#003465",
+                                border: `1px solid ${
+                                  selectedSessionIndex === index
+                                    ? "#003465"
+                                    : "#E8F2FF"
+                                }`,
+                                cursor: "pointer",
+                                fontSize: "10px",
+                                transition: "all 0.2s ease",
+                              }}
+                              onClick={() => setSelectedSessionIndex(index)}
+                            >
+                              <div className="d-flex justify-content-between align-items-center">
+                                <div>
+                                  <div
+                                    style={{
+                                      fontWeight: "600",
+                                      fontSize: "9px",
+                                    }}
+                                  >
+                                    {sessionType}
+                                  </div>
+                                  <div
+                                    style={{ fontSize: "8px", opacity: 0.8 }}
+                                  >
+                                    {startTime.toLocaleTimeString("en-US", {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      hour12: false,
+                                    })}{" "}
+                                    -{" "}
+                                    {endTime.toLocaleTimeString("en-US", {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      hour12: false,
+                                    })}
+                                  </div>
+                                </div>
+                                <div
+                                  style={{ fontWeight: "600", fontSize: "9px" }}
+                                >
+                                  {hours > 0
+                                    ? `${hours}h ${minutes}m`
+                                    : `${minutes}m`}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
             </div>
           </div>
         ) : (

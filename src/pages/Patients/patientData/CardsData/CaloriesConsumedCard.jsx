@@ -33,7 +33,7 @@ const CaloriesConsumedCard = ({
     (state) => state?.getPatientCaloriesConsumed?.loading
   );
 
-  console.log(Loading, "Loading CaloriesConsumedCard");
+  // console.log(Loading, "Loading CaloriesConsumedCard");
 
   // Fetch calories data on component mount and when dependencies change
   useEffect(() => {

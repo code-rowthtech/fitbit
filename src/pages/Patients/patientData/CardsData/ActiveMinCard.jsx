@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import Activity_Min from "../../../../assets/images/PatientDashboard/Active Minutes.png";
 import { IoIosExpand } from "react-icons/io";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";

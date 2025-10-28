@@ -43,7 +43,7 @@ const WeightCard = ({
   const FilterData = useSelector(
     (state) => state?.getPatientWeight?.data?.response?.data
   );
-  console.log(FilterData, "FilterData");
+  // console.log(FilterData, "FilterData");
   const WeightStatsData = useSelector(
     (state) => state?.getPatientWeight?.data?.response?.targetRange
   );
@@ -91,7 +91,6 @@ const WeightCard = ({
     }
 
     const apiData = FilterData;
-
     const labels = apiData.map((item) => {
       if (activeTab === "Month" && item.date.includes("Week")) {
         const weekMatch = item.date.match(/Week (\d+)/);
