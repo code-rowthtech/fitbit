@@ -42,8 +42,15 @@ const PatientDashboard = () => {
   };
 
   useEffect(() => {
+    // Reset all states when patient changes
+    setShowReports(false);
+    setShowNotes(false);
+    setExpandedCard(null);
+    setExpandedReport(false);
+    setActiveTab("Activity Data");
+    
     dispatch(getPatientById(id));
-  }, [id]);
+  }, [id, dispatch]);
 
   useEffect(() => {
     const handleCreatePatientEvent = () => {
@@ -87,7 +94,7 @@ const PatientDashboard = () => {
   }
 
   return (
-    <div className="container-fluid patient-dashboard pt-3 px-3">
+    <div key={patientId} className="container-fluid patient-dashboard pt-3 px-3">
       {/* Patient Details Section - Hide when report is expanded */}
       {!expandedReport && (
         <div className="row justify-content-center">
