@@ -9,6 +9,7 @@ import ExerciseData from "./patientData/ExerciseData";
 import NutritionData from "./patientData/NutritionData";
 import SleepData from "./patientData/SleepData";
 import PatientReport from "./patientData/PatientReport";
+import PatientNotes from "./patientData/PatientNotes";
 import { useDispatch, useSelector } from "react-redux";
 import CreatePatientModal from "../../components/CreatePatientModal";
 import { getPatientById } from "../../redux/actions";
@@ -26,6 +27,7 @@ const PatientDashboard = () => {
   );
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showReports, setShowReports] = useState(false);
+  const [showNotes, setShowNotes] = useState(false);
   const [expandedCard, setExpandedCard] = useState(null);
   const [expandedReport, setExpandedReport] = useState(false);
   const [activeTab, setActiveTab] = useState("Activity Data");
@@ -93,6 +95,8 @@ const PatientDashboard = () => {
             <PatientDetails
               onShowReports={() => setShowReports(!showReports)}
               showReports={showReports}
+              onShowNotes={() => setShowNotes(!showNotes)}
+              showNotes={showNotes}
               activeTab={activeTab}
               setActiveTab={setActiveTab}
               accordionOpen={!!expandedCard}
@@ -109,6 +113,12 @@ const PatientDashboard = () => {
               isExpanded={expandedReport}
               onExpand={handleReportExpand}
             />
+          </div>
+        </div>
+      ) : showNotes ? (
+        <div className="row justify-content-center">
+          <div className="col-lg-12 col-md-12 mb-1">
+            <PatientNotes />
           </div>
         </div>
       ) : (

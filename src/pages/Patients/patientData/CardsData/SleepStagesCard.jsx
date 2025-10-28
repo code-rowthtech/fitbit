@@ -81,7 +81,12 @@ const SleepJourneyChart = ({
     const stageTotals = { wake: 0, light: 0, deep: 0, rem: 0 };
 
     levelsData.forEach((item, index) => {
-      const level = item.level === "awake" ? "wake" : item.level;
+      let level = item.level;
+      // Map nap levels to standard sleep stages
+      if (level === "awake") level = "wake";
+      if (level === "asleep") level = "light";
+      if (level === "restless") level = "wake";
+
       if (!stageGroups[level]) return;
 
       const startMs = new Date(item.dateTime) - startTime;
@@ -304,90 +309,111 @@ const SleepJourneyChart = ({
         </div>
 
         {/* Sleep Cycle Visualization */}
-        <div className="position-relative" style={{ height: "250px", margin: "15px 0 10px 0" }}>
+        <div
+          className="position-relative"
+          style={{ height: "250px", margin: "15px 0 10px 0" }}
+        >
           {/* Y-axis labels */}
-          <div className="position-absolute" style={{ left: "0", top: "0", bottom: "0", width: "80px" }}>
-            {Object.entries(sleepData.stages).map(([stageName, stageData], index) => {
-              const stageOrder = { wake: 0, light: 1, deep: 2, rem: 3 };
-              const yPosition = (stageOrder[stageName] || 0) * 50 + 20;
-              return (
-                <div
-                  key={stageName}
-                  className="position-absolute d-flex align-items-center"
-                  style={{
-                    top: `${yPosition + 10}px`,
-                    right: stageName === "wake" ? "32px" : "10px",
-                    fontSize: "10px",
-                    fontWeight: "600",
-                    color: stageData.color,
-                    textTransform: "uppercase",
-                  }}
-                >
+          <div
+            className="position-absolute"
+            style={{ left: "0", top: "0", bottom: "0", width: "80px" }}
+          >
+            {Object.entries(sleepData.stages).map(
+              ([stageName, stageData], index) => {
+                const stageOrder = { wake: 0, light: 1, deep: 2, rem: 3 };
+                const yPosition = (stageOrder[stageName] || 0) * 50 + 20;
+                return (
                   <div
+                    key={stageName}
+                    className="position-absolute d-flex align-items-center"
                     style={{
-                      width: "8px",
-                      height: "8px",
-                      backgroundColor: stageData.color,
-                      borderRadius: "50%",
-                      marginRight: "6px",
+                      top: `${yPosition + 10}px`,
+                      right: stageName === "wake" ? "32px" : "10px",
+                      fontSize: "10px",
+                      fontWeight: "600",
+                      color: stageData.color,
+                      textTransform: "uppercase",
                     }}
-                  />
-                  {stageName === "wake" ? "WAKE" : stageName === "light" ? "LIGHT SLEEP" : stageName === "deep" ? "DEEP SLEEP" : "REM SLEEP"}
-                </div>
-              );
-            })}
+                  >
+                    <div
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        backgroundColor: stageData.color,
+                        borderRadius: "50%",
+                        marginRight: "6px",
+                      }}
+                    />
+                    {stageName === "wake"
+                      ? "WAKE"
+                      : stageName === "light"
+                      ? "LIGHT SLEEP"
+                      : stageName === "deep"
+                      ? "DEEP SLEEP"
+                      : "REM SLEEP"}
+                  </div>
+                );
+              }
+            )}
           </div>
 
           {/* Chart area */}
-          <div className="position-absolute" style={{ left: "80px", right: "0", top: "0", bottom: "0" }}>
-
-
+          <div
+            className="position-absolute"
+            style={{ left: "80px", right: "0", top: "0", bottom: "0" }}
+          >
             {/* Stage transition lines */}
-            {sleepData.transitionPoints?.map((position, index) => {
-              // Get the stages at this transition point
-              let fromStage = null;
-              let toStage = null;
-              
-              // Find which stages are active before and after this transition
-              Object.entries(sleepData.stages).forEach(([stageName, stageData]) => {
-                stageData.segments.forEach(segment => {
-                  const segmentEnd = segment.start + segment.width;
-                  if (Math.abs(segmentEnd - position) < 0.1) {
-                    fromStage = stageName;
+            {sleepData.transitionPoints
+              ?.map((position, index) => {
+                // Get the stages at this transition point
+                let fromStage = null;
+                let toStage = null;
+
+                // Find which stages are active before and after this transition
+                Object.entries(sleepData.stages).forEach(
+                  ([stageName, stageData]) => {
+                    stageData.segments.forEach((segment) => {
+                      const segmentEnd = segment.start + segment.width;
+                      if (Math.abs(segmentEnd - position) < 0.1) {
+                        fromStage = stageName;
+                      }
+                      if (Math.abs(segment.start - position) < 0.1) {
+                        toStage = stageName;
+                      }
+                    });
                   }
-                  if (Math.abs(segment.start - position) < 0.1) {
-                    toStage = stageName;
-                  }
-                });
-              });
-              
-              if (!fromStage || !toStage || fromStage === toStage) return null;
-              
-              const stageOrder = { wake: 0, light: 1, deep: 2, rem: 3 };
-              const fromY = stageOrder[fromStage] * 50 + 20 + 9;
-              const toY = stageOrder[toStage] * 50 + 20 + 9;
-              
-              return (
-                <div
-                  key={`transition-${index}`}
-                  className="position-absolute"
-                  style={{
-                    left: `${position}%`,
-                    top: `${Math.min(fromY, toY)}px`,
-                    height: `${Math.abs(toY - fromY)}px`,
-                    width: "1px",
-                    background: "repeating-linear-gradient(to bottom, #999 0px, #999 2px, transparent 2px, transparent 4px)",
-                    opacity: 0.7,
-                  }}
-                />
-              );
-            }).filter(Boolean)}
+                );
+
+                if (!fromStage || !toStage || fromStage === toStage)
+                  return null;
+
+                const stageOrder = { wake: 0, light: 1, deep: 2, rem: 3 };
+                const fromY = stageOrder[fromStage] * 50 + 20 + 9;
+                const toY = stageOrder[toStage] * 50 + 20 + 9;
+
+                return (
+                  <div
+                    key={`transition-${index}`}
+                    className="position-absolute"
+                    style={{
+                      left: `${position}%`,
+                      top: `${Math.min(fromY, toY)}px`,
+                      height: `${Math.abs(toY - fromY)}px`,
+                      width: "1px",
+                      background:
+                        "repeating-linear-gradient(to bottom, #999 0px, #999 2px, transparent 2px, transparent 4px)",
+                      opacity: 0.7,
+                    }}
+                  />
+                );
+              })
+              .filter(Boolean)}
 
             {/* Sleep stage bars */}
             {Object.entries(sleepData.stages).map(([stageName, stageData]) => {
               const stageOrder = { wake: 0, light: 1, deep: 2, rem: 3 };
               const yPosition = (stageOrder[stageName] || 0) * 50 + 20;
-              
+
               return stageData.segments.map((segment, segIndex) => (
                 <div
                   key={`${stageName}-${segIndex}`}
@@ -418,10 +444,6 @@ const SleepJourneyChart = ({
               ));
             })}
           </div>
-
-
-
-
         </div>
 
         {/* Sleep stages summary */}
@@ -531,6 +553,10 @@ const SleepStagesCard = ({
   );
   const AverageData = useSelector(
     (state) => state?.getPatientSleepStages?.data?.response
+  );
+
+  const Loading = useSelector(
+    (state) => state?.getPatientSleepEfficiency?.loading
   );
 
   // Initial API call when component mounts
@@ -1228,7 +1254,9 @@ const SleepStagesCard = ({
                 </svg>
                 <div className="position-absolute top-50 start-50 translate-middle text-center">
                   <div
-                    className="fw-bold"
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "16px", color: "#003465" }}
                   >
                     {AverageData?.todayData?.value || 0}
@@ -1265,7 +1293,9 @@ const SleepStagesCard = ({
                   }}
                 >
                   <div
-                    className="fw-bold"
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
                     {AverageData?.todayData?.value || 0}
@@ -1290,7 +1320,9 @@ const SleepStagesCard = ({
                   }}
                 >
                   <div
-                    className="fw-bold"
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
                     {Math.round((AverageData?.stats?.average || 0) / 60) || 8}h

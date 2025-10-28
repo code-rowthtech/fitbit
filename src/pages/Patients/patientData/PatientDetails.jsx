@@ -22,6 +22,8 @@ import { connectToFitbit } from "../../../redux/patientsDashboard/action";
 const PatientDetails = ({
   onShowReports,
   showReports,
+  onShowNotes,
+  showNotes,
   activeTab,
   setActiveTab,
   accordionOpen: externalAccordionOpen,
@@ -38,7 +40,8 @@ const PatientDetails = ({
   const PatientData = useSelector(
     (state) => state?.getPatientByIdReducer?.data?.data?.patient
   );
-  // console.log("PatientData", PatientData);
+
+  // console.log("PatientDetails PatientData", PatientData);
   const isLoading = useSelector(
     (state) => state?.getPatientByIdReducer?.loading
   );
@@ -111,7 +114,7 @@ const PatientDetails = ({
         borderTopRightRadius: "10px",
       }}
     >
-      {!showReports && !isAccordionOpen && (
+      {!showReports && !showNotes && !isAccordionOpen && (
         <div>
           {/* tab section */}
           <div className="d-flex patient-tabs">
@@ -282,14 +285,33 @@ const PatientDetails = ({
                       setShowUpdateModal(true);
                     }}
                   />
-                  <span
-                    className="fw-semibold"
+                  <button
+                    className="btn btn-sm me-2 fw-bold"
                     style={{
-                      color: "#003465",
                       fontSize: "12px",
-                      marginRight: "8px",
-                      textDecoration: "underline",
-                      cursor: "pointer",
+                      padding: "4px 12px",
+                      borderRadius: "4px",
+                      backgroundColor: "#003465",
+                      color: "white",
+                      border: "1px solid #003465",
+                      pointerEvents: "auto",
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onShowNotes();
+                    }}
+                  >
+                    {showNotes ? "Back" : "Notes"}
+                  </button>
+                  <button
+                    className="btn btn-sm me-2 fw-bold"
+                    style={{
+                      fontSize: "12px",
+                      padding: "4px 12px",
+                      borderRadius: "4px",
+                      backgroundColor: "#003465",
+                      color: "white",
+                      border: "1px solid #003465",
                       pointerEvents: "auto",
                     }}
                     onClick={(e) => {
@@ -298,7 +320,7 @@ const PatientDetails = ({
                     }}
                   >
                     {showReports ? "Back" : "All Reports"}
-                  </span>
+                  </button>
                   <FaChevronDown
                     className="ms-2"
                     style={{
@@ -402,7 +424,12 @@ const PatientDetails = ({
                         className="fw-bold text-dark"
                         style={{ fontSize: "14px", color: "#6c757d" }}
                       >
-                        {PatientData?.age || (PatientData?.dateOfBirth ? new Date().getFullYear() - new Date(PatientData.dateOfBirth).getFullYear() : 'N/A')} Years Old
+                        {PatientData?.age ||
+                          (PatientData?.dateOfBirth
+                            ? new Date().getFullYear() -
+                              new Date(PatientData.dateOfBirth).getFullYear()
+                            : "N/A")}{" "}
+                        Years Old
                       </span>
                     </div>
                     <div
@@ -565,44 +592,44 @@ const PatientDetails = ({
                       gap: "16px",
                       width: "9vw",
                       backgroundColor:
-                        PatientData?.weeklyFitbitData?.heartRate?.type ===
+                        PatientData?.weeklyFitbitData?.avgHeartRate?.type ===
                           "normal" ||
-                        (!PatientData?.weeklyFitbitData?.heartRate?.type &&
+                        (!PatientData?.weeklyFitbitData?.avgHeartRate?.type &&
                           parseInt(
-                            PatientData?.weeklyFitbitData?.heartRate?.value ||
-                              80
+                            PatientData?.weeklyFitbitData?.avgHeartRate
+                              ?.value || 80
                           ) >= 60 &&
                           parseInt(
-                            PatientData?.weeklyFitbitData?.heartRate?.value ||
-                              80
+                            PatientData?.weeklyFitbitData?.avgHeartRate
+                              ?.value || 80
                           ) <= 100)
                           ? "#F0FFF0"
                           : "#FFF0F0",
                       border:
-                        PatientData?.weeklyFitbitData?.heartRate?.type ===
+                        PatientData?.weeklyFitbitData?.avgHeartRate?.type ===
                           "normal" ||
-                        (!PatientData?.weeklyFitbitData?.heartRate?.type &&
+                        (!PatientData?.weeklyFitbitData?.avgHeartRate?.type &&
                           parseInt(
-                            PatientData?.weeklyFitbitData?.heartRate?.value ||
-                              80
+                            PatientData?.weeklyFitbitData?.avgHeartRate
+                              ?.value || 80
                           ) >= 60 &&
                           parseInt(
-                            PatientData?.weeklyFitbitData?.heartRate?.value ||
-                              80
+                            PatientData?.weeklyFitbitData?.avgHeartRate
+                              ?.value || 80
                           ) <= 100)
                           ? "1px solid #28a745"
                           : "1px solid #dc3545",
                       boxShadow:
-                        PatientData?.weeklyFitbitData?.heartRate?.type ===
+                        PatientData?.weeklyFitbitData?.avgHeartRate?.type ===
                           "normal" ||
-                        (!PatientData?.weeklyFitbitData?.heartRate?.type &&
+                        (!PatientData?.weeklyFitbitData?.avgHeartRate?.type &&
                           parseInt(
-                            PatientData?.weeklyFitbitData?.heartRate?.value ||
-                              80
+                            PatientData?.weeklyFitbitData?.avgHeartRate
+                              ?.value || 80
                           ) >= 60 &&
                           parseInt(
-                            PatientData?.weeklyFitbitData?.heartRate?.value ||
-                              80
+                            PatientData?.weeklyFitbitData?.avgHeartRate
+                              ?.value || 80
                           ) <= 100)
                           ? "0 4px 8px rgba(40, 167, 69, 0.3)"
                           : "0 4px 8px rgba(220, 53, 69, 0.3)",
@@ -630,10 +657,10 @@ const PatientDetails = ({
                           isLoading ? "placeholder rounded-1" : ""
                         }`}
                       >
-                        {PatientData?.weeklyFitbitData?.heartRate?.value ||
-                          (typeof PatientData?.weeklyFitbitData?.heartRate ===
-                          "number"
-                            ? PatientData?.weeklyFitbitData?.heartRate
+                        {PatientData?.weeklyFitbitData?.avgHeartRate?.value ||
+                          (typeof PatientData?.weeklyFitbitData
+                            ?.avgHeartRate === "number"
+                            ? PatientData?.weeklyFitbitData?.avgHeartRate
                             : null) ||
                           "80"}{" "}
                         <span
@@ -655,14 +682,14 @@ const PatientDetails = ({
                         </span>
                       </div>
                     </div>
-                    {PatientData?.weeklyFitbitData?.heartRate?.type ===
+                    {PatientData?.weeklyFitbitData?.avgHeartRate?.type ===
                       "normal" ||
-                    (!PatientData?.weeklyFitbitData?.heartRate?.type &&
+                    (!PatientData?.weeklyFitbitData?.avgHeartRate?.type &&
                       parseInt(
-                        PatientData?.weeklyFitbitData?.heartRate?.value || 80
+                        PatientData?.weeklyFitbitData?.avgHeartRate?.value || 80
                       ) >= 60 &&
                       parseInt(
-                        PatientData?.weeklyFitbitData?.heartRate?.value || 80
+                        PatientData?.weeklyFitbitData?.avgHeartRate?.value || 80
                       ) <= 100) ? (
                       <FaCheckCircle
                         style={{
