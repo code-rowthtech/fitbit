@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Form, Button, Pagination } from "react-bootstrap";
+import { Modal, Form, Button, Pagination, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { FaPlus, FaEdit, FaTrash, FaTimes } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import {
   addNotes,
   getNotes,
@@ -16,6 +18,29 @@ import {
 const PatientNotes = () => {
   const dispatch = useDispatch();
  const { id: pathId } = useParams();
+
+  // Function to decode HTML entities
+  const decodeHtmlEntities = (text) => {
+    const textarea = document.createElement('textarea');
+    textarea.innerHTML = text;
+    return textarea.value;
+  };
+
+  // Function to get plain text without HTML tags
+  const getPlainText = (content) => {
+    const decodedContent = decodeHtmlEntities(content);
+    return decodedContent.replace(/<[^>]*>/g, '');
+  };
+
+  // Function to truncate content after 50 characters
+  const truncateContent = (content) => {
+    const decodedContent = decodeHtmlEntities(content);
+    const textContent = decodedContent.replace(/<[^>]*>/g, '');
+    if (textContent.length <= 200) {
+      return textContent.substring(0, 200);
+    }
+    return textContent.substring(0, 200) + '...';
+  };
   const [searchParams] = useSearchParams();
   const patientId = pathId || searchParams.get('id') || searchParams.get('patientId');  const Store = useSelector((state) => state);
   
@@ -68,7 +93,7 @@ const PatientNotes = () => {
   const handleEditNote = (note) => {
     setEditingNote(note);
     setNoteTitle(note.title);
-    setNoteText(note.content);
+    setNoteText(decodeHtmlEntities(note.content));
     setShowModal(true);
   };
 
@@ -86,7 +111,8 @@ const PatientNotes = () => {
   };
 
   const handleSaveNote = () => {
-    if (!noteTitle.trim() || !noteText.trim()) return;
+    const textContent = noteText.replace(/<[^>]*>/g, '').trim();
+    if (!noteTitle.trim() || !textContent) return;
 
     if (editingNote) {
       // Update existing note
@@ -114,14 +140,6 @@ const PatientNotes = () => {
     setEditingNote(null);
   };
 
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case "High": return "#dc3545";
-      case "Medium": return "#fd7e14";
-      case "Low": return "#28a745";
-      default: return "#6c757d";
-    }
-  };
 
   return (
     <>
@@ -133,7 +151,7 @@ const PatientNotes = () => {
         }}
       >
         <div className="card-body p-4">
-          <div className="d-flex justify-content-between align-items-center mb-4">
+          <div className="d-flex justify-content-between align-items-center mb-2">
             <h5 className="card-title mb-0 fs-6 fw-bold" style={{ color: "#003465" }}>
               Patient Notes ({notesCount?.total || 0})
             </h5>
@@ -183,8 +201,8 @@ const PatientNotes = () => {
                       className="card border h-100"
                       style={{ borderRadius: "8px", borderColor: "#e9ecef" }}
                     >
-                      <div className="card-body px-2 py-1">
-                        <div className="d-flex justify-content-between align-items-center mb-2">
+                      <div className="card-body px-2 py-1" style={{backgroundColor:'#F6FAFF'}}>
+                        <div className="d-flex justify-content-between align-items-center mb-2" >
                           <div className="d-flex align-items-center gap-2">
                             <h6 className="mb-0 fw-semibold" style={{ fontSize: "14px", color: "#003465" }}>
                               {note.title}
@@ -216,9 +234,12 @@ const PatientNotes = () => {
                             </button>
                           </div>
                         </div>
-                        <p className="mb-2" style={{ fontSize: "13px", lineHeight: "1.4" }}>
-                          {note.content}
-                        </p>
+                        <div 
+                          className="mb-2" 
+                          style={{ fontSize: "13px", lineHeight: "1.4" }}
+                        >
+                          {truncateContent(note.content)}
+                        </div>
                         <div className="d-flex justify-content-between align-items-center">
                           <small className="text-muted" style={{ fontSize: "11px" }}>
                             By: {note.createdBy?.firstName} {note.createdBy?.lastName}
@@ -348,20 +369,31 @@ const PatientNotes = () => {
               <Form.Label className="fw-semibold" style={{ fontSize: "14px", color: "#16213DB2" }}>
                 Note Content <span className="text-danger">*</span>
               </Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={6}
-                placeholder="Enter detailed note content..."
-                value={noteText}
-                onChange={(e) => setNoteText(e.target.value)}
-                style={{
-                  fontSize: "13px",
-                  backgroundColor: "#F9FAFB",
-                  border: "1px solid #e9ecef",
-                  borderRadius: "6px",
-                  resize: "vertical"
-                }}
-              />
+              <div style={{
+                border: "1px solid #e9ecef",
+                borderRadius: "6px",
+                backgroundColor: "#F9FAFB"
+              }}>
+                <CKEditor
+                  editor={ClassicEditor}
+                  data={noteText}
+                  onChange={(event, editor) => {
+                    const data = editor.getData();
+                    setNoteText(data);
+                  }}
+                  config={{
+                    placeholder: "Enter detailed note content...",
+                    toolbar: [
+                      'heading', '|',
+                      'bold', 'italic', 'underline', '|',
+                      'bulletedList', 'numberedList', '|',
+                      'outdent', 'indent', '|',
+                      'blockQuote', 'insertTable', '|',
+                      'undo', 'redo'
+                    ]
+                  }}
+                />
+              </div>
             </Form.Group>
           </Form>
         </Modal.Body>
@@ -377,7 +409,7 @@ const PatientNotes = () => {
           <Button
             size="sm fw-bold"
             onClick={handleSaveNote}
-            disabled={!noteTitle.trim() || !noteText.trim()}
+            disabled={!noteTitle.trim() || !noteText.replace(/<[^>]*>/g, '').trim()}
             style={{
               backgroundColor: "#003465",
               border: "1px solid #003465",
