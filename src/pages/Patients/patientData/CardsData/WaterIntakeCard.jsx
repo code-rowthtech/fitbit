@@ -32,7 +32,7 @@ const WaterIntakeCard = ({
 
   // Fetch water data on component mount and when dependencies change
   useEffect(() => {
-    if (patientId && expandedCard === "water" && currentDate && formatDate) {
+    if (patientId && currentDate && formatDate) {
       const date = new Date(currentDate);
       if (isNaN(date.getTime())) return;
 
@@ -277,9 +277,8 @@ const WaterIntakeCard = ({
         break;
     }
 
-    // Fetch new data after navigation only if expanded
+    // Fetch new data after navigation
     if (
-      expandedCard === "water" &&
       formatDate &&
       start &&
       end &&
@@ -305,8 +304,8 @@ const WaterIntakeCard = ({
   // Handle tab change
   const handleTabChange = (tab) => {
     onTabChange(tab);
-    // Fetch data for new tab only if expanded
-    if (expandedCard === "water" && currentDate && formatDate) {
+    // Fetch data for new tab
+    if (currentDate && formatDate) {
       setTimeout(() => {
         if (patientId) {
           const date = new Date(currentDate);

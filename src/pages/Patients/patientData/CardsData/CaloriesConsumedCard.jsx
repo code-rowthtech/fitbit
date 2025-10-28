@@ -37,7 +37,7 @@ const CaloriesConsumedCard = ({
 
   // Fetch calories data on component mount and when dependencies change
   useEffect(() => {
-    if (patientId && currentDate && formatDate && expandedCard === "calories") {
+    if (patientId && currentDate && formatDate) {
       const date = new Date(currentDate);
       if (isNaN(date.getTime())) return;
 
@@ -320,7 +320,6 @@ const CaloriesConsumedCard = ({
 
     // Fetch new data after navigation
     if (
-      expandedCard === "calories" &&
       formatDate &&
       start &&
       end &&
@@ -347,7 +346,7 @@ const CaloriesConsumedCard = ({
   const handleTabChange = (tab) => {
     onTabChange(tab);
     // Fetch data for new tab
-    if (expandedCard === "calories" && currentDate && formatDate) {
+    if (currentDate && formatDate) {
       setTimeout(() => {
         if (patientId) {
           const date = new Date(currentDate);

@@ -17,6 +17,8 @@ const StepsCard = ({
   formatDate,
 }) => {
   const dispatch = useDispatch();
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [isTabSwitching, setIsTabSwitching] = useState(false);
   const FilterData = useSelector(
     (state) => state?.getFilterData?.data?.response?.data
   );
@@ -29,6 +31,14 @@ const StepsCard = ({
   const Loading = useSelector(
     (state) => state?.getFilterData?.loading
   );
+
+  // Reset loading states when data loading completes
+  useEffect(() => {
+    if (!Loading) {
+      setIsNavigating(false);
+      setIsTabSwitching(false);
+    }
+  }, [Loading]);
 
   // console.log(AverageData, "AverageData");
 
@@ -99,7 +109,7 @@ const StepsCard = ({
 
     const labels = apiData.map((item) => {
       if (!item || !item.date) return 'N/A';
-      
+
       if (activeTab === "Month" && item.date.includes("Week")) {
         const weekMatch = item.date.match(/Week (\d+)/);
         return weekMatch ? `Week ${weekMatch[1]}` : item.date;
@@ -107,7 +117,7 @@ const StepsCard = ({
 
       const date = new Date(item.date);
       if (isNaN(date.getTime())) return item.date; // Invalid date fallback
-      
+
       switch (activeTab) {
         case "Day":
           return date.toLocaleDateString("en-US", {
@@ -132,7 +142,7 @@ const StepsCard = ({
       if (!item || !item.date) {
         return { period: 'N/A', value: '0' };
       }
-      
+
       let period;
 
       if (activeTab === "Month" && item.date.includes("Week")) {
@@ -241,7 +251,9 @@ const StepsCard = ({
   // Handle navigation
   const handleNavigation = (direction) => {
     if (direction === "next" && isNextDisabled()) return;
+    if (isNavigating) return;
 
+    setIsNavigating(true);
     const newDate = new Date(currentDate);
 
     switch (activeTab) {
@@ -303,6 +315,9 @@ const StepsCard = ({
 
   // Handle tab change
   const handleTabChange = (tab) => {
+    if (isTabSwitching || tab === activeTab) return;
+
+    setIsTabSwitching(true);
     onTabChange(tab);
     // Fetch data for new tab
     setTimeout(() => {
@@ -397,71 +412,116 @@ const StepsCard = ({
                   padding: "10px",
                   backgroundColor: "#F6FAFF",
                   height: "500px",
+                  position: "relative"
                 }}
               >
-                <Bar
-                  key={`chart-${activeTab}-${chartData.data.length}`}
-                  data={{
-                    labels: chartData.labels,
-                    datasets: [
-                      {
-                        data: chartData.data,
-                        backgroundColor: "#003465",
-                        borderRadius: 3,
-                        barThickness: 15,
-                      },
-                    ],
-                  }}
-                  options={{
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: { display: false },
-                      tooltip: {
-                        callbacks: {
-                          afterBody:
-                            activeTab === "Week" && StepsStatsData
-                              ? () => [
+                {(Loading || isNavigating || isTabSwitching) ? (
+                  <div className="d-flex flex-column h-100">
+                    {/* Chart Skeleton */}
+                    <div className="position-relative flex-grow-1">
+                      {/* Y-axis skeleton */}
+                      <div className="position-absolute" style={{ left: "0", top: "0", bottom: "30px", width: "30px" }}>
+                        {[...Array(6)].map((_, i) => (
+                          <div key={i} className="placeholder rounded-1 mb-3" style={{ height: "8px", width: "25px" }}></div>
+                        ))}
+                      </div>
+
+                      {/* Chart area skeleton */}
+                      <div className="position-absolute" style={{ left: "40px", right: "0", top: "0", bottom: "30px" }}>
+                        <svg width="100%" height="100%" className="placeholder-glow">
+                          {/* Grid lines */}
+                          {[...Array(5)].map((_, i) => (
+                            <line key={`grid-${i}`} x1="0" y1={`${(i + 1) * 20}%`} x2="100%" y2={`${(i + 1) * 20}%`} stroke="#E8F2FF" strokeWidth="1" />
+                          ))}
+
+                          {/* Skeleton bars */}
+                          {[...Array(8)].map((_, i) => (
+                            <rect
+                              key={`bar-${i}`}
+                              x={`${(i * 12) + 5}%`}
+                              y={`${60 - (Math.sin(i) * 20 + 20)}%`}
+                              width="8%"
+                              height={`${Math.sin(i) * 20 + 20}%`}
+                              fill="#E8F2FF"
+                              className="placeholder"
+                              rx="3"
+                            />
+                          ))}
+                        </svg>
+                      </div>
+
+                      {/* X-axis skeleton */}
+                      <div className="position-absolute d-flex justify-content-between" style={{ left: "40px", right: "0", bottom: "0", height: "20px" }}>
+                        {[...Array(6)].map((_, i) => (
+                          <div key={i} className="placeholder rounded-1" style={{ height: "8px", width: "20px" }}></div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <Bar
+                    key={`chart-${activeTab}-${chartData.data.length}`}
+                    data={{
+                      labels: chartData.labels,
+                      datasets: [
+                        {
+                          data: chartData.data,
+                          backgroundColor: "#003465",
+                          borderRadius: 3,
+                          barThickness: 15,
+                        },
+                      ],
+                    }}
+                    options={{
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                          callbacks: {
+                            afterBody:
+                              activeTab === "Week" && StepsStatsData
+                                ? () => [
                                   `Min: ${parseInt(StepsStatsData.min)}`,
                                   `Max: ${parseInt(StepsStatsData.max)}`,
                                 ]
-                              : activeTab === "Month" && FilterData
-                              ? (context) => {
-                                  const dataIndex = context[0]?.dataIndex;
-                                  return dataIndex !== undefined &&
-                                    FilterData[dataIndex]
-                                    ? [`Date: ${FilterData[dataIndex].date}`]
-                                    : [];
-                                }
-                              : undefined,
+                                : activeTab === "Month" && FilterData
+                                  ? (context) => {
+                                    const dataIndex = context[0]?.dataIndex;
+                                    return dataIndex !== undefined &&
+                                      FilterData[dataIndex]
+                                      ? [`Date: ${FilterData[dataIndex].date}`]
+                                      : [];
+                                  }
+                                  : undefined,
+                          },
                         },
                       },
-                    },
-                    scales: {
-                      x: {
-                        grid: { display: false },
-                        ticks: { color: "#666", fontSize: 10 },
-                      },
-                      y: {
-                        beginAtZero: true,
-                        min:
-                          activeTab === "Week" && StepsStatsData
-                            ? Math.min(0, parseInt(StepsStatsData.min) - 500)
-                            : 0,
-                        max:
-                          activeTab === "Week" && StepsStatsData
-                            ? Math.max(
+                      scales: {
+                        x: {
+                          grid: { display: false },
+                          ticks: { color: "#666", fontSize: 10 },
+                        },
+                        y: {
+                          beginAtZero: true,
+                          min:
+                            activeTab === "Week" && StepsStatsData
+                              ? Math.min(0, parseInt(StepsStatsData.min) - 500)
+                              : 0,
+                          max:
+                            activeTab === "Week" && StepsStatsData
+                              ? Math.max(
                                 ...chartData.data,
                                 parseInt(StepsStatsData.max) + 500
                               )
-                            : undefined,
-                        grid: { color: "#f0f0f0" },
-                        ticks: { color: "#666", fontSize: 10 },
+                              : undefined,
+                          grid: { color: "#f0f0f0" },
+                          ticks: { color: "#666", fontSize: 10 },
+                        },
                       },
-                    },
-                    categoryPercentage: 0.6,
-                    onHover:
-                      activeTab === "Week" && StepsStatsData
-                        ? (event, elements, chart) => {
+                      categoryPercentage: 0.6,
+                      onHover:
+                        activeTab === "Week" && StepsStatsData
+                          ? (event, elements, chart) => {
                             const ctx = chart.ctx;
                             const chartArea = chart.chartArea;
 
@@ -493,9 +553,10 @@ const StepsCard = ({
                               ctx.restore();
                             }
                           }
-                        : undefined,
-                  }}
-                />
+                          : undefined,
+                    }}
+                  />
+                )}
               </div>
             </div>
             <div
@@ -510,31 +571,46 @@ const StepsCard = ({
                 {["Day", "Week", "Month", "Year"].map((tab, index) => (
                   <div
                     key={index}
-                    className="px-3 py-2 rounded-pill text-center flex-fill"
+                    className="px-3 py-2 rounded-pill text-center flex-fill d-flex align-items-center justify-content-center"
                     style={{
                       backgroundColor:
                         tab === activeTab ? "#003465" : "transparent",
                       color: tab === activeTab ? "white" : "#003465",
-                      cursor: "pointer",
+                      cursor: isTabSwitching ? "not-allowed" : "pointer",
                       fontSize: "11px",
                       fontWeight: "500",
                       transition: "all 0.2s ease",
                       border: "none",
                       minWidth: "45px",
+                      opacity: isTabSwitching && tab !== activeTab ? 0.6 : 1,
                     }}
                     onClick={() => handleTabChange(tab)}
                     onMouseEnter={(e) => {
-                      if (tab !== activeTab) {
+                      if (tab !== activeTab && !isTabSwitching) {
                         e.target.style.backgroundColor = "#E8F2FF";
                       }
                     }}
                     onMouseLeave={(e) => {
-                      if (tab !== activeTab) {
+                      if (tab !== activeTab && !isTabSwitching) {
                         e.target.style.backgroundColor = "transparent";
                       }
                     }}
                   >
-                    {tab}
+                    {isTabSwitching && tab === activeTab ? (
+                      <div className="d-flex align-items-center gap-1">
+                        <div
+                          className="spinner-border"
+                          style={{
+                            width: "10px",
+                            height: "10px",
+                            borderWidth: "1px"
+                          }}
+                        ></div>
+                        <span>{tab}</span>
+                      </div>
+                    ) : (
+                      tab
+                    )}
                   </div>
                 ))}
               </div>
@@ -549,14 +625,27 @@ const StepsCard = ({
                   style={{
                     width: "24px",
                     height: "24px",
-                    backgroundColor: "white",
-                    border: "1px solid #003465",
+                    backgroundColor: isNavigating ? "#f5f5f5" : "white",
+                    border: `1px solid ${isNavigating ? "#ccc" : "#003465"}`,
                     borderRadius: "4px",
-                    color: "#003465",
+                    color: isNavigating ? "#ccc" : "#003465",
+                    cursor: isNavigating ? "not-allowed" : "pointer",
                   }}
                   onClick={() => handleNavigation("prev")}
+                  disabled={isNavigating}
                 >
-                  <IoChevronBack style={{ fontSize: "12px" }} />
+                  {isNavigating ? (
+                    <div
+                      className="spinner-border"
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        borderWidth: "1px"
+                      }}
+                    ></div>
+                  ) : (
+                    <IoChevronBack style={{ fontSize: "12px" }} />
+                  )}
                 </button>
                 <span
                   style={{
@@ -572,18 +661,28 @@ const StepsCard = ({
                   style={{
                     width: "24px",
                     height: "24px",
-                    backgroundColor: isNextDisabled() ? "#f5f5f5" : "white",
-                    border: `1px solid ${
-                      isNextDisabled() ? "#ccc" : "#003465"
-                    }`,
+                    backgroundColor: (isNextDisabled() || isNavigating) ? "#f5f5f5" : "white",
+                    border: `1px solid ${(isNextDisabled() || isNavigating) ? "#ccc" : "#003465"
+                      }`,
                     borderRadius: "4px",
-                    color: isNextDisabled() ? "#ccc" : "#003465",
-                    cursor: isNextDisabled() ? "not-allowed" : "pointer",
+                    color: (isNextDisabled() || isNavigating) ? "#ccc" : "#003465",
+                    cursor: (isNextDisabled() || isNavigating) ? "not-allowed" : "pointer",
                   }}
                   onClick={() => handleNavigation("next")}
-                  disabled={isNextDisabled()}
+                  disabled={isNextDisabled() || isNavigating}
                 >
-                  <IoChevronForward style={{ fontSize: "12px" }} />
+                  {isNavigating ? (
+                    <div
+                      className="spinner-border"
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        borderWidth: "1px"
+                      }}
+                    ></div>
+                  ) : (
+                    <IoChevronForward style={{ fontSize: "12px" }} />
+                  )}
                 </button>
               </div>
 
@@ -647,7 +746,24 @@ const StepsCard = ({
                 }}
                 className="custom-scroll"
               >
-                {chartData.tableData.length > 0 ? (
+                {(Loading || isNavigating || isTabSwitching) ? (
+                  // Table skeleton
+                  [...Array(8)].map((_, index) => (
+                    <div
+                      key={`skeleton-${index}`}
+                      className="d-flex justify-content-between p-2 mb-1 placeholder-glow"
+                      style={{
+                        backgroundColor: "white",
+                        fontSize: "10px",
+                        borderRadius: "2px",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <span className="placeholder rounded-1" style={{ width: "60px", height: "10px" }}></span>
+                      <span className="placeholder rounded-1" style={{ width: "40px", height: "10px" }}></span>
+                    </div>
+                  ))
+                ) : chartData.tableData.length > 0 ? (
                   chartData.tableData.map((item, index) => (
                     <div
                       key={`${activeTab}-${item.period}-${index}`}
@@ -705,7 +821,7 @@ const StepsCard = ({
                       301 -
                       ((AverageData?.todayData?.value || 0) /
                         (AverageData?.goals?.steps || 1)) *
-                        301
+                      301
                     }
                     strokeLinecap="round"
                     transform="rotate(-90 60 60)"
@@ -719,7 +835,7 @@ const StepsCard = ({
                     {AverageData?.goals?.steps > 0 ? Math.round(
                       ((AverageData?.todayData?.value || 0) /
                         AverageData.goals.steps) *
-                        100
+                      100
                     ) : 0}
                     %
                   </div>
