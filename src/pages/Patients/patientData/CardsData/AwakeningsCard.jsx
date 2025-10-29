@@ -531,6 +531,8 @@ const AwakeningsCard = ({
 }) => {
   const dispatch = useDispatch();
   const [selectedSessionIndex, setSelectedSessionIndex] = useState(0);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [isTabSwitching, setIsTabSwitching] = useState(false);
   const FilterData = useSelector(
     (state) => state?.getPatientSleepStages?.data?.response?.data
   );
@@ -543,6 +545,14 @@ const AwakeningsCard = ({
       state?.getPatientSleepStages?.data?.response?.todayData?.sleepData
   );
   const Loading = useSelector((state) => state?.getPatientSleepStages?.loading);
+
+  // Reset loading states when data loading completes
+  useEffect(() => {
+    if (!Loading) {
+      setIsNavigating(false);
+      setIsTabSwitching(false);
+    }
+  }, [Loading]);
   // console.log(awakeningsData, "awakeningsData");
 
   // Initial API call when component mounts
@@ -723,7 +733,9 @@ const AwakeningsCard = ({
   // Handle navigation
   const handleNavigation = (direction) => {
     if (direction === "next" && isNextDisabled()) return;
+    if (isNavigating) return;
 
+    setIsNavigating(true);
     setSelectedSessionIndex(0); // Reset to first session
     const newDate = new Date(currentDate);
 
@@ -786,6 +798,9 @@ const AwakeningsCard = ({
 
   // Handle tab change
   const handleTabChange = (tab) => {
+    if (isTabSwitching || tab === activeTab) return;
+
+    setIsTabSwitching(true);
     setSelectedSessionIndex(0); // Reset to first session
     onTabChange(tab);
     // Fetch data for new tab
@@ -879,9 +894,44 @@ const AwakeningsCard = ({
                   padding: "5px",
                   backgroundColor: "#F6FAFF",
                   height: "500px",
+                  position: "relative"
                 }}
               >
-                {activeTab === "Day" ? (
+                {(Loading || isNavigating || isTabSwitching) ? (
+                  <div className="d-flex flex-column h-100">
+                    <div className="position-relative flex-grow-1">
+                      <div className="position-absolute" style={{ left: "0", top: "0", bottom: "30px", width: "30px" }}>
+                        {[...Array(6)].map((_, i) => (
+                          <div key={i} className="placeholder rounded-1 mb-3" style={{ height: "8px", width: "25px" }}></div>
+                        ))}
+                      </div>
+                      <div className="position-absolute" style={{ left: "40px", right: "0", top: "0", bottom: "30px" }}>
+                        <svg width="100%" height="100%" className="placeholder-glow">
+                          {[...Array(5)].map((_, i) => (
+                            <line key={`grid-${i}`} x1="0" y1={`${(i + 1) * 20}%`} x2="100%" y2={`${(i + 1) * 20}%`} stroke="#E8F2FF" strokeWidth="1" />
+                          ))}
+                          {[...Array(8)].map((_, i) => (
+                            <rect
+                              key={`bar-${i}`}
+                              x={`${(i * 12) + 5}%`}
+                              y={`${60 - (Math.sin(i) * 20 + 20)}%`}
+                              width="8%"
+                              height={`${Math.sin(i) * 20 + 20}%`}
+                              fill="#E8F2FF"
+                              className="placeholder"
+                              rx="3"
+                            />
+                          ))}
+                        </svg>
+                      </div>
+                      <div className="position-absolute d-flex justify-content-between" style={{ left: "40px", right: "0", bottom: "0", height: "20px" }}>
+                        {[...Array(6)].map((_, i) => (
+                          <div key={i} className="placeholder rounded-1" style={{ height: "8px", width: "20px" }}></div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : activeTab === "Day" ? (
                   <SleepJourneyChart
                     key={`${currentDate}-${activeTab}-${selectedSessionIndex}`}
                     FilterData={AverageData}
@@ -956,31 +1006,46 @@ const AwakeningsCard = ({
                 {["Day", "Week", "Month", "Year"].map((tab, index) => (
                   <div
                     key={index}
-                    className="px-3 py-2 rounded-pill text-center flex-fill"
+                    className="px-3 py-2 rounded-pill text-center flex-fill d-flex align-items-center justify-content-center"
                     style={{
                       backgroundColor:
                         tab === activeTab ? "#003465" : "transparent",
                       color: tab === activeTab ? "white" : "#003465",
-                      cursor: "pointer",
+                      cursor: isTabSwitching ? "not-allowed" : "pointer",
                       fontSize: "11px",
                       fontWeight: "500",
                       transition: "all 0.2s ease",
                       border: "none",
                       minWidth: "45px",
+                      opacity: isTabSwitching && tab !== activeTab ? 0.6 : 1,
                     }}
                     onClick={() => handleTabChange(tab)}
                     onMouseEnter={(e) => {
-                      if (tab !== activeTab) {
+                      if (tab !== activeTab && !isTabSwitching) {
                         e.target.style.backgroundColor = "#E8F2FF";
                       }
                     }}
                     onMouseLeave={(e) => {
-                      if (tab !== activeTab) {
+                      if (tab !== activeTab && !isTabSwitching) {
                         e.target.style.backgroundColor = "transparent";
                       }
                     }}
                   >
-                    {tab}
+                    {isTabSwitching && tab === activeTab ? (
+                      <div className="d-flex align-items-center gap-1">
+                        <div
+                          className="spinner-border"
+                          style={{
+                            width: "10px",
+                            height: "10px",
+                            borderWidth: "1px"
+                          }}
+                        ></div>
+                        <span>{tab}</span>
+                      </div>
+                    ) : (
+                      tab
+                    )}
                   </div>
                 ))}
               </div>
@@ -995,14 +1060,27 @@ const AwakeningsCard = ({
                   style={{
                     width: "24px",
                     height: "24px",
-                    backgroundColor: "white",
-                    border: "1px solid #003465",
+                    backgroundColor: isNavigating ? "#f5f5f5" : "white",
+                    border: `1px solid ${isNavigating ? "#ccc" : "#003465"}`,
                     borderRadius: "4px",
-                    color: "#003465",
+                    color: isNavigating ? "#ccc" : "#003465",
+                    cursor: isNavigating ? "not-allowed" : "pointer",
                   }}
                   onClick={() => handleNavigation("prev")}
+                  disabled={isNavigating}
                 >
-                  <IoChevronBack style={{ fontSize: "12px" }} />
+                  {isNavigating ? (
+                    <div
+                      className="spinner-border"
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        borderWidth: "1px"
+                      }}
+                    ></div>
+                  ) : (
+                    <IoChevronBack style={{ fontSize: "12px" }} />
+                  )}
                 </button>
                 <span
                   style={{
@@ -1018,18 +1096,27 @@ const AwakeningsCard = ({
                   style={{
                     width: "24px",
                     height: "24px",
-                    backgroundColor: isNextDisabled() ? "#f5f5f5" : "white",
-                    border: `1px solid ${
-                      isNextDisabled() ? "#ccc" : "#003465"
-                    }`,
+                    backgroundColor: (isNextDisabled() || isNavigating) ? "#f5f5f5" : "white",
+                    border: `1px solid ${(isNextDisabled() || isNavigating) ? "#ccc" : "#003465"}`,
                     borderRadius: "4px",
-                    color: isNextDisabled() ? "#ccc" : "#003465",
-                    cursor: isNextDisabled() ? "not-allowed" : "pointer",
+                    color: (isNextDisabled() || isNavigating) ? "#ccc" : "#003465",
+                    cursor: (isNextDisabled() || isNavigating) ? "not-allowed" : "pointer",
                   }}
                   onClick={() => handleNavigation("next")}
-                  disabled={isNextDisabled()}
+                  disabled={isNextDisabled() || isNavigating}
                 >
-                  <IoChevronForward style={{ fontSize: "12px" }} />
+                  {isNavigating ? (
+                    <div
+                      className="spinner-border"
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        borderWidth: "1px"
+                      }}
+                    ></div>
+                  ) : (
+                    <IoChevronForward style={{ fontSize: "12px" }} />
+                  )}
                 </button>
               </div>
 
@@ -1060,7 +1147,23 @@ const AwakeningsCard = ({
                 }}
                 className="custom-scroll"
               >
-                {chartData.tableData.length > 0 ? (
+                {(Loading || isNavigating || isTabSwitching) ? (
+                  [...Array(8)].map((_, index) => (
+                    <div
+                      key={`skeleton-${index}`}
+                      className="d-flex justify-content-between p-2 mb-1 placeholder-glow"
+                      style={{
+                        backgroundColor: "white",
+                        fontSize: "10px",
+                        borderRadius: "2px",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <span className="placeholder rounded-1" style={{ width: "60px", height: "10px" }}></span>
+                      <span className="placeholder rounded-1" style={{ width: "40px", height: "10px" }}></span>
+                    </div>
+                  ))
+                ) : chartData.tableData.length > 0 ? (
                   chartData.tableData.map((item, index) => (
                     <div
                       key={`${activeTab}-${item.period}-${index}`}

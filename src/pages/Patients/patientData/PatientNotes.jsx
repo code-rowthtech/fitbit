@@ -259,6 +259,10 @@ const PatientNotes = () => {
                                 e.target.style.backgroundColor = "transparent";
                                 e.target.style.borderColor = "transparent";
                               }}
+                              onBlur={(e) => {
+                                e.target.style.backgroundColor = "transparent";
+                                e.target.style.borderColor = "transparent";
+                              }}
                               title="Edit note"
                             >
                               <RiEdit2Fill size={16} />
@@ -286,6 +290,10 @@ const PatientNotes = () => {
                                 e.target.style.borderColor = "#dc3545";
                               }}
                               onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = "transparent";
+                                e.target.style.borderColor = "transparent";
+                              }}
+                              onBlur={(e) => {
                                 e.target.style.backgroundColor = "transparent";
                                 e.target.style.borderColor = "transparent";
                               }}

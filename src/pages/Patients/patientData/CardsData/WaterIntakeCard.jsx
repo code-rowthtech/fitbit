@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import WaterIntake_Icon from "../../../../assets/images/PatientDashboard/water intake.png";
 import { IoIosExpand } from "react-icons/io";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
@@ -17,6 +17,8 @@ const WaterIntakeCard = ({
   formatDate,
 }) => {
   const dispatch = useDispatch();
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [isTabSwitching, setIsTabSwitching] = useState(false);
   const WaterData = useSelector(
     (state) => state?.getPatientWater?.data?.response?.data
   );
@@ -29,6 +31,14 @@ const WaterIntakeCard = ({
   );
 
   const Loading = useSelector((state) => state?.getPatientWater?.loading);
+
+  // Reset loading states when data loading completes
+  useEffect(() => {
+    if (!Loading) {
+      setIsNavigating(false);
+      setIsTabSwitching(false);
+    }
+  }, [Loading]);
 
   // Fetch water data on component mount and when dependencies change
   useEffect(() => {
@@ -233,7 +243,9 @@ const WaterIntakeCard = ({
   // Handle navigation
   const handleNavigation = (direction) => {
     if (direction === "next" && isNextDisabled()) return;
+    if (isNavigating) return;
 
+    setIsNavigating(true);
     const newDate = new Date(currentDate);
 
     switch (activeTab) {
@@ -303,6 +315,9 @@ const WaterIntakeCard = ({
 
   // Handle tab change
   const handleTabChange = (tab) => {
+    if (isTabSwitching || tab === activeTab) return;
+
+    setIsTabSwitching(true);
     onTabChange(tab);
     // Fetch data for new tab
     if (currentDate && formatDate) {
@@ -410,7 +425,50 @@ const WaterIntakeCard = ({
                   height: "500px",
                 }}
               >
-                {chartData && chartData.labels && chartData.data ? (
+                {(Loading || isNavigating || isTabSwitching) ? (
+                  <div className="d-flex flex-column h-100">
+                    {/* Chart Skeleton */}
+                    <div className="position-relative flex-grow-1">
+                      {/* Y-axis skeleton */}
+                      <div className="position-absolute" style={{ left: "0", top: "0", bottom: "30px", width: "30px" }}>
+                        {[...Array(5)].map((_, i) => (
+                          <div key={i} className="placeholder rounded-1 mb-4" style={{ height: "8px", width: "25px" }}></div>
+                        ))}
+                      </div>
+
+                      {/* Chart area skeleton */}
+                      <div className="position-absolute" style={{ left: "40px", right: "0", top: "0", bottom: "30px" }}>
+                        <svg width="100%" height="100%" className="placeholder-glow">
+                          {/* Grid lines */}
+                          {[...Array(4)].map((_, i) => (
+                            <line key={`grid-${i}`} x1="0" y1={`${(i + 1) * 25}%`} x2="100%" y2={`${(i + 1) * 25}%`} stroke="#E8F2FF" strokeWidth="1" />
+                          ))}
+
+                          {/* Skeleton bars */}
+                          {[...Array(7)].map((_, i) => (
+                            <rect
+                              key={`bar-${i}`}
+                              x={`${(i * 14) + 2}%`}
+                              y={`${60 + Math.sin(i) * 20}%`}
+                              width="10%"
+                              height={`${25 + Math.cos(i) * 15}%`}
+                              fill="#E8F2FF"
+                              rx="3"
+                              className="placeholder"
+                            />
+                          ))}
+                        </svg>
+                      </div>
+
+                      {/* X-axis skeleton */}
+                      <div className="position-absolute d-flex justify-content-between" style={{ left: "40px", right: "0", bottom: "0", height: "20px" }}>
+                        {[...Array(7)].map((_, i) => (
+                          <div key={i} className="placeholder rounded-1" style={{ height: "8px", width: "15px" }}></div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : chartData && chartData.labels && chartData.data ? (
                   <Bar
                     key={`chart-${activeTab}-${chartData.data.length}`}
                     data={{
@@ -538,31 +596,46 @@ const WaterIntakeCard = ({
                 {["Day", "Week", "Month", "Year"].map((tab, index) => (
                   <div
                     key={index}
-                    className="px-3 py-2 rounded-pill text-center flex-fill"
+                    className="px-3 py-2 rounded-pill text-center flex-fill d-flex align-items-center justify-content-center"
                     style={{
                       backgroundColor:
                         tab === activeTab ? "#003465" : "transparent",
                       color: tab === activeTab ? "white" : "#003465",
-                      cursor: "pointer",
+                      cursor: isTabSwitching ? "not-allowed" : "pointer",
                       fontSize: "11px",
                       fontWeight: "500",
                       transition: "all 0.2s ease",
                       border: "none",
                       minWidth: "45px",
+                      opacity: isTabSwitching && tab !== activeTab ? 0.6 : 1,
                     }}
                     onClick={() => handleTabChange(tab)}
                     onMouseEnter={(e) => {
-                      if (tab !== activeTab) {
+                      if (tab !== activeTab && !isTabSwitching) {
                         e.target.style.backgroundColor = "#E8F2FF";
                       }
                     }}
                     onMouseLeave={(e) => {
-                      if (tab !== activeTab) {
+                      if (tab !== activeTab && !isTabSwitching) {
                         e.target.style.backgroundColor = "transparent";
                       }
                     }}
                   >
-                    {tab}
+                    {isTabSwitching && tab === activeTab ? (
+                      <div className="d-flex align-items-center gap-1">
+                        <div
+                          className="spinner-border"
+                          style={{
+                            width: "10px",
+                            height: "10px",
+                            borderWidth: "1px"
+                          }}
+                        ></div>
+                        <span>{tab}</span>
+                      </div>
+                    ) : (
+                      tab
+                    )}
                   </div>
                 ))}
               </div>
@@ -577,14 +650,27 @@ const WaterIntakeCard = ({
                   style={{
                     width: "24px",
                     height: "24px",
-                    backgroundColor: "white",
-                    border: "1px solid #003465",
+                    backgroundColor: isNavigating ? "#f5f5f5" : "white",
+                    border: `1px solid ${isNavigating ? "#ccc" : "#003465"}`,
                     borderRadius: "4px",
-                    color: "#003465",
+                    color: isNavigating ? "#ccc" : "#003465",
+                    cursor: isNavigating ? "not-allowed" : "pointer",
                   }}
                   onClick={() => handleNavigation("prev")}
+                  disabled={isNavigating}
                 >
-                  <IoChevronBack style={{ fontSize: "12px" }} />
+                  {isNavigating ? (
+                    <div
+                      className="spinner-border"
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        borderWidth: "1px"
+                      }}
+                    ></div>
+                  ) : (
+                    <IoChevronBack style={{ fontSize: "12px" }} />
+                  )}
                 </button>
                 <span
                   style={{
@@ -600,18 +686,27 @@ const WaterIntakeCard = ({
                   style={{
                     width: "24px",
                     height: "24px",
-                    backgroundColor: isNextDisabled() ? "#f5f5f5" : "white",
-                    border: `1px solid ${
-                      isNextDisabled() ? "#ccc" : "#003465"
-                    }`,
+                    backgroundColor: (isNextDisabled() || isNavigating) ? "#f5f5f5" : "white",
+                    border: `1px solid ${(isNextDisabled() || isNavigating) ? "#ccc" : "#003465"}`,
                     borderRadius: "4px",
-                    color: isNextDisabled() ? "#ccc" : "#003465",
-                    cursor: isNextDisabled() ? "not-allowed" : "pointer",
+                    color: (isNextDisabled() || isNavigating) ? "#ccc" : "#003465",
+                    cursor: (isNextDisabled() || isNavigating) ? "not-allowed" : "pointer",
                   }}
                   onClick={() => handleNavigation("next")}
-                  disabled={isNextDisabled()}
+                  disabled={isNextDisabled() || isNavigating}
                 >
-                  <IoChevronForward style={{ fontSize: "12px" }} />
+                  {isNavigating ? (
+                    <div
+                      className="spinner-border"
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        borderWidth: "1px"
+                      }}
+                    ></div>
+                  ) : (
+                    <IoChevronForward style={{ fontSize: "12px" }} />
+                  )}
                 </button>
               </div>
 
@@ -675,7 +770,24 @@ const WaterIntakeCard = ({
                 }}
                 className="custom-scroll"
               >
-                {chartData &&
+                {(Loading || isNavigating || isTabSwitching) ? (
+                  // Table skeleton
+                  [...Array(8)].map((_, index) => (
+                    <div
+                      key={`skeleton-${index}`}
+                      className="d-flex justify-content-between p-2 mb-1 placeholder-glow"
+                      style={{
+                        backgroundColor: "white",
+                        fontSize: "10px",
+                        borderRadius: "2px",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <span className="placeholder rounded-1" style={{ width: "60px", height: "10px" }}></span>
+                      <span className="placeholder rounded-1" style={{ width: "30px", height: "10px" }}></span>
+                    </div>
+                  ))
+                ) : chartData &&
                 chartData.tableData &&
                 chartData.tableData.length > 0 ? (
                   chartData.tableData.map((item, index) => (
