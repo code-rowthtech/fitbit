@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Form, Button, Pagination, OverlayTrigger, Tooltip } from "react-bootstrap";
-import { FaPlus, FaEdit, FaTrash, FaTimes } from "react-icons/fa";
+import { FaPlus, FaTimes } from "react-icons/fa";
+import { FiTrash2 } from "react-icons/fi";
+import { RiEdit2Fill } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
 import { CKEditor } from '@ckeditor/ckeditor5-react';
@@ -198,55 +200,151 @@ const PatientNotes = () => {
                 {notesData.map((note) => (
                   <div key={note._id} className="col-md-6 mb-3">
                     <div
-                      className="card border h-100"
-                      style={{ borderRadius: "8px", borderColor: "#e9ecef" }}
+                      className="card border-0 h-100 shadow-sm"
+                      style={{ 
+                        borderRadius: "12px", 
+                        transition: "all 0.3s ease",
+                        background: "linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)"
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = "translateY(-2px)";
+                        e.currentTarget.style.boxShadow = "0 8px 25px rgba(0, 52, 101, 0.15)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = "translateY(0)";
+                        e.currentTarget.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.1)";
+                      }}
                     >
-                      <div className="card-body px-2 py-1" style={{backgroundColor:'#F6FAFF'}}>
-                        <div className="d-flex justify-content-between align-items-center mb-2" >
-                          <div className="d-flex align-items-center gap-2">
-                            <h6 className="mb-0 fw-semibold" style={{ fontSize: "14px", color: "#003465" }}>
+                      <div className="card-body p-2" style={{ position: "relative" }}>
+                        {/* Header with title and actions */}
+                        <div className="d-flex justify-content-between align-items-start mb-2">
+                          <div className="flex-grow-1 me-2">
+                            <h6 
+                              className="mb-1 fw-bold text-truncate" 
+                              style={{ 
+                                fontSize: "14px", 
+                                color: "#003465",
+                                lineHeight: "1.2"
+                              }}
+                              title={note.title}
+                            >
                               {note.title}
                             </h6>
-                            {/* <span
-                              className="badge px-2 py-1"
-                              style={{
-                                backgroundColor: getPriorityColor(note.priority),
-                                fontSize: "10px"
-                              }}
-                            >
-                              {note.priority}
-                            </span> */}
+                           
                           </div>
                           <div className="d-flex gap-1">
                             <button
-                              className="btn btn-sm btn-link p-1"
-                              onClick={() => handleEditNote(note)}
-                              style={{ color: "#007bff" }}
+                              className="btn btn-sm p-1 rounded-circle"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditNote(note);
+                              }}
+                              style={{ 
+                                color: "#003465",
+                                backgroundColor: "transparent",
+                                border: "1px solid transparent",
+                                width: "28px",
+                                height: "28px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                transition: "all 0.2s ease",
+                                cursor: "pointer"
+                              }}
+                              onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = "#E0ECF8";
+                                e.target.style.borderColor = "#003465";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = "transparent";
+                                e.target.style.borderColor = "transparent";
+                              }}
+                              title="Edit note"
                             >
-                              <FaEdit size={12} />
+                              <RiEdit2Fill size={16} />
                             </button>
                             <button
-                              className="btn btn-sm btn-link p-1"
-                              onClick={() => handleDeleteNote(note)}
-                              style={{ color: "#dc3545" }}
+                              className="btn btn-sm p-1 rounded-circle"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteNote(note);
+                              }}
+                              style={{ 
+                                color: "#dc3545",
+                                backgroundColor: "transparent",
+                                border: "1px solid transparent",
+                                width: "28px",
+                                height: "28px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                transition: "all 0.2s ease",
+                                cursor: "pointer"
+                              }}
+                              onMouseEnter={(e) => {
+                                e.target.style.backgroundColor = "#ffebee";
+                                e.target.style.borderColor = "#dc3545";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.target.style.backgroundColor = "transparent";
+                                e.target.style.borderColor = "transparent";
+                              }}
+                              title="Delete note"
                             >
-                              <FaTrash size={12} />
+                              <FiTrash2 size={16} />
                             </button>
                           </div>
                         </div>
+
+                        {/* Content */}
                         <div 
-                          className="mb-2" 
-                          style={{ fontSize: "13px", lineHeight: "1.4" }}
+                          className="mb-2 text-muted" 
+                          style={{ 
+                            fontSize: "12px", 
+                            lineHeight: "1.4",
+                            minHeight: "40px",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden"
+                          }}
                         >
                           {truncateContent(note.content)}
                         </div>
-                        <div className="d-flex justify-content-between align-items-center">
-                          <small className="text-muted" style={{ fontSize: "11px" }}>
-                            By: {note.createdBy?.firstName} {note.createdBy?.lastName}
-                          </small>
-                          <small className="text-muted" style={{ fontSize: "11px" }}>
-                            {new Date(note.createdAt).toLocaleString()}
-                          </small>
+
+                        {/* Footer */}
+                        <div 
+                          className="d-flex justify-content-between align-items-center pt-1"
+                          style={{ 
+                            borderTop: "1px solid #f0f0f0",
+                            fontSize: "10px"
+                          }}
+                        >
+                          <div className="d-flex align-items-center gap-1">
+                            <div 
+                              className="rounded-circle d-flex align-items-center justify-content-center"
+                              style={{
+                                width: "20px",
+                                height: "20px",
+                                backgroundColor: "#003465",
+                                color: "white",
+                                fontSize: "8px",
+                                fontWeight: "bold"
+                              }}
+                            >
+                              {note.createdBy?.firstName?.charAt(0)}{note.createdBy?.lastName?.charAt(0)}
+                            </div>
+                            <span className="text-muted">
+                              {note.createdBy?.firstName} {note.createdBy?.lastName}
+                            </span>
+                          </div>
+                          <span className="text-muted">
+                            {new Date(note.createdAt).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}
+                          </span>
                         </div>
                       </div>
                     </div>
