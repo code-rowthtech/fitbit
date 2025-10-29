@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Form, Button, Pagination, OverlayTrigger, Tooltip } from "react-bootstrap";
+import {
+  Modal,
+  Form,
+  Button,
+  Pagination,
+  OverlayTrigger,
+  Tooltip,
+} from "react-bootstrap";
 import { FaPlus, FaTimes } from "react-icons/fa";
 import { FiTrash2 } from "react-icons/fi";
 import { RiEdit2Fill } from "react-icons/ri";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
-import { CKEditor } from '@ckeditor/ckeditor5-react';
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import {
   addNotes,
   getNotes,
@@ -19,11 +25,11 @@ import {
 
 const PatientNotes = () => {
   const dispatch = useDispatch();
- const { id: pathId } = useParams();
+  const { id: pathId } = useParams();
 
   // Function to decode HTML entities
   const decodeHtmlEntities = (text) => {
-    const textarea = document.createElement('textarea');
+    const textarea = document.createElement("textarea");
     textarea.innerHTML = text;
     return textarea.value;
   };
@@ -31,28 +37,30 @@ const PatientNotes = () => {
   // Function to get plain text without HTML tags
   const getPlainText = (content) => {
     const decodedContent = decodeHtmlEntities(content);
-    return decodedContent.replace(/<[^>]*>/g, '');
+    return decodedContent.replace(/<[^>]*>/g, "");
   };
 
   // Function to truncate content after 50 characters
   const truncateContent = (content) => {
     const decodedContent = decodeHtmlEntities(content);
-    const textContent = decodedContent.replace(/<[^>]*>/g, '');
+    const textContent = decodedContent.replace(/<[^>]*>/g, "");
     if (textContent.length <= 200) {
       return textContent.substring(0, 200);
     }
-    return textContent.substring(0, 200) + '...';
+    return textContent.substring(0, 200) + "...";
   };
   const [searchParams] = useSearchParams();
-  const patientId = pathId || searchParams.get('id') || searchParams.get('patientId');  const Store = useSelector((state) => state);
-  
+  const patientId =
+    pathId || searchParams.get("id") || searchParams.get("patientId");
+  const Store = useSelector((state) => state);
+
   const notesCount = Store?.getNotesReducer?.data;
   const notesData = Store?.getNotesReducer?.data?.notes || [];
   const notesLoading = Store?.getNotesReducer?.loading || false;
   const addNotesResponse = Store?.addNotesReducer?.data?.status;
   const updateNotesResponse = Store?.updateNotesReducer?.data?.status;
   const deleteNotesResponse = Store?.deleteNotesReducer?.data?.status;
-  
+
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showModal, setShowModal] = useState(false);
@@ -76,14 +84,25 @@ const PatientNotes = () => {
   }, [notesCount]);
 
   useEffect(() => {
-    if (addNotesResponse === 201 || updateNotesResponse === 200 || deleteNotesResponse === 200) {
+    if (
+      addNotesResponse === 201 ||
+      updateNotesResponse === 200 ||
+      deleteNotesResponse === 200
+    ) {
       const params = { patientId, page: currentPage, limit: 10 };
       dispatch(getNotes(params));
       if (addNotesResponse === 201) dispatch(resetAddNotes());
       if (updateNotesResponse === 200) dispatch(resetUpdateNotes());
       if (deleteNotesResponse === 200) dispatch(resetDeleteNotes());
     }
-  }, [addNotesResponse, updateNotesResponse, deleteNotesResponse, dispatch, patientId, currentPage]);
+  }, [
+    addNotesResponse,
+    updateNotesResponse,
+    deleteNotesResponse,
+    dispatch,
+    patientId,
+    currentPage,
+  ]);
 
   const handleAddNote = () => {
     setEditingNote(null);
@@ -113,7 +132,7 @@ const PatientNotes = () => {
   };
 
   const handleSaveNote = () => {
-    const textContent = noteText.replace(/<[^>]*>/g, '').trim();
+    const textContent = noteText.replace(/<[^>]*>/g, "").trim();
     if (!noteTitle.trim() || !textContent) return;
 
     if (editingNote) {
@@ -135,13 +154,12 @@ const PatientNotes = () => {
       };
       dispatch(addNotes(newNoteData));
     }
-    
+
     setShowModal(false);
     setNoteTitle("");
     setNoteText("");
     setEditingNote(null);
   };
-
 
   return (
     <>
@@ -149,12 +167,15 @@ const PatientNotes = () => {
         className="card border-0"
         style={{
           backgroundColor: "white",
-          borderRadius: '0px'
+          borderRadius: "0px",
         }}
       >
         <div className="card-body p-4">
           <div className="d-flex justify-content-between align-items-center mb-2">
-            <h5 className="card-title mb-0 fs-6 fw-bold" style={{ color: "#003465" }}>
+            <h5
+              className="card-title mb-0 fs-6 fw-bold"
+              style={{ color: "#003465" }}
+            >
               Patient Notes ({notesCount?.total || 0})
             </h5>
             <button
@@ -173,7 +194,10 @@ const PatientNotes = () => {
           </div>
 
           {notesLoading ? (
-            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "200px" }}>
+            <div
+              className="d-flex justify-content-center align-items-center"
+              style={{ minHeight: "200px" }}
+            >
               <div className="spinner-border" role="status">
                 <span className="visually-hidden">Loading...</span>
               </div>
@@ -184,53 +208,65 @@ const PatientNotes = () => {
               <button
                 className="btn btn-sm"
                 onClick={handleAddNote}
-                style={{ 
+                style={{
                   fontSize: "12px",
                   backgroundColor: "#003465",
                   border: "1px solid #003465",
-                  color: "white"
+                  color: "white",
                 }}
               >
                 Add First Note
               </button>
             </div>
           ) : (
-            <div className="notes-container" style={{ minHeight: "550px", overflowY: "auto", overflowX: "hidden" }}>
+            <div
+              className="notes-container"
+              style={{
+                minHeight: "550px",
+                overflowY: "auto",
+                overflowX: "hidden",
+              }}
+            >
               <div className="row">
                 {notesData.map((note) => (
                   <div key={note._id} className="col-md-6 mb-3">
                     <div
                       className="card border-0 h-100 shadow-sm"
-                      style={{ 
-                        borderRadius: "12px", 
+                      style={{
+                        borderRadius: "12px",
                         transition: "all 0.3s ease",
-                        background: "linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)"
+                        background:
+                          "linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)",
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.transform = "translateY(-2px)";
-                        e.currentTarget.style.boxShadow = "0 8px 25px rgba(0, 52, 101, 0.15)";
+                        e.currentTarget.style.boxShadow =
+                          "0 8px 25px rgba(0, 52, 101, 0.15)";
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.transform = "translateY(0)";
-                        e.currentTarget.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.1)";
+                        e.currentTarget.style.boxShadow =
+                          "0 2px 10px rgba(0, 0, 0, 0.1)";
                       }}
                     >
-                      <div className="card-body p-2" style={{ position: "relative" }}>
+                      <div
+                        className="card-body p-2"
+                        style={{ position: "relative" }}
+                      >
                         {/* Header with title and actions */}
                         <div className="d-flex justify-content-between align-items-start mb-2">
                           <div className="flex-grow-1 me-2">
-                            <h6 
-                              className="mb-1 fw-bold text-truncate" 
-                              style={{ 
-                                fontSize: "14px", 
+                            <h6
+                              className="mb-1 fw-bold text-truncate"
+                              style={{
+                                fontSize: "14px",
                                 color: "#003465",
-                                lineHeight: "1.2"
+                                lineHeight: "1.2",
                               }}
                               title={note.title}
                             >
                               {note.title}
                             </h6>
-                           
                           </div>
                           <div className="d-flex gap-1">
                             <button
@@ -239,7 +275,7 @@ const PatientNotes = () => {
                                 e.stopPropagation();
                                 handleEditNote(note);
                               }}
-                              style={{ 
+                              style={{
                                 color: "#003465",
                                 backgroundColor: "transparent",
                                 border: "1px solid transparent",
@@ -249,7 +285,7 @@ const PatientNotes = () => {
                                 alignItems: "center",
                                 justifyContent: "center",
                                 transition: "all 0.2s ease",
-                                cursor: "pointer"
+                                cursor: "pointer",
                               }}
                               onMouseEnter={(e) => {
                                 e.target.style.backgroundColor = "#E0ECF8";
@@ -273,7 +309,7 @@ const PatientNotes = () => {
                                 e.stopPropagation();
                                 handleDeleteNote(note);
                               }}
-                              style={{ 
+                              style={{
                                 color: "#dc3545",
                                 backgroundColor: "transparent",
                                 border: "1px solid transparent",
@@ -283,7 +319,7 @@ const PatientNotes = () => {
                                 alignItems: "center",
                                 justifyContent: "center",
                                 transition: "all 0.2s ease",
-                                cursor: "pointer"
+                                cursor: "pointer",
                               }}
                               onMouseEnter={(e) => {
                                 e.target.style.backgroundColor = "#ffebee";
@@ -305,31 +341,31 @@ const PatientNotes = () => {
                         </div>
 
                         {/* Content */}
-                        <div 
-                          className="mb-2 text-muted" 
-                          style={{ 
-                            fontSize: "12px", 
+                        <div
+                          className="mb-2 text-muted"
+                          style={{
+                            fontSize: "12px",
                             lineHeight: "1.4",
                             minHeight: "40px",
                             display: "-webkit-box",
                             WebkitLineClamp: 3,
                             WebkitBoxOrient: "vertical",
-                            overflow: "hidden"
+                            overflow: "hidden",
                           }}
                         >
                           {truncateContent(note.content)}
                         </div>
 
                         {/* Footer */}
-                        <div 
+                        <div
                           className="d-flex justify-content-between align-items-center pt-1"
-                          style={{ 
+                          style={{
                             borderTop: "1px solid #f0f0f0",
-                            fontSize: "10px"
+                            fontSize: "10px",
                           }}
                         >
                           <div className="d-flex align-items-center gap-1">
-                            <div 
+                            <div
                               className="rounded-circle d-flex align-items-center justify-content-center"
                               style={{
                                 width: "20px",
@@ -337,21 +373,26 @@ const PatientNotes = () => {
                                 backgroundColor: "#003465",
                                 color: "white",
                                 fontSize: "8px",
-                                fontWeight: "bold"
+                                fontWeight: "bold",
                               }}
                             >
-                              {note.createdBy?.firstName?.charAt(0)}{note.createdBy?.lastName?.charAt(0)}
+                              {note.createdBy?.firstName?.charAt(0)}
+                              {note.createdBy?.lastName?.charAt(0)}
                             </div>
                             <span className="text-muted">
-                              {note.createdBy?.firstName} {note.createdBy?.lastName}
+                              {note.createdBy?.firstName}{" "}
+                              {note.createdBy?.lastName}
                             </span>
                           </div>
                           <span className="text-muted">
-                            {new Date(note.createdAt).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric'
-                            })}
+                            {new Date(note.createdAt).toLocaleDateString(
+                              "en-US",
+                              {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                              }
+                            )}
                           </span>
                         </div>
                       </div>
@@ -379,20 +420,20 @@ const PatientNotes = () => {
                 <span className="fw-bold">
                   {Math.min(currentPage * 10, notesCount?.total || 0)}
                 </span>{" "}
-                of{" "}
-                <span className="fw-bold">
-                  {notesCount?.total || 0}
-                </span>{" "}
+                of <span className="fw-bold">{notesCount?.total || 0}</span>{" "}
                 notes
               </div>
-              <Pagination className="mb-0" style={{
-                "--bs-pagination-color": "#003465",
-                "--bs-pagination-border-color": "#e9ecef",
-                "--bs-pagination-hover-bg": "#f8f9fa",
-                "--bs-pagination-hover-border-color": "#003465",
-                "--bs-pagination-active-bg": "#003465",
-                "--bs-pagination-active-border-color": "#003465"
-              }}>
+              <Pagination
+                className="mb-0"
+                style={{
+                  "--bs-pagination-color": "#003465",
+                  "--bs-pagination-border-color": "#e9ecef",
+                  "--bs-pagination-hover-bg": "#f8f9fa",
+                  "--bs-pagination-hover-border-color": "#003465",
+                  "--bs-pagination-active-bg": "#003465",
+                  "--bs-pagination-active-border-color": "#003465",
+                }}
+              >
                 <Pagination.First
                   onClick={() => setCurrentPage(1)}
                   disabled={currentPage === 1}
@@ -455,7 +496,10 @@ const PatientNotes = () => {
         <Modal.Body className="pt-2">
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label className="fw-semibold" style={{ fontSize: "14px", color: "#16213DB2" }}>
+              <Form.Label
+                className="fw-semibold"
+                style={{ fontSize: "14px", color: "#16213DB2" }}
+              >
                 Note Title <span className="text-danger">*</span>
               </Form.Label>
               <Form.Control
@@ -467,19 +511,24 @@ const PatientNotes = () => {
                   fontSize: "13px",
                   backgroundColor: "#F9FAFB",
                   border: "1px solid #e9ecef",
-                  borderRadius: "6px"
+                  borderRadius: "6px",
                 }}
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label className="fw-semibold" style={{ fontSize: "14px", color: "#16213DB2" }}>
+              <Form.Label
+                className="fw-semibold"
+                style={{ fontSize: "14px", color: "#16213DB2" }}
+              >
                 Note Content <span className="text-danger">*</span>
               </Form.Label>
-              <div style={{
-                border: "1px solid #e9ecef",
-                borderRadius: "6px",
-                backgroundColor: "#F9FAFB"
-              }}>
+              <div
+                style={{
+                  border: "1px solid #e9ecef",
+                  borderRadius: "6px",
+                  backgroundColor: "#F9FAFB",
+                }}
+              >
                 <CKEditor
                   editor={ClassicEditor}
                   data={noteText}
@@ -490,13 +539,24 @@ const PatientNotes = () => {
                   config={{
                     placeholder: "Enter detailed note content...",
                     toolbar: [
-                      'heading', '|',
-                      'bold', 'italic', 'underline', '|',
-                      'bulletedList', 'numberedList', '|',
-                      'outdent', 'indent', '|',
-                      'blockQuote', 'insertTable', '|',
-                      'undo', 'redo'
-                    ]
+                      "heading",
+                      "|",
+                      "bold",
+                      "italic",
+                      "underline",
+                      "|",
+                      "bulletedList",
+                      "numberedList",
+                      "|",
+                      "outdent",
+                      "indent",
+                      "|",
+                      "blockQuote",
+                      "insertTable",
+                      "|",
+                      "undo",
+                      "redo",
+                    ],
                   }}
                 />
               </div>
@@ -515,12 +575,14 @@ const PatientNotes = () => {
           <Button
             size="sm fw-bold"
             onClick={handleSaveNote}
-            disabled={!noteTitle.trim() || !noteText.replace(/<[^>]*>/g, '').trim()}
+            disabled={
+              !noteTitle.trim() || !noteText.replace(/<[^>]*>/g, "").trim()
+            }
             style={{
               backgroundColor: "#003465",
               border: "1px solid #003465",
               fontSize: "12px",
-              padding: "6px 12px"
+              padding: "6px 12px",
             }}
           >
             {editingNote ? "Update Note" : "Save Note"}
@@ -529,10 +591,7 @@ const PatientNotes = () => {
       </Modal>
 
       {/* Delete Confirmation Modal */}
-      <Modal
-        show={showConfirmModal}
-        onHide={() => setShowConfirmModal(false)}
-      >
+      <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
         <Modal.Header closeButton className="border-0">
           <Modal.Title className="fs-6 fw-bold">
             Delete Confirmation
