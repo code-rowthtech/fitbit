@@ -337,7 +337,7 @@ const ExerciseSessionsCard = ({
           end: formatDate(end),
           field: "exerciseSessions",
         };
-        if (tab === "Month") payload.period = "month";
+        // if (tab === "Month") payload.period = "month";
         if (tab === "Year") payload.period = "year";
         dispatch(getExerciseSessions(payload));
       }
@@ -869,85 +869,127 @@ const ExerciseSessionsCard = ({
                       </div>
                     )}
                   </div>
-                ) : (
-                  (Loading || isNavigating || isTabSwitching) ? (
-                    <div className="d-flex flex-column h-100">
-                      {/* Chart Skeleton */}
-                      <div className="position-relative flex-grow-1">
-                        {/* Y-axis skeleton */}
-                        <div className="position-absolute" style={{ left: "0", top: "0", bottom: "30px", width: "30px" }}>
+                ) : Loading || isNavigating || isTabSwitching ? (
+                  <div className="d-flex flex-column h-100">
+                    {/* Chart Skeleton */}
+                    <div className="position-relative flex-grow-1">
+                      {/* Y-axis skeleton */}
+                      <div
+                        className="position-absolute"
+                        style={{
+                          left: "0",
+                          top: "0",
+                          bottom: "30px",
+                          width: "30px",
+                        }}
+                      >
+                        {[...Array(4)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="placeholder rounded-1 mb-4"
+                            style={{ height: "8px", width: "25px" }}
+                          ></div>
+                        ))}
+                      </div>
+
+                      {/* Chart area skeleton */}
+                      <div
+                        className="position-absolute"
+                        style={{
+                          left: "40px",
+                          right: "0",
+                          top: "0",
+                          bottom: "30px",
+                        }}
+                      >
+                        <svg
+                          width="100%"
+                          height="100%"
+                          className="placeholder-glow"
+                        >
+                          {/* Grid lines */}
                           {[...Array(4)].map((_, i) => (
-                            <div key={i} className="placeholder rounded-1 mb-4" style={{ height: "8px", width: "25px" }}></div>
+                            <line
+                              key={`grid-${i}`}
+                              x1="0"
+                              y1={`${(i + 1) * 25}%`}
+                              x2="100%"
+                              y2={`${(i + 1) * 25}%`}
+                              stroke="#E8F2FF"
+                              strokeWidth="1"
+                            />
                           ))}
-                        </div>
 
-                        {/* Chart area skeleton */}
-                        <div className="position-absolute" style={{ left: "40px", right: "0", top: "0", bottom: "30px" }}>
-                          <svg width="100%" height="100%" className="placeholder-glow">
-                            {/* Grid lines */}
-                            {[...Array(4)].map((_, i) => (
-                              <line key={`grid-${i}`} x1="0" y1={`${(i + 1) * 25}%`} x2="100%" y2={`${(i + 1) * 25}%`} stroke="#E8F2FF" strokeWidth="1" />
-                            ))}
-
-                            {/* Skeleton bars */}
-                            {[...Array(7)].map((_, i) => (
-                              <rect
-                                key={`bar-${i}`}
-                                x={`${(i * 14) + 2}%`}
-                                y={`${60 + Math.sin(i) * 20}%`}
-                                width="10%"
-                                height={`${20 + Math.cos(i) * 15}%`}
-                                fill="#E8F2FF"
-                                rx="3"
-                                className="placeholder"
-                              />
-                            ))}
-                          </svg>
-                        </div>
-
-                        {/* X-axis skeleton */}
-                        <div className="position-absolute d-flex justify-content-between" style={{ left: "40px", right: "0", bottom: "0", height: "20px" }}>
+                          {/* Skeleton bars */}
                           {[...Array(7)].map((_, i) => (
-                            <div key={i} className="placeholder rounded-1" style={{ height: "8px", width: "15px" }}></div>
+                            <rect
+                              key={`bar-${i}`}
+                              x={`${i * 14 + 2}%`}
+                              y={`${60 + Math.sin(i) * 20}%`}
+                              width="10%"
+                              height={`${20 + Math.cos(i) * 15}%`}
+                              fill="#E8F2FF"
+                              rx="3"
+                              className="placeholder"
+                            />
                           ))}
-                        </div>
+                        </svg>
+                      </div>
+
+                      {/* X-axis skeleton */}
+                      <div
+                        className="position-absolute d-flex justify-content-between"
+                        style={{
+                          left: "40px",
+                          right: "0",
+                          bottom: "0",
+                          height: "20px",
+                        }}
+                      >
+                        {[...Array(7)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="placeholder rounded-1"
+                            style={{ height: "8px", width: "15px" }}
+                          ></div>
+                        ))}
                       </div>
                     </div>
-                  ) : (
-                    <Bar
-                      key={`chart-${activeTab}-${chartData.data.length}`}
-                      data={{
-                        labels: chartData.labels,
-                        datasets: [
-                          {
-                            data: chartData.data,
-                            backgroundColor: "#003465",
-                            borderRadius: 3,
-                            barThickness: 15,
-                          },
-                        ],
-                      }}
-                      options={{
-                        maintainAspectRatio: false,
-                        plugins: {
-                          legend: { display: false },
+                  </div>
+                ) : (
+                  <Bar
+                    key={`chart-${activeTab}-${chartData.data.length}`}
+                    data={{
+                      labels: chartData.labels,
+                      datasets: [
+                        {
+                          data: chartData.data,
+                          backgroundColor: "#003465",
+                          borderRadius: 3,
+                          barThickness: 15,
                         },
-                        scales: {
-                          x: {
-                            grid: { display: false },
-                            ticks: { color: "#666", fontSize: 10 },
-                          },
-                          y: {
-                            beginAtZero: true,
-                            max: 2,
-                            grid: { color: "#f0f0f0" },
-                            ticks: { color: "#666", fontSize: 10 },
-                          },
+                      ],
+                    }}
+                    options={{
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: { display: false },
+                      },
+                      scales: {
+                        x: {
+                          grid: { display: false },
+                          ticks: { color: "#666", fontSize: 10 },
                         },
-                        categoryPercentage: 0.6,
-                      }}
-                    />
-                  )
+                        y: {
+                          beginAtZero: true,
+                          max: 2,
+                          grid: { color: "#f0f0f0" },
+                          ticks: { color: "#666", fontSize: 10 },
+                        },
+                      },
+                      categoryPercentage: 0.6,
+                    }}
+                  />
                 )}
               </div>
             </div>
@@ -984,7 +1026,7 @@ const ExerciseSessionsCard = ({
                           style={{
                             width: "10px",
                             height: "10px",
-                            borderWidth: "1px"
+                            borderWidth: "1px",
                           }}
                         ></div>
                         <span>{tab}</span>
@@ -1020,7 +1062,7 @@ const ExerciseSessionsCard = ({
                       style={{
                         width: "8px",
                         height: "8px",
-                        borderWidth: "1px"
+                        borderWidth: "1px",
                       }}
                     ></div>
                   ) : (
@@ -1041,11 +1083,18 @@ const ExerciseSessionsCard = ({
                   style={{
                     width: "24px",
                     height: "24px",
-                    backgroundColor: (isNextDisabled() || isNavigating) ? "#f5f5f5" : "white",
-                    border: `1px solid ${(isNextDisabled() || isNavigating) ? "#ccc" : "#003465"}`,
+                    backgroundColor:
+                      isNextDisabled() || isNavigating ? "#f5f5f5" : "white",
+                    border: `1px solid ${
+                      isNextDisabled() || isNavigating ? "#ccc" : "#003465"
+                    }`,
                     borderRadius: "4px",
-                    color: (isNextDisabled() || isNavigating) ? "#ccc" : "#003465",
-                    cursor: (isNextDisabled() || isNavigating) ? "not-allowed" : "pointer",
+                    color:
+                      isNextDisabled() || isNavigating ? "#ccc" : "#003465",
+                    cursor:
+                      isNextDisabled() || isNavigating
+                        ? "not-allowed"
+                        : "pointer",
                   }}
                   onClick={() => handleNavigation("next")}
                   disabled={isNextDisabled() || isNavigating}
@@ -1056,7 +1105,7 @@ const ExerciseSessionsCard = ({
                       style={{
                         width: "8px",
                         height: "8px",
-                        borderWidth: "1px"
+                        borderWidth: "1px",
                       }}
                     ></div>
                   ) : (
@@ -1089,13 +1138,10 @@ const ExerciseSessionsCard = ({
                 }}
                 className="custom-scroll"
               >
-                {(Loading || isNavigating || isTabSwitching) ? (
+                {Loading || isNavigating || isTabSwitching ? (
                   // Table skeleton
                   [...Array(6)].map((_, index) => (
-                    <div
-                      key={`skeleton-${index}`}
-                      className="mb-1"
-                    >
+                    <div key={`skeleton-${index}`} className="mb-1">
                       <div
                         className="d-flex justify-content-between align-items-center p-2 placeholder-glow"
                         style={{
@@ -1105,8 +1151,14 @@ const ExerciseSessionsCard = ({
                           border: "1px solid #E8F2FF",
                         }}
                       >
-                        <span className="placeholder rounded-1" style={{ width: "60px", height: "10px" }}></span>
-                        <span className="placeholder rounded-1" style={{ width: "50px", height: "10px" }}></span>
+                        <span
+                          className="placeholder rounded-1"
+                          style={{ width: "60px", height: "10px" }}
+                        ></span>
+                        <span
+                          className="placeholder rounded-1"
+                          style={{ width: "50px", height: "10px" }}
+                        ></span>
                       </div>
                     </div>
                   ))
