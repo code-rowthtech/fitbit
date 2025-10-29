@@ -40,6 +40,8 @@ const WeightCard = ({
 }) => {
   const dispatch = useDispatch();
   const [chartType, setChartType] = useState("weight");
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [isTabSwitching, setIsTabSwitching] = useState(false);
   const FilterData = useSelector(
     (state) => state?.getPatientWeight?.data?.response?.data
   );
@@ -51,6 +53,14 @@ const WeightCard = ({
     (state) => state?.getPatientWeight?.data?.response
   );
   const Loading = useSelector((state) => state?.getPatientWeight?.loading);
+  
+  // Reset loading states when data loading completes
+  useEffect(() => {
+    if (!Loading) {
+      setIsNavigating(false);
+      setIsTabSwitching(false);
+    }
+  }, [Loading]);
   // Get date range based on active tab and current date
   const getDateRange = () => {
     const date = new Date(currentDate);
@@ -353,7 +363,9 @@ const WeightCard = ({
   // Handle navigation
   const handleNavigation = (direction) => {
     if (direction === "next" && isNextDisabled()) return;
+    if (isNavigating) return;
 
+    setIsNavigating(true);
     const newDate = new Date(currentDate);
 
     switch (activeTab) {
@@ -408,6 +420,9 @@ const WeightCard = ({
 
   // Handle tab change
   const handleTabChange = (tab) => {
+    if (isTabSwitching || tab === activeTab) return;
+
+    setIsTabSwitching(true);
     onTabChange(tab);
     // Fetch data for new tab
     setTimeout(() => {
@@ -583,95 +598,147 @@ const WeightCard = ({
                     </button>
                   </div>
                 </div>
-                <Line
-                  key={`chart-${activeTab}-${chartType}-${chartData.data.length}`}
-                  data={{
-                    labels: chartData.labels,
-                    datasets: [
-                      {
-                        label:
-                          chartType === "weight"
-                            ? "Weight"
-                            : chartType === "bmi"
-                            ? "BMI"
-                            : "Body Fat",
-                        data: chartData.data,
-                        borderColor: "#003465",
-                        backgroundColor: "rgba(0, 52, 101, 0.1)",
-                        borderWidth: 2,
-                        pointBackgroundColor: chartData.pointBackgroundColors,
-                        pointBorderColor: chartData.pointBorderColors,
-                        pointRadius: chartData.pointRadii,
-                        fill: true,
-                        spanGaps: true,
-                      },
-                    ],
-                  }}
-                  options={{
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: { display: false },
-                      tooltip: {
-                        callbacks: {
-                          label: (context) => {
-                            const unit =
-                              chartType === "weight"
-                                ? "kg"
-                                : chartType === "bodyFat"
-                                ? "%"
-                                : "";
-                            return `${context.parsed.y} ${unit}`;
+                {(Loading || isNavigating || isTabSwitching) ? (
+                  <div className="d-flex flex-column h-100">
+                    {/* Chart Skeleton */}
+                    <div className="position-relative flex-grow-1">
+                      {/* Y-axis skeleton */}
+                      <div className="position-absolute" style={{ left: "0", top: "0", bottom: "30px", width: "30px" }}>
+                        {[...Array(6)].map((_, i) => (
+                          <div key={i} className="placeholder rounded-1 mb-3" style={{ height: "8px", width: "25px" }}></div>
+                        ))}
+                      </div>
+
+                      {/* Chart area skeleton */}
+                      <div className="position-absolute" style={{ left: "40px", right: "0", top: "0", bottom: "30px" }}>
+                        <svg width="100%" height="100%" className="placeholder-glow">
+                          {/* Grid lines */}
+                          {[...Array(5)].map((_, i) => (
+                            <line key={`grid-${i}`} x1="0" y1={`${(i + 1) * 20}%`} x2="100%" y2={`${(i + 1) * 20}%`} stroke="#E8F2FF" strokeWidth="1" />
+                          ))}
+
+                          {/* Skeleton chart area */}
+                          <path
+                            d={`M 0 70% Q 25% 50% 50% 60% T 100% 55%`}
+                            fill="rgba(232, 242, 255, 0.3)"
+                            stroke="#E8F2FF"
+                            strokeWidth="2"
+                            className="placeholder"
+                          />
+
+                          {/* Skeleton data points */}
+                          {[...Array(8)].map((_, i) => (
+                            <circle
+                              key={`point-${i}`}
+                              cx={`${(i * 14) + 5}%`}
+                              cy={`${55 + Math.sin(i) * 10}%`}
+                              r="3"
+                              fill="#E8F2FF"
+                              className="placeholder"
+                            />
+                          ))}
+                        </svg>
+                      </div>
+
+                      {/* X-axis skeleton */}
+                      <div className="position-absolute d-flex justify-content-between" style={{ left: "40px", right: "0", bottom: "0", height: "20px" }}>
+                        {[...Array(6)].map((_, i) => (
+                          <div key={i} className="placeholder rounded-1" style={{ height: "8px", width: "20px" }}></div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <Line
+                    key={`chart-${activeTab}-${chartType}-${chartData.data.length}`}
+                    data={{
+                      labels: chartData.labels,
+                      datasets: [
+                        {
+                          label:
+                            chartType === "weight"
+                              ? "Weight"
+                              : chartType === "bmi"
+                              ? "BMI"
+                              : "Body Fat",
+                          data: chartData.data,
+                          borderColor: "#003465",
+                          backgroundColor: "rgba(0, 52, 101, 0.1)",
+                          borderWidth: 2,
+                          pointBackgroundColor: chartData.pointBackgroundColors,
+                          pointBorderColor: chartData.pointBorderColors,
+                          pointRadius: chartData.pointRadii,
+                          fill: true,
+                          spanGaps: true,
+                        },
+                      ],
+                    }}
+                    options={{
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                          callbacks: {
+                            label: (context) => {
+                              const unit =
+                                chartType === "weight"
+                                  ? "kg"
+                                  : chartType === "bodyFat"
+                                  ? "%"
+                                  : "";
+                              return `${context.parsed.y} ${unit}`;
+                            },
+                            afterBody:
+                              activeTab === "Week" && WeightStatsData
+                                ? () => [
+                                    `Min: ${parseFloat(
+                                      WeightStatsData.min
+                                    ).toFixed(1)} kg`,
+                                    `Max: ${parseFloat(
+                                      WeightStatsData.max
+                                    ).toFixed(1)} kg`,
+                                  ]
+                                : activeTab === "Month" && FilterData
+                                ? (context) => {
+                                    const dataIndex = context[0]?.dataIndex;
+                                    return dataIndex !== undefined &&
+                                      FilterData[dataIndex]
+                                      ? [`Date: ${FilterData[dataIndex].date}`]
+                                      : [];
+                                  }
+                                : undefined,
                           },
-                          afterBody:
-                            activeTab === "Week" && WeightStatsData
-                              ? () => [
-                                  `Min: ${parseFloat(
-                                    WeightStatsData.min
-                                  ).toFixed(1)} kg`,
-                                  `Max: ${parseFloat(
-                                    WeightStatsData.max
-                                  ).toFixed(1)} kg`,
-                                ]
-                              : activeTab === "Month" && FilterData
-                              ? (context) => {
-                                  const dataIndex = context[0]?.dataIndex;
-                                  return dataIndex !== undefined &&
-                                    FilterData[dataIndex]
-                                    ? [`Date: ${FilterData[dataIndex].date}`]
-                                    : [];
-                                }
-                              : undefined,
                         },
                       },
-                    },
-                    scales: {
-                      x: {
-                        grid: { display: false },
-                        ticks: { color: "#666", fontSize: 10 },
+                      scales: {
+                        x: {
+                          grid: { display: false },
+                          ticks: { color: "#666", fontSize: 10 },
+                        },
+                        y: {
+                          beginAtZero: false,
+                          min:
+                            activeTab === "Week" && WeightStatsData
+                              ? Math.min(0, parseFloat(WeightStatsData.min) - 1)
+                              : chartData.data.length > 0
+                              ? Math.min(...chartData.data) - 1
+                              : 0,
+                          max:
+                            activeTab === "Week" && WeightStatsData
+                              ? Math.max(
+                                  ...chartData.data,
+                                  parseFloat(WeightStatsData.max) + 1
+                                )
+                              : chartData.data.length > 0
+                              ? Math.max(...chartData.data) + 1
+                              : 100,
+                          grid: { color: "#f0f0f0" },
+                          ticks: { color: "#666", fontSize: 10 },
+                        },
                       },
-                      y: {
-                        beginAtZero: false,
-                        min:
-                          activeTab === "Week" && WeightStatsData
-                            ? Math.min(0, parseFloat(WeightStatsData.min) - 1)
-                            : chartData.data.length > 0
-                            ? Math.min(...chartData.data) - 1
-                            : 0,
-                        max:
-                          activeTab === "Week" && WeightStatsData
-                            ? Math.max(
-                                ...chartData.data,
-                                parseFloat(WeightStatsData.max) + 1
-                              )
-                            : chartData.data.length > 0
-                            ? Math.max(...chartData.data) + 1
-                            : 100,
-                        grid: { color: "#f0f0f0" },
-                        ticks: { color: "#666", fontSize: 10 },
-                      },
-                    },
-                  }}
-                />
+                    }}
+                  />
+                )}
               </div>
             </div>
             <div
@@ -686,31 +753,46 @@ const WeightCard = ({
                 {["Week", "Month", "Year"].map((tab, index) => (
                   <div
                     key={index}
-                    className="px-3 py-2 rounded-pill text-center flex-fill"
+                    className="px-3 py-2 rounded-pill text-center flex-fill d-flex align-items-center justify-content-center"
                     style={{
                       backgroundColor:
                         tab === activeTab ? "#003465" : "transparent",
                       color: tab === activeTab ? "white" : "#003465",
-                      cursor: "pointer",
+                      cursor: isTabSwitching ? "not-allowed" : "pointer",
                       fontSize: "11px",
                       fontWeight: "500",
                       transition: "all 0.2s ease",
                       border: "none",
                       minWidth: "45px",
+                      opacity: isTabSwitching && tab !== activeTab ? 0.6 : 1,
                     }}
                     onClick={() => handleTabChange(tab)}
                     onMouseEnter={(e) => {
-                      if (tab !== activeTab) {
+                      if (tab !== activeTab && !isTabSwitching) {
                         e.target.style.backgroundColor = "#E8F2FF";
                       }
                     }}
                     onMouseLeave={(e) => {
-                      if (tab !== activeTab) {
+                      if (tab !== activeTab && !isTabSwitching) {
                         e.target.style.backgroundColor = "transparent";
                       }
                     }}
                   >
-                    {tab}
+                    {isTabSwitching && tab === activeTab ? (
+                      <div className="d-flex align-items-center gap-1">
+                        <div
+                          className="spinner-border"
+                          style={{
+                            width: "10px",
+                            height: "10px",
+                            borderWidth: "1px"
+                          }}
+                        ></div>
+                        <span>{tab}</span>
+                      </div>
+                    ) : (
+                      tab
+                    )}
                   </div>
                 ))}
               </div>
@@ -725,14 +807,27 @@ const WeightCard = ({
                   style={{
                     width: "24px",
                     height: "24px",
-                    backgroundColor: "white",
-                    border: "1px solid #003465",
+                    backgroundColor: isNavigating ? "#f5f5f5" : "white",
+                    border: `1px solid ${isNavigating ? "#ccc" : "#003465"}`,
                     borderRadius: "4px",
-                    color: "#003465",
+                    color: isNavigating ? "#ccc" : "#003465",
+                    cursor: isNavigating ? "not-allowed" : "pointer",
                   }}
                   onClick={() => handleNavigation("prev")}
+                  disabled={isNavigating}
                 >
-                  <IoChevronBack style={{ fontSize: "12px" }} />
+                  {isNavigating ? (
+                    <div
+                      className="spinner-border"
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        borderWidth: "1px"
+                      }}
+                    ></div>
+                  ) : (
+                    <IoChevronBack style={{ fontSize: "12px" }} />
+                  )}
                 </button>
                 <span
                   style={{
@@ -748,18 +843,27 @@ const WeightCard = ({
                   style={{
                     width: "24px",
                     height: "24px",
-                    backgroundColor: isNextDisabled() ? "#f5f5f5" : "white",
-                    border: `1px solid ${
-                      isNextDisabled() ? "#ccc" : "#003465"
-                    }`,
+                    backgroundColor: (isNextDisabled() || isNavigating) ? "#f5f5f5" : "white",
+                    border: `1px solid ${(isNextDisabled() || isNavigating) ? "#ccc" : "#003465"}`,
                     borderRadius: "4px",
-                    color: isNextDisabled() ? "#ccc" : "#003465",
-                    cursor: isNextDisabled() ? "not-allowed" : "pointer",
+                    color: (isNextDisabled() || isNavigating) ? "#ccc" : "#003465",
+                    cursor: (isNextDisabled() || isNavigating) ? "not-allowed" : "pointer",
                   }}
                   onClick={() => handleNavigation("next")}
-                  disabled={isNextDisabled()}
+                  disabled={isNextDisabled() || isNavigating}
                 >
-                  <IoChevronForward style={{ fontSize: "12px" }} />
+                  {isNavigating ? (
+                    <div
+                      className="spinner-border"
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        borderWidth: "1px"
+                      }}
+                    ></div>
+                  ) : (
+                    <IoChevronForward style={{ fontSize: "12px" }} />
+                  )}
                 </button>
               </div>
 
@@ -823,7 +927,24 @@ const WeightCard = ({
                 }}
                 className="custom-scroll"
               >
-                {chartData.tableData.length > 0 ? (
+                {(Loading || isNavigating || isTabSwitching) ? (
+                  // Table skeleton
+                  [...Array(8)].map((_, index) => (
+                    <div
+                      key={`skeleton-${index}`}
+                      className="d-flex justify-content-between p-2 mb-1 placeholder-glow"
+                      style={{
+                        backgroundColor: "white",
+                        fontSize: "10px",
+                        borderRadius: "2px",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <span className="placeholder rounded-1" style={{ width: "60px", height: "10px" }}></span>
+                      <span className="placeholder rounded-1" style={{ width: "40px", height: "10px" }}></span>
+                    </div>
+                  ))
+                ) : chartData.tableData.length > 0 ? (
                   chartData.tableData.map((item, index) => (
                     <div
                       key={`${activeTab}-${item.period}-${index}`}
