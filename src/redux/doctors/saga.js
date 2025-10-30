@@ -9,6 +9,7 @@ import {
 } from "redux-saga/effects";
 import {
   getAllDoctorsApi,
+  getSingleDoctorApi,
   createDoctorApi,
   updateDoctorApi,
   getStatesApi,
@@ -46,6 +47,33 @@ function* getAllDoctorsFunction({ payload }) {
   } catch (error) {
     yield put({
       type: DOCTOR_TYPES.GET_ALL_DOCTORS_ERROR,
+      payload: { message: error?.message },
+    });
+  }
+}
+
+function* getSingleDoctorFunction() {
+  try {
+    yield put({
+      type: DOCTOR_TYPES.GET_SINGLE_DOCTOR_LOADING,
+      payload: {},
+    });
+    const response = yield call(getSingleDoctorApi);
+
+    if (response?.data && response?.data?.status === 200) {
+      yield put({
+        type: DOCTOR_TYPES.GET_SINGLE_DOCTOR_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      yield put({
+        type: DOCTOR_TYPES.GET_SINGLE_DOCTOR_ERROR,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: DOCTOR_TYPES.GET_SINGLE_DOCTOR_ERROR,
       payload: { message: error?.message },
     });
   }
@@ -439,6 +467,10 @@ export function* getAllDoctorsSaga() {
   yield takeEvery(DOCTOR_TYPES.GET_ALL_DOCTORS, getAllDoctorsFunction);
 }
 
+export function* getSingleDoctorSaga() {
+  yield takeEvery(DOCTOR_TYPES.GET_SINGLE_DOCTOR, getSingleDoctorFunction);
+}
+
 export function* createDoctorSaga() {
   yield takeEvery(DOCTOR_TYPES.CREATE_DOCTOR, createDoctorFunction);
 }
@@ -496,6 +528,7 @@ export function* getQualificationSaga() {
 function* DoctorSaga() {
   yield all([
     fork(getAllDoctorsSaga),
+    fork(getSingleDoctorSaga),
     fork(createDoctorSaga),
     fork(updateDoctorSaga),
     fork(getStatesSaga),

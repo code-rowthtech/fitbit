@@ -5,6 +5,11 @@ export const getAllDoctors = (data) => ({
   payload: data,
 });
 
+export const getSingleDoctor = (data) => ({
+  type: DOCTOR_TYPES.GET_SINGLE_DOCTOR,
+  payload: data,
+});
+
 export const createDoctor = (data) => ({
   type: DOCTOR_TYPES.CREATE_DOCTOR,
   payload: data,

@@ -4,6 +4,7 @@ import Auth from "./auth/reducers";
 import {
   createDoctorReducer,
   getAllDoctors,
+  getSingleDoctor,
   updateDoctor,
   getStatesReducer,
   getCitiesReducer,
@@ -70,6 +71,7 @@ export default combineReducers({
   // Doctors
   createDoctorReducer,
   getAllDoctors,
+  getSingleDoctor,
   updateDoctor,
   getStatesReducer,
   getCitiesReducer,

@@ -3,6 +3,7 @@ const baseurl = "/api/v1";
 // Doctors
 export const DOCTORS = `${baseurl}/doctors`;
 export const GET_DOCTORS = `${baseurl}/doctors`;
+export const GET_SINGLE_DOCTOR = `${baseurl}/doctors/me`;
 export const UPDATE_DOCTOR = `${baseurl}/doctors`;
 export const GET_STATES = `${baseurl}/locations/states`;
 export const GET_CITIES = `${baseurl}/locations/states`;
