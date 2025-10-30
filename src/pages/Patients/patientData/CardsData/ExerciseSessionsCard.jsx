@@ -474,7 +474,7 @@ const ExerciseSessionsCard = ({
                               </div>
                             </div>
                             <div className="text-center">
-                              <div
+                              {/* <div
                                 style={{
                                   fontSize: "12px",
                                   fontWeight: "700",
@@ -482,11 +482,12 @@ const ExerciseSessionsCard = ({
                                 }}
                               >
                                 Today
-                              </div>
+                              </div> */}
                               <div
+                              className="fw-bold"
                                 style={{
-                                  fontSize: "9px",
-                                  color: "#666",
+                                  fontSize: "11px",
+                                  color: "#003465",
                                   fontWeight: "500",
                                 }}
                               >

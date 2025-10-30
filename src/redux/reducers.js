@@ -59,7 +59,8 @@ import {
   addNotesReducer,
   deleteNotesReducer,
   getNotesReducer,
-  updateNotesReducer
+  updateNotesReducer,
+  getAlertsReducer
 } from "./notes/reducer";
 
 export default combineReducers({
@@ -125,4 +126,5 @@ export default combineReducers({
   getNotesReducer,
   updateNotesReducer,
   deleteNotesReducer,
+  getAlertsReducer,
 });

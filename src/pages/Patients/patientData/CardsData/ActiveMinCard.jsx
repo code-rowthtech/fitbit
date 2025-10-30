@@ -95,19 +95,41 @@ const ActiveMinCard = ({
 
   // Get chart data based on active tab and API response
   const getChartData = () => {
-    if (!ActiveMinData || ActiveMinData.length === 0) {
+    // Check for intraday data when activeTab is "Day"
+    if (activeTab === "Day" && AverageData?.data?.[0]?.intradayData) {
+      const intradayData = AverageData.data[0].intradayData;
+
+      if (!Array.isArray(intradayData) || intradayData.length === 0) {
+        return { labels: [], data: [], tableData: [] };
+      }
+
+      const labels = intradayData.map((item) => item?.timeRange || 'N/A');
+      const data = intradayData.map((item) => item?.activeMinutes || 0);
+      const tableData = intradayData.map((item) => ({
+        period: item?.timeRange || 'N/A',
+        value: item?.activeMinutes ? `${item.activeMinutes} mins` : "0 mins",
+      }));
+
+      return { labels, data, tableData };
+    }
+
+    if (!ActiveMinData || !Array.isArray(ActiveMinData) || ActiveMinData.length === 0) {
       return { labels: [], data: [], tableData: [] };
     }
 
     const apiData = ActiveMinData;
 
     const labels = apiData.map((item) => {
+      if (!item || !item.date) return 'N/A';
+
       if (activeTab === "Month" && item.date.includes("Week")) {
         const weekMatch = item.date.match(/Week (\\d+)/);
         return weekMatch ? `Week ${weekMatch[1]}` : item.date;
       }
 
       const date = new Date(item.date);
+      if (isNaN(date.getTime())) return item.date; // Invalid date fallback
+
       switch (activeTab) {
         case "Day":
           return date.toLocaleDateString("en-US", {
@@ -126,9 +148,13 @@ const ActiveMinCard = ({
       }
     });
 
-    const data = apiData.map((item) => item.value);
+    const data = apiData.map((item) => item?.value || 0);
 
     const tableData = apiData.map((item) => {
+      if (!item || !item.date) {
+        return { period: 'N/A', value: '0 mins' };
+      }
+
       let period;
 
       if (activeTab === "Month" && item.date.includes("Week")) {
@@ -136,34 +162,38 @@ const ActiveMinCard = ({
         period = weekMatch ? `Week ${weekMatch[1]}` : item.date;
       } else {
         const date = new Date(item.date);
-        switch (activeTab) {
-          case "Day":
-            period = date.toLocaleDateString("en-US", {
-              weekday: "long",
-              month: "long",
-              day: "numeric",
-            });
-            break;
-          case "Week":
-            period = date.toLocaleDateString("en-US", { weekday: "long" });
-            break;
-          case "Month":
-            period = date.toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-            });
-            break;
-          case "Year":
-            period = date.toLocaleDateString("en-US", { month: "long" });
-            break;
-          default:
-            period = date.toLocaleDateString();
+        if (isNaN(date.getTime())) {
+          period = item.date; // Invalid date fallback
+        } else {
+          switch (activeTab) {
+            case "Day":
+              period = date.toLocaleDateString("en-US", {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+              });
+              break;
+            case "Week":
+              period = date.toLocaleDateString("en-US", { weekday: "long" });
+              break;
+            case "Month":
+              period = date.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+              });
+              break;
+            case "Year":
+              period = date.toLocaleDateString("en-US", { month: "long" });
+              break;
+            default:
+              period = date.toLocaleDateString();
+          }
         }
       }
 
       return {
         period,
-        value: item.value ? `${item.value} mins` : "0 mins",
+        value: item?.value ? `${item.value} mins` : "0 mins",
       };
     });
 
@@ -379,7 +409,7 @@ const ActiveMinCard = ({
           <span
             style={{ fontSize: "12px", fontWeight: "600", color: "#003465" }}
           >
-            Active Mins
+            Active Zone Mins
           </span>
         </div>
         <div className="d-flex">
@@ -810,9 +840,11 @@ const ActiveMinCard = ({
                   fontWeight: "600",
                 }}
               >
-                <span style={{ color: "#003465" }}>Average</span>
                 <span style={{ color: "#003465" }}>
-                  {AverageData?.stats?.average} mins
+                  {activeTab === "Day" ? "Total" : "Average"}{" "}
+                </span>
+                <span style={{ color: "#003465" }}>
+                  {AverageData?.stats?.average || "-"} mins
                 </span>
               </div>
 

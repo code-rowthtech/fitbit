@@ -12,6 +12,7 @@ import {
   getNotesApi,
   updateNotesApi,
   deleteNotesApi,
+  getAlertsApi,
 } from "./api";
 import { toast } from "react-toastify";
 
@@ -173,6 +174,33 @@ function* deleteNotesFunction(data) {
   }
 }
 
+function* getAlertsFunction({ payload }) {
+  try {
+    yield put({
+      type: NOTES_TYPES.GET_ALERTS_LOADING,
+      payload: {},
+    });
+    const response = yield call(getAlertsApi, { payload });
+
+    if (response?.data && response?.data?.status === 200) {
+      yield put({
+        type: NOTES_TYPES.GET_ALERTS_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      yield put({
+        type: NOTES_TYPES.GET_ALERTS_ERROR,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: NOTES_TYPES.GET_ALERTS_ERROR,
+      payload: { message: error?.message },
+    });
+  }
+}
+
 export function* addNotesSaga() {
   yield takeEvery(NOTES_TYPES.ADD_NOTES, addNotesFunction);
 }
@@ -189,12 +217,17 @@ export function* deleteNotesSaga() {
   yield takeEvery(NOTES_TYPES.DELETE_NOTES, deleteNotesFunction);
 }
 
+export function* getAlertsSaga() {
+  yield takeEvery(NOTES_TYPES.GET_ALERTS, getAlertsFunction);
+}
+
 function* NotesSaga() {
   yield all([
     fork(addNotesSaga),
     fork(getNotesSaga),
     fork(updateNotesSaga),
     fork(deleteNotesSaga),
+    fork(getAlertsSaga),
   ]);
 }
 

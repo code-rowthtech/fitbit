@@ -31,3 +31,12 @@ export const resetUpdateNotes = () => ({
 export const resetDeleteNotes = () => ({
   type: NOTES_TYPES.DELETE_NOTES_RESET,
 });
+
+export const getAlerts = (data) => ({
+  type: NOTES_TYPES.GET_ALERTS,
+  payload: data,
+});
+
+export const resetGetAlerts = () => ({
+  type: NOTES_TYPES.GET_ALERTS_RESET,
+});
