@@ -28,9 +28,7 @@ const StepsCard = ({
   const AverageData = useSelector(
     (state) => state?.getFilterData?.data?.response
   );
-  const Loading = useSelector(
-    (state) => state?.getFilterData?.loading
-  );
+  const Loading = useSelector((state) => state?.getFilterData?.loading);
 
   // Reset loading states when data loading completes
   useEffect(() => {
@@ -91,10 +89,10 @@ const StepsCard = ({
         return { labels: [], data: [], tableData: [] };
       }
 
-      const labels = intradayData.map((item) => item?.timeRange || 'N/A');
+      const labels = intradayData.map((item) => item?.timeRange || "N/A");
       const data = intradayData.map((item) => item?.steps || 0);
       const tableData = intradayData.map((item) => ({
-        period: item?.timeRange || 'N/A',
+        period: item?.timeRange || "N/A",
         value: item?.steps ? item.steps.toLocaleString() : "0",
       }));
 
@@ -108,7 +106,7 @@ const StepsCard = ({
     const apiData = FilterData;
 
     const labels = apiData.map((item) => {
-      if (!item || !item.date) return 'N/A';
+      if (!item || !item.date) return "N/A";
 
       if (activeTab === "Month" && item.date.includes("Week")) {
         const weekMatch = item.date.match(/Week (\d+)/);
@@ -140,7 +138,7 @@ const StepsCard = ({
 
     const tableData = apiData.map((item) => {
       if (!item || !item.date) {
-        return { period: 'N/A', value: '0' };
+        return { period: "N/A", value: "0" };
       }
 
       let period;
@@ -412,33 +410,65 @@ const StepsCard = ({
                   padding: "10px",
                   backgroundColor: "#F6FAFF",
                   height: "500px",
-                  position: "relative"
+                  position: "relative",
                 }}
               >
-                {(Loading || isNavigating || isTabSwitching) ? (
+                {Loading || isNavigating || isTabSwitching ? (
                   <div className="d-flex flex-column h-100">
                     {/* Chart Skeleton */}
                     <div className="position-relative flex-grow-1">
                       {/* Y-axis skeleton */}
-                      <div className="position-absolute" style={{ left: "0", top: "0", bottom: "30px", width: "30px" }}>
+                      <div
+                        className="position-absolute"
+                        style={{
+                          left: "0",
+                          top: "0",
+                          bottom: "30px",
+                          width: "30px",
+                        }}
+                      >
                         {[...Array(6)].map((_, i) => (
-                          <div key={i} className="placeholder rounded-1 mb-3" style={{ height: "8px", width: "25px" }}></div>
+                          <div
+                            key={i}
+                            className="placeholder rounded-1 mb-3"
+                            style={{ height: "8px", width: "25px" }}
+                          ></div>
                         ))}
                       </div>
 
                       {/* Chart area skeleton */}
-                      <div className="position-absolute" style={{ left: "40px", right: "0", top: "0", bottom: "30px" }}>
-                        <svg width="100%" height="100%" className="placeholder-glow">
+                      <div
+                        className="position-absolute"
+                        style={{
+                          left: "40px",
+                          right: "0",
+                          top: "0",
+                          bottom: "30px",
+                        }}
+                      >
+                        <svg
+                          width="100%"
+                          height="100%"
+                          className="placeholder-glow"
+                        >
                           {/* Grid lines */}
                           {[...Array(5)].map((_, i) => (
-                            <line key={`grid-${i}`} x1="0" y1={`${(i + 1) * 20}%`} x2="100%" y2={`${(i + 1) * 20}%`} stroke="#E8F2FF" strokeWidth="1" />
+                            <line
+                              key={`grid-${i}`}
+                              x1="0"
+                              y1={`${(i + 1) * 20}%`}
+                              x2="100%"
+                              y2={`${(i + 1) * 20}%`}
+                              stroke="#E8F2FF"
+                              strokeWidth="1"
+                            />
                           ))}
 
                           {/* Skeleton bars */}
                           {[...Array(8)].map((_, i) => (
                             <rect
                               key={`bar-${i}`}
-                              x={`${(i * 12) + 5}%`}
+                              x={`${i * 12 + 5}%`}
                               y={`${60 - (Math.sin(i) * 20 + 20)}%`}
                               width="8%"
                               height={`${Math.sin(i) * 20 + 20}%`}
@@ -451,9 +481,21 @@ const StepsCard = ({
                       </div>
 
                       {/* X-axis skeleton */}
-                      <div className="position-absolute d-flex justify-content-between" style={{ left: "40px", right: "0", bottom: "0", height: "20px" }}>
+                      <div
+                        className="position-absolute d-flex justify-content-between"
+                        style={{
+                          left: "40px",
+                          right: "0",
+                          bottom: "0",
+                          height: "20px",
+                        }}
+                      >
                         {[...Array(6)].map((_, i) => (
-                          <div key={i} className="placeholder rounded-1" style={{ height: "8px", width: "20px" }}></div>
+                          <div
+                            key={i}
+                            className="placeholder rounded-1"
+                            style={{ height: "8px", width: "20px" }}
+                          ></div>
                         ))}
                       </div>
                     </div>
@@ -481,18 +523,18 @@ const StepsCard = ({
                             afterBody:
                               activeTab === "Week" && StepsStatsData
                                 ? () => [
-                                  `Min: ${parseInt(StepsStatsData.min)}`,
-                                  `Max: ${parseInt(StepsStatsData.max)}`,
-                                ]
+                                    `Min: ${parseInt(StepsStatsData.min)}`,
+                                    `Max: ${parseInt(StepsStatsData.max)}`,
+                                  ]
                                 : activeTab === "Month" && FilterData
-                                  ? (context) => {
+                                ? (context) => {
                                     const dataIndex = context[0]?.dataIndex;
                                     return dataIndex !== undefined &&
                                       FilterData[dataIndex]
                                       ? [`Date: ${FilterData[dataIndex].date}`]
                                       : [];
                                   }
-                                  : undefined,
+                                : undefined,
                           },
                         },
                       },
@@ -510,9 +552,9 @@ const StepsCard = ({
                           max:
                             activeTab === "Week" && StepsStatsData
                               ? Math.max(
-                                ...chartData.data,
-                                parseInt(StepsStatsData.max) + 500
-                              )
+                                  ...chartData.data,
+                                  parseInt(StepsStatsData.max) + 500
+                                )
                               : undefined,
                           grid: { color: "#f0f0f0" },
                           ticks: { color: "#666", fontSize: 10 },
@@ -522,37 +564,37 @@ const StepsCard = ({
                       onHover:
                         activeTab === "Week" && StepsStatsData
                           ? (event, elements, chart) => {
-                            const ctx = chart.ctx;
-                            const chartArea = chart.chartArea;
+                              const ctx = chart.ctx;
+                              const chartArea = chart.chartArea;
 
-                            if (chartArea) {
-                              const yScale = chart.scales.y;
-                              const minY = yScale.getPixelForValue(
-                                parseInt(StepsStatsData.min)
-                              );
-                              const maxY = yScale.getPixelForValue(
-                                parseInt(StepsStatsData.max)
-                              );
+                              if (chartArea) {
+                                const yScale = chart.scales.y;
+                                const minY = yScale.getPixelForValue(
+                                  parseInt(StepsStatsData.min)
+                                );
+                                const maxY = yScale.getPixelForValue(
+                                  parseInt(StepsStatsData.max)
+                                );
 
-                              // Draw min line
-                              ctx.save();
-                              ctx.strokeStyle = "#ff6b6b";
-                              ctx.lineWidth = 1;
-                              ctx.setLineDash([5, 5]);
-                              ctx.beginPath();
-                              ctx.moveTo(chartArea.left, minY);
-                              ctx.lineTo(chartArea.right, minY);
-                              ctx.stroke();
+                                // Draw min line
+                                ctx.save();
+                                ctx.strokeStyle = "#ff6b6b";
+                                ctx.lineWidth = 1;
+                                ctx.setLineDash([5, 5]);
+                                ctx.beginPath();
+                                ctx.moveTo(chartArea.left, minY);
+                                ctx.lineTo(chartArea.right, minY);
+                                ctx.stroke();
 
-                              // Draw max line
-                              ctx.strokeStyle = "#51cf66";
-                              ctx.beginPath();
-                              ctx.moveTo(chartArea.left, maxY);
-                              ctx.lineTo(chartArea.right, maxY);
-                              ctx.stroke();
-                              ctx.restore();
+                                // Draw max line
+                                ctx.strokeStyle = "#51cf66";
+                                ctx.beginPath();
+                                ctx.moveTo(chartArea.left, maxY);
+                                ctx.lineTo(chartArea.right, maxY);
+                                ctx.stroke();
+                                ctx.restore();
+                              }
                             }
-                          }
                           : undefined,
                     }}
                   />
@@ -603,7 +645,7 @@ const StepsCard = ({
                           style={{
                             width: "10px",
                             height: "10px",
-                            borderWidth: "1px"
+                            borderWidth: "1px",
                           }}
                         ></div>
                         <span>{tab}</span>
@@ -640,7 +682,7 @@ const StepsCard = ({
                       style={{
                         width: "8px",
                         height: "8px",
-                        borderWidth: "1px"
+                        borderWidth: "1px",
                       }}
                     ></div>
                   ) : (
@@ -661,12 +703,18 @@ const StepsCard = ({
                   style={{
                     width: "24px",
                     height: "24px",
-                    backgroundColor: (isNextDisabled() || isNavigating) ? "#f5f5f5" : "white",
-                    border: `1px solid ${(isNextDisabled() || isNavigating) ? "#ccc" : "#003465"
-                      }`,
+                    backgroundColor:
+                      isNextDisabled() || isNavigating ? "#f5f5f5" : "white",
+                    border: `1px solid ${
+                      isNextDisabled() || isNavigating ? "#ccc" : "#003465"
+                    }`,
                     borderRadius: "4px",
-                    color: (isNextDisabled() || isNavigating) ? "#ccc" : "#003465",
-                    cursor: (isNextDisabled() || isNavigating) ? "not-allowed" : "pointer",
+                    color:
+                      isNextDisabled() || isNavigating ? "#ccc" : "#003465",
+                    cursor:
+                      isNextDisabled() || isNavigating
+                        ? "not-allowed"
+                        : "pointer",
                   }}
                   onClick={() => handleNavigation("next")}
                   disabled={isNextDisabled() || isNavigating}
@@ -677,7 +725,7 @@ const StepsCard = ({
                       style={{
                         width: "8px",
                         height: "8px",
-                        borderWidth: "1px"
+                        borderWidth: "1px",
                       }}
                     ></div>
                   ) : (
@@ -746,7 +794,7 @@ const StepsCard = ({
                 }}
                 className="custom-scroll"
               >
-                {(Loading || isNavigating || isTabSwitching) ? (
+                {Loading || isNavigating || isTabSwitching ? (
                   // Table skeleton
                   [...Array(8)].map((_, index) => (
                     <div
@@ -759,8 +807,14 @@ const StepsCard = ({
                         border: "1px solid #E8F2FF",
                       }}
                     >
-                      <span className="placeholder rounded-1" style={{ width: "60px", height: "10px" }}></span>
-                      <span className="placeholder rounded-1" style={{ width: "40px", height: "10px" }}></span>
+                      <span
+                        className="placeholder rounded-1"
+                        style={{ width: "60px", height: "10px" }}
+                      ></span>
+                      <span
+                        className="placeholder rounded-1"
+                        style={{ width: "40px", height: "10px" }}
+                      ></span>
                     </div>
                   ))
                 ) : chartData.tableData.length > 0 ? (
@@ -792,7 +846,9 @@ const StepsCard = ({
           </div>
         ) : (
           <div
-            className={`rounded-3 px-2 mt-1 d-flex flex-column ${Loading ? "placeholder-glow" : ""}`}
+            className={`rounded-3 px-2 mt-1 d-flex flex-column ${
+              Loading ? "placeholder-glow" : ""
+            }`}
             style={{ backgroundColor: "#F8FBFF", height: "200px" }}
           >
             <div className="d-flex justify-content-center mb-2">
@@ -821,7 +877,7 @@ const StepsCard = ({
                       301 -
                       ((AverageData?.todayData?.value || 0) /
                         (AverageData?.goals?.steps || 1)) *
-                      301
+                        301
                     }
                     strokeLinecap="round"
                     transform="rotate(-90 60 60)"
@@ -829,14 +885,18 @@ const StepsCard = ({
                 </svg>
                 <div className="position-absolute top-50 start-50 translate-middle text-center">
                   <div
-                    className={`fw-bold ${Loading ? "placeholder rounded-1" : ""}`}
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "16px", color: "#003465" }}
                   >
-                    {AverageData?.goals?.steps > 0 ? Math.round(
-                      ((AverageData?.todayData?.value || 0) /
-                        AverageData.goals.steps) *
-                      100
-                    ) : 0}
+                    {AverageData?.goals?.steps > 0
+                      ? Math.round(
+                          ((AverageData?.todayData?.value || 0) /
+                            AverageData.goals.steps) *
+                            100
+                        )
+                      : 0}
                     %
                   </div>
                   <div
@@ -857,10 +917,13 @@ const StepsCard = ({
                 className={`mb-0 ${Loading ? "placeholder rounded-1" : ""}`}
                 style={{ fontSize: "10px", color: "#666", fontWeight: "500" }}
               >
-                {AverageData?.goals?.steps && AverageData?.todayData?.value !== undefined ? Math.max(
-                  0,
-                  AverageData.goals.steps - AverageData.todayData.value
-                ) : 0}{" "}
+                {AverageData?.goals?.steps &&
+                AverageData?.todayData?.value !== undefined
+                  ? Math.max(
+                      0,
+                      AverageData.goals.steps - AverageData.todayData.value
+                    )
+                  : 0}{" "}
                 steps to reach daily goal
               </p>
             </div>
@@ -875,7 +938,9 @@ const StepsCard = ({
                   }}
                 >
                   <div
-                    className={`fw-bold ${Loading ? "placeholder rounded-1" : ""}`}
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
                     {AverageData?.todayData?.value || "-"}
@@ -900,7 +965,9 @@ const StepsCard = ({
                   }}
                 >
                   <div
-                    className={`fw-bold ${Loading ? "placeholder rounded-1" : ""}`}
+                    className={`fw-bold ${
+                      Loading ? "placeholder rounded-1" : ""
+                    }`}
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
                     {AverageData?.goals?.steps || "-"}
