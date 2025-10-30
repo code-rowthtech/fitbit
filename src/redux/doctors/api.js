@@ -16,6 +16,10 @@ export function getAllDoctorsApi(data) {
   return api.get(`${URL.GET_DOCTORS}?${params.toString()}`);
 }
 
+export function getSingleDoctorApi() {
+  return api.get(URL.GET_SINGLE_DOCTOR);
+}
+
 export function createDoctorApi(data) {
   // Check if payload is FormData
   if (data.payload instanceof FormData) {
