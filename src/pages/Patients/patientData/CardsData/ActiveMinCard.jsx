@@ -85,10 +85,7 @@ const ActiveMinCard = ({
         end: formatDate(end),
         field: "activeMinutes",
       };
-      if (activeTab === "Month")
-        if (activeTab === "Year")
-          // payload.period = "month";
-          payload.period = "year";
+      if (activeTab === "Year") payload.period = "year";
       // console.log("Dispatching getPatientActiveMin with payload:", payload);
       dispatch(getPatientActiveMin(payload));
     } else {
@@ -332,11 +329,20 @@ const ActiveMinCard = ({
     if (isTabSwitching || tab === activeTab) return;
 
     setIsTabSwitching(true);
+    
+    // Determine the date to use for the new tab
+    let dateToUse = new Date(currentDate);
+    if (tab === "Year") {
+      const currentYear = new Date(currentDate).getFullYear();
+      dateToUse = new Date(currentYear, 0, 1);
+      onDateChange(dateToUse);
+    }
+    
     onTabChange(tab);
     // Fetch data for new tab
     setTimeout(() => {
       if (patientId) {
-        const date = new Date(currentDate);
+        const date = dateToUse;
         let start, end;
 
         switch (tab) {
@@ -350,8 +356,11 @@ const ActiveMinCard = ({
             end.setDate(start.getDate() + 6);
             break;
           case "Month":
-            start = new Date(date.getFullYear(), date.getMonth(), 1);
-            end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+            // Ensure we use the correct month from the current date
+            const month = date.getMonth();
+            const year = date.getFullYear();
+            start = new Date(year, month, 1);
+            end = new Date(year, month + 1, 0);
             break;
           case "Year":
             start = new Date(date.getFullYear(), 0, 1);
@@ -365,10 +374,7 @@ const ActiveMinCard = ({
           end: formatDate(end),
           field: "activeMinutes",
         };
-        if (tab === "Month")
-          if (tab === "Year")
-            // payload.period = "month";
-            payload.period = "year";
+        if (tab === "Year") payload.period = "year";
         dispatch(getPatientActiveMin(payload));
       }
     }, 0);
@@ -428,33 +434,65 @@ const ActiveMinCard = ({
                   padding: "10px",
                   backgroundColor: "#F6FAFF",
                   height: "500px",
-                  position: "relative"
+                  position: "relative",
                 }}
               >
-                {(Loading || isNavigating || isTabSwitching) ? (
+                {Loading || isNavigating || isTabSwitching ? (
                   <div className="d-flex flex-column h-100">
                     {/* Chart Skeleton */}
                     <div className="position-relative flex-grow-1">
                       {/* Y-axis skeleton */}
-                      <div className="position-absolute" style={{ left: "0", top: "0", bottom: "30px", width: "30px" }}>
+                      <div
+                        className="position-absolute"
+                        style={{
+                          left: "0",
+                          top: "0",
+                          bottom: "30px",
+                          width: "30px",
+                        }}
+                      >
                         {[...Array(6)].map((_, i) => (
-                          <div key={i} className="placeholder rounded-1 mb-3" style={{ height: "8px", width: "25px" }}></div>
+                          <div
+                            key={i}
+                            className="placeholder rounded-1 mb-3"
+                            style={{ height: "8px", width: "25px" }}
+                          ></div>
                         ))}
                       </div>
 
                       {/* Chart area skeleton */}
-                      <div className="position-absolute" style={{ left: "40px", right: "0", top: "0", bottom: "30px" }}>
-                        <svg width="100%" height="100%" className="placeholder-glow">
+                      <div
+                        className="position-absolute"
+                        style={{
+                          left: "40px",
+                          right: "0",
+                          top: "0",
+                          bottom: "30px",
+                        }}
+                      >
+                        <svg
+                          width="100%"
+                          height="100%"
+                          className="placeholder-glow"
+                        >
                           {/* Grid lines */}
                           {[...Array(5)].map((_, i) => (
-                            <line key={`grid-${i}`} x1="0" y1={`${(i + 1) * 20}%`} x2="100%" y2={`${(i + 1) * 20}%`} stroke="#E8F2FF" strokeWidth="1" />
+                            <line
+                              key={`grid-${i}`}
+                              x1="0"
+                              y1={`${(i + 1) * 20}%`}
+                              x2="100%"
+                              y2={`${(i + 1) * 20}%`}
+                              stroke="#E8F2FF"
+                              strokeWidth="1"
+                            />
                           ))}
 
                           {/* Skeleton bars */}
                           {[...Array(8)].map((_, i) => (
                             <rect
                               key={`bar-${i}`}
-                              x={`${(i * 12) + 5}%`}
+                              x={`${i * 12 + 5}%`}
                               y={`${60 - (Math.sin(i) * 20 + 20)}%`}
                               width="8%"
                               height={`${Math.sin(i) * 20 + 20}%`}
@@ -467,116 +505,195 @@ const ActiveMinCard = ({
                       </div>
 
                       {/* X-axis skeleton */}
-                      <div className="position-absolute d-flex justify-content-between" style={{ left: "40px", right: "0", bottom: "0", height: "20px" }}>
+                      <div
+                        className="position-absolute d-flex justify-content-between"
+                        style={{
+                          left: "40px",
+                          right: "0",
+                          bottom: "0",
+                          height: "20px",
+                        }}
+                      >
                         {[...Array(6)].map((_, i) => (
-                          <div key={i} className="placeholder rounded-1" style={{ height: "8px", width: "20px" }}></div>
+                          <div
+                            key={i}
+                            className="placeholder rounded-1"
+                            style={{ height: "8px", width: "20px" }}
+                          ></div>
                         ))}
                       </div>
                     </div>
                   </div>
                 ) : (
                   <Bar
-                  key={`chart-${activeTab}-${chartData.data.length}`}
-                  data={{
-                    labels: chartData.labels,
-                    datasets: [
-                      {
-                        data: chartData.data,
-                        backgroundColor: "#003465",
-                        borderRadius: 3,
-                        barThickness: 15,
-                      },
-                    ],
-                  }}
-                  options={{
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: { display: false },
-                      tooltip: {
-                        callbacks: {
-                          afterBody:
-                            activeTab === "Week" && ActiveMinStatsData
-                              ? () => [
-                                  `Min: ${parseInt(
-                                    ActiveMinStatsData.min
-                                  )} mins`,
-                                  `Max: ${parseInt(
-                                    ActiveMinStatsData.max
-                                  )} mins`,
-                                ]
-                              : activeTab === "Month" && ActiveMinData
-                              ? (context) => {
-                                  const dataIndex = context[0]?.dataIndex;
-                                  return dataIndex !== undefined &&
-                                    ActiveMinData[dataIndex]
-                                    ? [
-                                        `Days: ${ActiveMinData[dataIndex].dayRange}`,
-                                      ]
-                                    : [];
+                    key={`chart-${activeTab}-${chartData.data.length}`}
+                    data={{
+                      labels: chartData.labels,
+                      datasets: [
+                        {
+                          data: chartData.data,
+                          backgroundColor: "#003465",
+                          borderRadius: 3,
+                          barThickness: 15,
+                        },
+                      ],
+                    }}
+                    options={{
+                      maintainAspectRatio: false,
+                      onClick:
+                        activeTab === "Year"
+                          ? (event, elements) => {
+                              if (elements.length > 0) {
+                                const clickedIndex = elements[0].index;
+                                const clickedMonth = ActiveMinData[clickedIndex];
+                                if (clickedMonth) {
+                                  // Parse date more carefully to avoid timezone issues
+                                  const dateStr = clickedMonth.date;
+                                  let monthDate;
+                                  
+                                  if (dateStr.includes('-')) {
+                                    // Handle YYYY-MM-DD format
+                                    const [year, month] = dateStr.split('-').map(Number);
+                                    monthDate = new Date(year, month - 1, 1); // month is 0-indexed
+                                  } else {
+                                    // Fallback to original parsing
+                                    const originalDate = new Date(dateStr);
+                                    monthDate = new Date(originalDate.getFullYear(), originalDate.getMonth(), 1);
+                                  }
+                                  
+                                  onDateChange(monthDate);
+                                  // Use setTimeout to ensure date change takes effect
+                                  setTimeout(() => {
+                                    handleTabChange("Month");
+                                  }, 0);
                                 }
-                              : undefined,
+                              }
+                            }
+                          : activeTab === "Month"
+                          ? (event, elements) => {
+                              if (elements.length > 0) {
+                                const clickedIndex = elements[0].index;
+                                const clickedDay = ActiveMinData[clickedIndex];
+                                if (clickedDay) {
+                                  // Parse date more carefully to avoid timezone issues
+                                  const dateStr = clickedDay.date;
+                                  let dayDate;
+                                  
+                                  if (dateStr.includes('-')) {
+                                    // Handle YYYY-MM-DD format
+                                    const [year, month, day] = dateStr.split('-').map(Number);
+                                    dayDate = new Date(year, month - 1, day); // month is 0-indexed
+                                  } else {
+                                    // Fallback to original parsing
+                                    dayDate = new Date(dateStr);
+                                  }
+                                  
+                                  onDateChange(dayDate);
+                                  // Use setTimeout to ensure date change takes effect
+                                  setTimeout(() => {
+                                    handleTabChange("Day");
+                                  }, 0);
+                                }
+                              }
+                            }
+                          : undefined,
+                      plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                          callbacks: {
+                            afterBody:
+                              activeTab === "Week" && ActiveMinStatsData
+                                ? () => [
+                                    `Min: ${parseInt(
+                                      ActiveMinStatsData.min
+                                    )} mins`,
+                                    `Max: ${parseInt(
+                                      ActiveMinStatsData.max
+                                    )} mins`,
+                                  ]
+                                : activeTab === "Month" && ActiveMinData
+                                ? (context) => {
+                                    const dataIndex = context[0]?.dataIndex;
+                                    return dataIndex !== undefined &&
+                                      ActiveMinData[dataIndex]
+                                      ? [
+                                          `Days: ${ActiveMinData[dataIndex].dayRange || 'N/A'}`,
+                                          "Click to view day details"
+                                        ]
+                                      : [];
+                                  }
+                                : activeTab === "Year"
+                                ? () => ["Click to view month details"]
+                                : undefined,
+                          },
                         },
                       },
-                    },
-                    scales: {
-                      x: {
-                        grid: { display: false },
-                        ticks: { color: "#666", fontSize: 10 },
+                      scales: {
+                        x: {
+                          grid: { display: false },
+                          ticks: { color: "#666", fontSize: 10 },
+                        },
+                        y: {
+                          beginAtZero: true,
+                          min:
+                            activeTab === "Week" && ActiveMinStatsData
+                              ? Math.min(
+                                  0,
+                                  parseInt(ActiveMinStatsData.min) - 5
+                                )
+                              : 0,
+                          max:
+                            activeTab === "Week" && ActiveMinStatsData
+                              ? Math.max(
+                                  ...chartData.data,
+                                  parseInt(ActiveMinStatsData.max) + 5
+                                )
+                              : undefined,
+                          grid: { color: "#f0f0f0" },
+                          ticks: { color: "#666", fontSize: 10 },
+                        },
                       },
-                      y: {
-                        beginAtZero: true,
-                        min:
-                          activeTab === "Week" && ActiveMinStatsData
-                            ? Math.min(0, parseInt(ActiveMinStatsData.min) - 5)
-                            : 0,
-                        max:
-                          activeTab === "Week" && ActiveMinStatsData
-                            ? Math.max(
-                                ...chartData.data,
-                                parseInt(ActiveMinStatsData.max) + 5
-                              )
-                            : undefined,
-                        grid: { color: "#f0f0f0" },
-                        ticks: { color: "#666", fontSize: 10 },
-                      },
-                    },
-                    categoryPercentage: 0.6,
-                    onHover:
-                      activeTab === "Week" && ActiveMinStatsData
-                        ? (event, elements, chart) => {
-                            const ctx = chart.ctx;
-                            const chartArea = chart.chartArea;
+                      categoryPercentage: 0.6,
+                      onHover:
+                        activeTab === "Week" && ActiveMinStatsData
+                          ? (event, elements, chart) => {
+                              const ctx = chart.ctx;
+                              const chartArea = chart.chartArea;
 
-                            if (chartArea) {
-                              const yScale = chart.scales.y;
-                              const minY = yScale.getPixelForValue(
-                                parseInt(ActiveMinStatsData.min)
-                              );
-                              const maxY = yScale.getPixelForValue(
-                                parseInt(ActiveMinStatsData.max)
-                              );
+                              if (chartArea) {
+                                const yScale = chart.scales.y;
+                                const minY = yScale.getPixelForValue(
+                                  parseInt(ActiveMinStatsData.min)
+                                );
+                                const maxY = yScale.getPixelForValue(
+                                  parseInt(ActiveMinStatsData.max)
+                                );
 
-                              // Draw min line
-                              ctx.save();
-                              ctx.strokeStyle = "#ff6b6b";
-                              ctx.lineWidth = 1;
-                              ctx.setLineDash([5, 5]);
-                              ctx.beginPath();
-                              ctx.moveTo(chartArea.left, minY);
-                              ctx.lineTo(chartArea.right, minY);
-                              ctx.stroke();
+                                // Draw min line
+                                ctx.save();
+                                ctx.strokeStyle = "#ff6b6b";
+                                ctx.lineWidth = 1;
+                                ctx.setLineDash([5, 5]);
+                                ctx.beginPath();
+                                ctx.moveTo(chartArea.left, minY);
+                                ctx.lineTo(chartArea.right, minY);
+                                ctx.stroke();
 
-                              // Draw max line
-                              ctx.strokeStyle = "#51cf66";
-                              ctx.beginPath();
-                              ctx.moveTo(chartArea.left, maxY);
-                              ctx.lineTo(chartArea.right, maxY);
-                              ctx.stroke();
-                              ctx.restore();
+                                // Draw max line
+                                ctx.strokeStyle = "#51cf66";
+                                ctx.beginPath();
+                                ctx.moveTo(chartArea.left, maxY);
+                                ctx.lineTo(chartArea.right, maxY);
+                                ctx.stroke();
+                                ctx.restore();
+                              }
                             }
-                          }
-                        : undefined,
-                  }}
+                          : activeTab === "Year" || activeTab === "Month"
+                          ? (event, elements, chart) => {
+                              chart.canvas.style.cursor = elements.length > 0 ? "pointer" : "default";
+                            }
+                          : undefined,
+                    }}
                   />
                 )}
               </div>
@@ -625,7 +742,7 @@ const ActiveMinCard = ({
                           style={{
                             width: "10px",
                             height: "10px",
-                            borderWidth: "1px"
+                            borderWidth: "1px",
                           }}
                         ></div>
                         <span>{tab}</span>
@@ -662,7 +779,7 @@ const ActiveMinCard = ({
                       style={{
                         width: "8px",
                         height: "8px",
-                        borderWidth: "1px"
+                        borderWidth: "1px",
                       }}
                     ></div>
                   ) : (
@@ -683,11 +800,18 @@ const ActiveMinCard = ({
                   style={{
                     width: "24px",
                     height: "24px",
-                    backgroundColor: (isNextDisabled() || isNavigating) ? "#f5f5f5" : "white",
-                    border: `1px solid ${(isNextDisabled() || isNavigating) ? "#ccc" : "#003465"}`,
+                    backgroundColor:
+                      isNextDisabled() || isNavigating ? "#f5f5f5" : "white",
+                    border: `1px solid ${
+                      isNextDisabled() || isNavigating ? "#ccc" : "#003465"
+                    }`,
                     borderRadius: "4px",
-                    color: (isNextDisabled() || isNavigating) ? "#ccc" : "#003465",
-                    cursor: (isNextDisabled() || isNavigating) ? "not-allowed" : "pointer",
+                    color:
+                      isNextDisabled() || isNavigating ? "#ccc" : "#003465",
+                    cursor:
+                      isNextDisabled() || isNavigating
+                        ? "not-allowed"
+                        : "pointer",
                   }}
                   onClick={() => handleNavigation("next")}
                   disabled={isNextDisabled() || isNavigating}
@@ -698,7 +822,7 @@ const ActiveMinCard = ({
                       style={{
                         width: "8px",
                         height: "8px",
-                        borderWidth: "1px"
+                        borderWidth: "1px",
                       }}
                     ></div>
                   ) : (
@@ -767,7 +891,7 @@ const ActiveMinCard = ({
                 }}
                 className="custom-scroll"
               >
-                {(Loading || isNavigating || isTabSwitching) ? (
+                {Loading || isNavigating || isTabSwitching ? (
                   // Table skeleton
                   [...Array(8)].map((_, index) => (
                     <div
@@ -780,8 +904,14 @@ const ActiveMinCard = ({
                         border: "1px solid #E8F2FF",
                       }}
                     >
-                      <span className="placeholder rounded-1" style={{ width: "60px", height: "10px" }}></span>
-                      <span className="placeholder rounded-1" style={{ width: "40px", height: "10px" }}></span>
+                      <span
+                        className="placeholder rounded-1"
+                        style={{ width: "60px", height: "10px" }}
+                      ></span>
+                      <span
+                        className="placeholder rounded-1"
+                        style={{ width: "40px", height: "10px" }}
+                      ></span>
                     </div>
                   ))
                 ) : chartData.tableData.length > 0 ? (
@@ -794,7 +924,74 @@ const ActiveMinCard = ({
                         fontSize: "10px",
                         borderRadius: "2px",
                         border: "1px solid #E8F2FF",
+                        cursor: activeTab === "Year" || activeTab === "Month" ? "pointer" : "default",
                       }}
+                      onClick={
+                        activeTab === "Year"
+                          ? () => {
+                              const clickedMonth = ActiveMinData[index];
+                              if (clickedMonth) {
+                                // Parse date more carefully to avoid timezone issues
+                                const dateStr = clickedMonth.date;
+                                let monthDate;
+                                
+                                if (dateStr.includes('-')) {
+                                  // Handle YYYY-MM-DD format
+                                  const [year, month] = dateStr.split('-').map(Number);
+                                  monthDate = new Date(year, month - 1, 1); // month is 0-indexed
+                                } else {
+                                  // Fallback to original parsing
+                                  const originalDate = new Date(dateStr);
+                                  monthDate = new Date(originalDate.getFullYear(), originalDate.getMonth(), 1);
+                                }
+                                
+                                onDateChange(monthDate);
+                                // Use setTimeout to ensure date change takes effect
+                                setTimeout(() => {
+                                  handleTabChange("Month");
+                                }, 0);
+                              }
+                            }
+                          : activeTab === "Month"
+                          ? () => {
+                              const clickedDay = ActiveMinData[index];
+                              if (clickedDay) {
+                                // Parse date more carefully to avoid timezone issues
+                                const dateStr = clickedDay.date;
+                                let dayDate;
+                                
+                                if (dateStr.includes('-')) {
+                                  // Handle YYYY-MM-DD format
+                                  const [year, month, day] = dateStr.split('-').map(Number);
+                                  dayDate = new Date(year, month - 1, day); // month is 0-indexed
+                                } else {
+                                  // Fallback to original parsing
+                                  dayDate = new Date(dateStr);
+                                }
+                                
+                                onDateChange(dayDate);
+                                // Use setTimeout to ensure date change takes effect
+                                setTimeout(() => {
+                                  handleTabChange("Day");
+                                }, 0);
+                              }
+                            }
+                          : undefined
+                      }
+                      onMouseEnter={
+                        activeTab === "Year" || activeTab === "Month"
+                          ? (e) => {
+                              e.target.style.backgroundColor = "#F0F7FF";
+                            }
+                          : undefined
+                      }
+                      onMouseLeave={
+                        activeTab === "Year" || activeTab === "Month"
+                          ? (e) => {
+                              e.target.style.backgroundColor = "white";
+                            }
+                          : undefined
+                      }
                     >
                       <span style={{ color: "#003465" }}>{item.period}</span>
                       <span style={{ color: "#003465" }}>{item.value}</span>

@@ -32,6 +32,12 @@ export function deleteNotesApi(data) {
 export function getAlertsApi(data) {
     const params = new URLSearchParams();
     
+    if (data?.payload?.page) {
+        params.append('page', data.payload.page);
+    }
+    if (data?.payload?.limit) {
+        params.append('limit', data.payload.limit);
+    }
     if (data?.payload?.startDate) {
         params.append('startDate', data.payload.startDate);
     }
