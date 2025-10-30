@@ -1,24 +1,33 @@
-import { Navbar, Nav, Image, Dropdown } from 'react-bootstrap';
+import { Navbar, Nav, Image, Dropdown, Modal, Button } from 'react-bootstrap';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getMenuItems } from '../components/Routes';
-import { IoLogOutOutline } from 'react-icons/io5';
+import { IoLogOutOutline, IoPersonOutline } from 'react-icons/io5';
 import fitbit_logo from '../assets/images/fitbit logo 2.png'
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from '../redux/auth/actions';
 import { LuCirclePlus } from "react-icons/lu";
 import { useEffect, useState } from 'react';
-import { getAllPatients } from '../redux/actions';
+import { getAllPatients, getSingleDoctor } from '../redux/actions';
 import CreatePatientModal from '../components/CreatePatientModal';
+import UpdateDoctorModal from '../components/UpdateDoctorModal';
 
 const TopBar = () => {
   const location = useLocation();
   const userInfo = JSON.parse(localStorage.getItem('user'));
   const UserName = userInfo?.username
   const UserRole = userInfo?.role
+  const DoctorId = userInfo?.id
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const Store = useSelector((state) => state)
+  const currentDoctor = Store?.getSingleDoctor?.data?.doctor;
+  const UpdateResponse = useSelector(
+    (state) => state?.updateDoctor?.data?.status
+  );
+
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const [showUpdateDoctorModal, setShowUpdateDoctorModal] = useState(false)
 
   const handleCreatePatient = () => {
     // This will be handled by the parent component or context
@@ -33,13 +42,31 @@ const TopBar = () => {
   };
 
   const handleLogout = () => {
-    dispatch(logoutUser());
+    setShowLogoutModal(true);
+  };
 
+  const confirmLogout = () => {
+    dispatch(logoutUser());
+    setShowLogoutModal(false);
+  };
+
+  const handleProfileClick = () => {
+    dispatch(getSingleDoctor());
+    setShowUpdateDoctorModal(true);
   };
 
   useEffect(() => {
     dispatch(getAllPatients())
-  }, [dispatch]);
+    if (UserRole === "doctor") {
+      dispatch(getSingleDoctor())
+    }
+  }, [dispatch, UserRole]);
+
+  useEffect(() => {
+    if (UpdateResponse === 200) {
+      dispatch(getSingleDoctor());
+    }
+  }, [UpdateResponse, dispatch]);
 
   return (
     <Navbar className="topbar ps-5 pe-3 py-1 d-flex justify-content-between align-items-center position-relative">
@@ -93,16 +120,24 @@ const TopBar = () => {
         <Dropdown>
           <Dropdown.Toggle variant="link" className="d-flex align-items-center p-0 border-0 text-decoration-none">
             <Image
-              src="https://i.pravatar.cc/32"
+              src={UserRole === "doctor" && currentDoctor?.profilePhoto ? currentDoctor.profilePhoto : "https://i.pravatar.cc/32"}
               alt="Profile"
               roundedCircle
               width={32}
               height={32}
               className="me-2"
             />
-            <span className="me-2 fw-semibold text-secondary text-capitalize" style={{ fontSize: '14px' }}>{UserName}</span>
+            <span className="me-2 fw-semibold text-secondary text-capitalize" style={{ fontSize: '14px' }}>
+              {UserRole === "doctor" && currentDoctor ? `${currentDoctor.firstName} ${currentDoctor.lastName}` : UserName}
+            </span>
           </Dropdown.Toggle>
           <Dropdown.Menu>
+            {UserRole === "doctor" && (
+              <Dropdown.Item className="d-flex align-items-center" onClick={handleProfileClick}>
+                <IoPersonOutline className="me-2" />
+                Profile
+              </Dropdown.Item>
+            )}
             <Dropdown.Item className="d-flex align-items-center" onClick={handleLogout}>
               <IoLogOutOutline className="me-2" />
               Logout
@@ -114,6 +149,44 @@ const TopBar = () => {
         show={showCreateModal}
         onHide={() => setShowCreateModal(false)}
       />
+      <UpdateDoctorModal
+        show={showUpdateDoctorModal}
+        onHide={() => setShowUpdateDoctorModal(false)}
+        doctor={currentDoctor}
+      />
+
+      <Modal
+        show={showLogoutModal}
+        onHide={() => setShowLogoutModal(false)}
+      >
+        <Modal.Header closeButton className="border-0">
+          <Modal.Title className="fs-6 fw-bold">
+            Logout Confirmation
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center py-4" style={{ fontSize: '12px' }}>
+          <div>
+            Are you sure you want to logout?
+          </div>
+        </Modal.Body>
+        <Modal.Footer className="border-0">
+          <Button
+            variant="secondary"
+            className="fw-bold"
+            onClick={() => setShowLogoutModal(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            className="fw-bold"
+            onClick={confirmLogout}
+            style={{ backgroundColor: '#003465', borderColor: '#003465' }}
+          >
+            Logout
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Navbar>
   );
 };

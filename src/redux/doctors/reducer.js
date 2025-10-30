@@ -6,6 +6,12 @@ const GET_ALL_DOCTORS_INITIAL_STATE = {
     loading: false,
 };
 
+const GET_SINGLE_DOCTOR_INITIAL_STATE = {
+    data: {},
+    message: '',
+    loading: false,
+};
+
 const CREATE_DOCTOR_INITIAL_STATE = {
     data: [],
     message: '',
@@ -92,6 +98,28 @@ export const getAllDoctors = (state = GET_ALL_DOCTORS_INITIAL_STATE, action) => 
                 data: action?.payload,
             };
         case DOCTOR_TYPES.GET_ALL_DOCTORS_ERROR:
+            return {
+                loading: false,
+                message: action?.payload,
+            };
+        default:
+            return state;
+    }
+};
+
+export const getSingleDoctor = (state = GET_SINGLE_DOCTOR_INITIAL_STATE, action) => {
+    switch (action.type) {
+        case DOCTOR_TYPES.GET_SINGLE_DOCTOR_LOADING:
+            return {
+                loading: true,
+                data: state.data,
+            };
+        case DOCTOR_TYPES.GET_SINGLE_DOCTOR_SUCCESS:
+            return {
+                loading: false,
+                data: action?.payload,
+            };
+        case DOCTOR_TYPES.GET_SINGLE_DOCTOR_ERROR:
             return {
                 loading: false,
                 message: action?.payload,
