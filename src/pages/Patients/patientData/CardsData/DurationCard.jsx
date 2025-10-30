@@ -1042,7 +1042,24 @@ const DurationCard = ({
                                   1
                                 );
                                 onDateChange(newDate);
-                                handleTabChange("Month");
+                                onTabChange("Month");
+                              }
+                            }
+                          : activeTab === "Month"
+                          ? (event, elements) => {
+                              if (elements.length > 0) {
+                                const clickedIndex = elements[0].index;
+                                const clickedLabel = chartData.labels[clickedIndex];
+                                const dayNumber = parseInt(clickedLabel);
+                                if (!isNaN(dayNumber)) {
+                                  const newDate = new Date(
+                                    currentDate.getFullYear(),
+                                    currentDate.getMonth(),
+                                    dayNumber
+                                  );
+                                  onDateChange(newDate);
+                                  onTabChange("Day");
+                                }
                               }
                             }
                           : undefined,

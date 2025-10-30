@@ -588,7 +588,10 @@ const AwakeningsCard = ({
         field: "sleep",
       };
       // if (activeTab === "Month")  // payload.period = "month";
-      if (activeTab === "Year") payload.period = "year";
+      if (activeTab === "Year") {
+        payload.period = "year";
+        payload.type = "awakenings";
+      }
       dispatch(getPatientSleepStages(payload));
     }
   }, [patientId, dispatch, formatDate]);
@@ -633,15 +636,8 @@ const AwakeningsCard = ({
           (sum, session) => sum + (session.minutesAwake || 0),
           0
         );
-        console.log(
-          "Awakening chart data:",
-          item.date,
-          "minutesAwake:",
-          totalMinutesAwake
-        );
         return totalMinutesAwake;
       }
-      console.log("Awakening chart fallback:", item.date, "value:", item.value);
       return item.value || 0;
     });
 
@@ -678,14 +674,22 @@ const AwakeningsCard = ({
         }
       }
 
-      // Get minutesAwake data from sleep sessions
-      let awakeValue = "0 minutes";
+      // Get minutesAwake data from sleep sessions or direct value
+      let awakeValue = "0m (0hr 0m)";
       if (item.sleepData && item.sleepData.length > 0) {
         const totalMinutesAwake = item.sleepData.reduce(
           (sum, session) => sum + (session.minutesAwake || 0),
           0
         );
-        awakeValue = `${totalMinutesAwake} minutes`;
+        const hours = Math.floor(totalMinutesAwake / 60);
+        const minutes = totalMinutesAwake % 60;
+        awakeValue = `${totalMinutesAwake}m (${hours}hr ${minutes}m)`;
+      } else if (item.value !== null && item.value !== undefined) {
+        // Use the value field directly when sleepData is not available
+        const totalMinutesAwake = Math.round(item.value);
+        const hours = Math.floor(totalMinutesAwake / 60);
+        const minutes = totalMinutesAwake % 60;
+        awakeValue = `${totalMinutesAwake}m (${hours}hr ${minutes}m)`;
       }
 
       return {
@@ -817,7 +821,10 @@ const AwakeningsCard = ({
           field: "sleep",
         };
         // if (activeTab === "Month")  // payload.period = "month";
-        if (activeTab === "Year") payload.period = "year";
+        if (activeTab === "Year") {
+          payload.period = "year";
+          payload.type = "awakenings";
+        }
         dispatch(getPatientSleepStages(payload));
       }
     }, 0);
@@ -863,7 +870,10 @@ const AwakeningsCard = ({
           field: "sleep",
         };
         // if (tab === "Month")  // payload.period = "month";
-        if (tab === "Year") payload.period = "year";
+        if (tab === "Year") {
+          payload.period = "year";
+          payload.type = "awakenings";
+        }
         dispatch(getPatientSleepStages(payload));
       }
     }, 0);
@@ -1034,7 +1044,7 @@ const AwakeningsCard = ({
                         },
                         y: {
                           beginAtZero: true,
-                          max: 5,
+                          max: Math.max(...chartData.data, 10),
                           grid: { color: "#f0f0f0" },
                           ticks: { color: "#666", fontSize: 10 },
                         },
@@ -1045,14 +1055,52 @@ const AwakeningsCard = ({
                           ? (event, elements) => {
                               if (elements.length > 0) {
                                 const clickedIndex = elements[0].index;
-                                const clickedMonth = clickedIndex;
-                                const newDate = new Date(
-                                  currentDate.getFullYear(),
-                                  clickedMonth,
-                                  1
-                                );
-                                onDateChange(newDate);
-                                handleTabChange("Month");
+                                // Get the actual month from the chart data
+                                const clickedLabel =
+                                  chartData.labels[clickedIndex];
+                                const monthNames = [
+                                  "Jan",
+                                  "Feb",
+                                  "Mar",
+                                  "Apr",
+                                  "May",
+                                  "Jun",
+                                  "Jul",
+                                  "Aug",
+                                  "Sep",
+                                  "Oct",
+                                  "Nov",
+                                  "Dec",
+                                ];
+                                const clickedMonth =
+                                  monthNames.indexOf(clickedLabel);
+                                if (clickedMonth !== -1) {
+                                  const newDate = new Date(
+                                    currentDate.getFullYear(),
+                                    clickedMonth,
+                                    1
+                                  );
+                                  onDateChange(newDate);
+                                  onTabChange("Month");
+                                }
+                              }
+                            }
+                          : activeTab === "Month"
+                          ? (event, elements) => {
+                              if (elements.length > 0) {
+                                const clickedIndex = elements[0].index;
+                                const clickedLabel =
+                                  chartData.labels[clickedIndex];
+                                const dayNumber = parseInt(clickedLabel);
+                                if (!isNaN(dayNumber)) {
+                                  const newDate = new Date(
+                                    currentDate.getFullYear(),
+                                    currentDate.getMonth(),
+                                    dayNumber
+                                  );
+                                  onDateChange(newDate);
+                                  onTabChange("Day");
+                                }
                               }
                             }
                           : undefined,

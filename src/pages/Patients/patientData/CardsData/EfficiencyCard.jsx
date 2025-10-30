@@ -536,9 +536,6 @@ const EfficiencyCard = ({
   const StatsData = useSelector(
     (state) => state?.getPatientSleepEfficiency?.data?.response?.targetRange
   );
-  const AverageData = useSelector(
-    (state) => state?.getPatientSleepEfficiency?.data?.response
-  );
 
   // Get sleep stages data for the expanded view
   const SleepStagesData = useSelector(
@@ -547,34 +544,14 @@ const EfficiencyCard = ({
 
   console.log(SleepStagesData, "SleepStagesData");
 
-  const efficiencyData = useSelector(
-    (state) =>
-      state?.getPatientSleepEfficiency?.data?.response?.todayData?.sleepSessions
-  );
-  const efficiencyDataTotal =
-    efficiencyData?.map((item) => ({
-      efficiency: item.efficiency,
-    })) || [];
-
   const totalEfficiency = useSelector(
     (state) =>
-      state?.getPatientSleepEfficiency?.data?.response?.todayData?.value || 0
+      state?.getPatientSleepStages?.data?.response?.todayData?.sleepData?.[0]
+        ?.efficiency
   );
 
-  const Loading = useSelector(
-    (state) => state?.getPatientSleepEfficiency?.loading
-  );
+  const Loading = useSelector((state) => state?.getPatientSleepStages?.loading);
 
-  // console.log(totalEfficiency, "totalEfficiency");
-
-  // Calculate average efficiency
-  //   const averageEfficiency =
-  //     efficiencyData?.length > 0
-  //       ? Math.round(
-  //           efficiencyData.reduce((sum, item) => sum + item.efficiency, 0) /
-  //             efficiencyData.length
-  //         )
-  //       : 0;
   useEffect(() => {
     if (patientId) {
       const date = new Date(currentDate);
@@ -609,15 +586,27 @@ const EfficiencyCard = ({
       if (activeTab === "Year") payload.period = "year";
       dispatch(getPatientSleepEfficiency(payload));
 
+      // Fetch sleep stages data for Year tab with type efficiency
+      if (activeTab === "Year") {
+        const sleepPayload = {
+          patientId: patientId,
+          start: formatDate(start),
+          end: formatDate(end),
+          field: "sleep",
+          period: "year",
+          type: "efficiency",
+        };
+        dispatch(getPatientSleepStages(sleepPayload));
+      }
+
       // Also fetch sleep stages data for expanded view
-      if (expandedCard === "efficiency") {
+      if (expandedCard === "efficiency" && activeTab !== "Year") {
         const sleepPayload = {
           patientId: patientId,
           start: formatDate(start),
           end: formatDate(end),
           field: "sleep",
         };
-        if (activeTab === "Year") sleepPayload.period = "year";
         dispatch(getPatientSleepStages(sleepPayload));
       }
     }
@@ -674,7 +663,10 @@ const EfficiencyCard = ({
           ) / item.sleepData.length;
         return Math.round(avgEfficiency);
       }
-      return item.value;
+      // For Year tab, use value directly (this should be 81.42 for October)
+      const chartValue =
+        item.value !== null && item.value !== undefined ? item.value : 0;
+      return chartValue;
     });
 
     const tableData = apiData.map((item) => {
@@ -863,15 +855,27 @@ const EfficiencyCard = ({
         if (activeTab === "Year") payload.period = "year";
         dispatch(getPatientSleepEfficiency(payload));
 
+        // Fetch sleep stages data for Year tab with type efficiency
+        if (activeTab === "Year") {
+          const sleepPayload = {
+            patientId: patientId,
+            start: formatDate(start),
+            end: formatDate(end),
+            field: "sleep",
+            period: "year",
+            type: "efficiency",
+          };
+          dispatch(getPatientSleepStages(sleepPayload));
+        }
+
         // Also fetch sleep stages data for expanded view
-        if (expandedCard === "efficiency") {
+        if (expandedCard === "efficiency" && activeTab !== "Year") {
           const sleepPayload = {
             patientId: patientId,
             start: formatDate(start),
             end: formatDate(end),
             field: "sleep",
           };
-          if (activeTab === "Year") sleepPayload.period = "year";
           dispatch(getPatientSleepStages(sleepPayload));
         }
       }
@@ -917,15 +921,27 @@ const EfficiencyCard = ({
         if (tab === "Year") payload.period = "year";
         dispatch(getPatientSleepEfficiency(payload));
 
+        // Fetch sleep stages data for Year tab with type efficiency
+        if (tab === "Year") {
+          const sleepPayload = {
+            patientId: patientId,
+            start: formatDate(start),
+            end: formatDate(end),
+            field: "sleep",
+            period: "year",
+            type: "efficiency",
+          };
+          dispatch(getPatientSleepStages(sleepPayload));
+        }
+
         // Also fetch sleep stages data for expanded view
-        if (expandedCard === "efficiency") {
+        if (expandedCard === "efficiency" && tab !== "Year") {
           const sleepPayload = {
             patientId: patientId,
             start: formatDate(start),
             end: formatDate(end),
             field: "sleep",
           };
-          if (tab === "Year") sleepPayload.period = "year";
           dispatch(getPatientSleepStages(sleepPayload));
         }
       }
@@ -1048,6 +1064,40 @@ const EfficiencyCard = ({
                         },
                       },
                       categoryPercentage: 0.6,
+                      onClick:
+                        activeTab === "Year"
+                          ? (event, elements) => {
+                              if (elements.length > 0) {
+                                const clickedIndex = elements[0].index;
+                                const clickedMonth = clickedIndex;
+                                const newDate = new Date(
+                                  currentDate.getFullYear(),
+                                  clickedMonth,
+                                  1
+                                );
+                                onDateChange(newDate);
+                                onTabChange("Month");
+                              }
+                            }
+                          : activeTab === "Month"
+                          ? (event, elements) => {
+                              if (elements.length > 0) {
+                                const clickedIndex = elements[0].index;
+                                const clickedLabel =
+                                  chartData.labels[clickedIndex];
+                                const dayNumber = parseInt(clickedLabel);
+                                if (!isNaN(dayNumber)) {
+                                  const newDate = new Date(
+                                    currentDate.getFullYear(),
+                                    currentDate.getMonth(),
+                                    dayNumber
+                                  );
+                                  onDateChange(newDate);
+                                  onTabChange("Day");
+                                }
+                              }
+                            }
+                          : undefined,
                       onHover:
                         activeTab === "Week" && StatsData
                           ? (event, elements, chart) => {
@@ -1290,7 +1340,7 @@ const EfficiencyCard = ({
                             1
                           );
                           onDateChange(newDate);
-                          handleTabChange("Month");
+                          onTabChange("Month");
                         } else if (activeTab === "Month") {
                           // Extract day number from period like "Oct 15" -> 15
                           const dayMatch = item.period.match(/\d+/);
@@ -1302,7 +1352,7 @@ const EfficiencyCard = ({
                               clickedDay
                             );
                             onDateChange(clickedDate);
-                            handleTabChange("Day");
+                            onTabChange("Day");
                           }
                         }
                       }}
