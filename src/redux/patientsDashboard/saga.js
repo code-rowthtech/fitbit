@@ -387,7 +387,7 @@ function* connectToFitbitFunction({ payload }) {
     });
     const response = yield call(connectToFitbitApi, { payload });
     if (response?.data && response?.status === 200) {
-      toast.info(response.data.message);
+      toast.info(response.data.message, { autoClose: 4000 });
       yield put({
         type: PATIENT_DASHBOARD_TYPES.CONNECT_TO_FITBIT_SUCCESS,
         payload: response.data,

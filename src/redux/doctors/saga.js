@@ -120,10 +120,9 @@ export function* createDoctorFunction(data) {
 
     // ✅ Extract a proper error message from response or fallback
     const errorMessage =
-      error?.response?.data?.message ||
+      error ||
       error?.message ||
       "Error creating doctor.";
-
     toast.error(errorMessage, {
       position: "top-right",
       autoClose: 4000,
