@@ -660,7 +660,22 @@ const EfficiencyCard = ({
       }
     });
 
-    const data = apiData.map((item) => item.value);
+    const data = apiData.map((item) => {
+      if (
+        expandedCard === "efficiency" &&
+        item.sleepData &&
+        item.sleepData.length > 0
+      ) {
+        // Calculate average efficiency for chart
+        const avgEfficiency =
+          item.sleepData.reduce(
+            (sum, session) => sum + (session.efficiency || 0),
+            0
+          ) / item.sleepData.length;
+        return Math.round(avgEfficiency);
+      }
+      return item.value;
+    });
 
     const tableData = apiData.map((item) => {
       let period;
@@ -695,13 +710,22 @@ const EfficiencyCard = ({
         }
       }
 
+      // Get efficiency data from sleep sessions
+      let efficiencyValue = "0%";
+      if (item.sleepData && item.sleepData.length > 0) {
+        const avgEfficiency =
+          item.sleepData.reduce(
+            (sum, session) => sum + (session.efficiency || 0),
+            0
+          ) / item.sleepData.length;
+        efficiencyValue = `${Math.round(avgEfficiency)}%`;
+      }
+
       return {
         period,
         value:
           expandedCard === "efficiency"
-            ? item.value
-              ? `${item.value} minutes`
-              : "0 stages"
+            ? efficiencyValue
             : item.value
             ? `${item.value}%`
             : "0%",
@@ -715,6 +739,8 @@ const EfficiencyCard = ({
     () => getChartData(),
     [FilterData, SleepStagesData, activeTab, expandedCard, selectedSessionIndex]
   );
+
+  console.log(chartData, "chartData");
 
   // Get navigation label based on active tab
   const getNavigationLabel = () => {

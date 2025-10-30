@@ -74,7 +74,7 @@ const SleepJourneyChart = ({
       if (level === "awake") level = "wake";
       if (level === "asleep") level = "light";
       if (level === "restless") level = "wake";
-      
+
       if (!stageGroups[level]) return;
 
       const startMs = new Date(item.dateTime) - startTime;
@@ -626,7 +626,24 @@ const AwakeningsCard = ({
       }
     });
 
-    const data = apiData.map((item) => item.value);
+    const data = apiData.map((item) => {
+      if (item.sleepData && item.sleepData.length > 0) {
+        // Calculate total minutesAwake for chart
+        const totalMinutesAwake = item.sleepData.reduce(
+          (sum, session) => sum + (session.minutesAwake || 0),
+          0
+        );
+        console.log(
+          "Awakening chart data:",
+          item.date,
+          "minutesAwake:",
+          totalMinutesAwake
+        );
+        return totalMinutesAwake;
+      }
+      console.log("Awakening chart fallback:", item.date, "value:", item.value);
+      return item.value || 0;
+    });
 
     const tableData = apiData.map((item) => {
       let period;
@@ -661,9 +678,19 @@ const AwakeningsCard = ({
         }
       }
 
+      // Get minutesAwake data from sleep sessions
+      let awakeValue = "0 minutes";
+      if (item.sleepData && item.sleepData.length > 0) {
+        const totalMinutesAwake = item.sleepData.reduce(
+          (sum, session) => sum + (session.minutesAwake || 0),
+          0
+        );
+        awakeValue = `${totalMinutesAwake} minutes`;
+      }
+
       return {
         period,
-        value: item.value ? `${item.value} minutes` : "0 stages",
+        value: awakeValue,
       };
     });
 
@@ -894,26 +921,58 @@ const AwakeningsCard = ({
                   padding: "5px",
                   backgroundColor: "#F6FAFF",
                   height: "500px",
-                  position: "relative"
+                  position: "relative",
                 }}
               >
-                {(Loading || isNavigating || isTabSwitching) ? (
+                {Loading || isNavigating || isTabSwitching ? (
                   <div className="d-flex flex-column h-100">
                     <div className="position-relative flex-grow-1">
-                      <div className="position-absolute" style={{ left: "0", top: "0", bottom: "30px", width: "30px" }}>
+                      <div
+                        className="position-absolute"
+                        style={{
+                          left: "0",
+                          top: "0",
+                          bottom: "30px",
+                          width: "30px",
+                        }}
+                      >
                         {[...Array(6)].map((_, i) => (
-                          <div key={i} className="placeholder rounded-1 mb-3" style={{ height: "8px", width: "25px" }}></div>
+                          <div
+                            key={i}
+                            className="placeholder rounded-1 mb-3"
+                            style={{ height: "8px", width: "25px" }}
+                          ></div>
                         ))}
                       </div>
-                      <div className="position-absolute" style={{ left: "40px", right: "0", top: "0", bottom: "30px" }}>
-                        <svg width="100%" height="100%" className="placeholder-glow">
+                      <div
+                        className="position-absolute"
+                        style={{
+                          left: "40px",
+                          right: "0",
+                          top: "0",
+                          bottom: "30px",
+                        }}
+                      >
+                        <svg
+                          width="100%"
+                          height="100%"
+                          className="placeholder-glow"
+                        >
                           {[...Array(5)].map((_, i) => (
-                            <line key={`grid-${i}`} x1="0" y1={`${(i + 1) * 20}%`} x2="100%" y2={`${(i + 1) * 20}%`} stroke="#E8F2FF" strokeWidth="1" />
+                            <line
+                              key={`grid-${i}`}
+                              x1="0"
+                              y1={`${(i + 1) * 20}%`}
+                              x2="100%"
+                              y2={`${(i + 1) * 20}%`}
+                              stroke="#E8F2FF"
+                              strokeWidth="1"
+                            />
                           ))}
                           {[...Array(8)].map((_, i) => (
                             <rect
                               key={`bar-${i}`}
-                              x={`${(i * 12) + 5}%`}
+                              x={`${i * 12 + 5}%`}
                               y={`${60 - (Math.sin(i) * 20 + 20)}%`}
                               width="8%"
                               height={`${Math.sin(i) * 20 + 20}%`}
@@ -924,9 +983,21 @@ const AwakeningsCard = ({
                           ))}
                         </svg>
                       </div>
-                      <div className="position-absolute d-flex justify-content-between" style={{ left: "40px", right: "0", bottom: "0", height: "20px" }}>
+                      <div
+                        className="position-absolute d-flex justify-content-between"
+                        style={{
+                          left: "40px",
+                          right: "0",
+                          bottom: "0",
+                          height: "20px",
+                        }}
+                      >
                         {[...Array(6)].map((_, i) => (
-                          <div key={i} className="placeholder rounded-1" style={{ height: "8px", width: "20px" }}></div>
+                          <div
+                            key={i}
+                            className="placeholder rounded-1"
+                            style={{ height: "8px", width: "20px" }}
+                          ></div>
                         ))}
                       </div>
                     </div>
@@ -1038,7 +1109,7 @@ const AwakeningsCard = ({
                           style={{
                             width: "10px",
                             height: "10px",
-                            borderWidth: "1px"
+                            borderWidth: "1px",
                           }}
                         ></div>
                         <span>{tab}</span>
@@ -1075,7 +1146,7 @@ const AwakeningsCard = ({
                       style={{
                         width: "8px",
                         height: "8px",
-                        borderWidth: "1px"
+                        borderWidth: "1px",
                       }}
                     ></div>
                   ) : (
@@ -1096,11 +1167,18 @@ const AwakeningsCard = ({
                   style={{
                     width: "24px",
                     height: "24px",
-                    backgroundColor: (isNextDisabled() || isNavigating) ? "#f5f5f5" : "white",
-                    border: `1px solid ${(isNextDisabled() || isNavigating) ? "#ccc" : "#003465"}`,
+                    backgroundColor:
+                      isNextDisabled() || isNavigating ? "#f5f5f5" : "white",
+                    border: `1px solid ${
+                      isNextDisabled() || isNavigating ? "#ccc" : "#003465"
+                    }`,
                     borderRadius: "4px",
-                    color: (isNextDisabled() || isNavigating) ? "#ccc" : "#003465",
-                    cursor: (isNextDisabled() || isNavigating) ? "not-allowed" : "pointer",
+                    color:
+                      isNextDisabled() || isNavigating ? "#ccc" : "#003465",
+                    cursor:
+                      isNextDisabled() || isNavigating
+                        ? "not-allowed"
+                        : "pointer",
                   }}
                   onClick={() => handleNavigation("next")}
                   disabled={isNextDisabled() || isNavigating}
@@ -1111,7 +1189,7 @@ const AwakeningsCard = ({
                       style={{
                         width: "8px",
                         height: "8px",
-                        borderWidth: "1px"
+                        borderWidth: "1px",
                       }}
                     ></div>
                   ) : (
@@ -1147,7 +1225,7 @@ const AwakeningsCard = ({
                 }}
                 className="custom-scroll"
               >
-                {(Loading || isNavigating || isTabSwitching) ? (
+                {Loading || isNavigating || isTabSwitching ? (
                   [...Array(8)].map((_, index) => (
                     <div
                       key={`skeleton-${index}`}
@@ -1159,8 +1237,14 @@ const AwakeningsCard = ({
                         border: "1px solid #E8F2FF",
                       }}
                     >
-                      <span className="placeholder rounded-1" style={{ width: "60px", height: "10px" }}></span>
-                      <span className="placeholder rounded-1" style={{ width: "40px", height: "10px" }}></span>
+                      <span
+                        className="placeholder rounded-1"
+                        style={{ width: "60px", height: "10px" }}
+                      ></span>
+                      <span
+                        className="placeholder rounded-1"
+                        style={{ width: "40px", height: "10px" }}
+                      ></span>
                     </div>
                   ))
                 ) : chartData.tableData.length > 0 ? (
