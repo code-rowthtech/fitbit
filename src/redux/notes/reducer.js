@@ -24,6 +24,12 @@ const DELETE_NOTES_INITIAL_STATE = {
   loading: false,
 };
 
+const GET_ALERTS_INITIAL_STATE = {
+  data: [],
+  message: "",
+  loading: false,
+};
+
 export const addNotesReducer = (
   state = ADD_NOTES_INITIAL_STATE,
   action
@@ -130,6 +136,36 @@ export const deleteNotesReducer = (
         loading: false,
       };
     case NOTES_TYPES.DELETE_NOTES_RESET:
+      return {
+        data: [],
+        loading: false,
+      };
+    default:
+      return state;
+  }
+};
+
+export const getAlertsReducer = (
+  state = GET_ALERTS_INITIAL_STATE,
+  action
+) => {
+  switch (action.type) {
+    case NOTES_TYPES.GET_ALERTS_LOADING:
+      return {
+        loading: true,
+        data: state.data,
+      };
+    case NOTES_TYPES.GET_ALERTS_SUCCESS:
+      return {
+        loading: false,
+        data: action?.payload,
+      };
+    case NOTES_TYPES.GET_ALERTS_ERROR:
+      return {
+        loading: false,
+        message: action?.payload,
+      };
+    case NOTES_TYPES.GET_ALERTS_RESET:
       return {
         data: [],
         loading: false,
