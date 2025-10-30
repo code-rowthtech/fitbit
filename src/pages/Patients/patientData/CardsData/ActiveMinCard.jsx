@@ -83,9 +83,13 @@ const ActiveMinCard = ({
         patientId: patientId,
         start: formatDate(start),
         end: formatDate(end),
-        field: "activeMinutes",
+        field: "activeZoneMinutes",
+        // period: "year", // Default period
       };
-      if (activeTab === "Year") payload.period = "year";
+      // if (activeTab === "Month")
+      if (activeTab === "Year")
+        // payload.period = "month";
+        payload.period = "year";
       // console.log("Dispatching getPatientActiveMin with payload:", payload);
       dispatch(getPatientActiveMin(payload));
     } else {
@@ -95,41 +99,19 @@ const ActiveMinCard = ({
 
   // Get chart data based on active tab and API response
   const getChartData = () => {
-    // Check for intraday data when activeTab is "Day"
-    if (activeTab === "Day" && AverageData?.data?.[0]?.intradayData) {
-      const intradayData = AverageData.data[0].intradayData;
-
-      if (!Array.isArray(intradayData) || intradayData.length === 0) {
-        return { labels: [], data: [], tableData: [] };
-      }
-
-      const labels = intradayData.map((item) => item?.timeRange || 'N/A');
-      const data = intradayData.map((item) => item?.activeMinutes || 0);
-      const tableData = intradayData.map((item) => ({
-        period: item?.timeRange || 'N/A',
-        value: item?.activeMinutes ? `${item.activeMinutes} mins` : "0 mins",
-      }));
-
-      return { labels, data, tableData };
-    }
-
-    if (!ActiveMinData || !Array.isArray(ActiveMinData) || ActiveMinData.length === 0) {
+    if (!ActiveMinData || ActiveMinData.length === 0) {
       return { labels: [], data: [], tableData: [] };
     }
 
     const apiData = ActiveMinData;
 
     const labels = apiData.map((item) => {
-      if (!item || !item.date) return 'N/A';
-
       if (activeTab === "Month" && item.date.includes("Week")) {
         const weekMatch = item.date.match(/Week (\\d+)/);
         return weekMatch ? `Week ${weekMatch[1]}` : item.date;
       }
 
       const date = new Date(item.date);
-      if (isNaN(date.getTime())) return item.date; // Invalid date fallback
-
       switch (activeTab) {
         case "Day":
           return date.toLocaleDateString("en-US", {
@@ -148,13 +130,9 @@ const ActiveMinCard = ({
       }
     });
 
-    const data = apiData.map((item) => item?.value || 0);
+    const data = apiData.map((item) => item.value);
 
     const tableData = apiData.map((item) => {
-      if (!item || !item.date) {
-        return { period: 'N/A', value: '0 mins' };
-      }
-
       let period;
 
       if (activeTab === "Month" && item.date.includes("Week")) {
@@ -162,38 +140,34 @@ const ActiveMinCard = ({
         period = weekMatch ? `Week ${weekMatch[1]}` : item.date;
       } else {
         const date = new Date(item.date);
-        if (isNaN(date.getTime())) {
-          period = item.date; // Invalid date fallback
-        } else {
-          switch (activeTab) {
-            case "Day":
-              period = date.toLocaleDateString("en-US", {
-                weekday: "long",
-                month: "long",
-                day: "numeric",
-              });
-              break;
-            case "Week":
-              period = date.toLocaleDateString("en-US", { weekday: "long" });
-              break;
-            case "Month":
-              period = date.toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-              });
-              break;
-            case "Year":
-              period = date.toLocaleDateString("en-US", { month: "long" });
-              break;
-            default:
-              period = date.toLocaleDateString();
-          }
+        switch (activeTab) {
+          case "Day":
+            period = date.toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+            });
+            break;
+          case "Week":
+            period = date.toLocaleDateString("en-US", { weekday: "long" });
+            break;
+          case "Month":
+            period = date.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            });
+            break;
+          case "Year":
+            period = date.toLocaleDateString("en-US", { month: "long" });
+            break;
+          default:
+            period = date.toLocaleDateString();
         }
       }
 
       return {
         period,
-        value: item?.value ? `${item.value} mins` : "0 mins",
+        value: item.value ? `${item.value} mins` : "0 mins",
       };
     });
 
@@ -316,7 +290,8 @@ const ActiveMinCard = ({
           patientId: patientId,
           start: formatDate(start),
           end: formatDate(end),
-          field: "activeMinutes",
+          field: "activeZoneMinutes",
+          // period: "year", // Default period
         };
         if (activeTab === "Year") payload.period = "year";
         dispatch(getPatientActiveMin(payload));
@@ -329,20 +304,11 @@ const ActiveMinCard = ({
     if (isTabSwitching || tab === activeTab) return;
 
     setIsTabSwitching(true);
-    
-    // Determine the date to use for the new tab
-    let dateToUse = new Date(currentDate);
-    if (tab === "Year") {
-      const currentYear = new Date(currentDate).getFullYear();
-      dateToUse = new Date(currentYear, 0, 1);
-      onDateChange(dateToUse);
-    }
-    
     onTabChange(tab);
     // Fetch data for new tab
     setTimeout(() => {
       if (patientId) {
-        const date = dateToUse;
+        const date = new Date(currentDate);
         let start, end;
 
         switch (tab) {
@@ -356,11 +322,8 @@ const ActiveMinCard = ({
             end.setDate(start.getDate() + 6);
             break;
           case "Month":
-            // Ensure we use the correct month from the current date
-            const month = date.getMonth();
-            const year = date.getFullYear();
-            start = new Date(year, month, 1);
-            end = new Date(year, month + 1, 0);
+            start = new Date(date.getFullYear(), date.getMonth(), 1);
+            end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
             break;
           case "Year":
             start = new Date(date.getFullYear(), 0, 1);
@@ -372,9 +335,12 @@ const ActiveMinCard = ({
           patientId: patientId,
           start: formatDate(start),
           end: formatDate(end),
-          field: "activeMinutes",
+          field: "activeZoneMinutes",
         };
-        if (tab === "Year") payload.period = "year";
+        // if (tab === "Month")
+        if (tab === "Year")
+          // payload.period = "month";
+          payload.period = "year";
         dispatch(getPatientActiveMin(payload));
       }
     }, 0);
@@ -409,7 +375,7 @@ const ActiveMinCard = ({
           <span
             style={{ fontSize: "12px", fontWeight: "600", color: "#003465" }}
           >
-            Active Zone Mins
+            Active Mins
           </span>
         </div>
         <div className="d-flex">
@@ -540,63 +506,32 @@ const ActiveMinCard = ({
                     }}
                     options={{
                       maintainAspectRatio: false,
-                      onClick:
-                        activeTab === "Year"
-                          ? (event, elements) => {
-                              if (elements.length > 0) {
-                                const clickedIndex = elements[0].index;
-                                const clickedMonth = ActiveMinData[clickedIndex];
-                                if (clickedMonth) {
-                                  // Parse date more carefully to avoid timezone issues
-                                  const dateStr = clickedMonth.date;
-                                  let monthDate;
-                                  
-                                  if (dateStr.includes('-')) {
-                                    // Handle YYYY-MM-DD format
-                                    const [year, month] = dateStr.split('-').map(Number);
-                                    monthDate = new Date(year, month - 1, 1); // month is 0-indexed
-                                  } else {
-                                    // Fallback to original parsing
-                                    const originalDate = new Date(dateStr);
-                                    monthDate = new Date(originalDate.getFullYear(), originalDate.getMonth(), 1);
-                                  }
-                                  
-                                  onDateChange(monthDate);
-                                  // Use setTimeout to ensure date change takes effect
-                                  setTimeout(() => {
-                                    handleTabChange("Month");
-                                  }, 0);
-                                }
-                              }
-                            }
-                          : activeTab === "Month"
-                          ? (event, elements) => {
-                              if (elements.length > 0) {
-                                const clickedIndex = elements[0].index;
-                                const clickedDay = ActiveMinData[clickedIndex];
-                                if (clickedDay) {
-                                  // Parse date more carefully to avoid timezone issues
-                                  const dateStr = clickedDay.date;
-                                  let dayDate;
-                                  
-                                  if (dateStr.includes('-')) {
-                                    // Handle YYYY-MM-DD format
-                                    const [year, month, day] = dateStr.split('-').map(Number);
-                                    dayDate = new Date(year, month - 1, day); // month is 0-indexed
-                                  } else {
-                                    // Fallback to original parsing
-                                    dayDate = new Date(dateStr);
-                                  }
-                                  
-                                  onDateChange(dayDate);
-                                  // Use setTimeout to ensure date change takes effect
-                                  setTimeout(() => {
-                                    handleTabChange("Day");
-                                  }, 0);
-                                }
-                              }
-                            }
-                          : undefined,
+                      onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                          const elementIndex = elements[0].index;
+                          console.log("Clicked element index:", elementIndex);
+                          console.log("ActiveMinData:", ActiveMinData);
+                          if (
+                            activeTab === "Year" &&
+                            ActiveMinData[elementIndex]
+                          ) {
+                            const clickedMonth = ActiveMinData[elementIndex];
+                            console.log("Clicked month data:", clickedMonth);
+                            const monthDate = new Date(clickedMonth.date);
+                            onDateChange(monthDate);
+                            handleTabChange("Month");
+                          } else if (
+                            activeTab === "Month" &&
+                            ActiveMinData[elementIndex]
+                          ) {
+                            const clickedDay = ActiveMinData[elementIndex];
+                            console.log("Clicked day data:", clickedDay);
+                            const dayDate = new Date(clickedDay.date);
+                            onDateChange(dayDate);
+                            handleTabChange("Day");
+                          }
+                        }
+                      },
                       plugins: {
                         legend: { display: false },
                         tooltip: {
@@ -617,13 +552,10 @@ const ActiveMinCard = ({
                                     return dataIndex !== undefined &&
                                       ActiveMinData[dataIndex]
                                       ? [
-                                          `Days: ${ActiveMinData[dataIndex].dayRange || 'N/A'}`,
-                                          "Click to view day details"
+                                          `Days: ${ActiveMinData[dataIndex].dayRange}`,
                                         ]
                                       : [];
                                   }
-                                : activeTab === "Year"
-                                ? () => ["Click to view month details"]
                                 : undefined,
                           },
                         },
@@ -690,7 +622,8 @@ const ActiveMinCard = ({
                             }
                           : activeTab === "Year" || activeTab === "Month"
                           ? (event, elements, chart) => {
-                              chart.canvas.style.cursor = elements.length > 0 ? "pointer" : "default";
+                              chart.canvas.style.cursor =
+                                elements.length > 0 ? "pointer" : "default";
                             }
                           : undefined,
                     }}
@@ -840,11 +773,9 @@ const ActiveMinCard = ({
                   fontWeight: "600",
                 }}
               >
+                <span style={{ color: "#003465" }}>Average</span>
                 <span style={{ color: "#003465" }}>
-                  {activeTab === "Day" ? "Total" : "Average"}{" "}
-                </span>
-                <span style={{ color: "#003465" }}>
-                  {AverageData?.stats?.average || "-"} mins
+                  {AverageData?.stats?.average} mins
                 </span>
               </div>
 
@@ -924,56 +855,28 @@ const ActiveMinCard = ({
                         fontSize: "10px",
                         borderRadius: "2px",
                         border: "1px solid #E8F2FF",
-                        cursor: activeTab === "Year" || activeTab === "Month" ? "pointer" : "default",
+                        cursor:
+                          activeTab === "Year" || activeTab === "Month"
+                            ? "pointer"
+                            : "default",
                       }}
                       onClick={
                         activeTab === "Year"
                           ? () => {
                               const clickedMonth = ActiveMinData[index];
                               if (clickedMonth) {
-                                // Parse date more carefully to avoid timezone issues
-                                const dateStr = clickedMonth.date;
-                                let monthDate;
-                                
-                                if (dateStr.includes('-')) {
-                                  // Handle YYYY-MM-DD format
-                                  const [year, month] = dateStr.split('-').map(Number);
-                                  monthDate = new Date(year, month - 1, 1); // month is 0-indexed
-                                } else {
-                                  // Fallback to original parsing
-                                  const originalDate = new Date(dateStr);
-                                  monthDate = new Date(originalDate.getFullYear(), originalDate.getMonth(), 1);
-                                }
-                                
+                                const monthDate = new Date(clickedMonth.date);
                                 onDateChange(monthDate);
-                                // Use setTimeout to ensure date change takes effect
-                                setTimeout(() => {
-                                  handleTabChange("Month");
-                                }, 0);
+                                handleTabChange("Month");
                               }
                             }
                           : activeTab === "Month"
                           ? () => {
                               const clickedDay = ActiveMinData[index];
                               if (clickedDay) {
-                                // Parse date more carefully to avoid timezone issues
-                                const dateStr = clickedDay.date;
-                                let dayDate;
-                                
-                                if (dateStr.includes('-')) {
-                                  // Handle YYYY-MM-DD format
-                                  const [year, month, day] = dateStr.split('-').map(Number);
-                                  dayDate = new Date(year, month - 1, day); // month is 0-indexed
-                                } else {
-                                  // Fallback to original parsing
-                                  dayDate = new Date(dateStr);
-                                }
-                                
+                                const dayDate = new Date(clickedDay.date);
                                 onDateChange(dayDate);
-                                // Use setTimeout to ensure date change takes effect
-                                setTimeout(() => {
-                                  handleTabChange("Day");
-                                }, 0);
+                                handleTabChange("Day");
                               }
                             }
                           : undefined
