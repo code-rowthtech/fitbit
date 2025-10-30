@@ -28,3 +28,21 @@ export function updateNotesApi(data) {
 export function deleteNotesApi(data) {
     return api.delete(`${URL.DELETE_NOTES}/${data.payload}`)
 }
+
+export function getAlertsApi(data) {
+    const params = new URLSearchParams();
+    
+    if (data?.payload?.startDate) {
+        params.append('startDate', data.payload.startDate);
+    }
+    if (data?.payload?.endDate) {
+        params.append('endDate', data.payload.endDate);
+    }
+    if (data?.payload?.severity) {
+        params.append('severity', data.payload.severity);
+    }
+    
+    const baseUrl = `${URL.GET_ALERTS}/${data.payload.patientId}`;
+    const url = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
+    return api.get(url);
+}

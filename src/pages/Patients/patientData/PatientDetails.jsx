@@ -18,6 +18,7 @@ import { getPatientById } from "../../../redux/actions";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
 import { connectToFitbit } from "../../../redux/patientsDashboard/action";
+import PatientAlertsOffCanvas from "./PatientAlertsOffCanvas";
 
 const PatientDetails = ({
   onShowReports,
@@ -34,6 +35,7 @@ const PatientDetails = ({
   const isAccordionOpen =
     externalAccordionOpen !== undefined ? externalAccordionOpen : accordionOpen;
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [showAlertsOffCanvas, setShowAlertsOffCanvas] = useState(false);
   const { id: pathId } = useParams();
   const [searchParams] = useSearchParams();
   const id = pathId || searchParams.get("id") || searchParams.get("patientId");
@@ -285,6 +287,24 @@ const PatientDetails = ({
                       setShowUpdateModal(true);
                     }}
                   />
+                  <button
+                    className="btn btn-sm me-2 fw-bold"
+                    style={{
+                      fontSize: "12px",
+                      padding: "4px 12px",
+                      borderRadius: "4px",
+                      backgroundColor: "#003465",
+                      color: "white",
+                      border: "1px solid #003465",
+                      pointerEvents: "auto",
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowAlertsOffCanvas(true);
+                    }}
+                  >
+                    Alerts
+                  </button>
                   <button
                     className="btn btn-sm me-2 fw-bold"
                     style={{
@@ -907,6 +927,10 @@ const PatientDetails = ({
         show={showUpdateModal}
         onHide={() => setShowUpdateModal(false)}
         patientId={id}
+      />
+      <PatientAlertsOffCanvas
+        show={showAlertsOffCanvas}
+        onHide={() => setShowAlertsOffCanvas(false)}
       />
     </div>
   );

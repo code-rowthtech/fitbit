@@ -60,4 +60,5 @@ export const ADD_NOTES = `${baseurl}/notes/create`;
 export const GET_NOTES = `${baseurl}/notes/patient`;
 export const UPDATE_NOTES = `${baseurl}/notes`;
 export const DELETE_NOTES = `${baseurl}/notes`;
+export const GET_ALERTS = `${baseurl}/alerts/patient`;
 
