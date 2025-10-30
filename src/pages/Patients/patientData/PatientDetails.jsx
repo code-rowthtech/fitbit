@@ -617,11 +617,11 @@ const PatientDetails = ({
                         (!PatientData?.weeklyFitbitData?.avgHeartRate?.type &&
                           parseInt(
                             PatientData?.weeklyFitbitData?.avgHeartRate
-                              ?.value || 80
+                              ?.value
                           ) >= 60 &&
                           parseInt(
                             PatientData?.weeklyFitbitData?.avgHeartRate
-                              ?.value || 80
+                              ?.value
                           ) <= 100)
                           ? "#F0FFF0"
                           : "#FFF0F0",
@@ -631,11 +631,11 @@ const PatientDetails = ({
                         (!PatientData?.weeklyFitbitData?.avgHeartRate?.type &&
                           parseInt(
                             PatientData?.weeklyFitbitData?.avgHeartRate
-                              ?.value || 80
+                              ?.value
                           ) >= 60 &&
                           parseInt(
                             PatientData?.weeklyFitbitData?.avgHeartRate
-                              ?.value || 80
+                              ?.value
                           ) <= 100)
                           ? "1px solid #28a745"
                           : "1px solid #dc3545",
@@ -645,11 +645,11 @@ const PatientDetails = ({
                         (!PatientData?.weeklyFitbitData?.avgHeartRate?.type &&
                           parseInt(
                             PatientData?.weeklyFitbitData?.avgHeartRate
-                              ?.value || 80
+                              ?.value
                           ) >= 60 &&
                           parseInt(
                             PatientData?.weeklyFitbitData?.avgHeartRate
-                              ?.value || 80
+                              ?.value
                           ) <= 100)
                           ? "0 4px 8px rgba(40, 167, 69, 0.3)"
                           : "0 4px 8px rgba(220, 53, 69, 0.3)",
@@ -682,7 +682,7 @@ const PatientDetails = ({
                             ?.avgHeartRate === "number"
                             ? PatientData?.weeklyFitbitData?.avgHeartRate
                             : null) ||
-                          "80"}{" "}
+                          "-"}{" "}
                         <span
                           style={{
                             fontSize: "10px",
@@ -706,10 +706,10 @@ const PatientDetails = ({
                       "normal" ||
                     (!PatientData?.weeklyFitbitData?.avgHeartRate?.type &&
                       parseInt(
-                        PatientData?.weeklyFitbitData?.avgHeartRate?.value || 80
+                        PatientData?.weeklyFitbitData?.avgHeartRate?.value
                       ) >= 60 &&
                       parseInt(
-                        PatientData?.weeklyFitbitData?.avgHeartRate?.value || 80
+                        PatientData?.weeklyFitbitData?.avgHeartRate?.value
                       ) <= 100) ? (
                       <FaCheckCircle
                         style={{
