@@ -599,7 +599,10 @@ const SleepStagesCard = ({
         end: formatDate(end),
         field: "sleep",
       };
-      if (activeTab === "Year") payload.period = "year";
+      if (activeTab === "Year") {
+        payload.period = "year";
+        payload.type = "sleep";
+      }
       dispatch(getPatientSleepStages(payload));
     }
   }, [patientId, activeTab, currentDate, dispatch, formatDate]);
@@ -672,9 +675,13 @@ const SleepStagesCard = ({
         }
       }
 
+      const minutes = Math.round(item.value || 0);
+      const hours = Math.floor(minutes / 60);
+      const remainingMinutes = minutes % 60;
+
       return {
         period,
-        value: item.value ? `${item.value} minutes` : "0 minutes",
+        value: `${minutes}m (${hours}hr ${remainingMinutes}m)`,
       };
     });
 
@@ -803,7 +810,10 @@ const SleepStagesCard = ({
           field: "sleep",
         };
         // if (activeTab === "Month")  // payload.period = "month";
-        if (activeTab === "Year") payload.period = "year";
+        if (activeTab === "Year") {
+          payload.period = "year";
+          payload.type = "sleep";
+        }
         dispatch(getPatientSleepStages(payload));
       }
     }, 0);
@@ -849,7 +859,10 @@ const SleepStagesCard = ({
           field: "sleep",
         };
         // if (tab === "Month")  // payload.period = "month";
-        if (tab === "Year") payload.period = "year";
+        if (tab === "Year") {
+          payload.period = "year";
+          payload.type = "sleep";
+        }
         dispatch(getPatientSleepStages(payload));
       }
     }, 0);
@@ -1272,6 +1285,33 @@ const SleepStagesCard = ({
                         fontSize: "10px",
                         borderRadius: "2px",
                         border: "1px solid #E8F2FF",
+                        cursor:
+                          activeTab === "Year" || activeTab === "Month"
+                            ? "pointer"
+                            : "default",
+                      }}
+                      onClick={() => {
+                        if (activeTab === "Year") {
+                          const newDate = new Date(
+                            currentDate.getFullYear(),
+                            index,
+                            1
+                          );
+                          onDateChange(newDate);
+                          onTabChange("Month");
+                        } else if (activeTab === "Month") {
+                          const dayMatch = item.period.match(/\d+/);
+                          if (dayMatch) {
+                            const clickedDay = parseInt(dayMatch[0]);
+                            const clickedDate = new Date(
+                              currentDate.getFullYear(),
+                              currentDate.getMonth(),
+                              clickedDay
+                            );
+                            onDateChange(clickedDate);
+                            onTabChange("Day");
+                          }
+                        }
                       }}
                     >
                       <span style={{ color: "#003465" }}>{item.period}</span>
