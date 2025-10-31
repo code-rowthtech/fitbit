@@ -1487,7 +1487,13 @@ const SleepStagesCard = ({
                     }`}
                     style={{ fontSize: "16px", color: "#003465" }}
                   >
-                    {AverageData?.todayData?.value || 0}
+                    {(() => {
+                      const sleepData = AverageData?.todayData?.sleepData?.[0];
+                      const stages = sleepData?.levels?.summary;
+                      if (!stages) return "0";
+                      const totalMinutes = (stages.deep?.minutes || 0) + (stages.light?.minutes || 0) + (stages.rem?.minutes || 0);
+                      return totalMinutes;
+                    })()}
                   </div>
                   <div
                     style={{
@@ -1496,7 +1502,7 @@ const SleepStagesCard = ({
                       fontWeight: "500",
                     }}
                   >
-                    Minutes
+                    Sleep Min
                   </div>
                 </div>
               </div>
@@ -1507,66 +1513,154 @@ const SleepStagesCard = ({
                 className="mb-0"
                 style={{ fontSize: "10px", color: "#666", fontWeight: "500" }}
               >
-                Sleep minutes today
+                Sleep Stages Today
               </p>
             </div>
 
-            <div className="row g-1">
-              <div className="col-6">
-                <div
-                  className="text-center py-1 px-2 rounded-2"
-                  style={{
-                    backgroundColor: "white",
-                    border: "1px solid #E8F2FF",
-                  }}
-                >
-                  <div
-                    className={`fw-bold ${
-                      Loading ? "placeholder rounded-1" : ""
-                    }`}
-                    style={{ fontSize: "14px", color: "#003465" }}
-                  >
-                    {AverageData?.todayData?.value || 0}
+            {(() => {
+              const sleepData = AverageData?.todayData?.sleepData?.[0];
+              const stages = sleepData?.levels?.summary;
+              
+              if (!stages) {
+                return (
+                  <div className="row g-1">
+                    <div className="col-12">
+                      <div
+                        className="text-center py-2 px-2 rounded-2"
+                        style={{
+                          backgroundColor: "white",
+                          border: "1px solid #E8F2FF",
+                        }}
+                      >
+                        <div style={{ fontSize: "12px", color: "#666" }}>
+                          No sleep stages data
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div
-                    style={{
-                      fontSize: "9px",
-                      color: "#666",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Today
+                );
+              }
+
+              const stageColors = {
+                deep: "#003465",
+                light: "#4A90E2", 
+                rem: "#7B68EE",
+                wake: "#FF6B6B"
+              };
+
+              return (
+                <div className="row g-1">
+                  <div className="col-3">
+                    <div
+                      className="text-center py-1 px-1 rounded-2"
+                      style={{
+                        backgroundColor: "white",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <div
+                        className={`fw-bold ${
+                          Loading ? "placeholder rounded-1" : ""
+                        }`}
+                        style={{ fontSize: "12px", color: stageColors.deep }}
+                      >
+                        {stages.deep?.minutes || 0}m
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "9px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Deep
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-3">
+                    <div
+                      className="text-center py-1 px-1 rounded-2"
+                      style={{
+                        backgroundColor: "white",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <div
+                        className={`fw-bold ${
+                          Loading ? "placeholder rounded-1" : ""
+                        }`}
+                        style={{ fontSize: "12px", color: stageColors.light }}
+                      >
+                        {stages.light?.minutes || 0}m
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "9px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Light
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-3">
+                    <div
+                      className="text-center py-1 px-1 rounded-2"
+                      style={{
+                        backgroundColor: "white",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <div
+                        className={`fw-bold ${
+                          Loading ? "placeholder rounded-1" : ""
+                        }`}
+                        style={{ fontSize: "12px", color: stageColors.rem }}
+                      >
+                        {stages.rem?.minutes || 0}m
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "9px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        REM
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-3">
+                    <div
+                      className="text-center py-1 px-1 rounded-2"
+                      style={{
+                        backgroundColor: "white",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <div
+                        className={`fw-bold ${
+                          Loading ? "placeholder rounded-1" : ""
+                        }`}
+                        style={{ fontSize: "12px", color: stageColors.wake }}
+                      >
+                        {stages.wake?.minutes || 0}m
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "9px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Awake
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="col-6">
-                <div
-                  className="text-center py-1 px-2 rounded-2"
-                  style={{
-                    backgroundColor: "white",
-                    border: "1px solid #E8F2FF",
-                  }}
-                >
-                  <div
-                    className={`fw-bold ${
-                      Loading ? "placeholder rounded-1" : ""
-                    }`}
-                    style={{ fontSize: "14px", color: "#003465" }}
-                  >
-                    {Math.round((AverageData?.stats?.average || 0) / 60) || 8}h
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "9px",
-                      color: "#666",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Avg Daily
-                  </div>
-                </div>
-              </div>
-            </div>
+              );
+            })()}
           </div>
         )}
       </div>
