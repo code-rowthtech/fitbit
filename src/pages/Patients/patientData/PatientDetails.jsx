@@ -152,11 +152,8 @@ const PatientDetails = ({
       <div className="accordion m-2" id="patientAccordion">
         <div className="accordion-item">
           <h2 className="accordion-header">
-            <button
-              className={`accordion-button border-bottom py-0 ps-0 custom-accordion-button ${
-                !accordionOpen ? "collapsed" : ""
-              }`}
-              type="button"
+            <div
+              className="border-bottom py-0 ps-0 custom-accordion-button pe-3"
               style={{
                 backgroundColor: "#F6FAFF",
                 border: "none",
@@ -168,16 +165,19 @@ const PatientDetails = ({
               <div className="d-flex justify-content-between align-items-center w-100 me-3">
                 <div className="d-flex align-items-center">
                   <div
-                    className="pe-5 py-2"
+                    className="pe-5 py-0"
                     style={{
                       backgroundColor: "#E0ECF8",
                       borderRight: "4px solid #E0ECF8",
                       transform: "skewX(-20deg)",
                       overflow: "hidden",
                       marginLeft: "-5px",
+                      height:'35px',
+                      display: 'flex',
+                      alignItems: 'center'
                     }}
                   >
-                    <div style={{ transform: "skewX(20deg)" }}>
+                    <div style={{ transform: "skewX(20deg)", display: 'flex', alignItems: 'center' }}>
                       <span
                         className="ps-3"
                         style={{
@@ -202,12 +202,12 @@ const PatientDetails = ({
                       </span>
                     </div>
                   </div>
-                  <div className="ps-3">
+                  <div className="ps-3" style={{ display: 'flex', alignItems: 'center', height: '35px' }}>
                     <span
                       style={{
                         color: "#6c757d",
                         fontSize: "12px",
-                        marginRight: "8px",
+                        marginRight: "8px"
                       }}
                     >
                       Date Added:
@@ -358,7 +358,7 @@ const PatientDetails = ({
                   />
                 </div>
               </div>
-            </button>
+            </div>
           </h2>
           <div
             className={`accordion-collapse collapse ${
