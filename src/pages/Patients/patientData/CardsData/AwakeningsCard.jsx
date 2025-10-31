@@ -74,7 +74,7 @@ const SleepJourneyChart = ({
       if (level === "awake") level = "wake";
       if (level === "asleep") level = "light";
       if (level === "restless") level = "wake";
-      
+
       if (!stageGroups[level]) return;
 
       const startMs = new Date(item.dateTime) - startTime;
@@ -588,7 +588,10 @@ const AwakeningsCard = ({
         field: "sleep",
       };
       // if (activeTab === "Month")  // payload.period = "month";
-      if (activeTab === "Year") payload.period = "year";
+      if (activeTab === "Year") {
+        payload.period = "year";
+        payload.type = "awakenings";
+      }
       dispatch(getPatientSleepStages(payload));
     }
   }, [patientId, dispatch, formatDate]);
@@ -626,7 +629,17 @@ const AwakeningsCard = ({
       }
     });
 
-    const data = apiData.map((item) => item.value);
+    const data = apiData.map((item) => {
+      if (item.sleepData && item.sleepData.length > 0) {
+        // Calculate total minutesAwake for chart
+        const totalMinutesAwake = item.sleepData.reduce(
+          (sum, session) => sum + (session.minutesAwake || 0),
+          0
+        );
+        return totalMinutesAwake;
+      }
+      return item.value || 0;
+    });
 
     const tableData = apiData.map((item) => {
       let period;
@@ -661,9 +674,27 @@ const AwakeningsCard = ({
         }
       }
 
+      // Get minutesAwake data from sleep sessions or direct value
+      let awakeValue = "0m (0hr 0m)";
+      if (item.sleepData && item.sleepData.length > 0) {
+        const totalMinutesAwake = item.sleepData.reduce(
+          (sum, session) => sum + (session.minutesAwake || 0),
+          0
+        );
+        const hours = Math.floor(totalMinutesAwake / 60);
+        const minutes = totalMinutesAwake % 60;
+        awakeValue = `${totalMinutesAwake}m (${hours}hr ${minutes}m)`;
+      } else if (item.value !== null && item.value !== undefined) {
+        // Use the value field directly when sleepData is not available
+        const totalMinutesAwake = Math.round(item.value);
+        const hours = Math.floor(totalMinutesAwake / 60);
+        const minutes = totalMinutesAwake % 60;
+        awakeValue = `${totalMinutesAwake}m (${hours}hr ${minutes}m)`;
+      }
+
       return {
         period,
-        value: item.value ? `${item.value} minutes` : "0 stages",
+        value: awakeValue,
       };
     });
 
@@ -790,7 +821,10 @@ const AwakeningsCard = ({
           field: "sleep",
         };
         // if (activeTab === "Month")  // payload.period = "month";
-        if (activeTab === "Year") payload.period = "year";
+        if (activeTab === "Year") {
+          payload.period = "year";
+          payload.type = "awakenings";
+        }
         dispatch(getPatientSleepStages(payload));
       }
     }, 0);
@@ -836,7 +870,10 @@ const AwakeningsCard = ({
           field: "sleep",
         };
         // if (tab === "Month")  // payload.period = "month";
-        if (tab === "Year") payload.period = "year";
+        if (tab === "Year") {
+          payload.period = "year";
+          payload.type = "awakenings";
+        }
         dispatch(getPatientSleepStages(payload));
       }
     }, 0);
@@ -894,26 +931,58 @@ const AwakeningsCard = ({
                   padding: "5px",
                   backgroundColor: "#F6FAFF",
                   height: "500px",
-                  position: "relative"
+                  position: "relative",
                 }}
               >
-                {(Loading || isNavigating || isTabSwitching) ? (
+                {Loading || isNavigating || isTabSwitching ? (
                   <div className="d-flex flex-column h-100">
                     <div className="position-relative flex-grow-1">
-                      <div className="position-absolute" style={{ left: "0", top: "0", bottom: "30px", width: "30px" }}>
+                      <div
+                        className="position-absolute"
+                        style={{
+                          left: "0",
+                          top: "0",
+                          bottom: "30px",
+                          width: "30px",
+                        }}
+                      >
                         {[...Array(6)].map((_, i) => (
-                          <div key={i} className="placeholder rounded-1 mb-3" style={{ height: "8px", width: "25px" }}></div>
+                          <div
+                            key={i}
+                            className="placeholder rounded-1 mb-3"
+                            style={{ height: "8px", width: "25px" }}
+                          ></div>
                         ))}
                       </div>
-                      <div className="position-absolute" style={{ left: "40px", right: "0", top: "0", bottom: "30px" }}>
-                        <svg width="100%" height="100%" className="placeholder-glow">
+                      <div
+                        className="position-absolute"
+                        style={{
+                          left: "40px",
+                          right: "0",
+                          top: "0",
+                          bottom: "30px",
+                        }}
+                      >
+                        <svg
+                          width="100%"
+                          height="100%"
+                          className="placeholder-glow"
+                        >
                           {[...Array(5)].map((_, i) => (
-                            <line key={`grid-${i}`} x1="0" y1={`${(i + 1) * 20}%`} x2="100%" y2={`${(i + 1) * 20}%`} stroke="#E8F2FF" strokeWidth="1" />
+                            <line
+                              key={`grid-${i}`}
+                              x1="0"
+                              y1={`${(i + 1) * 20}%`}
+                              x2="100%"
+                              y2={`${(i + 1) * 20}%`}
+                              stroke="#E8F2FF"
+                              strokeWidth="1"
+                            />
                           ))}
                           {[...Array(8)].map((_, i) => (
                             <rect
                               key={`bar-${i}`}
-                              x={`${(i * 12) + 5}%`}
+                              x={`${i * 12 + 5}%`}
                               y={`${60 - (Math.sin(i) * 20 + 20)}%`}
                               width="8%"
                               height={`${Math.sin(i) * 20 + 20}%`}
@@ -924,9 +993,21 @@ const AwakeningsCard = ({
                           ))}
                         </svg>
                       </div>
-                      <div className="position-absolute d-flex justify-content-between" style={{ left: "40px", right: "0", bottom: "0", height: "20px" }}>
+                      <div
+                        className="position-absolute d-flex justify-content-between"
+                        style={{
+                          left: "40px",
+                          right: "0",
+                          bottom: "0",
+                          height: "20px",
+                        }}
+                      >
                         {[...Array(6)].map((_, i) => (
-                          <div key={i} className="placeholder rounded-1" style={{ height: "8px", width: "20px" }}></div>
+                          <div
+                            key={i}
+                            className="placeholder rounded-1"
+                            style={{ height: "8px", width: "20px" }}
+                          ></div>
                         ))}
                       </div>
                     </div>
@@ -963,7 +1044,7 @@ const AwakeningsCard = ({
                         },
                         y: {
                           beginAtZero: true,
-                          max: 5,
+                          max: Math.max(...chartData.data, 10),
                           grid: { color: "#f0f0f0" },
                           ticks: { color: "#666", fontSize: 10 },
                         },
@@ -974,14 +1055,52 @@ const AwakeningsCard = ({
                           ? (event, elements) => {
                               if (elements.length > 0) {
                                 const clickedIndex = elements[0].index;
-                                const clickedMonth = clickedIndex;
-                                const newDate = new Date(
-                                  currentDate.getFullYear(),
-                                  clickedMonth,
-                                  1
-                                );
-                                onDateChange(newDate);
-                                handleTabChange("Month");
+                                // Get the actual month from the chart data
+                                const clickedLabel =
+                                  chartData.labels[clickedIndex];
+                                const monthNames = [
+                                  "Jan",
+                                  "Feb",
+                                  "Mar",
+                                  "Apr",
+                                  "May",
+                                  "Jun",
+                                  "Jul",
+                                  "Aug",
+                                  "Sep",
+                                  "Oct",
+                                  "Nov",
+                                  "Dec",
+                                ];
+                                const clickedMonth =
+                                  monthNames.indexOf(clickedLabel);
+                                if (clickedMonth !== -1) {
+                                  const newDate = new Date(
+                                    currentDate.getFullYear(),
+                                    clickedMonth,
+                                    1
+                                  );
+                                  onDateChange(newDate);
+                                  onTabChange("Month");
+                                }
+                              }
+                            }
+                          : activeTab === "Month"
+                          ? (event, elements) => {
+                              if (elements.length > 0) {
+                                const clickedIndex = elements[0].index;
+                                const clickedLabel =
+                                  chartData.labels[clickedIndex];
+                                const dayNumber = parseInt(clickedLabel);
+                                if (!isNaN(dayNumber)) {
+                                  const newDate = new Date(
+                                    currentDate.getFullYear(),
+                                    currentDate.getMonth(),
+                                    dayNumber
+                                  );
+                                  onDateChange(newDate);
+                                  onTabChange("Day");
+                                }
                               }
                             }
                           : undefined,
@@ -1038,7 +1157,7 @@ const AwakeningsCard = ({
                           style={{
                             width: "10px",
                             height: "10px",
-                            borderWidth: "1px"
+                            borderWidth: "1px",
                           }}
                         ></div>
                         <span>{tab}</span>
@@ -1075,7 +1194,7 @@ const AwakeningsCard = ({
                       style={{
                         width: "8px",
                         height: "8px",
-                        borderWidth: "1px"
+                        borderWidth: "1px",
                       }}
                     ></div>
                   ) : (
@@ -1096,11 +1215,18 @@ const AwakeningsCard = ({
                   style={{
                     width: "24px",
                     height: "24px",
-                    backgroundColor: (isNextDisabled() || isNavigating) ? "#f5f5f5" : "white",
-                    border: `1px solid ${(isNextDisabled() || isNavigating) ? "#ccc" : "#003465"}`,
+                    backgroundColor:
+                      isNextDisabled() || isNavigating ? "#f5f5f5" : "white",
+                    border: `1px solid ${
+                      isNextDisabled() || isNavigating ? "#ccc" : "#003465"
+                    }`,
                     borderRadius: "4px",
-                    color: (isNextDisabled() || isNavigating) ? "#ccc" : "#003465",
-                    cursor: (isNextDisabled() || isNavigating) ? "not-allowed" : "pointer",
+                    color:
+                      isNextDisabled() || isNavigating ? "#ccc" : "#003465",
+                    cursor:
+                      isNextDisabled() || isNavigating
+                        ? "not-allowed"
+                        : "pointer",
                   }}
                   onClick={() => handleNavigation("next")}
                   disabled={isNextDisabled() || isNavigating}
@@ -1111,7 +1237,7 @@ const AwakeningsCard = ({
                       style={{
                         width: "8px",
                         height: "8px",
-                        borderWidth: "1px"
+                        borderWidth: "1px",
                       }}
                     ></div>
                   ) : (
@@ -1147,7 +1273,7 @@ const AwakeningsCard = ({
                 }}
                 className="custom-scroll"
               >
-                {(Loading || isNavigating || isTabSwitching) ? (
+                {Loading || isNavigating || isTabSwitching ? (
                   [...Array(8)].map((_, index) => (
                     <div
                       key={`skeleton-${index}`}
@@ -1159,8 +1285,14 @@ const AwakeningsCard = ({
                         border: "1px solid #E8F2FF",
                       }}
                     >
-                      <span className="placeholder rounded-1" style={{ width: "60px", height: "10px" }}></span>
-                      <span className="placeholder rounded-1" style={{ width: "40px", height: "10px" }}></span>
+                      <span
+                        className="placeholder rounded-1"
+                        style={{ width: "60px", height: "10px" }}
+                      ></span>
+                      <span
+                        className="placeholder rounded-1"
+                        style={{ width: "40px", height: "10px" }}
+                      ></span>
                     </div>
                   ))
                 ) : chartData.tableData.length > 0 ? (

@@ -90,10 +90,13 @@ export const getPatientCaloriesConsumed = (data) => ({
   payload: data,
 });
 
-export const getPatientSleepStages = (data) => ({
-  type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_STAGES,
-  payload: data,
-});
+export const getPatientSleepStages = (data) => {
+  console.log("Action Payload:", data);
+  return {
+    type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_STAGES,
+    payload: data,
+  };
+};
 
 export const getExerciseSessions = (data) => ({
   type: PATIENT_DASHBOARD_TYPES.GET_EXERCISE_SESSIONS,
