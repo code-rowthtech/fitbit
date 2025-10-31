@@ -173,7 +173,7 @@ const WaterIntakeCard = ({
           value:
             litersValue !== null && litersValue > 0
               ? `${litersValue.toFixed(1)}L`
-              : "-",
+              : "0L",
         };
       });
 

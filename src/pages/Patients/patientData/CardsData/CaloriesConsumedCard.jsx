@@ -1065,7 +1065,7 @@ const CaloriesConsumedCard = ({
                                     return dataIndex !== undefined &&
                                       CaloriesData[dataIndex]
                                       ? [
-                                          `Days: ${CaloriesData[dataIndex].dayRange}`,
+                                          // `Days: ${CaloriesData[dataIndex].dayRange}`,
                                         ]
                                       : [];
                                   }

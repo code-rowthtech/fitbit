@@ -28,6 +28,10 @@ const DistanceCard = ({
   const AverageData = useSelector(
     (state) => state?.getPatientDistance?.data?.response
   );
+  const IntradayData = useSelector(
+    (state) =>
+      state?.getPatientDistance?.data?.response?.todayData?.intradayData
+  );
   const Loading = useSelector((state) => state?.getPatientDistance?.loading);
 
   // Reset loading states when data loading completes
@@ -40,6 +44,24 @@ const DistanceCard = ({
 
   // Get chart data based on active tab and API response
   const getChartData = () => {
+    // For Day tab, use intraday data if available
+    if (activeTab === "Day" && IntradayData && IntradayData.length > 0) {
+      const labels = IntradayData.map((item) => {
+        // Convert "12 AM to 1 AM" to "12 AM"
+        return item.timeRange.split(" to ")[0];
+      });
+
+      const data = IntradayData.map((item) => item.distance);
+
+      const tableData = IntradayData.map((item) => ({
+        period: item.timeRange,
+        value: `${item.distance.toFixed(2)} km`,
+      }));
+
+      return { labels, data, tableData };
+    }
+
+    // For other tabs, use regular data
     if (!DistanceData || DistanceData.length === 0) {
       return { labels: [], data: [], tableData: [] };
     }
@@ -54,12 +76,6 @@ const DistanceCard = ({
 
       const date = new Date(item.date);
       switch (activeTab) {
-        case "Day":
-          return date.toLocaleDateString("en-US", {
-            weekday: "short",
-            month: "short",
-            day: "numeric",
-          });
         case "Week":
           return date.toLocaleDateString("en-US", { weekday: "short" });
         case "Month":
@@ -82,13 +98,6 @@ const DistanceCard = ({
       } else {
         const date = new Date(item.date);
         switch (activeTab) {
-          case "Day":
-            period = date.toLocaleDateString("en-US", {
-              weekday: "long",
-              month: "long",
-              day: "numeric",
-            });
-            break;
           case "Week":
             period = date.toLocaleDateString("en-US", { weekday: "long" });
             break;
@@ -281,7 +290,7 @@ const DistanceCard = ({
     if (isTabSwitching || tab === activeTab) return;
 
     setIsTabSwitching(true);
-    
+
     // Determine the date to use for the new tab
     let dateToUse = new Date(currentDate);
     if (tab === "Year") {
@@ -289,7 +298,7 @@ const DistanceCard = ({
       dateToUse = new Date(currentYear, 0, 1);
       onDateChange(dateToUse);
     }
-    
+
     onTabChange(tab);
     // Fetch data for new tab
     setTimeout(() => {
@@ -535,16 +544,18 @@ const DistanceCard = ({
                                   // Parse date more carefully to avoid timezone issues
                                   const dateStr = clickedDay.date;
                                   let dayDate;
-                                  
-                                  if (dateStr.includes('-')) {
+
+                                  if (dateStr.includes("-")) {
                                     // Handle YYYY-MM-DD format
-                                    const [year, month, day] = dateStr.split('-').map(Number);
+                                    const [year, month, day] = dateStr
+                                      .split("-")
+                                      .map(Number);
                                     dayDate = new Date(year, month - 1, day); // month is 0-indexed
                                   } else {
                                     // Fallback to original parsing
                                     dayDate = new Date(dateStr);
                                   }
-                                  
+
                                   onDateChange(dayDate);
                                   // Use setTimeout to ensure date change takes effect
                                   setTimeout(() => {
@@ -564,6 +575,16 @@ const DistanceCard = ({
                                     `Min: ${parseInt(DistanceStatsData.min)}`,
                                     `Max: ${parseInt(DistanceStatsData.max)}`,
                                   ]
+                                : activeTab === "Day" && IntradayData
+                                ? (context) => {
+                                    const dataIndex = context[0]?.dataIndex;
+                                    return dataIndex !== undefined &&
+                                      IntradayData[dataIndex]
+                                      ? [
+                                          `Time: ${IntradayData[dataIndex].timeRange}`,
+                                        ]
+                                      : [];
+                                  }
                                 : activeTab === "Month" && DistanceData
                                 ? (context) => {
                                     const dataIndex = context[0]?.dataIndex;
@@ -585,7 +606,12 @@ const DistanceCard = ({
                       scales: {
                         x: {
                           grid: { display: false },
-                          ticks: { color: "#666", fontSize: 10 },
+                          ticks: {
+                            color: "#666",
+                            fontSize: 10,
+                            maxRotation: activeTab === "Day" ? 45 : 0,
+                            minRotation: activeTab === "Day" ? 45 : 0,
+                          },
                         },
                         y: {
                           beginAtZero: true,
@@ -889,16 +915,18 @@ const DistanceCard = ({
                                 // Parse date more carefully to avoid timezone issues
                                 const dateStr = clickedDay.date;
                                 let dayDate;
-                                
-                                if (dateStr.includes('-')) {
+
+                                if (dateStr.includes("-")) {
                                   // Handle YYYY-MM-DD format
-                                  const [year, month, day] = dateStr.split('-').map(Number);
+                                  const [year, month, day] = dateStr
+                                    .split("-")
+                                    .map(Number);
                                   dayDate = new Date(year, month - 1, day); // month is 0-indexed
                                 } else {
                                   // Fallback to original parsing
                                   dayDate = new Date(dateStr);
                                 }
-                                
+
                                 onDateChange(dayDate);
                                 // Use setTimeout to ensure date change takes effect
                                 setTimeout(() => {

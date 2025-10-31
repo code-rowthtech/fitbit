@@ -552,7 +552,7 @@ const ActiveMinCard = ({
                                     return dataIndex !== undefined &&
                                       ActiveMinData[dataIndex]
                                       ? [
-                                          `Days: ${ActiveMinData[dataIndex].dayRange}`,
+                                          // `Days: ${ActiveMinData[dataIndex].dayRange}`,
                                         ]
                                       : [];
                                   }
