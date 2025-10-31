@@ -592,7 +592,10 @@ const DurationCard = ({
         field: "sleep",
       };
       // if (activeTab === "Month")  // payload.period = "month";
-      if (activeTab === "Year") payload.period = "year";
+      if (activeTab === "Year") {
+        payload.period = "year";
+        payload.type = "sleep";
+      }
       dispatch(getPatientSleepStages(payload));
     }
   }, [patientId, dispatch, formatDate]);
@@ -801,7 +804,10 @@ const DurationCard = ({
           field: "sleep",
         };
         // if (activeTab === "Month")  // payload.period = "month";
-        if (activeTab === "Year") payload.period = "year";
+        if (activeTab === "Year") {
+          payload.period = "year";
+          payload.type = "sleep";
+        }
         dispatch(getPatientSleepStages(payload));
       }
     }, 0);
@@ -847,7 +853,10 @@ const DurationCard = ({
           field: "sleep",
         };
         // if (tab === "Month")  // payload.period = "month";
-        if (tab === "Year") payload.period = "year";
+        if (tab === "Year") {
+          payload.period = "year";
+          payload.type = "sleep";
+        }
         dispatch(getPatientSleepStages(payload));
       }
     }, 0);
@@ -1049,7 +1058,8 @@ const DurationCard = ({
                           ? (event, elements) => {
                               if (elements.length > 0) {
                                 const clickedIndex = elements[0].index;
-                                const clickedLabel = chartData.labels[clickedIndex];
+                                const clickedLabel =
+                                  chartData.labels[clickedIndex];
                                 const dayNumber = parseInt(clickedLabel);
                                 if (!isNaN(dayNumber)) {
                                   const newDate = new Date(

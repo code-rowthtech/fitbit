@@ -614,9 +614,11 @@ const EfficiencyCard = ({
 
   // Get chart data based on active tab and API response - use SleepStagesData for expanded view
   const getChartData = () => {
-    // Use SleepStagesData when expanded, otherwise use FilterData
+    // Use SleepStagesData when expanded and not Year tab, otherwise use FilterData
     const dataSource =
-      expandedCard === "efficiency" ? SleepStagesData?.data : FilterData;
+      expandedCard === "efficiency" && activeTab !== "Year"
+        ? SleepStagesData?.data
+        : FilterData;
 
     if (!dataSource || dataSource.length === 0) {
       return { labels: [], data: [], tableData: [] };
@@ -669,7 +671,7 @@ const EfficiencyCard = ({
       return chartValue;
     });
 
-    const tableData = apiData.map((item) => {
+    const tableData = apiData.map((item, index) => {
       let period;
 
       if (activeTab === "Month" && item.date.includes("Week")) {
@@ -702,9 +704,14 @@ const EfficiencyCard = ({
         }
       }
 
-      // Get efficiency data from sleep sessions
+      // For Year tab, use direct value; for others, calculate from sleep sessions
       let efficiencyValue = "0%";
-      if (item.sleepData && item.sleepData.length > 0) {
+      if (activeTab === "Year") {
+        efficiencyValue =
+          item.value !== null && item.value !== undefined
+            ? `${item.value}%`
+            : "0%";
+      } else if (item.sleepData && item.sleepData.length > 0) {
         const avgEfficiency =
           item.sleepData.reduce(
             (sum, session) => sum + (session.efficiency || 0),
@@ -713,14 +720,13 @@ const EfficiencyCard = ({
         efficiencyValue = `${Math.round(avgEfficiency)}%`;
       }
 
+      // Use the same value as chart data
+      const chartValue = data[index];
+
       return {
         period,
         value:
-          expandedCard === "efficiency"
-            ? efficiencyValue
-            : item.value
-            ? `${item.value}%`
-            : "0%",
+          expandedCard === "efficiency" ? efficiencyValue : `${chartValue}%`,
       };
     });
 
