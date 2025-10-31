@@ -53,7 +53,7 @@ const WeightCard = ({
     (state) => state?.getPatientWeight?.data?.response
   );
   const Loading = useSelector((state) => state?.getPatientWeight?.loading);
-  
+
   // Reset loading states when data loading completes
   useEffect(() => {
     if (!Loading) {
@@ -598,23 +598,55 @@ const WeightCard = ({
                     </button>
                   </div>
                 </div>
-                {(Loading || isNavigating || isTabSwitching) ? (
+                {Loading || isNavigating || isTabSwitching ? (
                   <div className="d-flex flex-column h-100">
                     {/* Chart Skeleton */}
                     <div className="position-relative flex-grow-1">
                       {/* Y-axis skeleton */}
-                      <div className="position-absolute" style={{ left: "0", top: "0", bottom: "30px", width: "30px" }}>
+                      <div
+                        className="position-absolute"
+                        style={{
+                          left: "0",
+                          top: "0",
+                          bottom: "30px",
+                          width: "30px",
+                        }}
+                      >
                         {[...Array(6)].map((_, i) => (
-                          <div key={i} className="placeholder rounded-1 mb-3" style={{ height: "8px", width: "25px" }}></div>
+                          <div
+                            key={i}
+                            className="placeholder rounded-1 mb-3"
+                            style={{ height: "8px", width: "25px" }}
+                          ></div>
                         ))}
                       </div>
 
                       {/* Chart area skeleton */}
-                      <div className="position-absolute" style={{ left: "40px", right: "0", top: "0", bottom: "30px" }}>
-                        <svg width="100%" height="100%" className="placeholder-glow">
+                      <div
+                        className="position-absolute"
+                        style={{
+                          left: "40px",
+                          right: "0",
+                          top: "0",
+                          bottom: "30px",
+                        }}
+                      >
+                        <svg
+                          width="100%"
+                          height="100%"
+                          className="placeholder-glow"
+                        >
                           {/* Grid lines */}
                           {[...Array(5)].map((_, i) => (
-                            <line key={`grid-${i}`} x1="0" y1={`${(i + 1) * 20}%`} x2="100%" y2={`${(i + 1) * 20}%`} stroke="#E8F2FF" strokeWidth="1" />
+                            <line
+                              key={`grid-${i}`}
+                              x1="0"
+                              y1={`${(i + 1) * 20}%`}
+                              x2="100%"
+                              y2={`${(i + 1) * 20}%`}
+                              stroke="#E8F2FF"
+                              strokeWidth="1"
+                            />
                           ))}
 
                           {/* Skeleton chart area */}
@@ -630,7 +662,7 @@ const WeightCard = ({
                           {[...Array(8)].map((_, i) => (
                             <circle
                               key={`point-${i}`}
-                              cx={`${(i * 14) + 5}%`}
+                              cx={`${i * 14 + 5}%`}
                               cy={`${55 + Math.sin(i) * 10}%`}
                               r="3"
                               fill="#E8F2FF"
@@ -641,9 +673,21 @@ const WeightCard = ({
                       </div>
 
                       {/* X-axis skeleton */}
-                      <div className="position-absolute d-flex justify-content-between" style={{ left: "40px", right: "0", bottom: "0", height: "20px" }}>
+                      <div
+                        className="position-absolute d-flex justify-content-between"
+                        style={{
+                          left: "40px",
+                          right: "0",
+                          bottom: "0",
+                          height: "20px",
+                        }}
+                      >
                         {[...Array(6)].map((_, i) => (
-                          <div key={i} className="placeholder rounded-1" style={{ height: "8px", width: "20px" }}></div>
+                          <div
+                            key={i}
+                            className="placeholder rounded-1"
+                            style={{ height: "8px", width: "20px" }}
+                          ></div>
                         ))}
                       </div>
                     </div>
@@ -785,7 +829,7 @@ const WeightCard = ({
                           style={{
                             width: "10px",
                             height: "10px",
-                            borderWidth: "1px"
+                            borderWidth: "1px",
                           }}
                         ></div>
                         <span>{tab}</span>
@@ -822,7 +866,7 @@ const WeightCard = ({
                       style={{
                         width: "8px",
                         height: "8px",
-                        borderWidth: "1px"
+                        borderWidth: "1px",
                       }}
                     ></div>
                   ) : (
@@ -843,11 +887,18 @@ const WeightCard = ({
                   style={{
                     width: "24px",
                     height: "24px",
-                    backgroundColor: (isNextDisabled() || isNavigating) ? "#f5f5f5" : "white",
-                    border: `1px solid ${(isNextDisabled() || isNavigating) ? "#ccc" : "#003465"}`,
+                    backgroundColor:
+                      isNextDisabled() || isNavigating ? "#f5f5f5" : "white",
+                    border: `1px solid ${
+                      isNextDisabled() || isNavigating ? "#ccc" : "#003465"
+                    }`,
                     borderRadius: "4px",
-                    color: (isNextDisabled() || isNavigating) ? "#ccc" : "#003465",
-                    cursor: (isNextDisabled() || isNavigating) ? "not-allowed" : "pointer",
+                    color:
+                      isNextDisabled() || isNavigating ? "#ccc" : "#003465",
+                    cursor:
+                      isNextDisabled() || isNavigating
+                        ? "not-allowed"
+                        : "pointer",
                   }}
                   onClick={() => handleNavigation("next")}
                   disabled={isNextDisabled() || isNavigating}
@@ -858,7 +909,7 @@ const WeightCard = ({
                       style={{
                         width: "8px",
                         height: "8px",
-                        borderWidth: "1px"
+                        borderWidth: "1px",
                       }}
                     ></div>
                   ) : (
@@ -927,7 +978,7 @@ const WeightCard = ({
                 }}
                 className="custom-scroll"
               >
-                {(Loading || isNavigating || isTabSwitching) ? (
+                {Loading || isNavigating || isTabSwitching ? (
                   // Table skeleton
                   [...Array(8)].map((_, index) => (
                     <div
@@ -940,26 +991,62 @@ const WeightCard = ({
                         border: "1px solid #E8F2FF",
                       }}
                     >
-                      <span className="placeholder rounded-1" style={{ width: "60px", height: "10px" }}></span>
-                      <span className="placeholder rounded-1" style={{ width: "40px", height: "10px" }}></span>
+                      <span
+                        className="placeholder rounded-1"
+                        style={{ width: "60px", height: "10px" }}
+                      ></span>
+                      <span
+                        className="placeholder rounded-1"
+                        style={{ width: "40px", height: "10px" }}
+                      ></span>
                     </div>
                   ))
                 ) : chartData.tableData.length > 0 ? (
-                  chartData.tableData.map((item, index) => (
-                    <div
-                      key={`${activeTab}-${item.period}-${index}`}
-                      className="d-flex justify-content-between p-2 mb-1"
-                      style={{
-                        backgroundColor: "white",
-                        fontSize: "10px",
-                        borderRadius: "2px",
-                        border: "1px solid #E8F2FF",
-                      }}
-                    >
-                      <span style={{ color: "#003465" }}>{item.period}</span>
-                      <span style={{ color: "#003465" }}>{item.value}</span>
-                    </div>
-                  ))
+                  chartData.tableData.map((item, index) => {
+                    const handleRowClick = () => {
+                      if (activeTab === "Year") {
+                        const monthIndex = new Date(
+                          Date.parse(item.period + " 1, 2024")
+                        ).getMonth();
+                        const newDate = new Date(
+                          currentDate.getFullYear(),
+                          monthIndex,
+                          1
+                        );
+                        onDateChange(newDate);
+                        handleTabChange("Month");
+                      }
+                    };
+
+                    return (
+                      <div
+                        key={`${activeTab}-${item.period}-${index}`}
+                        className="d-flex justify-content-between p-2 mb-1"
+                        style={{
+                          backgroundColor: "white",
+                          fontSize: "10px",
+                          borderRadius: "2px",
+                          border: "1px solid #E8F2FF",
+                          cursor: activeTab === "Year" ? "pointer" : "default",
+                          transition: "background-color 0.2s ease",
+                        }}
+                        onClick={handleRowClick}
+                        onMouseEnter={(e) => {
+                          if (activeTab === "Year") {
+                            e.target.style.backgroundColor = "#F0F7FF";
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (activeTab === "Year") {
+                            e.target.style.backgroundColor = "white";
+                          }
+                        }}
+                      >
+                        <span style={{ color: "#003465" }}>{item.period}</span>
+                        <span style={{ color: "#003465" }}>{item.value}</span>
+                      </div>
+                    );
+                  })
                 ) : (
                   <div
                     className="d-flex justify-content-center align-items-center p-4"

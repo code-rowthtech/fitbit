@@ -1543,7 +1543,7 @@ const EfficiencyCard = ({
                     stroke="#003465"
                     strokeWidth="4"
                     strokeDasharray="301"
-                    strokeDashoffset={301 - (totalEfficiency / 100) * 301}
+                    strokeDashoffset={!totalEfficiency || totalEfficiency === 0 ? 301 : 301 - (totalEfficiency / 100) * 301}
                     strokeLinecap="round"
                     transform="rotate(-90 60 60)"
                   />
