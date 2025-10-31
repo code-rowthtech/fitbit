@@ -443,12 +443,35 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                     }}
                     {...register("firstName", {
                       required: "First name is required",
+                      minLength: {
+                        value: 2,
+                        message: "Name is too short",
+                      },
                       pattern: {
-                        value: /^[A-Za-z]{3,}$/,
+                        value: /^[A-Za-z]+(?:\s[A-Za-z]+)*\s*$/,
                         message:
-                          "First name should contain at least 3 alphabets only",
+                          "Only alphabets are allowed (no emojis, numbers, or special characters)",
+                      },
+                      validate: {
+                        noLeadingSpace: (value) =>
+                          !value?.startsWith(" ") ||
+                          "Name cannot start with spaces",
+                        noMultipleSpaces: (value) =>
+                          !/\s{2,}/.test(value) ||
+                          "Multiple consecutive spaces are not allowed",
+                        noEmojis: (value) =>
+                          !/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                            value
+                          ) || "Emojis are not allowed",
                       },
                     })}
+                    onChange={(e) => {
+                      let value = e.target.value;
+                      if (value.length > 0) {
+                        value = value.charAt(0).toUpperCase() + value.slice(1);
+                      }
+                      setValue("firstName", value, { shouldValidate: true });
+                    }}
                   />
                   {errors.firstName && (
                     <span className="text-danger" style={{ fontSize: "10px" }}>
@@ -499,12 +522,35 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                     }}
                     {...register("lastName", {
                       required: "Last name is required",
+                      minLength: {
+                        value: 2,
+                        message: "Name is too short",
+                      },
                       pattern: {
-                        value: /^[A-Za-z]{3,}$/,
+                        value: /^[A-Za-z]+(?:\s[A-Za-z]+)*\s*$/,
                         message:
-                          "Last name should contain at least 3 alphabets only",
+                          "Only alphabets are allowed (no emojis, numbers, or special characters)",
+                      },
+                      validate: {
+                        noLeadingSpace: (value) =>
+                          !value?.startsWith(" ") ||
+                          "Name cannot start with spaces",
+                        noMultipleSpaces: (value) =>
+                          !/\s{2,}/.test(value) ||
+                          "Multiple consecutive spaces are not allowed",
+                        noEmojis: (value) =>
+                          !/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(
+                            value
+                          ) || "Emojis are not allowed",
                       },
                     })}
+                    onChange={(e) => {
+                      let value = e.target.value;
+                      if (value.length > 0) {
+                        value = value.charAt(0).toUpperCase() + value.slice(1);
+                      }
+                      setValue("lastName", value, { shouldValidate: true });
+                    }}
                   />
                   {errors.lastName && (
                     <span className="text-danger" style={{ fontSize: "10px" }}>

@@ -516,6 +516,28 @@ const StepsCard = ({
                     }}
                     options={{
                       maintainAspectRatio: false,
+                      onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                          const elementIndex = elements[0].index;
+                          if (
+                            activeTab === "Year" &&
+                            FilterData[elementIndex]
+                          ) {
+                            const clickedMonth = FilterData[elementIndex];
+                            const monthDate = new Date(clickedMonth.date);
+                            onDateChange(monthDate);
+                            handleTabChange("Month");
+                          } else if (
+                            activeTab === "Month" &&
+                            FilterData[elementIndex]
+                          ) {
+                            const clickedDay = FilterData[elementIndex];
+                            const dayDate = new Date(clickedDay.date);
+                            onDateChange(dayDate);
+                            handleTabChange("Day");
+                          }
+                        }
+                      },
                       plugins: {
                         legend: { display: false },
                         tooltip: {
@@ -594,6 +616,11 @@ const StepsCard = ({
                                 ctx.stroke();
                                 ctx.restore();
                               }
+                            }
+                          : activeTab === "Year" || activeTab === "Month"
+                          ? (event, elements, chart) => {
+                              chart.canvas.style.cursor =
+                                elements.length > 0 ? "pointer" : "default";
                             }
                           : undefined,
                     }}
@@ -827,7 +854,46 @@ const StepsCard = ({
                         fontSize: "10px",
                         borderRadius: "2px",
                         border: "1px solid #E8F2FF",
+                        cursor:
+                          activeTab === "Year" || activeTab === "Month"
+                            ? "pointer"
+                            : "default",
                       }}
+                      onClick={
+                        activeTab === "Year"
+                          ? () => {
+                              const clickedMonth = FilterData[index];
+                              if (clickedMonth) {
+                                const monthDate = new Date(clickedMonth.date);
+                                onDateChange(monthDate);
+                                handleTabChange("Month");
+                              }
+                            }
+                          : activeTab === "Month"
+                          ? () => {
+                              const clickedDay = FilterData[index];
+                              if (clickedDay) {
+                                const dayDate = new Date(clickedDay.date);
+                                onDateChange(dayDate);
+                                handleTabChange("Day");
+                              }
+                            }
+                          : undefined
+                      }
+                      onMouseEnter={
+                        activeTab === "Year" || activeTab === "Month"
+                          ? (e) => {
+                              e.target.style.backgroundColor = "#F0F7FF";
+                            }
+                          : undefined
+                      }
+                      onMouseLeave={
+                        activeTab === "Year" || activeTab === "Month"
+                          ? (e) => {
+                              e.target.style.backgroundColor = "white";
+                            }
+                          : undefined
+                      }
                     >
                       <span style={{ color: "#003465" }}>{item.period}</span>
                       <span style={{ color: "#003465" }}>{item.value}</span>

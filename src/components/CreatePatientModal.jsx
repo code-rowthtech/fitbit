@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Modal, Form, Row, Col, Button } from "react-bootstrap";
+import { Modal, Form, Row, Col, Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -12,6 +12,7 @@ import {
 } from "../redux/actions";
 import { FaTimes } from "react-icons/fa";
 import { MdDone } from "react-icons/md";
+import { RiInformationLine } from "react-icons/ri";
 import Select from "react-select";
 import { RiAddLine } from "react-icons/ri";
 import AddAllergyModal from "./Allergy/AddAllergyModal";
@@ -305,14 +306,14 @@ const CreatePatientModal = ({ show, onHide }) => {
                         message: "Name is too short",
                       },
                       pattern: {
-                        value: /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+                        value: /^[A-Za-z]+(?:\s[A-Za-z]+)*\s*$/,
                         message:
                           "Only alphabets are allowed (no emojis, numbers, or special characters)",
                       },
                       validate: {
                         noLeadingSpace: (value) =>
-                          value?.trim() === value ||
-                          "Name cannot start or end with spaces",
+                          !value?.startsWith(" ") ||
+                          "Name cannot start with spaces",
                         noMultipleSpaces: (value) =>
                           !/\s{2,}/.test(value) ||
                           "Multiple consecutive spaces are not allowed",
@@ -385,14 +386,14 @@ const CreatePatientModal = ({ show, onHide }) => {
                         message: "Name is too short",
                       },
                       pattern: {
-                        value: /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+                        value: /^[A-Za-z]+(?:\s[A-Za-z]+)*\s*$/,
                         message:
                           "Only alphabets are allowed (no emojis, numbers, or special characters)",
                       },
                       validate: {
                         noLeadingSpace: (value) =>
-                          value?.trim() === value ||
-                          "Name cannot start or end with spaces",
+                          !value?.startsWith(" ") ||
+                          "Name cannot start with spaces",
                         noMultipleSpaces: (value) =>
                           !/\s{2,}/.test(value) ||
                           "Multiple consecutive spaces are not allowed",
@@ -1040,10 +1041,26 @@ const CreatePatientModal = ({ show, onHide }) => {
               <Col md={6}>
                 <Form.Group className="mb-3">
                   <Form.Label
-                    className="mb-1 fw-semibold opacity-75"
+                    className="mb-1 fw-semibold opacity-75 d-flex align-items-center gap-2"
                     style={{ fontSize: "14px", color: "#16213DB2" }}
                   >
                     Fitbit Consent
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={
+                        <Tooltip>
+                          If yes, an email will be sent to your email to connect with this portal
+                        </Tooltip>
+                      }
+                    >
+                      <RiInformationLine
+                        style={{
+                          fontSize: "14px",
+                          color: "#003465",
+                          cursor: "help"
+                        }}
+                      />
+                    </OverlayTrigger>
                   </Form.Label>
                   <div className="d-flex gap-4 mt-2">
                     <Form.Check
