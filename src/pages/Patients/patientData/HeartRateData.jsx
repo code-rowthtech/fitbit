@@ -35,12 +35,13 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [expandedCard, setExpandedCard] = useState(null);
-  const [activeTab, setActiveTab] = useState("Week");
+  const [heartRateActiveTab, setHeartRateActiveTab] = useState("Week");
+  const [weightActiveTab, setWeightActiveTab] = useState("Week");
   const [currentDate, setCurrentDate] = useState(new Date());
   const datePickerRef = useRef(null);
 
   const formatDate = (date) => {
-    if (!date) return '';
+    if (!date) return "";
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
@@ -90,7 +91,7 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
                   marginRight: "15px",
                 }}
               >
-                Heart Rate And  Body Metrics
+                Heart Rate And Body Metrics
               </span>
             </div>
             <div
@@ -125,8 +126,8 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
                   patientId={patientId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
-                  activeTab={activeTab}
-                  onTabChange={setActiveTab}
+                  activeTab={heartRateActiveTab}
+                  onTabChange={setHeartRateActiveTab}
                   currentDate={currentDate}
                   onDateChange={setCurrentDate}
                   formatDate={formatDate}
@@ -139,8 +140,8 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
                   patientId={patientId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
-                  activeTab={activeTab}
-                  onTabChange={setActiveTab}
+                  activeTab={weightActiveTab}
+                  onTabChange={setWeightActiveTab}
                   currentDate={currentDate}
                   onDateChange={setCurrentDate}
                   formatDate={formatDate}
