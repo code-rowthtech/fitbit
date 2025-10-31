@@ -327,91 +327,86 @@ const Doctors = () => {
                   flexDirection: "column",
                 }}
               >
-                <Table
-                  className="mb-0 table-sm"
-                  style={{ fontSize: "11px", overflow: "hidden" }}
-                >
-                  <thead
-                    className="thead-custom"
-                    style={{ position: "sticky", top: 0, zIndex: 10 }}
-                  >
-                    <tr>
-                      <th
-                        className="fw-bold py-2 text-center"
-                        style={{
-                          width: statusFilter === "inactive" ? "4%" : "5%",
-                          fontSize: "16px",
-                        }}
-                      >
-                        #
-                      </th>
-                      <th
-                        className="fw-bold py-2 text-start ps-5"
-                        style={{
-                          width: statusFilter === "inactive" ? "25%" : "30%",
-                          fontSize: "16px",
-                        }}
-                      >
-                        Name
-                      </th>
-                      <th
-                        className="fw-bold py-2 text-start"
-                        style={{
-                          width: statusFilter === "inactive" ? "20%" : "25%",
-                          fontSize: "16px",
-                        }}
-                      >
-                        Email
-                      </th>
-                      <th
-                        className="fw-bold py-2 text-start"
-                        style={{
-                          width: statusFilter === "inactive" ? "18%" : "20%",
-                          fontSize: "16px",
-                        }}
-                      >
-                        Specialization
-                      </th>
-                      <th
-                        className="fw-bold py-2 text-center"
-                        style={{
-                          width: statusFilter === "inactive" ? "8%" : "10%",
-                          fontSize: "16px",
-                        }}
-                      >
-                        Gender
-                      </th>
-                      {statusFilter === "inactive" && (
+                <div style={{ flex: 1, overflowY: "auto", maxHeight: "76vh" }}>
+                  <Table className="mb-0 table-sm" style={{ fontSize: "11px", tableLayout: "fixed" }}>
+                    <thead
+                      className="thead-custom"
+                      style={{ position: "sticky", top: 0, zIndex: 10 }}
+                    >
+                      <tr>
                         <th
                           className="fw-bold py-2 text-center"
-                          style={{ width: "10%", fontSize: "16px" }}
+                          style={{
+                            width: statusFilter === "inactive" ? "4%" : "5%",
+                            fontSize: "16px",
+                          }}
                         >
-                          Inactive Date
+                          #
                         </th>
-                      )}
-                      <th
-                        className="fw-bold py-2 text-center"
-                        style={{
-                          width: statusFilter === "inactive" ? "8%" : "10%",
-                          fontSize: "16px",
-                        }}
-                      >
-                        Status
-                      </th>
-                      <th
-                        className="fw-bold py-2 text-center"
-                        style={{
-                          width: statusFilter === "inactive" ? "7%" : "10%",
-                          fontSize: "16px",
-                        }}
-                      >
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                </Table>
-                <div style={{ flex: 1, overflowY: "auto", maxHeight: "76vh" }}>
-                  <Table className="mb-0 table-sm" style={{ fontSize: "11px" }}>
+                        <th
+                          className="fw-bold py-2 text-start ps-5"
+                          style={{
+                            width: statusFilter === "inactive" ? "25%" : "30%",
+                            fontSize: "16px",
+                          }}
+                        >
+                          Name
+                        </th>
+                        <th
+                          className="fw-bold py-2 text-start"
+                          style={{
+                            width: statusFilter === "inactive" ? "20%" : "25%",
+                            fontSize: "16px",
+                          }}
+                        >
+                          Email
+                        </th>
+                        <th
+                          className="fw-bold py-2 text-start"
+                          style={{
+                            width: statusFilter === "inactive" ? "18%" : "20%",
+                            fontSize: "16px",
+                          }}
+                        >
+                          Specialization
+                        </th>
+                        <th
+                          className="fw-bold py-2 text-center"
+                          style={{
+                            width: statusFilter === "inactive" ? "8%" : "10%",
+                            fontSize: "16px",
+                          }}
+                        >
+                          Gender
+                        </th>
+                        {statusFilter === "inactive" && (
+                          <th
+                            className="fw-bold py-2 text-center"
+                            style={{ width: "10%", fontSize: "16px" }}
+                          >
+                            Inactive Date
+                          </th>
+                        )}
+                        <th
+                          className="fw-bold py-2 text-center"
+                          style={{
+                            width: statusFilter === "inactive" ? "8%" : "10%",
+                            fontSize: "16px",
+                          }}
+                        >
+                          Status
+                        </th>
+                        <th
+                          className="fw-bold py-2 text-center"
+                          style={{
+                            width: statusFilter === "inactive" ? "7%" : "10%",
+                            fontSize: "16px",
+                          }}
+                        >
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
                     <tbody>
                       {DoctorData?.map((doctor, index) => (
                         <tr
