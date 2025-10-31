@@ -26,6 +26,7 @@ const WaterIntakeCard = ({
   const WaterStatsData = useSelector(
     (state) => state?.getPatientWater?.data?.response?.targetRange
   );
+
   const AverageData = useSelector(
     (state) => state?.getPatientWater?.data?.response
   );
@@ -165,10 +166,14 @@ const WaterIntakeCard = ({
           }
         }
 
-        const litersValue = convertMlToLiters(item.value);
+        const litersValue =
+          activeTab === "Year" ? item.value : convertMlToLiters(item.value);
         return {
           period,
-          value: litersValue > 0 ? `${litersValue.toFixed(1)}L` : "0L",
+          value:
+            litersValue !== null && litersValue > 0
+              ? `${litersValue.toFixed(1)}L`
+              : "-",
         };
       });
 
@@ -312,16 +317,17 @@ const WaterIntakeCard = ({
   };
 
   // Handle tab change
-  const handleTabChange = (tab) => {
+  const handleTabChange = (tab, specificDate = null) => {
     if (isTabSwitching || tab === activeTab) return;
 
     setIsTabSwitching(true);
     onTabChange(tab);
     // Fetch data for new tab
-    if (currentDate && formatDate) {
+    const dateToUse = specificDate || currentDate;
+    if (dateToUse && formatDate) {
       setTimeout(() => {
         if (patientId) {
-          const date = new Date(currentDate);
+          const date = new Date(dateToUse);
           if (isNaN(date.getTime())) return;
 
           let start, end;
@@ -362,7 +368,7 @@ const WaterIntakeCard = ({
             dispatch(getPatientWater(payload));
           }
         }
-      }, 0);
+      }, 100);
     }
   };
 
@@ -529,20 +535,23 @@ const WaterIntakeCard = ({
                         if (elements.length > 0) {
                           const dataIndex = elements[0].index;
                           if (WaterData && WaterData[dataIndex]) {
-                            const selectedDate = new Date(
-                              WaterData[dataIndex].date
-                            );
                             if (activeTab === "Year") {
-                              const newDate = new Date(
-                                selectedDate.getFullYear(),
-                                selectedDate.getMonth(),
-                                1
-                              );
+                              const dateStr = WaterData[dataIndex].date + "-01";
+                              const newDate = new Date(dateStr);
                               onDateChange(newDate);
                               handleTabChange("Month");
                             } else if (activeTab === "Month") {
+                              const selectedDate = new Date(
+                                WaterData[dataIndex].date
+                              );
+                              console.log(
+                                "Chart click - Original date:",
+                                WaterData[dataIndex].date,
+                                "Parsed date:",
+                                selectedDate
+                              );
                               onDateChange(selectedDate);
-                              handleTabChange("Day");
+                              handleTabChange("Day", selectedDate);
                             }
                           }
                         }
@@ -885,18 +894,23 @@ const WaterIntakeCard = ({
                       }}
                       onClick={() => {
                         if (WaterData && WaterData[index]) {
-                          const selectedDate = new Date(WaterData[index].date);
                           if (activeTab === "Year") {
-                            const newDate = new Date(
-                              selectedDate.getFullYear(),
-                              selectedDate.getMonth(),
-                              1
-                            );
+                            const dateStr = WaterData[index].date + "-01";
+                            const newDate = new Date(dateStr);
                             onDateChange(newDate);
                             handleTabChange("Month");
                           } else if (activeTab === "Month") {
+                            const selectedDate = new Date(
+                              WaterData[index].date
+                            );
+                            console.log(
+                              "Month click - Original date:",
+                              WaterData[index].date,
+                              "Parsed date:",
+                              selectedDate
+                            );
                             onDateChange(selectedDate);
-                            handleTabChange("Day");
+                            handleTabChange("Day", selectedDate);
                           }
                         }
                       }}
