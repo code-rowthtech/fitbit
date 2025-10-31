@@ -1,0 +1,25 @@
+.metric-cards-container {
+  gap: 12px;
+}
+
+.metric-card {
+  gap: 12px;
+  padding: 10px;
+  min-width: 150px;
+}
+
+.metric-card .card-label {
+  font-size: 11px;
+}
+
+.metric-card .card-value {
+  font-size: 15px;
+}
+
+.metric-card .card-unit {
+  font-size: 9px;
+}
+
+.metric-card .card-period {
+  font-size: 8px;
+}

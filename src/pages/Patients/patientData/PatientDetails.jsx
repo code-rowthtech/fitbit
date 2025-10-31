@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./PatientDetails.css";
+import "./PatientDetailsResponsive.css";
 import {
   FaChevronDown,
   FaCheckCircle,
@@ -151,11 +152,8 @@ const PatientDetails = ({
       <div className="accordion m-2" id="patientAccordion">
         <div className="accordion-item">
           <h2 className="accordion-header">
-            <button
-              className={`accordion-button border-bottom py-0 ps-0 custom-accordion-button ${
-                !accordionOpen ? "collapsed" : ""
-              }`}
-              type="button"
+            <div
+              className="border-bottom py-0 ps-0 custom-accordion-button pe-3"
               style={{
                 backgroundColor: "#F6FAFF",
                 border: "none",
@@ -167,16 +165,19 @@ const PatientDetails = ({
               <div className="d-flex justify-content-between align-items-center w-100 me-3">
                 <div className="d-flex align-items-center">
                   <div
-                    className="pe-5 py-2"
+                    className="pe-5 py-0"
                     style={{
                       backgroundColor: "#E0ECF8",
                       borderRight: "4px solid #E0ECF8",
                       transform: "skewX(-20deg)",
                       overflow: "hidden",
                       marginLeft: "-5px",
+                      height:'35px',
+                      display: 'flex',
+                      alignItems: 'center'
                     }}
                   >
-                    <div style={{ transform: "skewX(20deg)" }}>
+                    <div style={{ transform: "skewX(20deg)", display: 'flex', alignItems: 'center' }}>
                       <span
                         className="ps-3"
                         style={{
@@ -201,12 +202,12 @@ const PatientDetails = ({
                       </span>
                     </div>
                   </div>
-                  <div className="ps-3">
+                  <div className="ps-3" style={{ display: 'flex', alignItems: 'center', height: '35px' }}>
                     <span
                       style={{
                         color: "#6c757d",
                         fontSize: "12px",
-                        marginRight: "8px",
+                        marginRight: "8px"
                       }}
                     >
                       Date Added:
@@ -357,7 +358,7 @@ const PatientDetails = ({
                   />
                 </div>
               </div>
-            </button>
+            </div>
           </h2>
           <div
             className={`accordion-collapse collapse ${
@@ -413,7 +414,7 @@ const PatientDetails = ({
                       <h4
                         className="mb-0 pe-3 text-capitalize "
                         style={{
-                          fontSize: "18px",
+                          fontSize: "14px",
                           fontWeight: "600",
                           borderRight: "1px solid #000000",
                         }}
@@ -449,7 +450,7 @@ const PatientDetails = ({
                             ? new Date().getFullYear() -
                               new Date(PatientData.dateOfBirth).getFullYear()
                             : "N/A")}{" "}
-                        Years Old
+                        Y Old
                       </span>
                     </div>
                     <div
@@ -513,12 +514,10 @@ const PatientDetails = ({
                   </div>
                 </div>
 
-                <div className="d-flex" style={{ gap: "18px" }}>
+                <div className="d-flex metric-cards-container">
                   <div
-                    className="d-flex align-items-center p-3 rounded-1 position-relative"
+                    className="d-flex align-items-center rounded-1 position-relative flex-fill metric-card"
                     style={{
-                      gap: "20px",
-                      width: "9vw",
                       backgroundColor:
                         PatientData?.weeklyFitbitData?.avgSteps?.type ===
                         "normal"
@@ -541,22 +540,24 @@ const PatientDetails = ({
                       alt="Steps"
                       style={{ width: "24px", height: "24px" }}
                     />
-                    <div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <div
-                        className="text-nowrap"
+                        className="card-label"
                         style={{
-                          fontSize: "12px",
                           color: "#6c757d",
                           marginBottom: "2px",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                         }}
                       >
                         Avg Steps
                       </div>
                       <div
-                        style={{ fontSize: "16px", fontWeight: "600" }}
-                        className={`${
+                        className={`card-value ${
                           isLoading ? "placeholder rounded-1" : ""
                         }`}
+                        style={{ fontWeight: "600" }}
                       >
                         {PatientData?.weeklyFitbitData?.avgSteps?.value ||
                           (typeof PatientData?.weeklyFitbitData?.avgSteps ===
@@ -565,18 +566,19 @@ const PatientDetails = ({
                             : null) ||
                           "-"}{" "}
                         <span
+                          className="card-unit"
                           style={{
-                            fontSize: "10px",
                             color: "#6c757d",
                             fontWeight: "normal",
-                            marginBottom: "2px",
+                            display: "block",
                           }}
                         >
                           <span style={{ fontWeight: "bold", color: "black" }}>
                             steps
                           </span>
                           <span
-                            style={{ fontSize: "8px", fontWeight: "normal" }}
+                            className="card-period"
+                            style={{ fontWeight: "normal" }}
                           >
                             /Week
                           </span>
@@ -607,10 +609,8 @@ const PatientDetails = ({
                     )}
                   </div>
                   <div
-                    className="d-flex align-items-center p-3 rounded-1 position-relative"
+                    className="d-flex align-items-center rounded-1 position-relative flex-fill metric-card"
                     style={{
-                      gap: "16px",
-                      width: "9vw",
                       backgroundColor:
                         PatientData?.weeklyFitbitData?.avgHeartRate?.type ===
                           "normal" ||
@@ -660,22 +660,24 @@ const PatientDetails = ({
                       alt="Heart Rate"
                       style={{ width: "26px", height: "26px" }}
                     />
-                    <div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <div
-                        className="text-nowrap"
+                        className="card-label"
                         style={{
-                          fontSize: "12px",
                           color: "#6c757d",
                           marginBottom: "2px",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                         }}
                       >
                         Avg Heart Rate
                       </div>
                       <div
-                        style={{ fontSize: "16px", fontWeight: "600" }}
-                        className={`${
+                        className={`card-value ${
                           isLoading ? "placeholder rounded-1" : ""
                         }`}
+                        style={{ fontWeight: "600" }}
                       >
                         {PatientData?.weeklyFitbitData?.avgHeartRate?.value ||
                           (typeof PatientData?.weeklyFitbitData
@@ -684,18 +686,19 @@ const PatientDetails = ({
                             : null) ||
                           "-"}{" "}
                         <span
+                          className="card-unit"
                           style={{
-                            fontSize: "10px",
                             color: "#6c757d",
                             fontWeight: "normal",
-                            marginBottom: "2px",
+                            display: "block",
                           }}
                         >
                           <span style={{ fontWeight: "bold", color: "black" }}>
                             bpm
                           </span>
                           <span
-                            style={{ fontSize: "8px", fontWeight: "normal" }}
+                            className="card-period"
+                            style={{ fontWeight: "normal" }}
                           >
                             /Week
                           </span>
@@ -733,10 +736,8 @@ const PatientDetails = ({
                     )}
                   </div>
                   <div
-                    className="d-flex align-items-center p-3 rounded-1 position-relative"
+                    className="d-flex align-items-center rounded-1 position-relative flex-fill metric-card"
                     style={{
-                      gap: "16px",
-                      width: "9vw",
                       backgroundColor:
                         PatientData?.weeklyFitbitData?.avgSleepDuration
                           ?.type === "normal"
@@ -759,22 +760,24 @@ const PatientDetails = ({
                       alt="Sleep"
                       style={{ width: "24px", height: "24px" }}
                     />
-                    <div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <div
-                        className="text-nowrap"
+                        className="card-label"
                         style={{
-                          fontSize: "12px",
                           color: "#6c757d",
                           marginBottom: "2px",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                         }}
                       >
                         Avg Sleep Min
                       </div>
                       <div
-                        style={{ fontSize: "16px", fontWeight: "600" }}
-                        className={`${
+                        className={`card-value ${
                           isLoading ? "placeholder rounded-1" : ""
                         }`}
+                        style={{ fontWeight: "600" }}
                       >
                         {PatientData?.weeklyFitbitData?.avgSleepDuration
                           ?.value ||
@@ -784,18 +787,19 @@ const PatientDetails = ({
                             : null) ||
                           "-"}{" "}
                         <span
+                          className="card-unit"
                           style={{
-                            fontSize: "10px",
                             color: "#6c757d",
                             fontWeight: "normal",
-                            marginBottom: "2px",
+                            display: "block",
                           }}
                         >
                           <span style={{ fontWeight: "bold", color: "black" }}>
                             min
                           </span>
                           <span
-                            style={{ fontSize: "8px", fontWeight: "normal" }}
+                            className="card-period"
+                            style={{ fontWeight: "normal" }}
                           >
                             /Week
                           </span>
@@ -826,10 +830,8 @@ const PatientDetails = ({
                     )}
                   </div>
                   <div
-                    className="d-flex align-items-center p-3 rounded-1 position-relative"
+                    className="d-flex align-items-center rounded-1 position-relative flex-fill metric-card"
                     style={{
-                      gap: "16px",
-                      width: "9vw",
                       backgroundColor:
                         PatientData?.weeklyFitbitData?.avgWater?.type ===
                         "normal"
@@ -852,22 +854,24 @@ const PatientDetails = ({
                       alt="Water Intake"
                       style={{ width: "24px", height: "24px" }}
                     />
-                    <div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <div
-                        className="text-nowrap"
+                        className="card-label"
                         style={{
-                          fontSize: "12px",
                           color: "#6c757d",
                           marginBottom: "2px",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
                         }}
                       >
                         Avg Water Intake
                       </div>
                       <div
-                        style={{ fontSize: "16px", fontWeight: "600" }}
-                        className={`${
+                        className={`card-value ${
                           isLoading ? "placeholder rounded-1" : ""
                         }`}
+                        style={{ fontWeight: "600" }}
                       >
                         {PatientData?.weeklyFitbitData?.avgWater?.value ||
                           (typeof PatientData?.weeklyFitbitData?.avgWater ===
@@ -876,18 +880,19 @@ const PatientDetails = ({
                             : null) ||
                           "-"}{" "}
                         <span
+                          className="card-unit"
                           style={{
-                            fontSize: "10px",
                             color: "#6c757d",
                             fontWeight: "normal",
-                            marginBottom: "2px",
+                            display: "block",
                           }}
                         >
                           <span style={{ fontWeight: "bold", color: "black" }}>
                             ml
                           </span>
                           <span
-                            style={{ fontSize: "8px", fontWeight: "normal" }}
+                            className="card-period"
+                            style={{ fontWeight: "normal" }}
                           >
                             /Week
                           </span>
