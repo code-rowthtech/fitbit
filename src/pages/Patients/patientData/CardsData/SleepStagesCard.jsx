@@ -550,6 +550,7 @@ const SleepStagesCard = ({
   const [selectedSessionIndex, setSelectedSessionIndex] = useState(0);
   const [isNavigating, setIsNavigating] = useState(false);
   const [isTabSwitching, setIsTabSwitching] = useState(false);
+  const [tooltip, setTooltip] = useState({ show: false, content: "", x: 0, y: 0 });
   const FilterData = useSelector(
     (state) => state?.getPatientSleepStages?.data?.response?.data
   );
@@ -1462,23 +1463,67 @@ const SleepStagesCard = ({
                     stroke="#E8F2FF"
                     strokeWidth="6"
                   />
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="48"
-                    fill="none"
-                    stroke="#003465"
-                    strokeWidth="4"
-                    strokeDasharray="301"
-                    strokeDashoffset={
-                      301 -
-                      ((AverageData?.todayData?.value || 0) /
-                        (AverageData?.stats?.average || 480)) *
-                        301
-                    }
-                    strokeLinecap="round"
-                    transform="rotate(-90 60 60)"
-                  />
+                  {(() => {
+                    const sleepData = AverageData?.todayData?.sleepData?.[0];
+                    const stages = sleepData?.levels?.summary;
+                    const timeInBed = sleepData?.timeInBed || 0;
+                    
+                    if (!stages || timeInBed === 0) return null;
+                    
+                    const stageColors = {
+                      deep: "#2C3E50",
+                      light: "#3498DB", 
+                      rem: "#9B59B6",
+                      wake: "#E67E22"
+                    };
+                    
+                    const circumference = 301;
+                    let currentOffset = 0;
+                    
+                    return ['deep', 'light', 'rem', 'wake'].map((stage) => {
+                      const minutes = stages[stage]?.minutes || 0;
+                      const percentage = minutes / timeInBed;
+                      const dashLength = circumference * percentage;
+                      const dashOffset = currentOffset;
+                      currentOffset += dashLength;
+                      
+                      return (
+                        <circle
+                          key={stage}
+                          cx="60"
+                          cy="60"
+                          r="48"
+                          fill="none"
+                          stroke={stageColors[stage]}
+                          strokeWidth="4"
+                          strokeDasharray={`${dashLength} ${circumference}`}
+                          strokeDashoffset={-dashOffset}
+                          strokeLinecap="round"
+                          transform="rotate(-90 60 60)"
+                          style={{ cursor: 'pointer' }}
+                          onMouseEnter={(e) => {
+                            setTooltip({
+                              show: true,
+                              content: `${stage.charAt(0).toUpperCase() + stage.slice(1)}: ${minutes}m`,
+                              x: e.clientX,
+                              y: e.clientY
+                            });
+                          }}
+                          onMouseMove={(e) => {
+                            if (tooltip.show) {
+                              setTooltip(prev => ({
+                                ...prev,
+                                x: e.clientX,
+                                y: e.clientY
+                              }));
+                            }
+                          }}
+                          onMouseLeave={() => setTooltip({ show: false, content: "", x: 0, y: 0 })}
+                        />
+                      );
+                    });
+                  })()
+                  }
                 </svg>
                 <div className="position-absolute top-50 start-50 translate-middle text-center">
                   <div
@@ -1489,10 +1534,10 @@ const SleepStagesCard = ({
                   >
                     {(() => {
                       const sleepData = AverageData?.todayData?.sleepData?.[0];
-                      const stages = sleepData?.levels?.summary;
-                      if (!stages) return "0";
-                      const totalMinutes = (stages.deep?.minutes || 0) + (stages.light?.minutes || 0) + (stages.rem?.minutes || 0);
-                      return totalMinutes;
+                      const timeInBed = sleepData?.timeInBed || 0;
+                      const hours = Math.floor(timeInBed / 60);
+                      const minutes = timeInBed % 60;
+                      return hours > 0 ? `${hours}h ${minutes}m` : `${timeInBed}m`;
                     })()}
                   </div>
                   <div
@@ -1502,7 +1547,7 @@ const SleepStagesCard = ({
                       fontWeight: "500",
                     }}
                   >
-                    Sleep Min
+                    Time in Bed
                   </div>
                 </div>
               </div>
@@ -1542,10 +1587,10 @@ const SleepStagesCard = ({
               }
 
               const stageColors = {
-                deep: "#003465",
-                light: "#4A90E2", 
-                rem: "#7B68EE",
-                wake: "#FF6B6B"
+                deep: "#2C3E50",
+                light: "#3498DB", 
+                rem: "#9B59B6",
+                wake: "#E67E22"
               };
 
               return (
@@ -1661,6 +1706,44 @@ const SleepStagesCard = ({
                 </div>
               );
             })()}
+          </div>
+        )}
+        
+        {/* Tooltip */}
+        {tooltip.show && (
+          <div
+            style={{
+              position: "fixed",
+              left: tooltip.x,
+              top: tooltip.y,
+              transform: "translateX(-50%) translateY(-100%)",
+              background: "linear-gradient(135deg, #003465 0%, #004080 100%)",
+              color: "white",
+              padding: "6px 10px",
+              borderRadius: "6px",
+              fontSize: "11px",
+              fontWeight: "600",
+              zIndex: 1000,
+              whiteSpace: "nowrap",
+              boxShadow: "0 4px 12px rgba(0,52,101,0.3), 0 2px 4px rgba(0,0,0,0.1)",
+              pointerEvents: "none",
+              border: "1px solid rgba(255,255,255,0.2)",
+            }}
+          >
+            {tooltip.content}
+            <div
+              style={{
+                position: "absolute",
+                top: "100%",
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: 0,
+                height: 0,
+                borderLeft: "5px solid transparent",
+                borderRight: "5px solid transparent",
+                borderTop: "5px solid #003465",
+              }}
+            />
           </div>
         )}
       </div>
