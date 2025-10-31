@@ -1,3 +1,36 @@
-.custom-accordion-button::after {
-  display: none !important;
+/* Responsive styles for fitbit cards */
+@media (max-width: 1366px) {
+  .fitbit-card {
+    padding: 8px !important;
+    gap: 12px !important;
+  }
+  
+  .fitbit-card img {
+    width: 18px !important;
+    height: 18px !important;
+  }
+  
+  .fitbit-card .card-title {
+    font-size: 10px !important;
+  }
+  
+  .fitbit-card .card-value {
+    font-size: 14px !important;
+  }
+  
+  .fitbit-card .card-unit {
+    font-size: 8px !important;
+  }
+  
+  .fitbit-card .card-unit-bold {
+    font-size: 8px !important;
+  }
+  
+  .fitbit-card .card-period {
+    font-size: 6px !important;
+  }
+  
+  .fitbit-card .status-icon {
+    font-size: 12px !important;
+  }
 }
