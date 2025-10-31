@@ -557,9 +557,7 @@ const SleepStagesCard = ({
     (state) => state?.getPatientSleepStages?.data?.response
   );
 
-  const Loading = useSelector(
-    (state) => state?.getPatientSleepStages?.loading
-  );
+  const Loading = useSelector((state) => state?.getPatientSleepStages?.loading);
 
   // Reset loading states when data loading completes
   useEffect(() => {
@@ -601,7 +599,10 @@ const SleepStagesCard = ({
         end: formatDate(end),
         field: "sleep",
       };
-      if (activeTab === "Year") payload.period = "year";
+      if (activeTab === "Year") {
+        payload.period = "year";
+        payload.type = "sleep";
+      }
       dispatch(getPatientSleepStages(payload));
     }
   }, [patientId, activeTab, currentDate, dispatch, formatDate]);
@@ -674,9 +675,13 @@ const SleepStagesCard = ({
         }
       }
 
+      const minutes = Math.round(item.value || 0);
+      const hours = Math.floor(minutes / 60);
+      const remainingMinutes = minutes % 60;
+
       return {
         period,
-        value: item.value ? `${item.value} minutes` : "0 stages",
+        value: `${minutes}m (${hours}hr ${remainingMinutes}m)`,
       };
     });
 
@@ -805,7 +810,10 @@ const SleepStagesCard = ({
           field: "sleep",
         };
         // if (activeTab === "Month")  // payload.period = "month";
-        if (activeTab === "Year") payload.period = "year";
+        if (activeTab === "Year") {
+          payload.period = "year";
+          payload.type = "sleep";
+        }
         dispatch(getPatientSleepStages(payload));
       }
     }, 0);
@@ -851,7 +859,10 @@ const SleepStagesCard = ({
           field: "sleep",
         };
         // if (tab === "Month")  // payload.period = "month";
-        if (tab === "Year") payload.period = "year";
+        if (tab === "Year") {
+          payload.period = "year";
+          payload.type = "sleep";
+        }
         dispatch(getPatientSleepStages(payload));
       }
     }, 0);
@@ -910,33 +921,65 @@ const SleepStagesCard = ({
                   padding: "5px",
                   backgroundColor: "#F6FAFF",
                   height: "500px",
-                  position: "relative"
+                  position: "relative",
                 }}
               >
-                {(Loading || isNavigating || isTabSwitching) ? (
+                {Loading || isNavigating || isTabSwitching ? (
                   <div className="d-flex flex-column h-100">
                     {/* Chart Skeleton */}
                     <div className="position-relative flex-grow-1">
                       {/* Y-axis skeleton */}
-                      <div className="position-absolute" style={{ left: "0", top: "0", bottom: "30px", width: "30px" }}>
+                      <div
+                        className="position-absolute"
+                        style={{
+                          left: "0",
+                          top: "0",
+                          bottom: "30px",
+                          width: "30px",
+                        }}
+                      >
                         {[...Array(6)].map((_, i) => (
-                          <div key={i} className="placeholder rounded-1 mb-3" style={{ height: "8px", width: "25px" }}></div>
+                          <div
+                            key={i}
+                            className="placeholder rounded-1 mb-3"
+                            style={{ height: "8px", width: "25px" }}
+                          ></div>
                         ))}
                       </div>
 
                       {/* Chart area skeleton */}
-                      <div className="position-absolute" style={{ left: "40px", right: "0", top: "0", bottom: "30px" }}>
-                        <svg width="100%" height="100%" className="placeholder-glow">
+                      <div
+                        className="position-absolute"
+                        style={{
+                          left: "40px",
+                          right: "0",
+                          top: "0",
+                          bottom: "30px",
+                        }}
+                      >
+                        <svg
+                          width="100%"
+                          height="100%"
+                          className="placeholder-glow"
+                        >
                           {/* Grid lines */}
                           {[...Array(5)].map((_, i) => (
-                            <line key={`grid-${i}`} x1="0" y1={`${(i + 1) * 20}%`} x2="100%" y2={`${(i + 1) * 20}%`} stroke="#E8F2FF" strokeWidth="1" />
+                            <line
+                              key={`grid-${i}`}
+                              x1="0"
+                              y1={`${(i + 1) * 20}%`}
+                              x2="100%"
+                              y2={`${(i + 1) * 20}%`}
+                              stroke="#E8F2FF"
+                              strokeWidth="1"
+                            />
                           ))}
 
                           {/* Skeleton bars */}
                           {[...Array(8)].map((_, i) => (
                             <rect
                               key={`bar-${i}`}
-                              x={`${(i * 12) + 5}%`}
+                              x={`${i * 12 + 5}%`}
                               y={`${60 - (Math.sin(i) * 20 + 20)}%`}
                               width="8%"
                               height={`${Math.sin(i) * 20 + 20}%`}
@@ -949,9 +992,21 @@ const SleepStagesCard = ({
                       </div>
 
                       {/* X-axis skeleton */}
-                      <div className="position-absolute d-flex justify-content-between" style={{ left: "40px", right: "0", bottom: "0", height: "20px" }}>
+                      <div
+                        className="position-absolute d-flex justify-content-between"
+                        style={{
+                          left: "40px",
+                          right: "0",
+                          bottom: "0",
+                          height: "20px",
+                        }}
+                      >
                         {[...Array(6)].map((_, i) => (
-                          <div key={i} className="placeholder rounded-1" style={{ height: "8px", width: "20px" }}></div>
+                          <div
+                            key={i}
+                            className="placeholder rounded-1"
+                            style={{ height: "8px", width: "20px" }}
+                          ></div>
                         ))}
                       </div>
                     </div>
@@ -1013,7 +1068,8 @@ const SleepStagesCard = ({
                           ? (event, elements) => {
                               if (elements.length > 0) {
                                 const clickedIndex = elements[0].index;
-                                const clickedLabel = chartData.labels[clickedIndex];
+                                const clickedLabel =
+                                  chartData.labels[clickedIndex];
                                 const dayNumber = parseInt(clickedLabel);
                                 if (!isNaN(dayNumber)) {
                                   const newDate = new Date(
@@ -1080,7 +1136,7 @@ const SleepStagesCard = ({
                           style={{
                             width: "10px",
                             height: "10px",
-                            borderWidth: "1px"
+                            borderWidth: "1px",
                           }}
                         ></div>
                         <span>{tab}</span>
@@ -1117,7 +1173,7 @@ const SleepStagesCard = ({
                       style={{
                         width: "8px",
                         height: "8px",
-                        borderWidth: "1px"
+                        borderWidth: "1px",
                       }}
                     ></div>
                   ) : (
@@ -1138,11 +1194,18 @@ const SleepStagesCard = ({
                   style={{
                     width: "24px",
                     height: "24px",
-                    backgroundColor: (isNextDisabled() || isNavigating) ? "#f5f5f5" : "white",
-                    border: `1px solid ${(isNextDisabled() || isNavigating) ? "#ccc" : "#003465"}`,
+                    backgroundColor:
+                      isNextDisabled() || isNavigating ? "#f5f5f5" : "white",
+                    border: `1px solid ${
+                      isNextDisabled() || isNavigating ? "#ccc" : "#003465"
+                    }`,
                     borderRadius: "4px",
-                    color: (isNextDisabled() || isNavigating) ? "#ccc" : "#003465",
-                    cursor: (isNextDisabled() || isNavigating) ? "not-allowed" : "pointer",
+                    color:
+                      isNextDisabled() || isNavigating ? "#ccc" : "#003465",
+                    cursor:
+                      isNextDisabled() || isNavigating
+                        ? "not-allowed"
+                        : "pointer",
                   }}
                   onClick={() => handleNavigation("next")}
                   disabled={isNextDisabled() || isNavigating}
@@ -1153,7 +1216,7 @@ const SleepStagesCard = ({
                       style={{
                         width: "8px",
                         height: "8px",
-                        borderWidth: "1px"
+                        borderWidth: "1px",
                       }}
                     ></div>
                   ) : (
@@ -1189,7 +1252,7 @@ const SleepStagesCard = ({
                 }}
                 className="custom-scroll"
               >
-                {(Loading || isNavigating || isTabSwitching) ? (
+                {Loading || isNavigating || isTabSwitching ? (
                   // Table skeleton
                   [...Array(8)].map((_, index) => (
                     <div
@@ -1202,8 +1265,14 @@ const SleepStagesCard = ({
                         border: "1px solid #E8F2FF",
                       }}
                     >
-                      <span className="placeholder rounded-1" style={{ width: "60px", height: "10px" }}></span>
-                      <span className="placeholder rounded-1" style={{ width: "40px", height: "10px" }}></span>
+                      <span
+                        className="placeholder rounded-1"
+                        style={{ width: "60px", height: "10px" }}
+                      ></span>
+                      <span
+                        className="placeholder rounded-1"
+                        style={{ width: "40px", height: "10px" }}
+                      ></span>
                     </div>
                   ))
                 ) : chartData.tableData.length > 0 ? (
@@ -1216,6 +1285,33 @@ const SleepStagesCard = ({
                         fontSize: "10px",
                         borderRadius: "2px",
                         border: "1px solid #E8F2FF",
+                        cursor:
+                          activeTab === "Year" || activeTab === "Month"
+                            ? "pointer"
+                            : "default",
+                      }}
+                      onClick={() => {
+                        if (activeTab === "Year") {
+                          const newDate = new Date(
+                            currentDate.getFullYear(),
+                            index,
+                            1
+                          );
+                          onDateChange(newDate);
+                          onTabChange("Month");
+                        } else if (activeTab === "Month") {
+                          const dayMatch = item.period.match(/\d+/);
+                          if (dayMatch) {
+                            const clickedDay = parseInt(dayMatch[0]);
+                            const clickedDate = new Date(
+                              currentDate.getFullYear(),
+                              currentDate.getMonth(),
+                              clickedDay
+                            );
+                            onDateChange(clickedDate);
+                            onTabChange("Day");
+                          }
+                        }
                       }}
                     >
                       <span style={{ color: "#003465" }}>{item.period}</span>
@@ -1391,7 +1487,13 @@ const SleepStagesCard = ({
                     }`}
                     style={{ fontSize: "16px", color: "#003465" }}
                   >
-                    {AverageData?.todayData?.value || 0}
+                    {(() => {
+                      const sleepData = AverageData?.todayData?.sleepData?.[0];
+                      const stages = sleepData?.levels?.summary;
+                      if (!stages) return "0";
+                      const totalMinutes = (stages.deep?.minutes || 0) + (stages.light?.minutes || 0) + (stages.rem?.minutes || 0);
+                      return totalMinutes;
+                    })()}
                   </div>
                   <div
                     style={{
@@ -1400,7 +1502,7 @@ const SleepStagesCard = ({
                       fontWeight: "500",
                     }}
                   >
-                    Minutes
+                    Sleep Min
                   </div>
                 </div>
               </div>
@@ -1411,66 +1513,154 @@ const SleepStagesCard = ({
                 className="mb-0"
                 style={{ fontSize: "10px", color: "#666", fontWeight: "500" }}
               >
-                Sleep minutes today
+                Sleep Stages Today
               </p>
             </div>
 
-            <div className="row g-1">
-              <div className="col-6">
-                <div
-                  className="text-center py-1 px-2 rounded-2"
-                  style={{
-                    backgroundColor: "white",
-                    border: "1px solid #E8F2FF",
-                  }}
-                >
-                  <div
-                    className={`fw-bold ${
-                      Loading ? "placeholder rounded-1" : ""
-                    }`}
-                    style={{ fontSize: "14px", color: "#003465" }}
-                  >
-                    {AverageData?.todayData?.value || 0}
+            {(() => {
+              const sleepData = AverageData?.todayData?.sleepData?.[0];
+              const stages = sleepData?.levels?.summary;
+              
+              if (!stages) {
+                return (
+                  <div className="row g-1">
+                    <div className="col-12">
+                      <div
+                        className="text-center py-2 px-2 rounded-2"
+                        style={{
+                          backgroundColor: "white",
+                          border: "1px solid #E8F2FF",
+                        }}
+                      >
+                        <div style={{ fontSize: "12px", color: "#666" }}>
+                          No sleep stages data
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div
-                    style={{
-                      fontSize: "9px",
-                      color: "#666",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Today
+                );
+              }
+
+              const stageColors = {
+                deep: "#003465",
+                light: "#4A90E2", 
+                rem: "#7B68EE",
+                wake: "#FF6B6B"
+              };
+
+              return (
+                <div className="row g-1">
+                  <div className="col-3">
+                    <div
+                      className="text-center py-1 px-1 rounded-2"
+                      style={{
+                        backgroundColor: "white",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <div
+                        className={`fw-bold ${
+                          Loading ? "placeholder rounded-1" : ""
+                        }`}
+                        style={{ fontSize: "12px", color: stageColors.deep }}
+                      >
+                        {stages.deep?.minutes || 0}m
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "9px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Deep
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-3">
+                    <div
+                      className="text-center py-1 px-1 rounded-2"
+                      style={{
+                        backgroundColor: "white",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <div
+                        className={`fw-bold ${
+                          Loading ? "placeholder rounded-1" : ""
+                        }`}
+                        style={{ fontSize: "12px", color: stageColors.light }}
+                      >
+                        {stages.light?.minutes || 0}m
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "9px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Light
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-3">
+                    <div
+                      className="text-center py-1 px-1 rounded-2"
+                      style={{
+                        backgroundColor: "white",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <div
+                        className={`fw-bold ${
+                          Loading ? "placeholder rounded-1" : ""
+                        }`}
+                        style={{ fontSize: "12px", color: stageColors.rem }}
+                      >
+                        {stages.rem?.minutes || 0}m
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "9px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        REM
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-3">
+                    <div
+                      className="text-center py-1 px-1 rounded-2"
+                      style={{
+                        backgroundColor: "white",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <div
+                        className={`fw-bold ${
+                          Loading ? "placeholder rounded-1" : ""
+                        }`}
+                        style={{ fontSize: "12px", color: stageColors.wake }}
+                      >
+                        {stages.wake?.minutes || 0}m
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "9px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Awake
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="col-6">
-                <div
-                  className="text-center py-1 px-2 rounded-2"
-                  style={{
-                    backgroundColor: "white",
-                    border: "1px solid #E8F2FF",
-                  }}
-                >
-                  <div
-                    className={`fw-bold ${
-                      Loading ? "placeholder rounded-1" : ""
-                    }`}
-                    style={{ fontSize: "14px", color: "#003465" }}
-                  >
-                    {Math.round((AverageData?.stats?.average || 0) / 60) || 8}h
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "9px",
-                      color: "#666",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Avg Daily
-                  </div>
-                </div>
-              </div>
-            </div>
+              );
+            })()}
           </div>
         )}
       </div>

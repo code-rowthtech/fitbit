@@ -14,7 +14,7 @@ import Steps_Icon from '../../../assets/images/PatientDashboard/Steps.png';
 import ActiveMinutes_Icon from '../../../assets/images/PatientDashboard/Active Minutes.png';
 import CaloriesBurned_Icon from '../../../assets/images/PatientDashboard/Calories Burned.png';
 import Distance_Icon from '../../../assets/images/PatientDashboard/distance.png';
-import SleepStages_Icon from '../../../assets/images/PatientDashboard/Sleep stages.png';
+
 import Duration_Icon from '../../../assets/images/PatientDashboard/duration.png';
 import Efficiency_Icon from '../../../assets/images/PatientDashboard/efficiency.png';
 import Awakenings_Icon from '../../../assets/images/PatientDashboard/awakenings.png';
@@ -61,7 +61,7 @@ const PatientReport = ({ isExpanded, onExpand }) => {
   const yearlyDownloadResponse = useSelector(state => state?.downloadYearlyReportReducer?.data)
   const metricsEnum = [
     'steps', 'Continuous Heart Rate', 'BMI', 'sleep', 'calories burned', 'distance',
-    'activeMinutes', 'Sleep Stages', 'Awakenings', 'Weight', 'Calories Consumed',
+    'activeMinutes', 'Awakenings', 'Weight', 'Calories Consumed',
     'Water Intake', 'Resting Heart Rate', 'Exercise Sessions', 'GPS Tracking',
     'Elevation', 'Body Fat Percentage'
   ];
@@ -71,7 +71,7 @@ const PatientReport = ({ isExpanded, onExpand }) => {
     { label: 'activeMinutes', icon: ActiveMinutes_Icon, displayName: 'Active Mins' },
     { label: 'calories burned', icon: CaloriesBurned_Icon, displayName: 'Calories Burned' },
     { label: 'distance', icon: Distance_Icon, displayName: 'Distance' },
-    { label: 'Sleep Stages', icon: SleepStages_Icon, displayName: 'Sleep Stages' },
+
     { label: 'Sleep Duration', icon: Duration_Icon, displayName: 'Sleep Duration' },
     { label: 'Sleep Efficiency', icon: Efficiency_Icon, displayName: 'Sleep Efficiency' },
     { label: 'Sleep Awakenings', icon: Awakenings_Icon, displayName: 'Sleep Awakenings' },
