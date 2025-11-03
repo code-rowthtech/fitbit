@@ -1,37 +1,37 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
 // import { Provider } from 'react-redux';
 // import store from './redux/store';
-import ProtectedRoute from './components/ProtectedRoute';
-import Layout from './layouts/Layout';
-import Login from './pages/Login';
-import SignUp from './pages/ForgotPassword/SignUp';
-import ForgotPassword from './pages/ForgotPassword/ForgotPassword';
-import VerifyOTP from './pages/ForgotPassword/VerifyOTP';
-import ChangePassword from './pages/ForgotPassword/ChangePassword';
-import Dashboard from './pages/Dashboard';
-import Doctors from './pages/Doctors/Doctors';
-import Patients from './pages/Patients/Patients';
-import PatientDashboard from './pages/Patients/PatientDashboard';
-import FitbitSuccess from './pages/FitbitSuccess';
+import ProtectedRoute from "./components/ProtectedRoute";
+import Layout from "./layouts/Layout";
+import Login from "./pages/Login";
+import SignUp from "./pages/ForgotPassword/SignUp";
+import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
+import VerifyOTP from "./pages/ForgotPassword/VerifyOTP";
+import ChangePassword from "./pages/ForgotPassword/ChangePassword";
+import Dashboard from "./pages/Dashboard";
+import Doctors from "./pages/Doctors/Doctors";
+import Patients from "./pages/Patients/Patients";
+import PatientDashboard from "./pages/Patients/PatientDashboard";
+import FitbitSuccess from "./pages/FitbitSuccess";
 // import Notes from './pages/Notes/Notes';
-import NotFound from './pages/NotFound';
-import { SidebarProvider } from './contexts/SidebarContext';
-import { checkTokenAndRedirect } from './utils/tokenUtils';
-import './styles/layout.css';
+import NotFound from "./pages/NotFound";
+import { SidebarProvider } from "./contexts/SidebarContext";
+import { checkTokenAndRedirect } from "./utils/tokenUtils";
+import "./styles/layout.css";
 
 function App() {
   useEffect(() => {
     // Check token on app initialization
-    const token = localStorage.getItem('token');
-    if (token && window.location.pathname !== '/login') {
+    const token = localStorage.getItem("token");
+    if (token && window.location.pathname !== "/login") {
       checkTokenAndRedirect();
     }
   }, []);
 
   return (
-      <Router>
-        <SidebarProvider>
+    <Router>
+      <SidebarProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Login />} />
@@ -50,35 +50,35 @@ function App() {
               </ProtectedRoute>
             } 
           /> */}
-          <Route 
-            path="/doctors" 
+          <Route
+            path="/doctors"
             element={
               <ProtectedRoute>
                 <Layout pageName="Doctors">
                   <Doctors />
                 </Layout>
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/patients" 
+          <Route
+            path="/patients"
             element={
               <ProtectedRoute>
                 <Layout pageName="Patients">
                   <Patients />
                 </Layout>
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/patient-dashboard/:id" 
+          <Route
+            path="/patient-dashboard/:id"
             element={
               <ProtectedRoute>
                 <Layout pageName="Patient Dashboard">
                   <PatientDashboard />
                 </Layout>
               </ProtectedRoute>
-            } 
+            }
           />
           {/* <Route 
             path="/notes" 
@@ -92,8 +92,8 @@ function App() {
           /> */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-        </SidebarProvider>
-      </Router>
+      </SidebarProvider>
+    </Router>
   );
 }
 
