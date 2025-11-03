@@ -375,7 +375,7 @@ const ActiveMinCard = ({
           <span
             style={{ fontSize: "12px", fontWeight: "600", color: "#003465" }}
           >
-            Active Mins
+            Active Zone Mins
           </span>
         </div>
         <div className="d-flex">
