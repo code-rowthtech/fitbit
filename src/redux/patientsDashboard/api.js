@@ -137,3 +137,7 @@ export function getExerciseSessionsApi(data) {
     : baseUrl;
   return api.get(url);
 }
+
+export function syncDataApi(data) {
+  return api.create(`${URL.SYNC_DATA}/${data.payload.id}/sync`);
+}

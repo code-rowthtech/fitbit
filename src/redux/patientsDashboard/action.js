@@ -102,3 +102,12 @@ export const getExerciseSessions = (data) => ({
   type: PATIENT_DASHBOARD_TYPES.GET_EXERCISE_SESSIONS,
   payload: data,
 });
+
+export const syncData = (data) => ({
+  type: PATIENT_DASHBOARD_TYPES.SYNC_DATA,
+  payload: data,
+});
+
+export const resetSyncData = () => ({
+  type: PATIENT_DASHBOARD_TYPES.RESET_SYNC_DATA,
+});
