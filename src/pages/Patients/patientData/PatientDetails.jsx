@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./PatientDetails.css";
 import "./PatientDetailsResponsive.css";
 import {
@@ -9,7 +9,8 @@ import {
 import { FiPhone } from "react-icons/fi";
 import { MdOutlineMailOutline } from "react-icons/md";
 import { GrLocation } from "react-icons/gr";
-import { TbUserEdit } from "react-icons/tb";
+import { TbUserEdit, TbRefresh } from "react-icons/tb";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import UpdatePatientModal from "../../../components/UpdatePatientModal";
 import stepsIcon from "../../../assets/images/PatientDashboard/Steps.png";
 import heartRateIcon from "../../../assets/images/PatientDashboard/heart rate.png";
@@ -18,7 +19,7 @@ import waterIntakeIcon from "../../../assets/images/PatientDashboard/water intak
 import { getPatientById } from "../../../redux/actions";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
-import { connectToFitbit } from "../../../redux/patientsDashboard/action";
+import { connectToFitbit, syncData, resetSyncData } from "../../../redux/patientsDashboard/action";
 import PatientAlertsOffCanvas from "./PatientAlertsOffCanvas";
 
 const PatientDetails = ({
@@ -37,13 +38,18 @@ const PatientDetails = ({
     externalAccordionOpen !== undefined ? externalAccordionOpen : accordionOpen;
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showAlertsOffCanvas, setShowAlertsOffCanvas] = useState(false);
+  const [showSyncPopup, setShowSyncPopup] = useState(false);
+  const refreshIconRef = useRef(null);
   const { id: pathId } = useParams();
   const [searchParams] = useSearchParams();
   const id = pathId || searchParams.get("id") || searchParams.get("patientId");
   const PatientData = useSelector(
     (state) => state?.getPatientByIdReducer?.data?.data?.patient
   );
-
+  const SyncDataMessage = useSelector(
+    (state) => state?.syncData?.data?.message
+  );
+  console.log(SyncDataMessage, 'SyncDataMessage')
   // console.log("PatientDetails PatientData", PatientData);
   const isLoading = useSelector(
     (state) => state?.getPatientByIdReducer?.loading
@@ -106,6 +112,17 @@ const PatientDetails = ({
     }
   }, [ConnectionStatus]);
 
+  useEffect(() => {
+    if (SyncDataMessage) {
+      setShowSyncPopup(true);
+      const timer = setTimeout(() => {
+        setShowSyncPopup(false);
+        dispatch(resetSyncData());
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [SyncDataMessage]);
+
   return (
     <div
       className="pb-1"
@@ -124,9 +141,8 @@ const PatientDetails = ({
             {tabs.map((tab, index) => (
               <div
                 key={tab}
-                className={`patient-tab fw-semibold flex-fill ${
-                  activeTab === tab ? "active" : "inactive"
-                }`}
+                className={`patient-tab fw-semibold flex-fill ${activeTab === tab ? "active" : "inactive"
+                  }`}
                 onClick={() => setActiveTab(tab)}
                 style={{
                   cursor: "pointer",
@@ -137,9 +153,8 @@ const PatientDetails = ({
                 }}
               >
                 <div
-                  className={`patient-tab-content ${
-                    index === 0 || index === tabs.length - 1 ? "straight" : ""
-                  }`}
+                  className={`patient-tab-content ${index === 0 || index === tabs.length - 1 ? "straight" : ""
+                    }`}
                 >
                   {tab}
                   {/* <span className="patient-tab-arrow"><FaChevronDown /></span> */}
@@ -172,7 +187,7 @@ const PatientDetails = ({
                       transform: "skewX(-20deg)",
                       overflow: "hidden",
                       marginLeft: "-5px",
-                      height:'35px',
+                      height: '35px',
                       display: 'flex',
                       alignItems: 'center'
                     }}
@@ -189,9 +204,8 @@ const PatientDetails = ({
                         Patients ID:
                       </span>
                       <span
-                        className={`${
-                          isLoading ? "placeholder rounded-1 " : ""
-                        }`}
+                        className={`${isLoading ? "placeholder rounded-1 " : ""
+                          }`}
                         style={{
                           color: "#007bff",
                           fontSize: "12px",
@@ -266,6 +280,26 @@ const PatientDetails = ({
                       Connected
                     </span>
                   ) : null}
+                  <TbRefresh
+                    ref={refreshIconRef}
+                    className="border rounded-2 p-1"
+                    title="Refresh Patient Data"
+                    style={{
+                      fontSize: "26px",
+                      color: "#003465",
+                      cursor: "pointer",
+                      marginRight: "8px",
+                      transition: "all 0.2s ease",
+                      pointerEvents: "auto",
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      dispatch(syncData({ id }));
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.backgroundColor = "transparent";
+                    }}
+                  />
                   <TbUserEdit
                     className="border rounded-2 p-1"
                     title="Edit Patient"
@@ -277,9 +311,9 @@ const PatientDetails = ({
                       transition: "all 0.2s ease",
                       pointerEvents: "auto",
                     }}
-                    onMouseEnter={(e) => {
-                      e.target.style.backgroundColor = "#E0ECF8";
-                    }}
+                    // onMouseEnter={(e) => {
+                    //   e.target.style.backgroundColor = "#E0ECF8";
+                    // }}
                     onMouseLeave={(e) => {
                       e.target.style.backgroundColor = "transparent";
                     }}
@@ -361,9 +395,8 @@ const PatientDetails = ({
             </div>
           </h2>
           <div
-            className={`accordion-collapse collapse ${
-              accordionOpen ? "show" : ""
-            } ${isLoading ? "placeholder-glow " : ""}`}
+            className={`accordion-collapse collapse ${accordionOpen ? "show" : ""
+              } ${isLoading ? "placeholder-glow " : ""}`}
             style={{ display: accordionOpen ? "block" : "none" }}
           >
             <div
@@ -386,9 +419,8 @@ const PatientDetails = ({
                     />
                   ) : (
                     <div
-                      className={`me-3 d-flex align-items-center justify-content-center ${
-                        isLoading ? "placeholder " : ""
-                      }`}
+                      className={`me-3 d-flex align-items-center justify-content-center ${isLoading ? "placeholder " : ""
+                        }`}
                       style={{
                         width: "76px",
                         height: "84px",
@@ -406,9 +438,8 @@ const PatientDetails = ({
                   )}
                   <div>
                     <div
-                      className={`d-flex align-items-center ${
-                        isLoading ? "placeholder rounded-1" : ""
-                      }`}
+                      className={`d-flex align-items-center ${isLoading ? "placeholder rounded-1" : ""
+                        }`}
                       style={{ gap: "16px" }}
                     >
                       <h4
@@ -448,7 +479,7 @@ const PatientDetails = ({
                         {PatientData?.age ||
                           (PatientData?.dateOfBirth
                             ? new Date().getFullYear() -
-                              new Date(PatientData.dateOfBirth).getFullYear()
+                            new Date(PatientData.dateOfBirth).getFullYear()
                             : "N/A")}{" "}
                         Y Old
                       </span>
@@ -466,9 +497,8 @@ const PatientDetails = ({
                           }}
                         />
                         <span
-                          className={`${
-                            isLoading ? "placeholder rounded-1 " : ""
-                          }`}
+                          className={`${isLoading ? "placeholder rounded-1 " : ""
+                            }`}
                           style={{ fontSize: "12px", color: "#6c757d" }}
                         >
                           {PatientData?.phoneNumber}
@@ -483,9 +513,8 @@ const PatientDetails = ({
                           }}
                         />
                         <span
-                          className={`${
-                            isLoading ? "placeholder rounded-1 " : ""
-                          }`}
+                          className={`${isLoading ? "placeholder rounded-1 " : ""
+                            }`}
                           style={{ fontSize: "12px", color: "#6c757d" }}
                         >
                           {PatientData?.email}
@@ -500,9 +529,8 @@ const PatientDetails = ({
                           }}
                         />
                         <span
-                          className={`${
-                            isLoading ? "placeholder rounded-1 " : ""
-                          }`}
+                          className={`${isLoading ? "placeholder rounded-1 " : ""
+                            }`}
                           style={{ fontSize: "12px", color: "#6c757d" }}
                         >
                           {(PatientData?.address?.city?.name || "N/A") +
@@ -520,17 +548,17 @@ const PatientDetails = ({
                     style={{
                       backgroundColor:
                         PatientData?.weeklyFitbitData?.avgSteps?.type ===
-                        "normal"
+                          "normal"
                           ? "#F0FFF0"
                           : "#FFF0F0",
                       border:
                         PatientData?.weeklyFitbitData?.avgSteps?.type ===
-                        "normal"
+                          "normal"
                           ? "1px solid #28a745"
                           : "1px solid #dc3545",
                       boxShadow:
                         PatientData?.weeklyFitbitData?.avgSteps?.type ===
-                        "normal"
+                          "normal"
                           ? "0 4px 8px rgba(40, 167, 69, 0.3)"
                           : "0 4px 8px rgba(220, 53, 69, 0.3)",
                     }}
@@ -554,14 +582,13 @@ const PatientDetails = ({
                         Avg Steps
                       </div>
                       <div
-                        className={`card-value ${
-                          isLoading ? "placeholder rounded-1" : ""
-                        }`}
+                        className={`card-value ${isLoading ? "placeholder rounded-1" : ""
+                          }`}
                         style={{ fontWeight: "600" }}
                       >
                         {PatientData?.weeklyFitbitData?.avgSteps?.value ||
                           (typeof PatientData?.weeklyFitbitData?.avgSteps ===
-                          "number"
+                            "number"
                             ? PatientData?.weeklyFitbitData?.avgSteps
                             : null) ||
                           "-"}{" "}
@@ -586,7 +613,7 @@ const PatientDetails = ({
                       </div>
                     </div>
                     {PatientData?.weeklyFitbitData?.avgSteps?.type ===
-                    "normal" ? (
+                      "normal" ? (
                       <FaCheckCircle
                         style={{
                           position: "absolute",
@@ -614,43 +641,43 @@ const PatientDetails = ({
                       backgroundColor:
                         PatientData?.weeklyFitbitData?.avgHeartRate?.type ===
                           "normal" ||
-                        (!PatientData?.weeklyFitbitData?.avgHeartRate?.type &&
-                          parseInt(
-                            PatientData?.weeklyFitbitData?.avgHeartRate
-                              ?.value
-                          ) >= 60 &&
-                          parseInt(
-                            PatientData?.weeklyFitbitData?.avgHeartRate
-                              ?.value
-                          ) <= 100)
+                          (!PatientData?.weeklyFitbitData?.avgHeartRate?.type &&
+                            parseInt(
+                              PatientData?.weeklyFitbitData?.avgHeartRate
+                                ?.value
+                            ) >= 60 &&
+                            parseInt(
+                              PatientData?.weeklyFitbitData?.avgHeartRate
+                                ?.value
+                            ) <= 100)
                           ? "#F0FFF0"
                           : "#FFF0F0",
                       border:
                         PatientData?.weeklyFitbitData?.avgHeartRate?.type ===
                           "normal" ||
-                        (!PatientData?.weeklyFitbitData?.avgHeartRate?.type &&
-                          parseInt(
-                            PatientData?.weeklyFitbitData?.avgHeartRate
-                              ?.value
-                          ) >= 60 &&
-                          parseInt(
-                            PatientData?.weeklyFitbitData?.avgHeartRate
-                              ?.value
-                          ) <= 100)
+                          (!PatientData?.weeklyFitbitData?.avgHeartRate?.type &&
+                            parseInt(
+                              PatientData?.weeklyFitbitData?.avgHeartRate
+                                ?.value
+                            ) >= 60 &&
+                            parseInt(
+                              PatientData?.weeklyFitbitData?.avgHeartRate
+                                ?.value
+                            ) <= 100)
                           ? "1px solid #28a745"
                           : "1px solid #dc3545",
                       boxShadow:
                         PatientData?.weeklyFitbitData?.avgHeartRate?.type ===
                           "normal" ||
-                        (!PatientData?.weeklyFitbitData?.avgHeartRate?.type &&
-                          parseInt(
-                            PatientData?.weeklyFitbitData?.avgHeartRate
-                              ?.value
-                          ) >= 60 &&
-                          parseInt(
-                            PatientData?.weeklyFitbitData?.avgHeartRate
-                              ?.value
-                          ) <= 100)
+                          (!PatientData?.weeklyFitbitData?.avgHeartRate?.type &&
+                            parseInt(
+                              PatientData?.weeklyFitbitData?.avgHeartRate
+                                ?.value
+                            ) >= 60 &&
+                            parseInt(
+                              PatientData?.weeklyFitbitData?.avgHeartRate
+                                ?.value
+                            ) <= 100)
                           ? "0 4px 8px rgba(40, 167, 69, 0.3)"
                           : "0 4px 8px rgba(220, 53, 69, 0.3)",
                     }}
@@ -674,9 +701,8 @@ const PatientDetails = ({
                         Avg Heart Rate
                       </div>
                       <div
-                        className={`card-value ${
-                          isLoading ? "placeholder rounded-1" : ""
-                        }`}
+                        className={`card-value ${isLoading ? "placeholder rounded-1" : ""
+                          }`}
                         style={{ fontWeight: "600" }}
                       >
                         {PatientData?.weeklyFitbitData?.avgHeartRate?.value ||
@@ -707,13 +733,13 @@ const PatientDetails = ({
                     </div>
                     {PatientData?.weeklyFitbitData?.avgHeartRate?.type ===
                       "normal" ||
-                    (!PatientData?.weeklyFitbitData?.avgHeartRate?.type &&
-                      parseInt(
-                        PatientData?.weeklyFitbitData?.avgHeartRate?.value
-                      ) >= 60 &&
-                      parseInt(
-                        PatientData?.weeklyFitbitData?.avgHeartRate?.value
-                      ) <= 100) ? (
+                      (!PatientData?.weeklyFitbitData?.avgHeartRate?.type &&
+                        parseInt(
+                          PatientData?.weeklyFitbitData?.avgHeartRate?.value
+                        ) >= 60 &&
+                        parseInt(
+                          PatientData?.weeklyFitbitData?.avgHeartRate?.value
+                        ) <= 100) ? (
                       <FaCheckCircle
                         style={{
                           position: "absolute",
@@ -774,9 +800,8 @@ const PatientDetails = ({
                         Avg Sleep Min
                       </div>
                       <div
-                        className={`card-value ${
-                          isLoading ? "placeholder rounded-1" : ""
-                        }`}
+                        className={`card-value ${isLoading ? "placeholder rounded-1" : ""
+                          }`}
                         style={{ fontWeight: "600" }}
                       >
                         {PatientData?.weeklyFitbitData?.avgSleepDuration
@@ -807,7 +832,7 @@ const PatientDetails = ({
                       </div>
                     </div>
                     {PatientData?.weeklyFitbitData?.avgSleepDuration?.type ===
-                    "normal" ? (
+                      "normal" ? (
                       <FaCheckCircle
                         style={{
                           position: "absolute",
@@ -834,17 +859,17 @@ const PatientDetails = ({
                     style={{
                       backgroundColor:
                         PatientData?.weeklyFitbitData?.avgWater?.type ===
-                        "normal"
+                          "normal"
                           ? "#F0FFF0"
                           : "#FFF0F0",
                       border:
                         PatientData?.weeklyFitbitData?.avgWater?.type ===
-                        "normal"
+                          "normal"
                           ? "1px solid #28a745"
                           : "1px solid #dc3545",
                       boxShadow:
                         PatientData?.weeklyFitbitData?.avgWater?.type ===
-                        "normal"
+                          "normal"
                           ? "0 4px 8px rgba(40, 167, 69, 0.3)"
                           : "0 4px 8px rgba(220, 53, 69, 0.3)",
                     }}
@@ -868,14 +893,13 @@ const PatientDetails = ({
                         Avg Water Intake
                       </div>
                       <div
-                        className={`card-value ${
-                          isLoading ? "placeholder rounded-1" : ""
-                        }`}
+                        className={`card-value ${isLoading ? "placeholder rounded-1" : ""
+                          }`}
                         style={{ fontWeight: "600" }}
                       >
                         {PatientData?.weeklyFitbitData?.avgWater?.value ||
                           (typeof PatientData?.weeklyFitbitData?.avgWater ===
-                          "number"
+                            "number"
                             ? PatientData?.weeklyFitbitData?.avgWater
                             : null) ||
                           "-"}{" "}
@@ -900,7 +924,7 @@ const PatientDetails = ({
                       </div>
                     </div>
                     {PatientData?.weeklyFitbitData?.avgWater?.type ===
-                    "normal" ? (
+                      "normal" ? (
                       <FaCheckCircle
                         style={{
                           position: "absolute",
@@ -937,6 +961,33 @@ const PatientDetails = ({
         show={showAlertsOffCanvas}
         onHide={() => setShowAlertsOffCanvas(false)}
       />
+      {showSyncPopup && refreshIconRef.current && (() => {
+        const rect = refreshIconRef.current.getBoundingClientRect();
+        return (
+          <div
+            style={{
+              position: 'fixed',
+              top: `${rect.top - 90}px`,
+              left: `${rect.left + rect.width / 2 - 100}px`,
+              background: 'linear-gradient(135deg, #003465 0%, #0056b3 100%)',
+              color: 'white',
+              padding: '12px 16px',
+              borderRadius: '10px',
+              boxShadow: '0 8px 25px rgba(0, 52, 101, 0.3), 0 2px 8px rgba(0, 0, 0, 0.1)',
+              zIndex: 9999,
+              fontSize: '12px',
+              fontWeight: '600',
+              width: '220px',
+              textAlign: 'center',
+              wordWrap: 'break-word',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            {SyncDataMessage}
+          </div>
+        );
+      })()}
     </div>
   );
 };

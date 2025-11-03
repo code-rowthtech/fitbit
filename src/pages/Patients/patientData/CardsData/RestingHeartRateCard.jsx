@@ -111,6 +111,7 @@ const RestingHeartRateCard = ({
         return weekMatch ? `Week ${weekMatch[1]}` : item.date;
       }
 
+      // Parse date reliably without timezone issues
       const date = new Date(item.date);
       switch (activeTab) {
         case "Week":
@@ -139,6 +140,7 @@ const RestingHeartRateCard = ({
         const weekMatch = item.date.match(/Week (\d+)/);
         period = weekMatch ? `Week ${weekMatch[1]}` : item.date;
       } else {
+        // Parse date reliably without timezone issues
         const date = new Date(item.date);
         switch (activeTab) {
           case "Week":
@@ -152,6 +154,14 @@ const RestingHeartRateCard = ({
             break;
           case "Year":
             period = date.toLocaleDateString("en-US", { month: "long" });
+            break;
+          case "Day":
+            // For Day view, show full date format
+            period = date.toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+            });
             break;
           default:
             period = date.toLocaleDateString();
@@ -290,7 +300,7 @@ const RestingHeartRateCard = ({
     }, 0);
   };
 
-  const handleTabChange = (tab) => {
+  const handleTabChange = (tab, specificDate = null) => {
     if (isTabSwitching || tab === activeTab) return;
 
     setIsTabSwitching(true);
@@ -298,7 +308,7 @@ const RestingHeartRateCard = ({
     // Fetch data for new tab
     setTimeout(() => {
       if (patientId) {
-        const date = new Date(currentDate);
+        const date = new Date(specificDate || currentDate);
         let start, end;
 
         switch (tab) {
@@ -512,6 +522,22 @@ const RestingHeartRateCard = ({
                     }}
                     options={{
                       maintainAspectRatio: false,
+                      onClick:
+                        activeTab === "Year"
+                          ? (event, elements) => {
+                              if (elements.length > 0) {
+                                const dataIndex = elements[0].index;
+                                const monthIndex = dataIndex;
+                                const newDate = new Date(
+                                  currentDate.getFullYear(),
+                                  monthIndex,
+                                  1
+                                );
+                                onDateChange(newDate);
+                                handleTabChange("Month", newDate);
+                              }
+                            }
+                          : undefined,
                       interaction: {
                         intersect: false,
                         mode: "index",
@@ -827,33 +853,24 @@ const RestingHeartRateCard = ({
                     const handleRowClick = () => {
                       if (activeTab === "Year") {
                         // Navigate to month view
-                        const monthIndex = new Date(
-                          Date.parse(item.period + " 1, 2024")
-                        ).getMonth();
+                        const monthIndex = index;
                         const newDate = new Date(
                           currentDate.getFullYear(),
                           monthIndex,
                           1
                         );
                         onDateChange(newDate);
-                        handleTabChange("Month");
+                        handleTabChange("Month", newDate);
                       } else if (activeTab === "Month") {
-                        // Navigate to day view
-                        const dayMatch = item.period.match(/(\w+) (\d+)/);
-                        if (dayMatch) {
-                          const monthName = dayMatch[1];
-                          const day = parseInt(dayMatch[2]);
-                          const monthIndex = new Date(
-                            Date.parse(monthName + " 1, 2024")
-                          ).getMonth();
-                          const newDate = new Date(
-                            currentDate.getFullYear(),
-                            monthIndex,
-                            day
-                          );
-                          onDateChange(newDate);
-                          handleTabChange("Day");
-                        }
+                        // Navigate to day view - use row index to get correct date
+                        const dayNumber = index + 1; // Day number based on row position
+                        const newDate = new Date(
+                          currentDate.getFullYear(),
+                          currentDate.getMonth(),
+                          dayNumber
+                        );
+                        onDateChange(newDate);
+                        handleTabChange("Day", newDate);
                       }
                     };
 

@@ -55,6 +55,7 @@ import {
   getPatientSleepStages,
   getPatientWater,
   getPatientWeight,
+  syncData,
 } from "./patientsDashboard/reducer";
 import {
   addNotesReducer,
@@ -122,6 +123,7 @@ export default combineReducers({
   getPatientHeartRate,
   getPatientCaloriesConsumed,
   getExerciseSessions,
+  syncData,
 
   // Notes
   addNotesReducer,

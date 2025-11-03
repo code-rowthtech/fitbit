@@ -55,6 +55,7 @@ export const PATIENT_GPS_TRACKING = `${baseurl}/fitbit/gps-tracking/:logId`;
 export const CONNECT_TO_FITBIT = `${baseurl}/fitbit/connect`;
 export const GET_FILTER_DATA = `${baseurl}/fitbit/filter`;
 export const GET_EXERCISE_SESSIONS = `${baseurl}/fitbit/filter`;
+export const SYNC_DATA = `${baseurl}/patients`;
 
 // Notes
 export const ADD_NOTES = `${baseurl}/notes/create`;
