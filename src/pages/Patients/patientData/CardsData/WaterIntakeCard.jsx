@@ -536,10 +536,14 @@ const WaterIntakeCard = ({
                           const dataIndex = elements[0].index;
                           if (WaterData && WaterData[dataIndex]) {
                             if (activeTab === "Year") {
-                              const dateStr = WaterData[dataIndex].date + "-01";
-                              const newDate = new Date(dateStr);
+                              const monthIndex = dataIndex;
+                              const newDate = new Date(
+                                currentDate.getFullYear(),
+                                monthIndex,
+                                1
+                              );
                               onDateChange(newDate);
-                              handleTabChange("Month");
+                              handleTabChange("Month", newDate);
                             } else if (activeTab === "Month") {
                               const selectedDate = new Date(
                                 WaterData[dataIndex].date
@@ -895,10 +899,14 @@ const WaterIntakeCard = ({
                       onClick={() => {
                         if (WaterData && WaterData[index]) {
                           if (activeTab === "Year") {
-                            const dateStr = WaterData[index].date + "-01";
-                            const newDate = new Date(dateStr);
+                            const monthIndex = index;
+                            const newDate = new Date(
+                              currentDate.getFullYear(),
+                              monthIndex,
+                              1
+                            );
                             onDateChange(newDate);
-                            handleTabChange("Month");
+                            handleTabChange("Month", newDate);
                           } else if (activeTab === "Month") {
                             const selectedDate = new Date(
                               WaterData[index].date

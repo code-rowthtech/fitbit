@@ -312,7 +312,7 @@ const StepsCard = ({
   };
 
   // Handle tab change
-  const handleTabChange = (tab) => {
+  const handleTabChange = (tab, specificDate = null) => {
     if (isTabSwitching || tab === activeTab) return;
 
     setIsTabSwitching(true);
@@ -320,7 +320,7 @@ const StepsCard = ({
     // Fetch data for new tab
     setTimeout(() => {
       if (patientId) {
-        const date = new Date(currentDate);
+        const date = new Date(specificDate || currentDate);
         let start, end;
 
         switch (tab) {
@@ -519,22 +519,24 @@ const StepsCard = ({
                       onClick: (event, elements) => {
                         if (elements.length > 0) {
                           const elementIndex = elements[0].index;
-                          if (
-                            activeTab === "Year" &&
-                            FilterData[elementIndex]
-                          ) {
-                            const clickedMonth = FilterData[elementIndex];
-                            const monthDate = new Date(clickedMonth.date);
-                            onDateChange(monthDate);
-                            handleTabChange("Month");
-                          } else if (
-                            activeTab === "Month" &&
-                            FilterData[elementIndex]
-                          ) {
-                            const clickedDay = FilterData[elementIndex];
-                            const dayDate = new Date(clickedDay.date);
-                            onDateChange(dayDate);
-                            handleTabChange("Day");
+                          if (activeTab === "Year") {
+                            const monthIndex = elementIndex;
+                            const newDate = new Date(
+                              currentDate.getFullYear(),
+                              monthIndex,
+                              1
+                            );
+                            onDateChange(newDate);
+                            handleTabChange("Month", newDate);
+                          } else if (activeTab === "Month") {
+                            const dayNumber = elementIndex + 1;
+                            const newDate = new Date(
+                              currentDate.getFullYear(),
+                              currentDate.getMonth(),
+                              dayNumber
+                            );
+                            onDateChange(newDate);
+                            handleTabChange("Day", newDate);
                           }
                         }
                       },
@@ -862,21 +864,25 @@ const StepsCard = ({
                       onClick={
                         activeTab === "Year"
                           ? () => {
-                              const clickedMonth = FilterData[index];
-                              if (clickedMonth) {
-                                const monthDate = new Date(clickedMonth.date);
-                                onDateChange(monthDate);
-                                handleTabChange("Month");
-                              }
+                              const monthIndex = index;
+                              const newDate = new Date(
+                                currentDate.getFullYear(),
+                                monthIndex,
+                                1
+                              );
+                              onDateChange(newDate);
+                              handleTabChange("Month", newDate);
                             }
                           : activeTab === "Month"
                           ? () => {
-                              const clickedDay = FilterData[index];
-                              if (clickedDay) {
-                                const dayDate = new Date(clickedDay.date);
-                                onDateChange(dayDate);
-                                handleTabChange("Day");
-                              }
+                              const dayNumber = index + 1;
+                              const newDate = new Date(
+                                currentDate.getFullYear(),
+                                currentDate.getMonth(),
+                                dayNumber
+                              );
+                              onDateChange(newDate);
+                              handleTabChange("Day", newDate);
                             }
                           : undefined
                       }
