@@ -262,12 +262,8 @@ const WeightCard = ({
           displayValue = item.value;
       }
 
-      if (
-        (displayValue === null ||
-          displayValue === 0 ||
-          displayValue === undefined) &&
-        index > 0
-      ) {
+      // Only use previous value for zero values, not null values
+      if (displayValue === 0 && index > 0) {
         for (let i = index - 1; i >= 0; i--) {
           let prevValue;
           switch (chartType) {
@@ -419,7 +415,7 @@ const WeightCard = ({
   };
 
   // Handle tab change
-  const handleTabChange = (tab) => {
+  const handleTabChange = (tab, specificDate = null) => {
     if (isTabSwitching || tab === activeTab) return;
 
     setIsTabSwitching(true);
@@ -427,7 +423,7 @@ const WeightCard = ({
     // Fetch data for new tab
     setTimeout(() => {
       if (patientId) {
-        const date = new Date(currentDate);
+        const date = new Date(specificDate || currentDate);
         let start, end;
 
         switch (tab) {
@@ -719,6 +715,22 @@ const WeightCard = ({
                     }}
                     options={{
                       maintainAspectRatio: false,
+                      onClick:
+                        activeTab === "Year"
+                          ? (event, elements) => {
+                              if (elements.length > 0) {
+                                const dataIndex = elements[0].index;
+                                const monthIndex = dataIndex;
+                                const newDate = new Date(
+                                  currentDate.getFullYear(),
+                                  monthIndex,
+                                  1
+                                );
+                                onDateChange(newDate);
+                                handleTabChange("Month", newDate);
+                              }
+                            }
+                          : undefined,
                       plugins: {
                         legend: { display: false },
                         tooltip: {
@@ -1005,16 +1017,14 @@ const WeightCard = ({
                   chartData.tableData.map((item, index) => {
                     const handleRowClick = () => {
                       if (activeTab === "Year") {
-                        const monthIndex = new Date(
-                          Date.parse(item.period + " 1, 2024")
-                        ).getMonth();
+                        const monthIndex = index;
                         const newDate = new Date(
                           currentDate.getFullYear(),
                           monthIndex,
                           1
                         );
                         onDateChange(newDate);
-                        handleTabChange("Month");
+                        handleTabChange("Month", newDate);
                       }
                     };
 
