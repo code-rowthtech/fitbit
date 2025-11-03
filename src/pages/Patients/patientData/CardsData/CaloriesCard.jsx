@@ -28,6 +28,9 @@ const CaloriesCard = ({
   const AverageData = useSelector(
     (state) => state?.getPatientCaloriesBurned?.data?.response
   );
+  const IntradayData = useSelector(
+    (state) => state?.getPatientCaloriesBurned?.data?.response?.todayData?.intradayData
+  );
   const Loading = useSelector(
     (state) => state?.getPatientCaloriesBurned?.loading
   );
@@ -42,6 +45,24 @@ const CaloriesCard = ({
 
   // Get chart data based on active tab and API response
   const getChartData = () => {
+    // For Day tab, use intraday data if available
+    if (activeTab === "Day" && IntradayData && IntradayData.length > 0) {
+      const labels = IntradayData.map((item) => {
+        // Convert "12 AM to 1 AM" to "12 AM"
+        return item.timeRange.split(" to ")[0];
+      });
+      
+      const data = IntradayData.map((item) => item.calories);
+      
+      const tableData = IntradayData.map((item) => ({
+        period: item.timeRange,
+        value: item.calories.toString(),
+      }));
+      
+      return { labels, data, tableData };
+    }
+    
+    // For other tabs, use regular data
     if (!CaloriesData || CaloriesData.length === 0) {
       return { labels: [], data: [], tableData: [] };
     }
@@ -56,12 +77,6 @@ const CaloriesCard = ({
 
       const date = new Date(item.date);
       switch (activeTab) {
-        case "Day":
-          return date.toLocaleDateString("en-US", {
-            weekday: "short",
-            month: "short",
-            day: "numeric",
-          });
         case "Week":
           return date.toLocaleDateString("en-US", { weekday: "short" });
         case "Month":
@@ -84,13 +99,6 @@ const CaloriesCard = ({
       } else {
         const date = new Date(item.date);
         switch (activeTab) {
-          case "Day":
-            period = date.toLocaleDateString("en-US", {
-              weekday: "long",
-              month: "long",
-              day: "numeric",
-            });
-            break;
           case "Week":
             period = date.toLocaleDateString("en-US", { weekday: "long" });
             break;
@@ -285,7 +293,7 @@ const CaloriesCard = ({
     if (isTabSwitching || tab === activeTab) return;
 
     setIsTabSwitching(true);
-    
+
     // Determine the date to use for the new tab
     let dateToUse = new Date(currentDate);
     if (tab === "Year") {
@@ -293,7 +301,7 @@ const CaloriesCard = ({
       dateToUse = new Date(currentYear, 0, 1);
       onDateChange(dateToUse);
     }
-    
+
     onTabChange(tab);
     // Fetch data for new tab
     setTimeout(() => {
@@ -506,15 +514,21 @@ const CaloriesCard = ({
                                   // Parse date more carefully to avoid timezone issues
                                   const dateStr = clickedMonth.date;
                                   let monthDate;
-                                  
-                                  if (dateStr.includes('-')) {
+
+                                  if (dateStr.includes("-")) {
                                     // Handle YYYY-MM-DD format
-                                    const [year, month] = dateStr.split('-').map(Number);
+                                    const [year, month] = dateStr
+                                      .split("-")
+                                      .map(Number);
                                     monthDate = new Date(year, month - 1, 1); // month is 0-indexed
                                   } else {
                                     // Fallback to original parsing
                                     const originalDate = new Date(dateStr);
-                                    monthDate = new Date(originalDate.getFullYear(), originalDate.getMonth(), 1);
+                                    monthDate = new Date(
+                                      originalDate.getFullYear(),
+                                      originalDate.getMonth(),
+                                      1
+                                    );
                                   }
                                   onDateChange(monthDate);
                                   // Use setTimeout to ensure date change takes effect
@@ -533,16 +547,18 @@ const CaloriesCard = ({
                                   // Parse date more carefully to avoid timezone issues
                                   const dateStr = clickedDay.date;
                                   let dayDate;
-                                  
-                                  if (dateStr.includes('-')) {
+
+                                  if (dateStr.includes("-")) {
                                     // Handle YYYY-MM-DD format
-                                    const [year, month, day] = dateStr.split('-').map(Number);
+                                    const [year, month, day] = dateStr
+                                      .split("-")
+                                      .map(Number);
                                     dayDate = new Date(year, month - 1, day); // month is 0-indexed
                                   } else {
                                     // Fallback to original parsing
                                     dayDate = new Date(dateStr);
                                   }
-                                  
+
                                   onDateChange(dayDate);
                                   // Use setTimeout to ensure date change takes effect
                                   setTimeout(() => {
@@ -576,13 +592,23 @@ const CaloriesCard = ({
                                         ]
                                       : [];
                                   }
+                                : activeTab === "Day" && IntradayData
+                                ? (context) => {
+                                    const dataIndex = context[0]?.dataIndex;
+                                    return dataIndex !== undefined &&
+                                      IntradayData[dataIndex]
+                                      ? [
+                                          `Time: ${IntradayData[dataIndex].timeRange}`,
+                                        ]
+                                      : [];
+                                  }
                                 : activeTab === "Month" && CaloriesData
                                 ? (context) => {
                                     const dataIndex = context[0]?.dataIndex;
                                     return dataIndex !== undefined &&
                                       CaloriesData[dataIndex]
                                       ? [
-                                          `Days: ${CaloriesData[dataIndex].dayRange}`,
+                                          // `Days: ${CaloriesData[dataIndex].dayRange}`,
                                         ]
                                       : [];
                                   }
@@ -597,7 +623,12 @@ const CaloriesCard = ({
                       scales: {
                         x: {
                           grid: { display: false },
-                          ticks: { color: "#666", fontSize: 10 },
+                          ticks: { 
+                            color: "#666", 
+                            fontSize: 10,
+                            maxRotation: activeTab === "Day" ? 45 : 0,
+                            minRotation: activeTab === "Day" ? 45 : 0
+                          },
                         },
                         y: {
                           beginAtZero: true,
@@ -902,15 +933,21 @@ const CaloriesCard = ({
                                 // Parse date more carefully to avoid timezone issues
                                 const dateStr = clickedMonth.date;
                                 let monthDate;
-                                
-                                if (dateStr.includes('-')) {
+
+                                if (dateStr.includes("-")) {
                                   // Handle YYYY-MM-DD format
-                                  const [year, month] = dateStr.split('-').map(Number);
+                                  const [year, month] = dateStr
+                                    .split("-")
+                                    .map(Number);
                                   monthDate = new Date(year, month - 1, 1); // month is 0-indexed
                                 } else {
                                   // Fallback to original parsing
                                   const originalDate = new Date(dateStr);
-                                  monthDate = new Date(originalDate.getFullYear(), originalDate.getMonth(), 1);
+                                  monthDate = new Date(
+                                    originalDate.getFullYear(),
+                                    originalDate.getMonth(),
+                                    1
+                                  );
                                 }
                                 onDateChange(monthDate);
                                 // Use setTimeout to ensure date change takes effect
@@ -926,16 +963,18 @@ const CaloriesCard = ({
                                 // Parse date more carefully to avoid timezone issues
                                 const dateStr = clickedDay.date;
                                 let dayDate;
-                                
-                                if (dateStr.includes('-')) {
+
+                                if (dateStr.includes("-")) {
                                   // Handle YYYY-MM-DD format
-                                  const [year, month, day] = dateStr.split('-').map(Number);
+                                  const [year, month, day] = dateStr
+                                    .split("-")
+                                    .map(Number);
                                   dayDate = new Date(year, month - 1, day); // month is 0-indexed
                                 } else {
                                   // Fallback to original parsing
                                   dayDate = new Date(dateStr);
                                 }
-                                
+
                                 onDateChange(dayDate);
                                 // Use setTimeout to ensure date change takes effect
                                 setTimeout(() => {

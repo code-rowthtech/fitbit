@@ -35,10 +35,22 @@ function* login({ payload: { username, password } }) {
         profilePic: response?.data?.user?.profilePicture,
         patientId: response?.data?.user?.patientId,
       };
-      localStorage.setItem("token", response?.data?.token);
+
+      // Check if token has changed
+      const currentToken = localStorage.getItem("token");
+      const newToken = response?.data?.token;
+
+      localStorage.setItem("token", newToken);
       localStorage.setItem("user", JSON.stringify(userData));
       sessionStorage.setItem("fitbit_user", JSON.stringify(userData));
-      setAuthorization(response?.data?.token);
+      setAuthorization(newToken);
+
+      // If token changed and user is already logged in, redirect to login
+      if (currentToken && currentToken !== newToken) {
+        window.location.href = "/login";
+        return;
+      }
+
       yield put(authApiResponseSuccess(AuthActionTypes.LOGIN_USER, userData));
     } else {
       const errorMessage = response?.data?.message || "Login failed";

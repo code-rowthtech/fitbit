@@ -922,123 +922,187 @@ const CaloriesConsumedCard = ({
                       barPercentage: 0.9,
                     }}
                   />
-                ) : (
-                  (Loading || isNavigating || isTabSwitching) ? (
-                    <div className="d-flex flex-column h-100">
-                      {/* Chart Skeleton */}
-                      <div className="position-relative flex-grow-1">
-                        {/* Y-axis skeleton */}
-                        <div className="position-absolute" style={{ left: "0", top: "0", bottom: "30px", width: "30px" }}>
-                          {[...Array(5)].map((_, i) => (
-                            <div key={i} className="placeholder rounded-1 mb-4" style={{ height: "8px", width: "25px" }}></div>
+                ) : Loading || isNavigating || isTabSwitching ? (
+                  <div className="d-flex flex-column h-100">
+                    {/* Chart Skeleton */}
+                    <div className="position-relative flex-grow-1">
+                      {/* Y-axis skeleton */}
+                      <div
+                        className="position-absolute"
+                        style={{
+                          left: "0",
+                          top: "0",
+                          bottom: "30px",
+                          width: "30px",
+                        }}
+                      >
+                        {[...Array(5)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="placeholder rounded-1 mb-4"
+                            style={{ height: "8px", width: "25px" }}
+                          ></div>
+                        ))}
+                      </div>
+
+                      {/* Chart area skeleton */}
+                      <div
+                        className="position-absolute"
+                        style={{
+                          left: "40px",
+                          right: "0",
+                          top: "0",
+                          bottom: "30px",
+                        }}
+                      >
+                        <svg
+                          width="100%"
+                          height="100%"
+                          className="placeholder-glow"
+                        >
+                          {/* Grid lines */}
+                          {[...Array(4)].map((_, i) => (
+                            <line
+                              key={`grid-${i}`}
+                              x1="0"
+                              y1={`${(i + 1) * 25}%`}
+                              x2="100%"
+                              y2={`${(i + 1) * 25}%`}
+                              stroke="#E8F2FF"
+                              strokeWidth="1"
+                            />
                           ))}
-                        </div>
 
-                        {/* Chart area skeleton */}
-                        <div className="position-absolute" style={{ left: "40px", right: "0", top: "0", bottom: "30px" }}>
-                          <svg width="100%" height="100%" className="placeholder-glow">
-                            {/* Grid lines */}
-                            {[...Array(4)].map((_, i) => (
-                              <line key={`grid-${i}`} x1="0" y1={`${(i + 1) * 25}%`} x2="100%" y2={`${(i + 1) * 25}%`} stroke="#E8F2FF" strokeWidth="1" />
-                            ))}
-
-                            {/* Skeleton bars */}
-                            {[...Array(7)].map((_, i) => (
-                              <rect
-                                key={`bar-${i}`}
-                                x={`${(i * 14) + 2}%`}
-                                y={`${50 + Math.sin(i) * 25}%`}
-                                width="10%"
-                                height={`${30 + Math.cos(i) * 20}%`}
-                                fill="#E8F2FF"
-                                rx="3"
-                                className="placeholder"
-                              />
-                            ))}
-                          </svg>
-                        </div>
-
-                        {/* X-axis skeleton */}
-                        <div className="position-absolute d-flex justify-content-between" style={{ left: "40px", right: "0", bottom: "0", height: "20px" }}>
+                          {/* Skeleton bars */}
                           {[...Array(7)].map((_, i) => (
-                            <div key={i} className="placeholder rounded-1" style={{ height: "8px", width: "15px" }}></div>
+                            <rect
+                              key={`bar-${i}`}
+                              x={`${i * 14 + 2}%`}
+                              y={`${50 + Math.sin(i) * 25}%`}
+                              width="10%"
+                              height={`${30 + Math.cos(i) * 20}%`}
+                              fill="#E8F2FF"
+                              rx="3"
+                              className="placeholder"
+                            />
                           ))}
-                        </div>
+                        </svg>
+                      </div>
+
+                      {/* X-axis skeleton */}
+                      <div
+                        className="position-absolute d-flex justify-content-between"
+                        style={{
+                          left: "40px",
+                          right: "0",
+                          bottom: "0",
+                          height: "20px",
+                        }}
+                      >
+                        {[...Array(7)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="placeholder rounded-1"
+                            style={{ height: "8px", width: "15px" }}
+                          ></div>
+                        ))}
                       </div>
                     </div>
-                  ) : (
-                    <Bar
-                      key={`chart-${activeTab}-${chartData.data.length}`}
-                      data={{
-                        labels: chartData.labels,
-                        datasets: [
-                          {
-                            data: chartData.data,
-                            backgroundColor: "#003465",
-                            borderRadius: 3,
-                            barThickness: 15,
-                          },
-                        ],
-                      }}
-                      options={{
-                        maintainAspectRatio: false,
-                        plugins: {
-                          legend: { display: false },
-                          tooltip: {
-                            callbacks: {
-                              afterBody:
-                                activeTab === "Week" && CaloriesStatsData
-                                  ? () => [
-                                      `Min: ${parseFloat(
-                                        CaloriesStatsData.min
-                                      ).toFixed(0)} cal`,
-                                      `Max: ${parseFloat(
-                                        CaloriesStatsData.max
-                                      ).toFixed(0)} cal`,
-                                    ]
-                                  : activeTab === "Month" && CaloriesData
-                                  ? (context) => {
-                                      const dataIndex = context[0]?.dataIndex;
-                                      return dataIndex !== undefined &&
-                                        CaloriesData[dataIndex]
-                                        ? [
-                                            `Days: ${CaloriesData[dataIndex].dayRange}`,
-                                          ]
-                                        : [];
-                                    }
-                                  : undefined,
-                            },
-                          },
+                  </div>
+                ) : (
+                  <Bar
+                    key={`chart-${activeTab}-${chartData.data.length}`}
+                    data={{
+                      labels: chartData.labels,
+                      datasets: [
+                        {
+                          data: chartData.data,
+                          backgroundColor: "#003465",
+                          borderRadius: 3,
+                          barThickness: 15,
                         },
-                        scales: {
-                          x: {
-                            grid: { display: false },
-                            ticks: { color: "#666", fontSize: 10 },
-                          },
-                          y: {
-                            beginAtZero: true,
-                            min:
+                      ],
+                    }}
+                    options={{
+                      maintainAspectRatio: false,
+                      onClick:
+                        activeTab === "Year"
+                          ? (event, elements) => {
+                              if (elements.length > 0) {
+                                const dataIndex = elements[0].index;
+                                if (CaloriesData && CaloriesData[dataIndex]) {
+                                  const selectedDate = new Date(
+                                    CaloriesData[dataIndex].date
+                                  );
+                                  const newDate = new Date(
+                                    selectedDate.getFullYear(),
+                                    selectedDate.getMonth(),
+                                    1
+                                  );
+                                  onDateChange(newDate);
+                                  handleTabChange("Month");
+                                }
+                              }
+                            }
+                          : undefined,
+                      plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                          callbacks: {
+                            afterBody:
                               activeTab === "Week" && CaloriesStatsData
-                                ? Math.min(
-                                    0,
-                                    parseFloat(CaloriesStatsData.min) - 100
-                                  )
-                                : 0,
-                            max:
-                              activeTab === "Week" && CaloriesStatsData
-                                ? Math.max(
-                                    ...chartData.data,
-                                    parseFloat(CaloriesStatsData.max) + 100
-                                  )
+                                ? () => [
+                                    `Min: ${parseFloat(
+                                      CaloriesStatsData.min
+                                    ).toFixed(0)} cal`,
+                                    `Max: ${parseFloat(
+                                      CaloriesStatsData.max
+                                    ).toFixed(0)} cal`,
+                                  ]
+                                : activeTab === "Month" && CaloriesData
+                                ? (context) => {
+                                    const dataIndex = context[0]?.dataIndex;
+                                    return dataIndex !== undefined &&
+                                      CaloriesData[dataIndex]
+                                      ? [
+                                          // `Days: ${CaloriesData[dataIndex].dayRange}`,
+                                        ]
+                                      : [];
+                                  }
+                                : activeTab === "Year"
+                                ? () => ["Click to view month details"]
                                 : undefined,
-                            grid: { color: "#f0f0f0" },
-                            ticks: { color: "#666", fontSize: 10 },
                           },
                         },
-                        categoryPercentage: 0.6,
-                      }}
-                    />
-                  )
+                      },
+                      scales: {
+                        x: {
+                          grid: { display: false },
+                          ticks: { color: "#666", fontSize: 10 },
+                        },
+                        y: {
+                          beginAtZero: true,
+                          min:
+                            activeTab === "Week" && CaloriesStatsData
+                              ? Math.min(
+                                  0,
+                                  parseFloat(CaloriesStatsData.min) - 100
+                                )
+                              : 0,
+                          max:
+                            activeTab === "Week" && CaloriesStatsData
+                              ? Math.max(
+                                  ...chartData.data,
+                                  parseFloat(CaloriesStatsData.max) + 100
+                                )
+                              : undefined,
+                          grid: { color: "#f0f0f0" },
+                          ticks: { color: "#666", fontSize: 10 },
+                        },
+                      },
+                      categoryPercentage: 0.6,
+                    }}
+                  />
                 )}
               </div>
             </div>
@@ -1086,7 +1150,7 @@ const CaloriesConsumedCard = ({
                           style={{
                             width: "10px",
                             height: "10px",
-                            borderWidth: "1px"
+                            borderWidth: "1px",
                           }}
                         ></div>
                         <span>{tab}</span>
@@ -1123,7 +1187,7 @@ const CaloriesConsumedCard = ({
                       style={{
                         width: "8px",
                         height: "8px",
-                        borderWidth: "1px"
+                        borderWidth: "1px",
                       }}
                     ></div>
                   ) : (
@@ -1144,11 +1208,18 @@ const CaloriesConsumedCard = ({
                   style={{
                     width: "24px",
                     height: "24px",
-                    backgroundColor: (isNextDisabled() || isNavigating) ? "#f5f5f5" : "white",
-                    border: `1px solid ${(isNextDisabled() || isNavigating) ? "#ccc" : "#003465"}`,
+                    backgroundColor:
+                      isNextDisabled() || isNavigating ? "#f5f5f5" : "white",
+                    border: `1px solid ${
+                      isNextDisabled() || isNavigating ? "#ccc" : "#003465"
+                    }`,
                     borderRadius: "4px",
-                    color: (isNextDisabled() || isNavigating) ? "#ccc" : "#003465",
-                    cursor: (isNextDisabled() || isNavigating) ? "not-allowed" : "pointer",
+                    color:
+                      isNextDisabled() || isNavigating ? "#ccc" : "#003465",
+                    cursor:
+                      isNextDisabled() || isNavigating
+                        ? "not-allowed"
+                        : "pointer",
                   }}
                   onClick={() => handleNavigation("next")}
                   disabled={isNextDisabled() || isNavigating}
@@ -1159,7 +1230,7 @@ const CaloriesConsumedCard = ({
                       style={{
                         width: "8px",
                         height: "8px",
-                        borderWidth: "1px"
+                        borderWidth: "1px",
                       }}
                     ></div>
                   ) : (
@@ -1228,7 +1299,7 @@ const CaloriesConsumedCard = ({
                 }}
                 className="custom-scroll"
               >
-                {(Loading || isNavigating || isTabSwitching) ? (
+                {Loading || isNavigating || isTabSwitching ? (
                   // Table skeleton
                   [...Array(7)].map((_, index) => (
                     <div
@@ -1241,8 +1312,14 @@ const CaloriesConsumedCard = ({
                         border: "1px solid #E8F2FF",
                       }}
                     >
-                      <span className="placeholder rounded-1" style={{ width: "60px", height: "10px" }}></span>
-                      <span className="placeholder rounded-1" style={{ width: "40px", height: "10px" }}></span>
+                      <span
+                        className="placeholder rounded-1"
+                        style={{ width: "60px", height: "10px" }}
+                      ></span>
+                      <span
+                        className="placeholder rounded-1"
+                        style={{ width: "40px", height: "10px" }}
+                      ></span>
                     </div>
                   ))
                 ) : chartData.tableData.length > 0 ? (
@@ -1259,11 +1336,31 @@ const CaloriesConsumedCard = ({
                         fontSize: "10px",
                         borderRadius: "2px",
                         border: "1px solid #E8F2FF",
-                        cursor: activeTab === "Week" ? "pointer" : "default",
+                        cursor:
+                          activeTab === "Week" || activeTab === "Year"
+                            ? "pointer"
+                            : "default",
                       }}
-                      onClick={() =>
-                        activeTab === "Week" && handleDaySelect(index)
-                      }
+                      onClick={() => {
+                        if (activeTab === "Week") {
+                          handleDaySelect(index);
+                        } else if (
+                          activeTab === "Year" &&
+                          CaloriesData &&
+                          CaloriesData[index]
+                        ) {
+                          const selectedDate = new Date(
+                            CaloriesData[index].date
+                          );
+                          const newDate = new Date(
+                            selectedDate.getFullYear(),
+                            selectedDate.getMonth(),
+                            1
+                          );
+                          onDateChange(newDate);
+                          handleTabChange("Month");
+                        }
+                      }}
                     >
                       <span style={{ color: "#003465" }}>{item.period}</span>
                       <span style={{ color: "#003465" }}>{item.value}</span>

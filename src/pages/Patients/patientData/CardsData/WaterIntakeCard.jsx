@@ -26,6 +26,7 @@ const WaterIntakeCard = ({
   const WaterStatsData = useSelector(
     (state) => state?.getPatientWater?.data?.response?.targetRange
   );
+
   const AverageData = useSelector(
     (state) => state?.getPatientWater?.data?.response
   );
@@ -75,7 +76,6 @@ const WaterIntakeCard = ({
           end: formatDate(end),
           field: "water",
         };
-        if (activeTab === "Month") payload.period = "month";
         if (activeTab === "Year") payload.period = "year";
         dispatch(getPatientWater(payload));
       }
@@ -166,10 +166,14 @@ const WaterIntakeCard = ({
           }
         }
 
-        const litersValue = convertMlToLiters(item.value);
+        const litersValue =
+          activeTab === "Year" ? item.value : convertMlToLiters(item.value);
         return {
           period,
-          value: litersValue > 0 ? `${litersValue.toFixed(1)}L` : "0L",
+          value:
+            litersValue !== null && litersValue > 0
+              ? `${litersValue.toFixed(1)}L`
+              : "0L",
         };
       });
 
@@ -305,7 +309,6 @@ const WaterIntakeCard = ({
             end: formatDate(end),
             field: "water",
           };
-          if (activeTab === "Month") payload.period = "month";
           if (activeTab === "Year") payload.period = "year";
           dispatch(getPatientWater(payload));
         }
@@ -314,16 +317,17 @@ const WaterIntakeCard = ({
   };
 
   // Handle tab change
-  const handleTabChange = (tab) => {
+  const handleTabChange = (tab, specificDate = null) => {
     if (isTabSwitching || tab === activeTab) return;
 
     setIsTabSwitching(true);
     onTabChange(tab);
     // Fetch data for new tab
-    if (currentDate && formatDate) {
+    const dateToUse = specificDate || currentDate;
+    if (dateToUse && formatDate) {
       setTimeout(() => {
         if (patientId) {
-          const date = new Date(currentDate);
+          const date = new Date(dateToUse);
           if (isNaN(date.getTime())) return;
 
           let start, end;
@@ -360,12 +364,11 @@ const WaterIntakeCard = ({
               end: formatDate(end),
               field: "water",
             };
-            if (tab === "Month") payload.period = "month";
             if (tab === "Year") payload.period = "year";
             dispatch(getPatientWater(payload));
           }
         }
-      }, 0);
+      }, 100);
     }
   };
 
@@ -425,30 +428,62 @@ const WaterIntakeCard = ({
                   height: "500px",
                 }}
               >
-                {(Loading || isNavigating || isTabSwitching) ? (
+                {Loading || isNavigating || isTabSwitching ? (
                   <div className="d-flex flex-column h-100">
                     {/* Chart Skeleton */}
                     <div className="position-relative flex-grow-1">
                       {/* Y-axis skeleton */}
-                      <div className="position-absolute" style={{ left: "0", top: "0", bottom: "30px", width: "30px" }}>
+                      <div
+                        className="position-absolute"
+                        style={{
+                          left: "0",
+                          top: "0",
+                          bottom: "30px",
+                          width: "30px",
+                        }}
+                      >
                         {[...Array(5)].map((_, i) => (
-                          <div key={i} className="placeholder rounded-1 mb-4" style={{ height: "8px", width: "25px" }}></div>
+                          <div
+                            key={i}
+                            className="placeholder rounded-1 mb-4"
+                            style={{ height: "8px", width: "25px" }}
+                          ></div>
                         ))}
                       </div>
 
                       {/* Chart area skeleton */}
-                      <div className="position-absolute" style={{ left: "40px", right: "0", top: "0", bottom: "30px" }}>
-                        <svg width="100%" height="100%" className="placeholder-glow">
+                      <div
+                        className="position-absolute"
+                        style={{
+                          left: "40px",
+                          right: "0",
+                          top: "0",
+                          bottom: "30px",
+                        }}
+                      >
+                        <svg
+                          width="100%"
+                          height="100%"
+                          className="placeholder-glow"
+                        >
                           {/* Grid lines */}
                           {[...Array(4)].map((_, i) => (
-                            <line key={`grid-${i}`} x1="0" y1={`${(i + 1) * 25}%`} x2="100%" y2={`${(i + 1) * 25}%`} stroke="#E8F2FF" strokeWidth="1" />
+                            <line
+                              key={`grid-${i}`}
+                              x1="0"
+                              y1={`${(i + 1) * 25}%`}
+                              x2="100%"
+                              y2={`${(i + 1) * 25}%`}
+                              stroke="#E8F2FF"
+                              strokeWidth="1"
+                            />
                           ))}
 
                           {/* Skeleton bars */}
                           {[...Array(7)].map((_, i) => (
                             <rect
                               key={`bar-${i}`}
-                              x={`${(i * 14) + 2}%`}
+                              x={`${i * 14 + 2}%`}
                               y={`${60 + Math.sin(i) * 20}%`}
                               width="10%"
                               height={`${25 + Math.cos(i) * 15}%`}
@@ -461,9 +496,21 @@ const WaterIntakeCard = ({
                       </div>
 
                       {/* X-axis skeleton */}
-                      <div className="position-absolute d-flex justify-content-between" style={{ left: "40px", right: "0", bottom: "0", height: "20px" }}>
+                      <div
+                        className="position-absolute d-flex justify-content-between"
+                        style={{
+                          left: "40px",
+                          right: "0",
+                          bottom: "0",
+                          height: "20px",
+                        }}
+                      >
                         {[...Array(7)].map((_, i) => (
-                          <div key={i} className="placeholder rounded-1" style={{ height: "8px", width: "15px" }}></div>
+                          <div
+                            key={i}
+                            className="placeholder rounded-1"
+                            style={{ height: "8px", width: "15px" }}
+                          ></div>
                         ))}
                       </div>
                     </div>
@@ -484,6 +531,31 @@ const WaterIntakeCard = ({
                     }}
                     options={{
                       maintainAspectRatio: false,
+                      onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                          const dataIndex = elements[0].index;
+                          if (WaterData && WaterData[dataIndex]) {
+                            if (activeTab === "Year") {
+                              const dateStr = WaterData[dataIndex].date + "-01";
+                              const newDate = new Date(dateStr);
+                              onDateChange(newDate);
+                              handleTabChange("Month");
+                            } else if (activeTab === "Month") {
+                              const selectedDate = new Date(
+                                WaterData[dataIndex].date
+                              );
+                              console.log(
+                                "Chart click - Original date:",
+                                WaterData[dataIndex].date,
+                                "Parsed date:",
+                                selectedDate
+                              );
+                              onDateChange(selectedDate);
+                              handleTabChange("Day", selectedDate);
+                            }
+                          }
+                        }
+                      },
                       plugins: {
                         legend: { display: false },
                         tooltip: {
@@ -505,9 +577,12 @@ const WaterIntakeCard = ({
                                       WaterData[dataIndex]
                                       ? [
                                           `Days: ${WaterData[dataIndex].dayRange}`,
+                                          "Click to view day details",
                                         ]
                                       : [];
                                   }
+                                : activeTab === "Year"
+                                ? () => ["Click to view month details"]
                                 : undefined,
                           },
                         },
@@ -628,7 +703,7 @@ const WaterIntakeCard = ({
                           style={{
                             width: "10px",
                             height: "10px",
-                            borderWidth: "1px"
+                            borderWidth: "1px",
                           }}
                         ></div>
                         <span>{tab}</span>
@@ -665,7 +740,7 @@ const WaterIntakeCard = ({
                       style={{
                         width: "8px",
                         height: "8px",
-                        borderWidth: "1px"
+                        borderWidth: "1px",
                       }}
                     ></div>
                   ) : (
@@ -686,11 +761,18 @@ const WaterIntakeCard = ({
                   style={{
                     width: "24px",
                     height: "24px",
-                    backgroundColor: (isNextDisabled() || isNavigating) ? "#f5f5f5" : "white",
-                    border: `1px solid ${(isNextDisabled() || isNavigating) ? "#ccc" : "#003465"}`,
+                    backgroundColor:
+                      isNextDisabled() || isNavigating ? "#f5f5f5" : "white",
+                    border: `1px solid ${
+                      isNextDisabled() || isNavigating ? "#ccc" : "#003465"
+                    }`,
                     borderRadius: "4px",
-                    color: (isNextDisabled() || isNavigating) ? "#ccc" : "#003465",
-                    cursor: (isNextDisabled() || isNavigating) ? "not-allowed" : "pointer",
+                    color:
+                      isNextDisabled() || isNavigating ? "#ccc" : "#003465",
+                    cursor:
+                      isNextDisabled() || isNavigating
+                        ? "not-allowed"
+                        : "pointer",
                   }}
                   onClick={() => handleNavigation("next")}
                   disabled={isNextDisabled() || isNavigating}
@@ -701,7 +783,7 @@ const WaterIntakeCard = ({
                       style={{
                         width: "8px",
                         height: "8px",
-                        borderWidth: "1px"
+                        borderWidth: "1px",
                       }}
                     ></div>
                   ) : (
@@ -770,7 +852,7 @@ const WaterIntakeCard = ({
                 }}
                 className="custom-scroll"
               >
-                {(Loading || isNavigating || isTabSwitching) ? (
+                {Loading || isNavigating || isTabSwitching ? (
                   // Table skeleton
                   [...Array(8)].map((_, index) => (
                     <div
@@ -783,13 +865,19 @@ const WaterIntakeCard = ({
                         border: "1px solid #E8F2FF",
                       }}
                     >
-                      <span className="placeholder rounded-1" style={{ width: "60px", height: "10px" }}></span>
-                      <span className="placeholder rounded-1" style={{ width: "30px", height: "10px" }}></span>
+                      <span
+                        className="placeholder rounded-1"
+                        style={{ width: "60px", height: "10px" }}
+                      ></span>
+                      <span
+                        className="placeholder rounded-1"
+                        style={{ width: "30px", height: "10px" }}
+                      ></span>
                     </div>
                   ))
                 ) : chartData &&
-                chartData.tableData &&
-                chartData.tableData.length > 0 ? (
+                  chartData.tableData &&
+                  chartData.tableData.length > 0 ? (
                   chartData.tableData.map((item, index) => (
                     <div
                       key={`${activeTab}-${item?.period || "unknown"}-${index}`}
@@ -799,6 +887,32 @@ const WaterIntakeCard = ({
                         fontSize: "10px",
                         borderRadius: "2px",
                         border: "1px solid #E8F2FF",
+                        cursor:
+                          activeTab === "Month" || activeTab === "Year"
+                            ? "pointer"
+                            : "default",
+                      }}
+                      onClick={() => {
+                        if (WaterData && WaterData[index]) {
+                          if (activeTab === "Year") {
+                            const dateStr = WaterData[index].date + "-01";
+                            const newDate = new Date(dateStr);
+                            onDateChange(newDate);
+                            handleTabChange("Month");
+                          } else if (activeTab === "Month") {
+                            const selectedDate = new Date(
+                              WaterData[index].date
+                            );
+                            console.log(
+                              "Month click - Original date:",
+                              WaterData[index].date,
+                              "Parsed date:",
+                              selectedDate
+                            );
+                            onDateChange(selectedDate);
+                            handleTabChange("Day", selectedDate);
+                          }
+                        }
                       }}
                     >
                       <span style={{ color: "#003465" }}>
