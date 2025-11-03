@@ -355,16 +355,17 @@ const CaloriesConsumedCard = ({
   };
 
   // Handle tab change
-  const handleTabChange = (tab) => {
+  const handleTabChange = (tab, specificDate = null) => {
     if (isTabSwitching || tab === activeTab) return;
 
     setIsTabSwitching(true);
     onTabChange(tab);
     // Fetch data for new tab
-    if (currentDate && formatDate) {
+    const dateToUse = specificDate || currentDate;
+    if (dateToUse && formatDate) {
       setTimeout(() => {
         if (patientId) {
-          const date = new Date(currentDate);
+          const date = new Date(dateToUse);
           if (isNaN(date.getTime())) return;
 
           let start, end;
@@ -1031,16 +1032,14 @@ const CaloriesConsumedCard = ({
                               if (elements.length > 0) {
                                 const dataIndex = elements[0].index;
                                 if (CaloriesData && CaloriesData[dataIndex]) {
-                                  const selectedDate = new Date(
-                                    CaloriesData[dataIndex].date
-                                  );
+                                  const monthIndex = dataIndex;
                                   const newDate = new Date(
-                                    selectedDate.getFullYear(),
-                                    selectedDate.getMonth(),
+                                    currentDate.getFullYear(),
+                                    monthIndex,
                                     1
                                   );
                                   onDateChange(newDate);
-                                  handleTabChange("Month");
+                                  handleTabChange("Month", newDate);
                                 }
                               }
                             }
@@ -1349,16 +1348,14 @@ const CaloriesConsumedCard = ({
                           CaloriesData &&
                           CaloriesData[index]
                         ) {
-                          const selectedDate = new Date(
-                            CaloriesData[index].date
-                          );
+                          const monthIndex = index;
                           const newDate = new Date(
-                            selectedDate.getFullYear(),
-                            selectedDate.getMonth(),
+                            currentDate.getFullYear(),
+                            monthIndex,
                             1
                           );
                           onDateChange(newDate);
-                          handleTabChange("Month");
+                          handleTabChange("Month", newDate);
                         }
                       }}
                     >
