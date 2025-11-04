@@ -113,6 +113,11 @@ const Doctors = () => {
     setCurrentPage(page);
   };
 
+  // Reset to page 1 when status filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter]);
+
   const getStatusBadge = (isActive) => {
     return isActive
       ? "badge badge-active"
@@ -328,7 +333,10 @@ const Doctors = () => {
                 }}
               >
                 <div style={{ flex: 1, overflowY: "auto", maxHeight: "76vh" }}>
-                  <Table className="mb-0 table-sm" style={{ fontSize: "11px", tableLayout: "fixed" }}>
+                  <Table
+                    className="mb-0 table-sm"
+                    style={{ fontSize: "11px", tableLayout: "fixed" }}
+                  >
                     <thead
                       className="thead-custom"
                       style={{ position: "sticky", top: 0, zIndex: 10 }}
