@@ -37,7 +37,7 @@ const Sidebar = () => {
         : { paginate: false };
     dispatch(getAllPatients(payload));
     if (UserRole !== "doctor") {
-      dispatch(getAllDoctors());
+      dispatch(getAllDoctors({ paginate: false }));
     }
   }, [dispatch, selectedDoctor]);
 
@@ -60,7 +60,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     if (CreateDoctorResponse === 201) {
-      dispatch(getAllDoctors());
+      dispatch(getAllDoctors({ paginate: false }));
     }
   }, [CreateDoctorResponse]);
 

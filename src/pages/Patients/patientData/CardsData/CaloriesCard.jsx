@@ -29,7 +29,8 @@ const CaloriesCard = ({
     (state) => state?.getPatientCaloriesBurned?.data?.response
   );
   const IntradayData = useSelector(
-    (state) => state?.getPatientCaloriesBurned?.data?.response?.todayData?.intradayData
+    (state) =>
+      state?.getPatientCaloriesBurned?.data?.response?.todayData?.intradayData
   );
   const Loading = useSelector(
     (state) => state?.getPatientCaloriesBurned?.loading
@@ -51,17 +52,17 @@ const CaloriesCard = ({
         // Convert "12 AM to 1 AM" to "12 AM"
         return item.timeRange.split(" to ")[0];
       });
-      
+
       const data = IntradayData.map((item) => item.calories);
-      
+
       const tableData = IntradayData.map((item) => ({
         period: item.timeRange,
         value: item.calories.toString(),
       }));
-      
+
       return { labels, data, tableData };
     }
-    
+
     // For other tabs, use regular data
     if (!CaloriesData || CaloriesData.length === 0) {
       return { labels: [], data: [], tableData: [] };
@@ -623,11 +624,11 @@ const CaloriesCard = ({
                       scales: {
                         x: {
                           grid: { display: false },
-                          ticks: { 
-                            color: "#666", 
+                          ticks: {
+                            color: "#666",
                             fontSize: 10,
                             maxRotation: activeTab === "Day" ? 45 : 0,
-                            minRotation: activeTab === "Day" ? 45 : 0
+                            minRotation: activeTab === "Day" ? 45 : 0,
                           },
                         },
                         y: {
@@ -1060,12 +1061,13 @@ const CaloriesCard = ({
                     }`}
                     style={{ fontSize: "16px", color: "#003465" }}
                   >
-                    {Math.round(
-                      ((AverageData?.todayData?.value || 0) /
-                        (AverageData?.goals?.calories || 1)) *
-                        100
-                    )}
-                    %
+                    {AverageData?.goals?.calories
+                      ? `${Math.round(
+                          ((AverageData?.todayData?.value || 0) /
+                            AverageData.goals.calories) *
+                            100
+                        )}%`
+                      : "0%"}
                   </div>
                   <div
                     style={{
@@ -1136,7 +1138,9 @@ const CaloriesCard = ({
                     }`}
                     style={{ fontSize: "14px", color: "#003465" }}
                   >
-                    {AverageData?.todayData?.value || "-"}
+                    {AverageData?.goals?.calories
+                      ? AverageData?.todayData?.value || "-"
+                      : "-"}
                   </div>
                   <div
                     style={{
