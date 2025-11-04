@@ -4,6 +4,9 @@ import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { Bar } from "react-chartjs-2";
 import { useDispatch, useSelector } from "react-redux";
 import { getPatientSleepStages } from "../../../../redux/patientsDashboard/action";
+import { getNotes } from "../../../../redux/notes/action";
+import { TbNotes } from "react-icons/tb";
+import NotesModal from "../../../../components/NotesModal";
 
 const SleepJourneyChart = ({
   FilterData,
@@ -521,6 +524,7 @@ const SleepJourneyChart = ({
 
 const AwakeningsCard = ({
   patientId,
+  masterDataId,
   expandedCard,
   onCardExpand,
   activeTab,
@@ -533,6 +537,7 @@ const AwakeningsCard = ({
   const [selectedSessionIndex, setSelectedSessionIndex] = useState(0);
   const [isNavigating, setIsNavigating] = useState(false);
   const [isTabSwitching, setIsTabSwitching] = useState(false);
+  const [showNotesModal, setShowNotesModal] = useState(false);
   const FilterData = useSelector(
     (state) => state?.getPatientSleepStages?.data?.response?.data
   );
@@ -545,6 +550,10 @@ const AwakeningsCard = ({
       state?.getPatientSleepStages?.data?.response?.todayData?.sleepData
   );
   const Loading = useSelector((state) => state?.getPatientSleepStages?.loading);
+  
+  const fieldKey = "SleepData_SleepAwakening";
+  const notesData = useSelector((state) => state?.getNotesReducer?.data?.[fieldKey]?.notes || []);
+  const notesLoading = useSelector((state) => state?.getNotesReducer?.loading?.[fieldKey] || false);
 
   // Reset loading states when data loading completes
   useEffect(() => {
@@ -553,6 +562,14 @@ const AwakeningsCard = ({
       setIsTabSwitching(false);
     }
   }, [Loading]);
+
+  // Fetch notes data
+  useEffect(() => {
+    if (patientId) {
+      const params = { patientId, page: 1, limit: 4, type: "SleepData", value: "SleepAwakening" };
+      dispatch(getNotes(params, fieldKey));
+    }
+  }, [dispatch, patientId, fieldKey]);
   // console.log(awakeningsData, "awakeningsData");
 
   // Initial API call when component mounts
@@ -910,6 +927,16 @@ const AwakeningsCard = ({
           </span>
         </div>
         <div className="d-flex">
+          <TbNotes
+            title="Notes"
+            style={{
+              fontSize: "16px",
+              color: "#003465",
+              marginLeft: "6px",
+              cursor: "pointer",
+            }}
+            onClick={() => setShowNotesModal(true)}
+          />
           <IoIosExpand
             style={{
               fontSize: "16px",
@@ -1463,12 +1490,15 @@ const AwakeningsCard = ({
             </div>
           </div>
         ) : (
-          <div
-            className={`rounded-3 px-2 mt-1 d-flex flex-column ${
-              Loading ? "placeholder-glow" : ""
-            }`}
-            style={{ backgroundColor: "#F8FBFF", height: "200px" }}
-          >
+          <div className="row g-2 mt-0">
+            {/* Current Section - col-8 */}
+            <div className="col-8 mt-1">
+              <div
+                className={`rounded-3 px-2 d-flex flex-column ${
+                  Loading ? "placeholder-glow" : ""
+                }`}
+                style={{ backgroundColor: "#F8FBFF", height: "200px" }}
+              >
             <div className="d-flex justify-content-center mb-2">
               <div
                 className="position-relative"
@@ -1628,9 +1658,92 @@ const AwakeningsCard = ({
                 </div>
               </div>
             </div>
+              </div>
+            </div>
+
+            {/* Notes Section - col-4 */}
+            <div className="col-4 ps-0 mt-1">
+              <div
+                className="rounded-3 px-1 py-2"
+                style={{ backgroundColor: "#F8FBFF", height: "200px" }}
+              >
+                <div
+                  className="mb-2 d-flex justify-content-between align-items-center position-relative"
+                  style={{ fontSize: "12px", color: "#003465", fontWeight: "600" }}
+                >
+                  <span>Notes</span>
+                </div>
+                <div className="d-flex flex-column gap-1" style={{ maxHeight: "140px", overflowY: "auto" }}>
+                  {notesLoading ? (
+                    [...Array(3)].map((_, index) => (
+                      <div
+                        key={`skeleton-${index}`}
+                        className="px-1 py-0 placeholder-glow"
+                        style={{
+                          borderBottom: "1px solid #E8F2FF",
+                          fontSize: "9px",
+                        }}
+                      >
+                        <span className="placeholder rounded-1" style={{ width: "80%", height: "8px" }}></span>
+                      </div>
+                    ))
+                  ) : notesData.length > 0 ? (
+                    notesData.slice(0, 4).map((note, index) => (
+                      <div
+                        key={note._id || index}
+                        className="px-1 py-0"
+                        style={{
+                          borderBottom: "1px solid #E8F2FF",
+                          fontSize: "9px",
+                          color: "#666",
+                        }}
+                        title={note.title}
+                      >
+                        • {note.title.length > 30 ? `${note.title.substring(0, 30)}...` : note.title}
+                      </div>
+                    ))
+                  ) : (
+                    <div
+                      className="px-1 py-2 text-center"
+                      style={{
+                        fontSize: "9px",
+                        color: "#999",
+                      }}
+                    >
+                      No notes available
+                    </div>
+                  )}
+                </div>
+                {notesData.length > 0 && (
+                  <div className="text-end px-1 mt-1">
+                    <span
+                      style={{
+                        fontSize: "9px",
+                        color: "#003465",
+                        cursor: "pointer",
+                        textDecoration: "underline"
+                      }}
+                      onClick={() => setShowNotesModal(true)}
+                    >
+                      View All ({notesData.length})
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>
+      
+      <NotesModal
+        show={showNotesModal}
+        onHide={() => setShowNotesModal(false)}
+        patientId={patientId}
+        masterDataId={masterDataId}
+        title="Awakenings Notes"
+        type="SleepData"
+        value="SleepAwakening"
+      />
     </div>
   );
 };

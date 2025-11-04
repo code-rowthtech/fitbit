@@ -974,9 +974,11 @@ const ActiveMinCard = ({
                         strokeDasharray="276"
                         strokeDashoffset={
                           276 -
-                          ((AverageData?.todayData?.value || 0) /
-                            (AverageData?.goals?.activeMinutes || 1)) *
-                          276
+                          Math.min(
+                            ((AverageData?.todayData?.value || 0) /
+                              (AverageData?.goals?.activeMinutes || 1)),
+                            1
+                          ) * 276
                         }
                         strokeLinecap="round"
                         transform="rotate(-90 55 55)"
@@ -990,9 +992,12 @@ const ActiveMinCard = ({
                         style={{ fontSize: "14px", color: "#003465" }}
                       >
                         {AverageData?.goals?.activeMinutes > 0
-                          ? Math.round(
-                              ((AverageData?.todayData?.value || 0) /
-                                AverageData.goals.activeMinutes) *
+                          ? Math.min(
+                              Math.round(
+                                ((AverageData?.todayData?.value || 0) /
+                                  AverageData.goals.activeMinutes) *
+                                100
+                              ),
                               100
                             )
                           : 0}

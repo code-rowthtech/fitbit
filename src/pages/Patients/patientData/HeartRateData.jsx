@@ -11,8 +11,9 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
+import { getMasterData } from "../../../redux/notes/action";
 import RestingHeartRateCard from "./CardsData/RestingHeartRateCard";
 import ContinuousHeartRateCard from "./CardsData/ContinuousHeartRateCard";
 import WeightCard from "./CardsData/WeightCard";
@@ -33,6 +34,9 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
   const patientId =
     pathId || searchParams.get("id") || searchParams.get("patientId");
   const [isOpen, setIsOpen] = useState(true);
+  
+  // Get master data from Redux store
+  const masterDataState = useSelector((state) => state.getMasterDataReducer);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [expandedCard, setExpandedCard] = useState(null);
   const [heartRateActiveTab, setHeartRateActiveTab] = useState("Week");
@@ -47,6 +51,34 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
+
+  // Call GET_MASTER_DATA API on component mount
+  useEffect(() => {
+    console.log('🚀 Calling GET_MASTER_DATA API...');
+    dispatch(getMasterData({ type: 'HeartRateBodyMetrics' }));
+  }, [dispatch]);
+
+  // Log master data response
+  useEffect(() => {
+    if (masterDataState.data && Object.keys(masterDataState.data).length > 0) {
+      console.log('✅ GET_MASTER_heart Response:', masterDataState.data);
+      console.log('📊 Master Data Loading State:', masterDataState.loading);
+      
+      const masterData = masterDataState.data.masterData;
+      if (masterData && masterData.values) {
+        console.log('🎯 Heart Rate Body Metrics Values:', masterData.values);
+        console.log('📅 Created At:', masterData.createdAt);
+        console.log('🏷️ Type:', masterData.type);
+        console.log('🆔 ID:', masterData._id);
+      }
+    }
+    if (masterDataState.message) {
+      console.log('❌ GET_MASTER_DATA Error:', masterDataState.message);
+    }
+  }, [masterDataState]);
+
+  // Extract master data ID
+  const masterDataId = masterDataState.data?.masterData?._id;
 
   const handleCardExpand = (cardType) => {
     if (expandedCard === cardType) {
@@ -124,6 +156,7 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
               {(!expandedCard || expandedCard === "restingHeartRate") && (
                 <RestingHeartRateCard
                   patientId={patientId}
+                  masterDataId={masterDataId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={heartRateActiveTab}
@@ -138,6 +171,7 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
               {(!expandedCard || expandedCard === "weight") && (
                 <WeightCard
                   patientId={patientId}
+                  masterDataId={masterDataId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={weightActiveTab}
