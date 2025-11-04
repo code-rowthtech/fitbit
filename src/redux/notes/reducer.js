@@ -6,11 +6,7 @@ const ADD_NOTES_INITIAL_STATE = {
   loading: false,
 };
 
-const GET_NOTES_INITIAL_STATE = {
-  data: [],
-  message: "",
-  loading: false,
-};
+const GET_NOTES_INITIAL_STATE = { data: {}, loading: {}, error: {} };
 
 const UPDATE_NOTES_INITIAL_STATE = {
   data: [],
@@ -25,6 +21,12 @@ const DELETE_NOTES_INITIAL_STATE = {
 };
 
 const GET_ALERTS_INITIAL_STATE = {
+  data: [],
+  message: "",
+  loading: false,
+};
+
+const GET_MASTER_DATA_INITIAL_STATE = {
   data: [],
   message: "",
   loading: false,
@@ -65,20 +67,24 @@ export const getNotesReducer = (
   action
 ) => {
   switch (action.type) {
-    case NOTES_TYPES.GET_NOTES_LOADING:
+    case NOTES_TYPES.GET_NOTES:
       return {
-        loading: true,
-        data: state.data,
+        ...state,
+        loading: { ...state.loading, [action.payload.fieldKey]: true },
+        error: { ...state.error, [action.payload.fieldKey]: null },
       };
     case NOTES_TYPES.GET_NOTES_SUCCESS:
       return {
-        loading: false,
-        data: action?.payload,
+        ...state,
+        data: { ...state.data, [action.payload.fieldKey]: action.payload.data },
+        loading: { ...state.loading, [action.payload.fieldKey]: false },
+        error: { ...state.error, [action.payload.fieldKey]: null },
       };
     case NOTES_TYPES.GET_NOTES_ERROR:
       return {
-        loading: false,
-        message: action?.payload,
+        ...state,
+        loading: { ...state.loading, [action.payload.fieldKey]: false },
+        error: { ...state.error, [action.payload.fieldKey]: action.payload.error },
       };
     default:
       return state;
@@ -166,6 +172,36 @@ export const getAlertsReducer = (
         message: action?.payload,
       };
     case NOTES_TYPES.GET_ALERTS_RESET:
+      return {
+        data: [],
+        loading: false,
+      };
+    default:
+      return state;
+  }
+};
+
+export const getMasterDataReducer = (
+  state = GET_MASTER_DATA_INITIAL_STATE,
+  action
+) => {
+  switch (action.type) {
+    case NOTES_TYPES.GET_MASTER_DATA_LOADING:
+      return {
+        loading: true,
+        data: state.data,
+      };
+    case NOTES_TYPES.GET_MASTER_DATA_SUCCESS:
+      return {
+        loading: false,
+        data: action?.payload,
+      };
+    case NOTES_TYPES.GET_MASTER_DATA_ERROR:
+      return {
+        loading: false,
+        message: action?.payload,
+      };
+    case NOTES_TYPES.GET_MASTER_DATA_RESET:
       return {
         data: [],
         loading: false,

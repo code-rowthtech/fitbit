@@ -25,8 +25,6 @@ import PatientAlertsOffCanvas from "./PatientAlertsOffCanvas";
 const PatientDetails = ({
   onShowReports,
   showReports,
-  onShowNotes,
-  showNotes,
   activeTab,
   setActiveTab,
   accordionOpen: externalAccordionOpen,
@@ -134,7 +132,7 @@ const PatientDetails = ({
         borderTopRightRadius: "10px",
       }}
     >
-      {!showReports && !showNotes && !isAccordionOpen && (
+      {!showReports && !isAccordionOpen && (
         <div>
           {/* tab section */}
           <div className="d-flex patient-tabs">
@@ -340,24 +338,7 @@ const PatientDetails = ({
                   >
                     Alerts
                   </button>
-                  <button
-                    className="btn btn-sm me-2 fw-bold"
-                    style={{
-                      fontSize: "12px",
-                      padding: "4px 12px",
-                      borderRadius: "4px",
-                      backgroundColor: "#003465",
-                      color: "white",
-                      border: "1px solid #003465",
-                      pointerEvents: "auto",
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onShowNotes();
-                    }}
-                  >
-                    {showNotes ? "Back" : "Notes"}
-                  </button>
+
                   <button
                     className="btn btn-sm me-2 fw-bold"
                     style={{

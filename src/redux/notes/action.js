@@ -5,9 +5,9 @@ export const addNotes = (data) => ({
   payload: data,
 });
 
-export const getNotes = (data) => ({
+export const getNotes = (data, fieldKey) => ({
   type: NOTES_TYPES.GET_NOTES,
-  payload: data,
+  payload: { ...data, fieldKey },
 });
 
 export const updateNotes = (data) => ({
@@ -39,4 +39,13 @@ export const getAlerts = (data) => ({
 
 export const resetGetAlerts = () => ({
   type: NOTES_TYPES.GET_ALERTS_RESET,
+});
+
+export const getMasterData = (data) => ({
+  type: NOTES_TYPES.GET_MASTER_DATA,
+  payload: data,
+});
+
+export const resetGetMasterData = () => ({
+  type: NOTES_TYPES.GET_MASTER_DATA_RESET,
 });

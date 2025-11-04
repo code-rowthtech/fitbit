@@ -15,6 +15,12 @@ export function getNotesApi(data) {
     if (data?.payload?.limit) {
         params.append('limit', data.payload.limit);
     }
+    if (data?.payload?.type) {
+        params.append('type', data.payload.type);
+    }
+    if (data?.payload?.value) {
+        params.append('value', data.payload.value);
+    }
     
     const baseUrl = `${URL.GET_NOTES}/${data.payload.patientId}`;
     const url = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
@@ -50,5 +56,11 @@ export function getAlertsApi(data) {
     
     const baseUrl = `${URL.GET_ALERTS}/${data.payload.patientId}`;
     const url = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
+    return api.get(url);
+}
+
+export function getMasterDataApi(data) {
+    const type = data?.payload?.type || '';
+    const url = type ? `${URL.GET_MASTER_DATA}/${type}` : URL.GET_MASTER_DATA;
     return api.get(url);
 }
