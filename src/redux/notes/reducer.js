@@ -26,11 +26,7 @@ const GET_ALERTS_INITIAL_STATE = {
   loading: false,
 };
 
-const GET_MASTER_DATA_INITIAL_STATE = {
-  data: [],
-  message: "",
-  loading: false,
-};
+const GET_MASTER_DATA_INITIAL_STATE = { data: {}, loading: {}, error: {} };
 
 export const addNotesReducer = (
   state = ADD_NOTES_INITIAL_STATE,
@@ -186,25 +182,24 @@ export const getMasterDataReducer = (
   action
 ) => {
   switch (action.type) {
-    case NOTES_TYPES.GET_MASTER_DATA_LOADING:
+    case NOTES_TYPES.GET_MASTER_DATA:
       return {
-        loading: true,
-        data: state.data,
+        ...state,
+        loading: { ...state.loading, [action.payload.fieldKey]: true },
+        error: { ...state.error, [action.payload.fieldKey]: null },
       };
     case NOTES_TYPES.GET_MASTER_DATA_SUCCESS:
       return {
-        loading: false,
-        data: action?.payload,
+        ...state,
+        data: { ...state.data, [action.payload.fieldKey]: action.payload.data },
+        loading: { ...state.loading, [action.payload.fieldKey]: false },
+        error: { ...state.error, [action.payload.fieldKey]: null },
       };
     case NOTES_TYPES.GET_MASTER_DATA_ERROR:
       return {
-        loading: false,
-        message: action?.payload,
-      };
-    case NOTES_TYPES.GET_MASTER_DATA_RESET:
-      return {
-        data: [],
-        loading: false,
+        ...state,
+        loading: { ...state.loading, [action.payload.fieldKey]: false },
+        error: { ...state.error, [action.payload.fieldKey]: action.payload.error },
       };
     default:
       return state;

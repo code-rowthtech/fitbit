@@ -202,29 +202,29 @@ function* getAlertsFunction({ payload }) {
   }
 }
 
-function* getMasterDataFunction({ payload }) {
+function* getMasterDataFunction(action) {
   try {
     yield put({
       type: NOTES_TYPES.GET_MASTER_DATA_LOADING,
-      payload: {},
+      payload: { fieldKey: action.payload.fieldKey },
     });
-    const response = yield call(getMasterDataApi, { payload });
+    const response = yield call(getMasterDataApi, { payload: action.payload });
 
     if (response?.data && response?.data?.status === 200) {
       yield put({
         type: NOTES_TYPES.GET_MASTER_DATA_SUCCESS,
-        payload: response.data,
+        payload: { fieldKey: action.payload.fieldKey, data: response.data },
       });
     } else {
       yield put({
         type: NOTES_TYPES.GET_MASTER_DATA_ERROR,
-        payload: response.data,
+        payload: { fieldKey: action.payload.fieldKey, error: response.data?.message || 'Failed to fetch master data' },
       });
     }
   } catch (error) {
     yield put({
       type: NOTES_TYPES.GET_MASTER_DATA_ERROR,
-      payload: { message: error?.message },
+      payload: { fieldKey: action.payload.fieldKey, error: error?.message },
     });
   }
 }
