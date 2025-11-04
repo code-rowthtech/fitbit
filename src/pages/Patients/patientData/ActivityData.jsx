@@ -47,9 +47,10 @@ const ActivityData = ({ isExpanded, onExpand }) => {
   const patientId =
     pathId || searchParams.get("id") || searchParams.get("patientId");
   const [isOpen, setIsOpen] = useState(true);
-  
+
   // Get master data from Redux store
   const masterDataState = useSelector((state) => state.getMasterDataReducer);
+  const fieldKey = 'ActivityData';
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [expandedCard, setExpandedCard] = useState(null);
   const [activeTab, setActiveTab] = useState("Week");
@@ -134,32 +135,10 @@ const ActivityData = ({ isExpanded, onExpand }) => {
 
   // Call GET_MASTER_DATA API on component mount
   useEffect(() => {
-    console.log('🚀 Calling GET_MASTER_DATA API...');
-    dispatch(getMasterData({ type: 'ActivityData' }));
+    dispatch(getMasterData({ type: 'ActivityData' }, fieldKey));
   }, [dispatch]);
-
-  // Log master data response
-  useEffect(() => {
-    if (masterDataState.data && Object.keys(masterDataState.data).length > 0) {
-      console.log('✅ GET_MASTER_DATA Response:', masterDataState.data);
-      console.log('📊 Master Data Loading State:', masterDataState.loading);
-      
-      // Log specific master data values
-      const masterData = masterDataState.data.masterData;
-      if (masterData && masterData.values) {
-        console.log('🎯 Activity Data Values:', masterData.values);
-        console.log('📅 Created At:', masterData.createdAt);
-        console.log('🏷️ Type:', masterData.type);
-        console.log('🆔 ID:', masterData._id);
-      }
-    }
-    if (masterDataState.message) {
-      console.log('❌ GET_MASTER_DATA Error:', masterDataState.message);
-    }
-  }, [masterDataState]);
-
   // Extract master data ID
-  const masterDataId = masterDataState.data?.masterData?._id;
+  const masterDataId = masterDataState?.data?.[fieldKey]?.masterData?._id;
 
   const handleCardExpand = (cardType) => {
     if (expandedCard === cardType) {
@@ -204,7 +183,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                   marginRight: "15px",
                 }}
               >
-                Activity Data 
+                Activity Data
               </span>
               {/* <div ref={datePickerRef} style={{ position: "relative" }}>
                 <button

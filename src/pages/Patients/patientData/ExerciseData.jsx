@@ -41,6 +41,7 @@ const ExerciseData = ({ isExpanded, onExpand }) => {
   const [isOpen, setIsOpen] = useState(true);
   
   const masterDataState = useSelector((state) => state.getMasterDataReducer);
+  const fieldKey = 'ExerciseData';
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [expandedCard, setExpandedCard] = useState(null);
   const [activeTab, setActiveTab] = useState("Week");
@@ -62,19 +63,10 @@ const ExerciseData = ({ isExpanded, onExpand }) => {
   };
 
   useEffect(() => {
-    dispatch(getMasterData({ type: 'ExerciseData' }));
+    dispatch(getMasterData({ type: 'ExerciseData' }, fieldKey));
   }, [dispatch]);
 
-  useEffect(() => {
-    if (masterDataState.data && Object.keys(masterDataState.data).length > 0) {
-      console.log('✅ EXERCISE_MASTER_DATA Response:', masterDataState.data);
-    }
-    if (masterDataState.message) {
-      console.log('❌ GET_MASTER_DATA Error:', masterDataState.message);
-    }
-  }, [masterDataState]);
-
-  const masterDataId = masterDataState.data?.masterData?._id;
+  const masterDataId = masterDataState?.data?.[fieldKey]?.masterData?._id;
 
   const handleCardExpand = (cardType) => {
     if (expandedCard === cardType) {

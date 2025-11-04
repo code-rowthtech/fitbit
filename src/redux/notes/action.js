@@ -41,9 +41,9 @@ export const resetGetAlerts = () => ({
   type: NOTES_TYPES.GET_ALERTS_RESET,
 });
 
-export const getMasterData = (data) => ({
+export const getMasterData = (data, fieldKey) => ({
   type: NOTES_TYPES.GET_MASTER_DATA,
-  payload: data,
+  payload: { ...data, fieldKey },
 });
 
 export const resetGetMasterData = () => ({
