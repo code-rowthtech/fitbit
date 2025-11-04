@@ -13,6 +13,7 @@ import {
   updateNotesApi,
   deleteNotesApi,
   getAlertsApi,
+  getMasterDataApi,
 } from "./api";
 import { toast } from "react-toastify";
 
@@ -57,29 +58,29 @@ function* addNotesFunction(data) {
   }
 }
 
-function* getNotesFunction({ payload }) {
+function* getNotesFunction(action) {
   try {
     yield put({
       type: NOTES_TYPES.GET_NOTES_LOADING,
-      payload: {},
+      payload: { fieldKey: action.payload.fieldKey },
     });
-    const response = yield call(getNotesApi, { payload });
+    const response = yield call(getNotesApi, { payload: action.payload });
 
     if (response?.data && response?.data?.status === 200) {
       yield put({
         type: NOTES_TYPES.GET_NOTES_SUCCESS,
-        payload: response.data,
+        payload: { fieldKey: action.payload.fieldKey, data: response.data },
       });
     } else {
       yield put({
         type: NOTES_TYPES.GET_NOTES_ERROR,
-        payload: response.data,
+        payload: { fieldKey: action.payload.fieldKey, error: response.data?.message || 'Failed to fetch notes' },
       });
     }
   } catch (error) {
     yield put({
       type: NOTES_TYPES.GET_NOTES_ERROR,
-      payload: { message: error?.message },
+      payload: { fieldKey: action.payload.fieldKey, error: error?.message },
     });
   }
 }
@@ -201,6 +202,33 @@ function* getAlertsFunction({ payload }) {
   }
 }
 
+function* getMasterDataFunction({ payload }) {
+  try {
+    yield put({
+      type: NOTES_TYPES.GET_MASTER_DATA_LOADING,
+      payload: {},
+    });
+    const response = yield call(getMasterDataApi, { payload });
+
+    if (response?.data && response?.data?.status === 200) {
+      yield put({
+        type: NOTES_TYPES.GET_MASTER_DATA_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      yield put({
+        type: NOTES_TYPES.GET_MASTER_DATA_ERROR,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: NOTES_TYPES.GET_MASTER_DATA_ERROR,
+      payload: { message: error?.message },
+    });
+  }
+}
+
 export function* addNotesSaga() {
   yield takeEvery(NOTES_TYPES.ADD_NOTES, addNotesFunction);
 }
@@ -221,6 +249,10 @@ export function* getAlertsSaga() {
   yield takeEvery(NOTES_TYPES.GET_ALERTS, getAlertsFunction);
 }
 
+export function* getMasterDataSaga() {
+  yield takeEvery(NOTES_TYPES.GET_MASTER_DATA, getMasterDataFunction);
+}
+
 function* NotesSaga() {
   yield all([
     fork(addNotesSaga),
@@ -228,6 +260,7 @@ function* NotesSaga() {
     fork(updateNotesSaga),
     fork(deleteNotesSaga),
     fork(getAlertsSaga),
+    fork(getMasterDataSaga),
   ]);
 }
 

@@ -5,10 +5,14 @@ import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { Bar } from "react-chartjs-2";
 import { useDispatch, useSelector } from "react-redux";
 import { getPatientActiveMin } from "../../../../redux/patientsDashboard/action";
+import { getNotes } from "../../../../redux/notes/action";
+import { TbNotes } from "react-icons/tb";
+import NotesModal from "../../../../components/NotesModal";
 
 const ActiveMinCard = ({
   patientId,
   expandedCard,
+  masterDataId,
   onCardExpand,
   activeTab,
   onTabChange,
@@ -19,6 +23,7 @@ const ActiveMinCard = ({
   const dispatch = useDispatch();
   const [isNavigating, setIsNavigating] = useState(false);
   const [isTabSwitching, setIsTabSwitching] = useState(false);
+  const [showNotesModal, setShowNotesModal] = useState(false);
   const ActiveMinData = useSelector(
     (state) => state?.getPatientActiveMin?.data?.response?.data
   );
@@ -29,6 +34,10 @@ const ActiveMinCard = ({
     (state) => state?.getPatientActiveMin?.data?.response
   );
   const Loading = useSelector((state) => state?.getPatientActiveMin?.loading);
+  
+  const fieldKey = "ActivityData_ActiveZoneMinutes";
+  const notesData = useSelector((state) => state?.getNotesReducer?.data?.[fieldKey]?.notes || []);
+  const notesLoading = useSelector((state) => state?.getNotesReducer?.loading?.[fieldKey] || false);
 
   // Reset loading states when data loading completes
   useEffect(() => {
@@ -37,6 +46,14 @@ const ActiveMinCard = ({
       setIsTabSwitching(false);
     }
   }, [Loading]);
+
+  // Fetch notes data
+  useEffect(() => {
+    if (patientId) {
+      const params = { patientId, page: 1, limit: 4, type: "ActivityData", value: "ActiveZoneMinutes" };
+      dispatch(getNotes(params, fieldKey));
+    }
+  }, [dispatch, patientId, fieldKey]);
 
   // Get date range based on active tab and current date
   const getDateRange = () => {
@@ -375,10 +392,20 @@ const ActiveMinCard = ({
           <span
             style={{ fontSize: "12px", fontWeight: "600", color: "#003465" }}
           >
-            Active Mins
+            Active Zone Mins
           </span>
         </div>
         <div className="d-flex">
+          <TbNotes
+            title="Notes"
+            style={{
+              fontSize: "16px",
+              color: "#003465",
+              marginLeft: "6px",
+              cursor: "pointer",
+            }}
+            onClick={() => setShowNotesModal(true)}
+          />
           <IoIosExpand
             style={{
               fontSize: "16px",
@@ -914,150 +941,235 @@ const ActiveMinCard = ({
             </div>
           </div>
         ) : (
-          <div
-            className={`rounded-3 px-2 mt-1 d-flex flex-column ${
-              Loading ? "placeholder-glow" : ""
-            }`}
-            style={{ backgroundColor: "#F8FBFF", height: "200px" }}
-          >
-            <div className="d-flex justify-content-center mb-2">
+          <div className="row g-2 mt-0">
+            {/* Current Section - col-8 */}
+            <div className="col-8 mt-1">
               <div
-                className="position-relative"
-                style={{ width: "120px", height: "120px" }}
+                className={`rounded-3 px-2 d-flex flex-column ${
+                  Loading ? "placeholder-glow" : ""
+                }`}
+                style={{ backgroundColor: "#F8FBFF", height: "200px" }}
               >
-                <svg width="120" height="120" className="position-absolute">
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="48"
-                    fill="none"
-                    stroke="#E8F2FF"
-                    strokeWidth="6"
-                  />
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="48"
-                    fill="none"
-                    stroke="#003465"
-                    strokeWidth="4"
-                    strokeDasharray="301"
-                    strokeDashoffset={
-                      301 -
-                      Math.min(
-                        1,
-                        (AverageData?.todayData?.value || 0) /
-                          (AverageData?.goals?.activeMinutes || 1)
-                      ) *
-                        301
-                    }
-                    strokeLinecap="round"
-                    transform="rotate(-90 60 60)"
-                  />
-                </svg>
-                <div className="position-absolute top-50 start-50 translate-middle text-center">
+                <div className="d-flex justify-content-center my-2">
                   <div
-                    className={`fw-bold ${
-                      Loading ? "placeholder rounded-1" : ""
-                    }`}
-                    style={{ fontSize: "16px", color: "#003465" }}
+                    className="position-relative"
+                    style={{ width: "110px", height: "110px" }}
                   >
-                    {Math.min(
-                      100,
-                      Math.round(
-                        ((AverageData?.todayData?.value || 0) /
-                          (AverageData?.goals?.activeMinutes || 1)) *
-                          100
-                      )
-                    )}
-                    %
+                    <svg width="110" height="110" className="position-absolute">
+                      <circle
+                        cx="55"
+                        cy="55"
+                        r="44"
+                        fill="none"
+                        stroke="#E8F2FF"
+                        strokeWidth="5"
+                      />
+                      <circle
+                        cx="55"
+                        cy="55"
+                        r="44"
+                        fill="none"
+                        stroke="#003465"
+                        strokeWidth="3"
+                        strokeDasharray="276"
+                        strokeDashoffset={
+                          276 -
+                          ((AverageData?.todayData?.value || 0) /
+                            (AverageData?.goals?.activeMinutes || 1)) *
+                          276
+                        }
+                        strokeLinecap="round"
+                        transform="rotate(-90 55 55)"
+                      />
+                    </svg>
+                    <div className="position-absolute top-50 start-50 translate-middle text-center">
+                      <div
+                        className={`fw-bold ${
+                          Loading ? "placeholder rounded-1" : ""
+                        }`}
+                        style={{ fontSize: "14px", color: "#003465" }}
+                      >
+                        {AverageData?.goals?.activeMinutes > 0
+                          ? Math.round(
+                              ((AverageData?.todayData?.value || 0) /
+                                AverageData.goals.activeMinutes) *
+                              100
+                            )
+                          : 0}
+                        %
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "8px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Complete
+                      </div>
+                    </div>
                   </div>
-                  <div
-                    style={{
-                      fontSize: "9px",
-                      color: "#666",
-                      fontWeight: "500",
-                    }}
+                </div>
+
+                <div className="text-center mb-2">
+                  <p
+                    className={`mb-0 ${Loading ? "placeholder rounded-1" : ""}`}
+                    style={{ fontSize: "9px", color: "#666", fontWeight: "500" }}
                   >
-                    Complete
+                    {AverageData?.goals?.activeMinutes &&
+                      AverageData?.todayData?.value !== undefined
+                      ? Math.max(
+                          0,
+                          AverageData.goals.activeMinutes - AverageData.todayData.value
+                        )
+                      : 0}{" "}
+                    mins to reach daily goal
+                  </p>
+                </div>
+
+                <div className="row g-1">
+                  <div className="col-6">
+                    <div
+                      className="text-center py-1 px-2 rounded-2"
+                      style={{
+                        backgroundColor: "white",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <div
+                        className={`fw-bold ${
+                          Loading ? "placeholder rounded-1" : ""
+                        }`}
+                        style={{ fontSize: "12px", color: "#003465" }}
+                      >
+                        {AverageData?.todayData?.value || "-"}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "8px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Today
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-6">
+                    <div
+                      className="text-center py-1 px-2 rounded-2"
+                      style={{
+                        backgroundColor: "white",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <div
+                        className={`fw-bold ${
+                          Loading ? "placeholder rounded-1" : ""
+                        }`}
+                        style={{ fontSize: "12px", color: "#003465" }}
+                      >
+                        {AverageData?.goals?.activeMinutes || "-"}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "8px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Goal
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="text-center mb-2">
-              <p
-                className={`mb-0 ${Loading ? "placeholder rounded-1" : ""}`}
-                style={{ fontSize: "10px", color: "#666", fontWeight: "500" }}
+            {/* Notes Section - col-4 */}
+            <div className="col-4 ps-0 mt-1">
+              <div
+                className="rounded-3 px-1 py-2"
+                style={{ backgroundColor: "#F8FBFF", height: "200px" }}
               >
-                {Math.max(
-                  0,
-                  (AverageData?.goals?.activeMinutes || 0) -
-                    (AverageData?.todayData?.value || 0)
-                )}{" "}
-                mins to reach daily goal
-              </p>
-            </div>
-
-            <div className="row g-1 ">
-              <div className="col-6">
                 <div
-                  className="text-center py-1 px-2 rounded-2"
-                  style={{
-                    backgroundColor: "white",
-                    border: "1px solid #E8F2FF",
-                  }}
+                  className="mb-2 d-flex justify-content-between align-items-center position-relative"
+                  style={{ fontSize: "12px", color: "#003465", fontWeight: "600" }}
                 >
-                  <div
-                    className={`fw-bold ${
-                      Loading ? "placeholder rounded-1" : ""
-                    }`}
-                    style={{ fontSize: "14px", color: "#003465" }}
-                  >
-                    {AverageData?.todayData?.value || "-"}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "9px",
-                      color: "#666",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Today
-                  </div>
+                  <span>Notes</span>
                 </div>
-              </div>
-              <div className="col-6">
-                <div
-                  className="text-center py-1 px-2 rounded-2"
-                  style={{
-                    backgroundColor: "white",
-                    border: "1px solid #E8F2FF",
-                  }}
-                >
-                  <div
-                    className={`fw-bold ${
-                      Loading ? "placeholder rounded-1" : ""
-                    }`}
-                    style={{ fontSize: "14px", color: "#003465" }}
-                  >
-                    {AverageData?.goals?.activeMinutes || "-"}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "9px",
-                      color: "#666",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Goal
-                  </div>
+                <div className="d-flex flex-column gap-1" style={{ maxHeight: "140px", overflowY: "auto" }}>
+                  {notesLoading ? (
+                    [...Array(3)].map((_, index) => (
+                      <div
+                        key={`skeleton-${index}`}
+                        className="px-1 py-0 placeholder-glow"
+                        style={{
+                          borderBottom: "1px solid #E8F2FF",
+                          fontSize: "9px",
+                        }}
+                      >
+                        <span className="placeholder rounded-1" style={{ width: "80%", height: "8px" }}></span>
+                      </div>
+                    ))
+                  ) : notesData.length > 0 ? (
+                    notesData.slice(0, 4).map((note, index) => (
+                      <div
+                        key={note._id || index}
+                        className="px-1 py-0"
+                        style={{
+                          borderBottom: "1px solid #E8F2FF",
+                          fontSize: "9px",
+                          color: "#666",
+                        }}
+                        title={note.title}
+                      >
+                        • {note.title.length > 30 ? `${note.title.substring(0, 30)}...` : note.title}
+                      </div>
+                    ))
+                  ) : (
+                    <div
+                      className="px-1 py-2 text-center"
+                      style={{
+                        fontSize: "9px",
+                        color: "#999",
+                      }}
+                    >
+                      No notes available
+                    </div>
+                  )}
                 </div>
+                {notesData.length > 0 && (
+                  <div className="text-end px-1 mt-1">
+                    <span
+                      style={{
+                        fontSize: "9px",
+                        color: "#003465",
+                        cursor: "pointer",
+                        textDecoration: "underline"
+                      }}
+                      onClick={() => setShowNotesModal(true)}
+                    >
+                      View All ({notesData.length})
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         )}
       </div>
+      {showNotesModal && (
+        <NotesModal
+          show={showNotesModal}
+          onHide={() => setShowNotesModal(false)}
+          patientId={patientId}
+          type="ActivityData"
+          value="ActiveZoneMinutes"
+          fieldKey={fieldKey}
+          masterDataId={masterDataId}
+        />
+      )}
     </div>
   );
 };
