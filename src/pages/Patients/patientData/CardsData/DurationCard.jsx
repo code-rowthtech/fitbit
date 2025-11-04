@@ -8,6 +8,9 @@ import {
   getPatientSleep,
   getPatientSleepStages,
 } from "../../../../redux/patientsDashboard/action";
+import { getNotes } from "../../../../redux/notes/action";
+import { TbNotes } from "react-icons/tb";
+import NotesModal from "../../../../components/NotesModal";
 const SleepJourneyChart = ({
   FilterData,
   currentDate,
@@ -196,9 +199,8 @@ const SleepJourneyChart = ({
     const rect = e.target.getBoundingClientRect();
     setTooltip({
       show: true,
-      content: `${stageName.toUpperCase()}: ${segment.time} (${
-        segment.width
-      }% of night)`,
+      content: `${stageName.toUpperCase()}: ${segment.time} (${segment.width
+        }% of night)`,
       x: rect.left + rect.width / 2,
       y: rect.top - 10,
     });
@@ -331,10 +333,10 @@ const SleepJourneyChart = ({
                     {stageName === "wake"
                       ? "WAKE"
                       : stageName === "light"
-                      ? "LIGHT SLEEP"
-                      : stageName === "deep"
-                      ? "DEEP SLEEP"
-                      : "REM SLEEP"}
+                        ? "LIGHT SLEEP"
+                        : stageName === "deep"
+                          ? "DEEP SLEEP"
+                          : "REM SLEEP"}
                   </div>
                 );
               }
@@ -522,6 +524,7 @@ const SleepJourneyChart = ({
 
 const DurationCard = ({
   patientId,
+  masterDataId,
   expandedCard,
   onCardExpand,
   activeTab,
@@ -534,6 +537,7 @@ const DurationCard = ({
   const [selectedSessionIndex, setSelectedSessionIndex] = useState(0);
   const [isNavigating, setIsNavigating] = useState(false);
   const [isTabSwitching, setIsTabSwitching] = useState(false);
+  const [showNotesModal, setShowNotesModal] = useState(false);
   const FilterData = useSelector(
     (state) => state?.getPatientSleepStages?.data?.response?.data
   );
@@ -549,6 +553,10 @@ const DurationCard = ({
 
   const Loading = useSelector((state) => state?.getPatientSleepStages?.loading);
 
+  const fieldKey = "SleepData_SleepDuration";
+  const notesData = useSelector((state) => state?.getNotesReducer?.data?.[fieldKey]?.notes || []);
+  const notesLoading = useSelector((state) => state?.getNotesReducer?.loading?.[fieldKey] || false);
+
   // Reset loading states when data loading completes
   useEffect(() => {
     if (!Loading) {
@@ -556,6 +564,14 @@ const DurationCard = ({
       setIsTabSwitching(false);
     }
   }, [Loading]);
+
+  // Fetch notes data
+  useEffect(() => {
+    if (patientId) {
+      const params = { patientId, page: 1, limit: 4, type: "SleepData", value: "SleepDuration" };
+      dispatch(getNotes(params, fieldKey));
+    }
+  }, [dispatch, patientId, fieldKey]);
 
   // console.log(AverageData, "AverageData");
 
@@ -673,8 +689,8 @@ const DurationCard = ({
         value: item.value
           ? activeTab === "Year"
             ? `${Math.round(item.value)}m (${Math.floor(
-                item.value / 60
-              )}hr ${Math.round(item.value % 60)}m)`
+              item.value / 60
+            )}hr ${Math.round(item.value % 60)}m)`
             : `${item.value}m 
         (${Math.floor(item.value / 60)}hr ${item.value % 60}m)`
           : "0m (0hr 0m)",
@@ -899,6 +915,16 @@ const DurationCard = ({
           </span>
         </div>
         <div className="d-flex">
+          <TbNotes
+            title="Notes"
+            style={{
+              fontSize: "16px",
+              color: "#003465",
+              marginLeft: "6px",
+              cursor: "pointer",
+            }}
+            onClick={() => setShowNotesModal(true)}
+          />
           <IoIosExpand
             style={{
               fontSize: "16px",
@@ -1042,20 +1068,20 @@ const DurationCard = ({
                       onClick:
                         activeTab === "Year"
                           ? (event, elements) => {
-                              if (elements.length > 0) {
-                                const clickedIndex = elements[0].index;
-                                const clickedMonth = clickedIndex;
-                                const newDate = new Date(
-                                  currentDate.getFullYear(),
-                                  clickedMonth,
-                                  1
-                                );
-                                onDateChange(newDate);
-                                onTabChange("Month");
-                              }
+                            if (elements.length > 0) {
+                              const clickedIndex = elements[0].index;
+                              const clickedMonth = clickedIndex;
+                              const newDate = new Date(
+                                currentDate.getFullYear(),
+                                clickedMonth,
+                                1
+                              );
+                              onDateChange(newDate);
+                              onTabChange("Month");
                             }
+                          }
                           : activeTab === "Month"
-                          ? (event, elements) => {
+                            ? (event, elements) => {
                               if (elements.length > 0) {
                                 const clickedIndex = elements[0].index;
                                 const clickedLabel =
@@ -1072,7 +1098,7 @@ const DurationCard = ({
                                 }
                               }
                             }
-                          : undefined,
+                            : undefined,
                     }}
                   />
                 )}
@@ -1186,9 +1212,8 @@ const DurationCard = ({
                     height: "24px",
                     backgroundColor:
                       isNextDisabled() || isNavigating ? "#f5f5f5" : "white",
-                    border: `1px solid ${
-                      isNextDisabled() || isNavigating ? "#ccc" : "#003465"
-                    }`,
+                    border: `1px solid ${isNextDisabled() || isNavigating ? "#ccc" : "#003465"
+                      }`,
                     borderRadius: "4px",
                     color:
                       isNextDisabled() || isNavigating ? "#ccc" : "#003465",
@@ -1376,11 +1401,10 @@ const DurationCard = ({
                                   selectedSessionIndex === index
                                     ? "white"
                                     : "#003465",
-                                border: `1px solid ${
-                                  selectedSessionIndex === index
-                                    ? "#003465"
-                                    : "#E8F2FF"
-                                }`,
+                                border: `1px solid ${selectedSessionIndex === index
+                                  ? "#003465"
+                                  : "#E8F2FF"
+                                  }`,
                                 cursor: "pointer",
                                 fontSize: "10px",
                                 transition: "all 0.2s ease",
@@ -1432,181 +1456,265 @@ const DurationCard = ({
             </div>
           </div>
         ) : (
-          <div
-            className={`rounded-3 px-2 mt-1 d-flex flex-column ${
-              Loading ? "placeholder-glow" : ""
-            }`}
-            style={{ backgroundColor: "#F8FBFF", height: "200px" }}
-          >
-            <div className="d-flex justify-content-center mb-2">
+          <div className="row g-2 mt-0">
+            {/* Current Section - col-8 */}
+            <div className="col-8 mt-1">
               <div
-                className="position-relative"
-                style={{ width: "120px", height: "120px" }}
+                className={`rounded-3 px-2 d-flex flex-column ${Loading ? "placeholder-glow" : ""
+                  }`}
+                style={{ backgroundColor: "#F8FBFF", height: "200px" }}
               >
-                <svg width="120" height="120" className="position-absolute">
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="48"
-                    fill="none"
-                    stroke="#E8F2FF"
-                    strokeWidth="6"
-                  />
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="48"
-                    fill="none"
-                    stroke="#003465"
-                    strokeWidth="4"
-                    strokeDasharray="301"
-                    strokeDashoffset={
-                      301 -
-                      Math.min(
-                        1,
-                        durationData?.length
-                          ? durationData.reduce(
-                              (total, session) => total + session.minutesAsleep,
-                              0
-                            ) /
+                <div className="d-flex justify-content-center mb-2">
+                  <div
+                    className="position-relative"
+                    style={{ width: "120px", height: "120px" }}
+                  >
+                    <svg width="120" height="120" className="position-absolute">
+                      <circle
+                        cx="60"
+                        cy="60"
+                        r="48"
+                        fill="none"
+                        stroke="#E8F2FF"
+                        strokeWidth="6"
+                      />
+                      <circle
+                        cx="60"
+                        cy="60"
+                        r="48"
+                        fill="none"
+                        stroke="#003465"
+                        strokeWidth="4"
+                        strokeDasharray="301"
+                        strokeDashoffset={
+                          301 -
+                          Math.min(
+                            1,
+                            durationData?.length
+                              ? durationData.reduce(
+                                (total, session) => total + session.minutesAsleep,
+                                0
+                              ) /
                               60 /
                               8
-                          : 0
-                      ) *
-                        301
-                    }
-                    strokeLinecap="round"
-                    transform="rotate(-90 60 60)"
-                  />
-                </svg>
-                <div className="position-absolute top-50 start-50 translate-middle text-center">
-                  <div
-                    className={`fw-bold ${
-                      Loading ? "placeholder rounded-1" : ""
-                    }`}
-                    style={{ fontSize: "16px", color: "#003465" }}
+                              : 0
+                          ) *
+                          301
+                        }
+                        strokeLinecap="round"
+                        transform="rotate(-90 60 60)"
+                      />
+                    </svg>
+                    <div className="position-absolute top-50 start-50 translate-middle text-center">
+                      <div
+                        className={`fw-bold ${Loading ? "placeholder rounded-1" : ""
+                          }`}
+                        style={{ fontSize: "16px", color: "#003465" }}
+                      >
+                        {Math.min(
+                          100,
+                          Math.round(
+                            ((durationData?.length
+                              ? durationData.reduce(
+                                (total, session) => total + session.minutesAsleep,
+                                0
+                              ) / 60
+                              : 0) /
+                              8) *
+                            100
+                          )
+                        )}
+                        %
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "9px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Complete
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-center mb-2">
+                  <p
+                    className={`mb-0 ${Loading ? "placeholder rounded-1" : ""}`}
+                    style={{ fontSize: "10px", color: "#666", fontWeight: "500" }}
                   >
-                    {Math.min(
-                      100,
+                    {Math.max(
+                      0,
                       Math.round(
-                        ((durationData?.length
-                          ? durationData.reduce(
+                        (8 -
+                          (durationData?.length
+                            ? durationData.reduce(
                               (total, session) => total + session.minutesAsleep,
                               0
                             ) / 60
-                          : 0) /
-                          8) *
-                          100
-                      )
+                            : 0)) *
+                        10
+                      ) / 10
                     )}
-                    %
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "9px",
-                      color: "#666",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Complete
-                  </div>
+                    h to reach daily goal
+                  </p>
                 </div>
-              </div>
-            </div>
 
-            <div className="text-center mb-2">
-              <p
-                className={`mb-0 ${Loading ? "placeholder rounded-1" : ""}`}
-                style={{ fontSize: "10px", color: "#666", fontWeight: "500" }}
-              >
-                {Math.max(
-                  0,
-                  Math.round(
-                    (8 -
-                      (durationData?.length
-                        ? durationData.reduce(
-                            (total, session) => total + session.minutesAsleep,
-                            0
-                          ) / 60
-                        : 0)) *
-                      10
-                  ) / 10
-                )}
-                h to reach daily goal
-              </p>
-            </div>
-
-            <div className="row g-1 ">
-              <div className="col-6">
-                <div
-                  className="text-center py-1 px-2 rounded-2"
-                  style={{
-                    backgroundColor: "white",
-                    border: "1px solid #E8F2FF",
-                  }}
-                >
-                  <div
-                    className={`fw-bold ${
-                      Loading ? "placeholder rounded-1" : ""
-                    }`}
-                    style={{ fontSize: "14px", color: "#003465" }}
-                  >
-                    {durationData?.length
-                      ? Math.round(
-                          (durationData.reduce(
-                            (total, session) => total + session.minutesAsleep,
-                            0
-                          ) /
-                            60) *
+                <div className="row g-1 ">
+                  <div className="col-6">
+                    <div
+                      className="text-center py-1 px-2 rounded-2"
+                      style={{
+                        backgroundColor: "white",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <div
+                        className={`fw-bold ${Loading ? "placeholder rounded-1" : ""
+                          }`}
+                        style={{ fontSize: "14px", color: "#003465" }}
+                      >
+                        {durationData?.length
+                          ? Math.round(
+                            (durationData.reduce(
+                              (total, session) => total + session.minutesAsleep,
+                              0
+                            ) /
+                              60) *
                             10
-                        ) / 10
-                      : "-"}
-                    h
+                          ) / 10
+                          : "-"}
+                        h
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "9px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Today
+                      </div>
+                    </div>
                   </div>
-                  <div
-                    style={{
-                      fontSize: "9px",
-                      color: "#666",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Today
+                  <div className="col-6">
+                    <div
+                      className="text-center py-1 px-2 rounded-2"
+                      style={{
+                        backgroundColor: "white",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <div
+                        className={`fw-bold ${Loading ? "placeholder rounded-1" : ""
+                          }`}
+                        style={{ fontSize: "14px", color: "#003465" }}
+                      >
+                        {AverageData?.goals?.duration || 8}h
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "9px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Goal
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div className="col-6">
+            </div>
+
+            {/* Notes Section - col-4 */}
+            <div className="col-4 ps-0 mt-1">
+              <div
+                className="rounded-3 px-1 py-2"
+                style={{ backgroundColor: "#F8FBFF", height: "200px" }}
+              >
                 <div
-                  className="text-center py-1 px-2 rounded-2"
-                  style={{
-                    backgroundColor: "white",
-                    border: "1px solid #E8F2FF",
-                  }}
+                  className="mb-2 d-flex justify-content-between align-items-center position-relative"
+                  style={{ fontSize: "12px", color: "#003465", fontWeight: "600" }}
                 >
-                  <div
-                    className={`fw-bold ${
-                      Loading ? "placeholder rounded-1" : ""
-                    }`}
-                    style={{ fontSize: "14px", color: "#003465" }}
-                  >
-                    {AverageData?.goals?.duration || 8}h
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "9px",
-                      color: "#666",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Goal
-                  </div>
+                  <span>Notes</span>
                 </div>
+                <div className="d-flex flex-column gap-1" style={{ maxHeight: "140px", overflowY: "auto" }}>
+                  {notesLoading ? (
+                    [...Array(3)].map((_, index) => (
+                      <div
+                        key={`skeleton-${index}`}
+                        className="px-1 py-0 placeholder-glow"
+                        style={{
+                          borderBottom: "1px solid #E8F2FF",
+                          fontSize: "9px",
+                        }}
+                      >
+                        <span className="placeholder rounded-1" style={{ width: "80%", height: "8px" }}></span>
+                      </div>
+                    ))
+                  ) : notesData.length > 0 ? (
+                    notesData.slice(0, 4).map((note, index) => (
+                      <div
+                        key={note._id || index}
+                        className="px-1 py-0"
+                        style={{
+                          borderBottom: "1px solid #E8F2FF",
+                          fontSize: "9px",
+                          color: "#666",
+                        }}
+                        title={note.title}
+                      >
+                        • {note.title.length > 30 ? `${note.title.substring(0, 30)}...` : note.title}
+                      </div>
+                    ))
+                  ) : (
+                    <div
+                      className="px-1 py-2 text-center"
+                      style={{
+                        fontSize: "9px",
+                        color: "#999",
+                      }}
+                    >
+                      No notes available
+                    </div>
+                  )}
+                </div>
+                {notesData.length > 0 && (
+                  <div className="text-end px-1 mt-1">
+                    <span
+                      style={{
+                        fontSize: "9px",
+                        color: "#003465",
+                        cursor: "pointer",
+                        textDecoration: "underline"
+                      }}
+                      onClick={() => setShowNotesModal(true)}
+                    >
+                      View All ({notesData.length})
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         )}
       </div>
+      
+      <NotesModal
+        show={showNotesModal}
+        onHide={() => setShowNotesModal(false)}
+        patientId={patientId}
+        masterDataId={masterDataId}
+        title="Duration Notes"
+        type="SleepData"
+        value="SleepDuration"
+      />
     </div>
   );
+        
 };
 
-export default DurationCard;
+
+        export default DurationCard;

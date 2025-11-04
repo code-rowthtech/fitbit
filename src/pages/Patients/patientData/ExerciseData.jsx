@@ -15,6 +15,9 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { getMasterData } from "../../../redux/notes/action";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams, useSearchParams } from "react-router-dom";
 
 import ExerciseSessionsCard from "./CardsData/ExerciseSessionsCard";
 import GPSTrackingCard from "./CardsData/GPSTrackingCard";
@@ -30,7 +33,14 @@ ChartJS.register(
 );
 
 const ExerciseData = ({ isExpanded, onExpand }) => {
+  const dispatch = useDispatch();
+  const { id: pathId } = useParams();
+  const [searchParams] = useSearchParams();
+  const patientId =
+    pathId || searchParams.get("id") || searchParams.get("patientId");
   const [isOpen, setIsOpen] = useState(true);
+  
+  const masterDataState = useSelector((state) => state.getMasterDataReducer);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [expandedCard, setExpandedCard] = useState(null);
   const [activeTab, setActiveTab] = useState("Week");
@@ -50,6 +60,21 @@ const ExerciseData = ({ isExpanded, onExpand }) => {
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
+
+  useEffect(() => {
+    dispatch(getMasterData({ type: 'ExerciseData' }));
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (masterDataState.data && Object.keys(masterDataState.data).length > 0) {
+      console.log('✅ EXERCISE_MASTER_DATA Response:', masterDataState.data);
+    }
+    if (masterDataState.message) {
+      console.log('❌ GET_MASTER_DATA Error:', masterDataState.message);
+    }
+  }, [masterDataState]);
+
+  const masterDataId = masterDataState.data?.masterData?._id;
 
   const handleCardExpand = (cardType) => {
     if (expandedCard === cardType) {
@@ -127,6 +152,8 @@ const ExerciseData = ({ isExpanded, onExpand }) => {
               {/* Exercise Sessions Card */}
               {(!expandedCard || expandedCard === "sessions") && (
                 <ExerciseSessionsCard
+                  patientId={patientId}
+                  masterDataId={masterDataId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={activeTab}
@@ -140,6 +167,8 @@ const ExerciseData = ({ isExpanded, onExpand }) => {
               {/* GPS Tracking Card */}
               {(!expandedCard || expandedCard === "gpsTracking") && (
                 <GPSTrackingCard
+                  patientId={patientId}
+                  masterDataId={masterDataId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={activeTab}
@@ -152,6 +181,8 @@ const ExerciseData = ({ isExpanded, onExpand }) => {
               {/* Elevation Card */}
               {(!expandedCard || expandedCard === "elevation") && (
                 <ElevationCard
+                  patientId={patientId}
+                  masterDataId={masterDataId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={activeTab}

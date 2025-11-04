@@ -5,9 +5,13 @@ import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { Bar } from "react-chartjs-2";
 import { useDispatch, useSelector } from "react-redux";
 import { getPatientCaloriesConsumed } from "../../../../redux/patientsDashboard/action";
+import { getNotes } from "../../../../redux/notes/action";
+import { TbNotes } from "react-icons/tb";
+import NotesModal from "../../../../components/NotesModal";
 
 const CaloriesConsumedCard = ({
   patientId,
+  masterDataId,
   expandedCard,
   onCardExpand,
   activeTab,
@@ -21,6 +25,7 @@ const CaloriesConsumedCard = ({
   const [selectedDayData, setSelectedDayData] = useState(null);
   const [isNavigating, setIsNavigating] = useState(false);
   const [isTabSwitching, setIsTabSwitching] = useState(false);
+  const [showNotesModal, setShowNotesModal] = useState(false);
   const CaloriesData = useSelector(
     (state) => state?.getPatientCaloriesConsumed?.data?.response?.data
   );
@@ -35,6 +40,10 @@ const CaloriesConsumedCard = ({
     (state) => state?.getPatientCaloriesConsumed?.loading
   );
 
+  const fieldKey = "NutritionData_CaloriesConsumed";
+  const notesData = useSelector((state) => state?.getNotesReducer?.data?.[fieldKey]?.notes || []);
+  const notesLoading = useSelector((state) => state?.getNotesReducer?.loading?.[fieldKey] || false);
+
   // Reset loading states when data loading completes
   useEffect(() => {
     if (!Loading) {
@@ -42,6 +51,14 @@ const CaloriesConsumedCard = ({
       setIsTabSwitching(false);
     }
   }, [Loading]);
+
+  // Fetch notes data
+  useEffect(() => {
+    if (patientId) {
+      const params = { patientId, page: 1, limit: 4, type: "NutritionData", value: "CaloriesConsumed" };
+      dispatch(getNotes(params, fieldKey));
+    }
+  }, [dispatch, patientId, fieldKey]);
 
   // console.log(Loading, "Loading CaloriesConsumedCard");
 
@@ -441,6 +458,16 @@ const CaloriesConsumedCard = ({
           </span>
         </div>
         <div className="d-flex">
+          <TbNotes
+            title="Notes"
+            style={{
+              fontSize: "16px",
+              color: "#003465",
+              marginLeft: "6px",
+              cursor: "pointer",
+            }}
+            onClick={() => setShowNotesModal(true)}
+          />
           <IoIosExpand
             style={{
               fontSize: "16px",
@@ -597,9 +624,9 @@ const CaloriesConsumedCard = ({
                                       strokeDashoffset={
                                         2 * Math.PI * 85 -
                                         (nutrition.carbs / carbsGoal) *
-                                          2 *
-                                          Math.PI *
-                                          85
+                                        2 *
+                                        Math.PI *
+                                        85
                                       }
                                       strokeLinecap="round"
                                       transform="rotate(-90 100 100)"
@@ -627,9 +654,9 @@ const CaloriesConsumedCard = ({
                                       strokeDashoffset={
                                         2 * Math.PI * 65 -
                                         (nutrition.fat / fatGoal) *
-                                          2 *
-                                          Math.PI *
-                                          65
+                                        2 *
+                                        Math.PI *
+                                        65
                                       }
                                       strokeLinecap="round"
                                       transform="rotate(-90 100 100)"
@@ -657,9 +684,9 @@ const CaloriesConsumedCard = ({
                                       strokeDashoffset={
                                         2 * Math.PI * 45 -
                                         (nutrition.protein / proteinGoal) *
-                                          2 *
-                                          Math.PI *
-                                          45
+                                        2 *
+                                        Math.PI *
+                                        45
                                       }
                                       strokeLinecap="round"
                                       transform="rotate(-90 100 100)"
@@ -828,7 +855,7 @@ const CaloriesConsumedCard = ({
                             Food Logs
                           </h6>
                           {selectedDayData.foodLogs &&
-                          Object.keys(selectedDayData.foodLogs).length > 0 ? (
+                            Object.keys(selectedDayData.foodLogs).length > 0 ? (
                             Object.entries(selectedDayData.foodLogs).map(
                               ([mealType, foods]) => (
                                 <div key={mealType} className="mb-3">
@@ -1029,20 +1056,20 @@ const CaloriesConsumedCard = ({
                       onClick:
                         activeTab === "Year"
                           ? (event, elements) => {
-                              if (elements.length > 0) {
-                                const dataIndex = elements[0].index;
-                                if (CaloriesData && CaloriesData[dataIndex]) {
-                                  const monthIndex = dataIndex;
-                                  const newDate = new Date(
-                                    currentDate.getFullYear(),
-                                    monthIndex,
-                                    1
-                                  );
-                                  onDateChange(newDate);
-                                  handleTabChange("Month", newDate);
-                                }
+                            if (elements.length > 0) {
+                              const dataIndex = elements[0].index;
+                              if (CaloriesData && CaloriesData[dataIndex]) {
+                                const monthIndex = dataIndex;
+                                const newDate = new Date(
+                                  currentDate.getFullYear(),
+                                  monthIndex,
+                                  1
+                                );
+                                onDateChange(newDate);
+                                handleTabChange("Month", newDate);
                               }
                             }
+                          }
                           : undefined,
                       plugins: {
                         legend: { display: false },
@@ -1051,26 +1078,26 @@ const CaloriesConsumedCard = ({
                             afterBody:
                               activeTab === "Week" && CaloriesStatsData
                                 ? () => [
-                                    `Min: ${parseFloat(
-                                      CaloriesStatsData.min
-                                    ).toFixed(0)} cal`,
-                                    `Max: ${parseFloat(
-                                      CaloriesStatsData.max
-                                    ).toFixed(0)} cal`,
-                                  ]
+                                  `Min: ${parseFloat(
+                                    CaloriesStatsData.min
+                                  ).toFixed(0)} cal`,
+                                  `Max: ${parseFloat(
+                                    CaloriesStatsData.max
+                                  ).toFixed(0)} cal`,
+                                ]
                                 : activeTab === "Month" && CaloriesData
-                                ? (context) => {
+                                  ? (context) => {
                                     const dataIndex = context[0]?.dataIndex;
                                     return dataIndex !== undefined &&
                                       CaloriesData[dataIndex]
                                       ? [
-                                          // `Days: ${CaloriesData[dataIndex].dayRange}`,
-                                        ]
+                                        // `Days: ${CaloriesData[dataIndex].dayRange}`,
+                                      ]
                                       : [];
                                   }
-                                : activeTab === "Year"
-                                ? () => ["Click to view month details"]
-                                : undefined,
+                                  : activeTab === "Year"
+                                    ? () => ["Click to view month details"]
+                                    : undefined,
                           },
                         },
                       },
@@ -1084,16 +1111,16 @@ const CaloriesConsumedCard = ({
                           min:
                             activeTab === "Week" && CaloriesStatsData
                               ? Math.min(
-                                  0,
-                                  parseFloat(CaloriesStatsData.min) - 100
-                                )
+                                0,
+                                parseFloat(CaloriesStatsData.min) - 100
+                              )
                               : 0,
                           max:
                             activeTab === "Week" && CaloriesStatsData
                               ? Math.max(
-                                  ...chartData.data,
-                                  parseFloat(CaloriesStatsData.max) + 100
-                                )
+                                ...chartData.data,
+                                parseFloat(CaloriesStatsData.max) + 100
+                              )
                               : undefined,
                           grid: { color: "#f0f0f0" },
                           ticks: { color: "#666", fontSize: 10 },
@@ -1209,9 +1236,8 @@ const CaloriesConsumedCard = ({
                     height: "24px",
                     backgroundColor:
                       isNextDisabled() || isNavigating ? "#f5f5f5" : "white",
-                    border: `1px solid ${
-                      isNextDisabled() || isNavigating ? "#ccc" : "#003465"
-                    }`,
+                    border: `1px solid ${isNextDisabled() || isNavigating ? "#ccc" : "#003465"
+                      }`,
                     borderRadius: "4px",
                     color:
                       isNextDisabled() || isNavigating ? "#ccc" : "#003465",
@@ -1329,7 +1355,7 @@ const CaloriesConsumedCard = ({
                       style={{
                         backgroundColor:
                           selectedDayData &&
-                          CaloriesData[index]?.date === selectedDayData.date
+                            CaloriesData[index]?.date === selectedDayData.date
                             ? "#E8F2FF"
                             : "white",
                         fontSize: "10px",
@@ -1375,13 +1401,13 @@ const CaloriesConsumedCard = ({
             </div>
           </div>
         ) : (
-          /* Nutrients Section */
-          <div
-            className="rounded-3 px-2 mt-1 pb-2"
-            style={{ backgroundColor: "#F8FBFF" }}
-          >
-            <div className="row">
-              <div className="col-8">
+          <div className="row g-2 mt-0">
+            {/* Current Section - col-6 */}
+            <div className="col-6 mt-1">
+              <div
+                className="rounded-3 px-2 pb-2"
+                style={{ backgroundColor: "#F8FBFF", height: "200px" }}
+              >
                 <div className="d-flex justify-content-center mb-2">
                   <div
                     className="position-relative"
@@ -1408,7 +1434,7 @@ const CaloriesConsumedCard = ({
                           301 -
                           ((AverageData?.todayData?.value || 0) /
                             (AverageData?.goals?.caloriesInGoals || 1)) *
-                            301
+                          301
                         }
                         strokeLinecap="round"
                         transform="rotate(-90 60 60)"
@@ -1525,25 +1551,98 @@ const CaloriesConsumedCard = ({
                   </div>
                 </div>
               </div>
+            </div>
 
+            {/* Notes Section - col-3 */}
+            <div className="col-3 ps-0 mt-1">
               <div
-                className="col-4 px-1 pt-1"
-                style={{ borderLeft: "1px solid #ddd" }}
+                className="rounded-3 px-1 py-2"
+                style={{ backgroundColor: "#F8FBFF", height: "200px" }}
+              >
+                <div
+                  className="mb-2 d-flex justify-content-between align-items-center position-relative"
+                  style={{ fontSize: "12px", color: "#003465", fontWeight: "600" }}
+                >
+                  <span>Notes</span>
+                </div>
+                <div className="d-flex flex-column gap-1" style={{ maxHeight: "140px", overflowY: "auto" }}>
+                  {notesLoading ? (
+                    [...Array(3)].map((_, index) => (
+                      <div
+                        key={`skeleton-${index}`}
+                        className="px-1 py-0 placeholder-glow"
+                        style={{
+                          borderBottom: "1px solid #E8F2FF",
+                          fontSize: "9px",
+                        }}
+                      >
+                        <span className="placeholder rounded-1" style={{ width: "80%", height: "8px" }}></span>
+                      </div>
+                    ))
+                  ) : notesData.length > 0 ? (
+                    notesData.slice(0, 4).map((note, index) => (
+                      <div
+                        key={note._id || index}
+                        className="px-1 py-0"
+                        style={{
+                          borderBottom: "1px solid #E8F2FF",
+                          fontSize: "9px",
+                          color: "#666",
+                        }}
+                        title={note.title}
+                      >
+                        • {note.title.length > 30 ? `${note.title.substring(0, 30)}...` : note.title}
+                      </div>
+                    ))
+                  ) : (
+                    <div
+                      className="px-1 py-2 text-center"
+                      style={{
+                        fontSize: "9px",
+                        color: "#999",
+                      }}
+                    >
+                      No notes available
+                    </div>
+                  )}
+                </div>
+                {notesData.length > 0 && (
+                  <div className="text-end px-1 mt-1">
+                    <span
+                      style={{
+                        fontSize: "9px",
+                        color: "#003465",
+                        cursor: "pointer",
+                        textDecoration: "underline"
+                      }}
+                      onClick={() => setShowNotesModal(true)}
+                    >
+                      View All ({notesData.length})
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Nutrition Goals Section - col-3 */}
+            <div className="col-3 ps-0 mt-1">
+              <div
+                className="rounded-3 px-1 py-2"
+                style={{ backgroundColor: "#F8FBFF", height: "200px" }}
               >
                 <div
                   className="mb-2 text-start"
                   style={{
-                    fontSize: "12px",
+                    fontSize: "11px",
                     fontWeight: "700",
                     color: "#003465",
-                    letterSpacing: "0.5px",
                   }}
                 >
                   Nutrition Goals:
                 </div>
 
                 <div
-                  className="p-3 mb-2 rounded-3 shadow-sm position-relative"
+                  className="p-2 mb-2 rounded-3 shadow-sm position-relative"
                   style={{
                     backgroundColor: "white",
                     border: "2px solid #E8F2FF",
@@ -1557,14 +1656,14 @@ const CaloriesConsumedCard = ({
                     <div
                       className="rounded-circle me-2"
                       style={{
-                        width: "8px",
-                        height: "8px",
+                        width: "6px",
+                        height: "6px",
                         backgroundColor: "#003465",
                       }}
                     ></div>
                     <div
                       style={{
-                        fontSize: "11px",
+                        fontSize: "10px",
                         color: "#003465",
                         fontWeight: "600",
                       }}
@@ -1574,7 +1673,7 @@ const CaloriesConsumedCard = ({
                   </div>
                   <div
                     style={{
-                      fontSize: "10px",
+                      fontSize: "9px",
                       color: "#003465",
                       fontWeight: "500",
                       lineHeight: "1.3",
@@ -1589,7 +1688,7 @@ const CaloriesConsumedCard = ({
                 </div>
 
                 <div
-                  className="p-3 rounded-3 shadow-sm position-relative"
+                  className="p-2 rounded-3 shadow-sm position-relative"
                   style={{
                     backgroundColor: "white",
                     border: "2px solid #E8F2FF",
@@ -1603,14 +1702,14 @@ const CaloriesConsumedCard = ({
                     <div
                       className="rounded-circle me-2"
                       style={{
-                        width: "8px",
-                        height: "8px",
+                        width: "6px",
+                        height: "6px",
                         backgroundColor: "#003465",
                       }}
                     ></div>
                     <div
                       style={{
-                        fontSize: "11px",
+                        fontSize: "10px",
                         color: "#003465",
                         fontWeight: "600",
                       }}
@@ -1620,7 +1719,7 @@ const CaloriesConsumedCard = ({
                   </div>
                   <div
                     style={{
-                      fontSize: "10px",
+                      fontSize: "9px",
                       color: "#003465",
                       fontWeight: "500",
                       lineHeight: "1.3",
@@ -1630,7 +1729,7 @@ const CaloriesConsumedCard = ({
                       {Math.max(
                         0,
                         (AverageData?.goals?.caloriesInGoals || 0) -
-                          (AverageData?.todayData?.value || 0)
+                        (AverageData?.todayData?.value || 0)
                       )}{" "}
                       kcal
                     </span>{" "}
@@ -1642,8 +1741,19 @@ const CaloriesConsumedCard = ({
           </div>
         )}
       </div>
+
+      <NotesModal
+        show={showNotesModal}
+        onHide={() => setShowNotesModal(false)}
+        patientId={patientId}
+        masterDataId={masterDataId}
+        title="Calories Consumed Notes"
+        type="NutritionData"
+        value="CaloriesConsumed"
+      />
     </div>
   );
 };
 
 export default CaloriesConsumedCard;
+

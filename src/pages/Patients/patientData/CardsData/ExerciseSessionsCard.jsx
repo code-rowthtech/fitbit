@@ -2,12 +2,17 @@ import React, { useState, useEffect } from "react";
 import ExerciseSessions_Icon from "../../../../assets/images/PatientDashboard/Exercise sessions.png";
 import { IoIosExpand } from "react-icons/io";
 import { IoChevronBack, IoChevronForward, IoCheckmark } from "react-icons/io5";
+import { TbNotes } from "react-icons/tb";
 import { Bar } from "react-chartjs-2";
 import { useDispatch, useSelector } from "react-redux";
 import { getExerciseSessions } from "../../../../redux/patientsDashboard/action";
+import { getNotes } from "../../../../redux/notes/action";
 import { useParams, useSearchParams } from "react-router-dom";
+import NotesModal from "../../../../components/NotesModal";
 
 const ExerciseSessionsCard = ({
+  patientId,
+  masterDataId,
   expandedCard,
   onCardExpand,
   activeTab,
@@ -17,6 +22,7 @@ const ExerciseSessionsCard = ({
   formatDate,
 }) => {
   const dispatch = useDispatch();
+  const [showNotesModal, setShowNotesModal] = useState(false);
   const ExerciseData = useSelector(
     (state) => state?.getExerciseSessions?.data?.response?.data
   );
@@ -29,6 +35,10 @@ const ExerciseSessionsCard = ({
   const [isNavigating, setIsNavigating] = useState(false);
   const [isTabSwitching, setIsTabSwitching] = useState(false);
 
+  const fieldKey = "ExerciseData_ExerciseSessions";
+  const notesData = useSelector((state) => state?.getNotesReducer?.data?.[fieldKey]?.notes || []);
+  const notesLoading = useSelector((state) => state?.getNotesReducer?.loading?.[fieldKey] || false);
+
   // Reset loading states when data loading completes
   useEffect(() => {
     if (!Loading) {
@@ -37,10 +47,13 @@ const ExerciseSessionsCard = ({
     }
   }, [Loading]);
 
-  const { id: pathId } = useParams();
-  const [searchParams] = useSearchParams();
-  const patientId =
-    pathId || searchParams.get("id") || searchParams.get("patientId");
+  // Fetch notes data
+  useEffect(() => {
+    if (patientId) {
+      const params = { patientId, page: 1, limit: 4, type: "ExerciseData", value: "ExerciseSessions" };
+      dispatch(getNotes(params, fieldKey));
+    }
+  }, [dispatch, patientId, fieldKey]);
 
   const formatDuration = (milliseconds) => {
     const minutes = Math.floor(milliseconds / 60000);
@@ -375,6 +388,16 @@ const ExerciseSessionsCard = ({
           </span>
         </div>
         <div className="d-flex">
+          <TbNotes
+            title="Notes"
+            style={{
+              fontSize: "16px",
+              color: "#003465",
+              marginLeft: "6px",
+              cursor: "pointer",
+            }}
+            onClick={() => setShowNotesModal(true)}
+          />
           <IoIosExpand
             style={{
               fontSize: "16px",
@@ -401,8 +424,8 @@ const ExerciseSessionsCard = ({
                 {activeTab === "Day" ? (
                   <div className="h-100">
                     {ExerciseData &&
-                    ExerciseData.length > 0 &&
-                    ExerciseData[0]?.exerciseSessions?.length > 0 ? (
+                      ExerciseData.length > 0 &&
+                      ExerciseData[0]?.exerciseSessions?.length > 0 ? (
                       <>
                         <div
                           className="mb-3"
@@ -435,14 +458,14 @@ const ExerciseSessionsCard = ({
                                   selectedSessionIndex
                                 ]
                                   ? new Date(
-                                      ExerciseData[0].exerciseSessions[
-                                        selectedSessionIndex
-                                      ].startTime
-                                    ).toLocaleTimeString("en-US", {
-                                      hour: "numeric",
-                                      minute: "2-digit",
-                                      hour12: true,
-                                    })
+                                    ExerciseData[0].exerciseSessions[
+                                      selectedSessionIndex
+                                    ].startTime
+                                  ).toLocaleTimeString("en-US", {
+                                    hour: "numeric",
+                                    minute: "2-digit",
+                                    hour12: true,
+                                  })
                                   : "9:26 am"}
                               </div>
                               <div
@@ -484,7 +507,7 @@ const ExerciseSessionsCard = ({
                                 Today
                               </div> */}
                               <div
-                              className="fw-bold"
+                                className="fw-bold"
                                 style={{
                                   fontSize: "11px",
                                   color: "#003465",
@@ -495,14 +518,14 @@ const ExerciseSessionsCard = ({
                                   selectedSessionIndex
                                 ]
                                   ? new Date(
-                                      ExerciseData[0].exerciseSessions[
-                                        selectedSessionIndex
-                                      ].startTime
-                                    ).toLocaleDateString("en-US", {
-                                      month: "short",
-                                      day: "numeric",
-                                      year: "numeric",
-                                    })
+                                    ExerciseData[0].exerciseSessions[
+                                      selectedSessionIndex
+                                    ].startTime
+                                  ).toLocaleDateString("en-US", {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                  })
                                   : "Oct 25, 2024"}
                               </div>
                             </div>
@@ -569,15 +592,13 @@ const ExerciseSessionsCard = ({
                                 {ExerciseData?.[0]?.exerciseSessions?.[
                                   selectedSessionIndex
                                 ]
-                                  ? `${
-                                      ExerciseData[0].exerciseSessions[
-                                        selectedSessionIndex
-                                      ].distance?.toFixed(2) || 0
-                                    } ${
-                                      ExerciseData[0].exerciseSessions[
-                                        selectedSessionIndex
-                                      ].distanceUnit?.toLowerCase() || "mi"
-                                    }`
+                                  ? `${ExerciseData[0].exerciseSessions[
+                                    selectedSessionIndex
+                                  ].distance?.toFixed(2) || 0
+                                  } ${ExerciseData[0].exerciseSessions[
+                                    selectedSessionIndex
+                                  ].distanceUnit?.toLowerCase() || "mi"
+                                  }`
                                   : "0 mi"}
                               </div>
                             </div>
@@ -611,10 +632,10 @@ const ExerciseSessionsCard = ({
                                   selectedSessionIndex
                                 ]
                                   ? `${(
-                                      ExerciseData[0].exerciseSessions[
-                                        selectedSessionIndex
-                                      ].speed * 2.237
-                                    ).toFixed(1)} mph`
+                                    ExerciseData[0].exerciseSessions[
+                                      selectedSessionIndex
+                                    ].speed * 2.237
+                                  ).toFixed(1)} mph`
                                   : "0 mph"}
                               </div>
                             </div>
@@ -744,10 +765,10 @@ const ExerciseSessionsCard = ({
                                   selectedSessionIndex
                                 ]
                                   ? Math.round(
-                                      ExerciseData[0].exerciseSessions[
-                                        selectedSessionIndex
-                                      ].cl || 0
-                                    )
+                                    ExerciseData[0].exerciseSessions[
+                                      selectedSessionIndex
+                                    ].cl || 0
+                                  )
                                   : 0}
                               </div>
                             </div>
@@ -817,38 +838,38 @@ const ExerciseSessionsCard = ({
                           {(ExerciseData?.[0]?.exerciseSessions?.[
                             selectedSessionIndex
                           ]?.steps || 0) > 0 && (
-                            <div className="col-4">
-                              <div
-                                className="p-2 rounded d-flex flex-column justify-content-center"
-                                style={{
-                                  backgroundColor: "white",
-                                  border: "1px solid #E8F2FF",
-                                  height: "60px",
-                                }}
-                              >
+                              <div className="col-4">
                                 <div
+                                  className="p-2 rounded d-flex flex-column justify-content-center"
                                   style={{
-                                    fontSize: "10px",
-                                    color: "#666",
-                                    marginBottom: "2px",
+                                    backgroundColor: "white",
+                                    border: "1px solid #E8F2FF",
+                                    height: "60px",
                                   }}
                                 >
-                                  Steps
-                                </div>
-                                <div
-                                  style={{
-                                    fontSize: "12px",
-                                    fontWeight: "600",
-                                    color: "#003465",
-                                  }}
-                                >
-                                  {ExerciseData?.[0]?.exerciseSessions?.[
-                                    selectedSessionIndex
-                                  ]?.steps || 0}
+                                  <div
+                                    style={{
+                                      fontSize: "10px",
+                                      color: "#666",
+                                      marginBottom: "2px",
+                                    }}
+                                  >
+                                    Steps
+                                  </div>
+                                  <div
+                                    style={{
+                                      fontSize: "12px",
+                                      fontWeight: "600",
+                                      color: "#003465",
+                                    }}
+                                  >
+                                    {ExerciseData?.[0]?.exerciseSessions?.[
+                                      selectedSessionIndex
+                                    ]?.steps || 0}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          )}
+                            )}
                         </div>
                       </>
                     ) : (
@@ -1086,9 +1107,8 @@ const ExerciseSessionsCard = ({
                     height: "24px",
                     backgroundColor:
                       isNextDisabled() || isNavigating ? "#f5f5f5" : "white",
-                    border: `1px solid ${
-                      isNextDisabled() || isNavigating ? "#ccc" : "#003465"
-                    }`,
+                    border: `1px solid ${isNextDisabled() || isNavigating ? "#ccc" : "#003465"
+                      }`,
                     borderRadius: "4px",
                     color:
                       isNextDisabled() || isNavigating ? "#ccc" : "#003465",
@@ -1227,7 +1247,7 @@ const ExerciseSessionsCard = ({
                                       fontSize: "10px",
                                       borderBottom:
                                         sessionIndex <
-                                        originalItem.exerciseSessions.length - 1
+                                          originalItem.exerciseSessions.length - 1
                                           ? "1px solid #e3f2fd"
                                           : "none",
                                       cursor:
@@ -1236,7 +1256,7 @@ const ExerciseSessionsCard = ({
                                           : "default",
                                       backgroundColor:
                                         activeTab === "Day" &&
-                                        selectedSessionIndex === sessionIndex
+                                          selectedSessionIndex === sessionIndex
                                           ? "#E8F2FF"
                                           : "transparent",
                                     }}
@@ -1289,97 +1309,177 @@ const ExerciseSessionsCard = ({
             </div>
           </div>
         ) : (
-          <div
-            className={`rounded-3 px-3 py-3 mt-1 ${
-              Loading ? "placeholder-glow" : ""
-            }`}
-            style={{ backgroundColor: "#F8FBFF" }}
-          >
-            <div className="d-flex justify-content-between align-items-end py-4">
-              <div>
-                <div className="d-flex align-items-baseline mt-3 mb-3">
-                  <span
-                    className={`${Loading ? "placeholder rounded-1" : ""}`}
-                    style={{
-                      fontSize: "48px",
-                      fontWeight: "400",
-                      color: "#003465",
-                    }}
-                  >
-                    {AverageData?.currentWeekData?.filter((day) => day.hasData)
-                      .length || 0}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: "24px",
-                      fontWeight: "400",
-                      color: "#666",
-                      marginLeft: "8px",
-                    }}
-                  >
-                    of 5
-                  </span>
-                </div>
-                <div style={{ fontSize: "12px", color: "#666" }}>
-                  Days of this week
+          <div className="row g-2 mt-0">
+            <div className="col-8 mt-1">
+              <div
+                className={`rounded-3 px-3 py-2 ${Loading ? "placeholder-glow" : ""
+                  }`}
+                style={{ backgroundColor: "#F8FBFF", height: "200px" }}
+              >
+                <div className="d-flex flex-column align-items-center">
+                  <div className="d-flex align-items-baseline mb-1">
+                    <span
+                      className={`${Loading ? "placeholder rounded-1" : ""}`}
+                      style={{
+                        fontSize: "36px",
+                        fontWeight: "400",
+                        color: "#003465",
+                      }}
+                    >
+                      {AverageData?.currentWeekData?.filter((day) => day.hasData)
+                        .length || 0}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "18px",
+                        fontWeight: "400",
+                        color: "#666",
+                        marginLeft: "6px",
+                      }}
+                    >
+                      of 5
+                    </span>
+                  </div>
+                  <div style={{ fontSize: "11px", color: "#666", marginBottom: "12px" }}>
+                    Days of this week
+                  </div>
+
+                  <div className="d-flex flex-column align-items-center">
+                    <div className="d-flex gap-1 mb-1">
+                      {["M", "T", "W", "T", "F", "S", "S"].map((day, index) => {
+                        const dayData = AverageData?.currentWeekData?.[index];
+                        return (
+                          <div
+                            key={index}
+                            className={`rounded-pill d-flex align-items-center justify-content-center ${Loading ? "placeholder" : ""
+                              }`}
+                            style={{
+                              width: "20px",
+                              height: "50px",
+                              backgroundColor: dayData?.hasData
+                                ? "#003465"
+                                : "#B8D4E3",
+                            }}
+                          >
+                            {dayData?.hasData && (
+                              <IoCheckmark
+                                style={{
+                                  color: "white",
+                                  fontSize: "14px",
+                                  strokeWidth: "40",
+                                }}
+                              />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="d-flex gap-1 ">
+                      {["M", "T", "W", "T", "F", "S", "S"].map((day, index) => {
+                        const dayData = AverageData?.currentWeekData?.[index];
+                        return (
+                          <div
+                            key={index}
+                            className="text-center"
+                            style={{
+                              width: "20px",
+                              fontSize: "12px",
+                              color: dayData?.hasData ? "#000" : "#666",
+                              fontWeight: dayData?.hasData ? "600" : "400",
+                            }}
+                          >
+                            {day}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <div className="d-flex flex-column align-items-end">
-                <div className="d-flex gap-1 mb-2">
-                  {["M", "T", "W", "T", "F", "S", "S"].map((day, index) => {
-                    const dayData = AverageData?.currentWeekData?.[index];
-                    return (
+            <div className="col-4 ps-0 mt-1">
+              <div
+                className="rounded-3 px-1 py-2"
+                style={{ backgroundColor: "#F8FBFF", height: "200px" }}
+              >
+                <div
+                  className="mb-2 d-flex justify-content-between align-items-center position-relative"
+                  style={{ fontSize: "12px", color: "#003465", fontWeight: "600" }}
+                >
+                  <span>Notes</span>
+                </div>
+                <div className="d-flex flex-column gap-1" style={{ maxHeight: "140px", overflowY: "auto" }}>
+                  {notesLoading ? (
+                    [...Array(3)].map((_, index) => (
                       <div
-                        key={index}
-                        className={`rounded-pill d-flex align-items-center justify-content-center ${
-                          Loading ? "placeholder" : ""
-                        }`}
+                        key={`skeleton-${index}`}
+                        className="px-1 py-0 placeholder-glow"
                         style={{
-                          width: "24px",
-                          height: "68px",
-                          backgroundColor: dayData?.hasData
-                            ? "#003465"
-                            : "#B8D4E3",
+                          borderBottom: "1px solid #E8F2FF",
+                          fontSize: "9px",
                         }}
                       >
-                        {dayData?.hasData && (
-                          <IoCheckmark
-                            style={{
-                              color: "white",
-                              fontSize: "16px",
-                              strokeWidth: "40",
-                            }}
-                          />
-                        )}
+                        <span className="placeholder rounded-1" style={{ width: "80%", height: "8px" }}></span>
                       </div>
-                    );
-                  })}
-                </div>
-                <div className="d-flex gap-1">
-                  {["M", "T", "W", "T", "F", "S", "S"].map((day, index) => {
-                    const dayData = AverageData?.currentWeekData?.[index];
-                    return (
+                    ))
+                  ) : notesData.length > 0 ? (
+                    notesData.slice(0, 4).map((note, index) => (
                       <div
-                        key={index}
-                        className="text-center"
+                        key={note._id || index}
+                        className="px-1 py-0"
                         style={{
-                          width: "24px",
-                          fontSize: "14px",
-                          color: dayData?.hasData ? "#000" : "#666",
-                          fontWeight: dayData?.hasData ? "600" : "400",
+                          borderBottom: "1px solid #E8F2FF",
+                          fontSize: "9px",
+                          color: "#666",
                         }}
+                        title={note.title}
                       >
-                        {day}
+                        • {note.title.length > 30 ? `${note.title.substring(0, 30)}...` : note.title}
                       </div>
-                    );
-                  })}
+                    ))
+                  ) : (
+                    <div
+                      className="px-1 py-2 text-center"
+                      style={{
+                        fontSize: "9px",
+                        color: "#999",
+                      }}
+                    >
+                      No notes available
+                    </div>
+                  )}
                 </div>
+                {notesData.length > 0 && (
+                  <div className="text-end px-1 mt-1">
+                    <span
+                      style={{
+                        fontSize: "9px",
+                        color: "#003465",
+                        cursor: "pointer",
+                        textDecoration: "underline"
+                      }}
+                      onClick={() => setShowNotesModal(true)}
+                    >
+                      View All ({notesData.length})
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         )}
       </div>
+
+      <NotesModal
+        show={showNotesModal}
+        onHide={() => setShowNotesModal(false)}
+        patientId={patientId}
+        masterDataId={masterDataId}
+        title="Exercise Sessions Notes"
+        type="ExerciseData"
+        value="ExerciseSessions"
+      />
     </div>
   );
 };
