@@ -21,6 +21,7 @@ import {
   Legend,
 } from "chart.js";
 import { getFilterData } from "../../../redux/patientsDashboard/action";
+import { getMasterData } from "../../../redux/notes/action";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
 import StepsCard from "./CardsData/StepsCard";
@@ -46,6 +47,9 @@ const ActivityData = ({ isExpanded, onExpand }) => {
   const patientId =
     pathId || searchParams.get("id") || searchParams.get("patientId");
   const [isOpen, setIsOpen] = useState(true);
+  
+  // Get master data from Redux store
+  const masterDataState = useSelector((state) => state.getMasterDataReducer);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [expandedCard, setExpandedCard] = useState(null);
   const [activeTab, setActiveTab] = useState("Week");
@@ -128,6 +132,35 @@ const ActivityData = ({ isExpanded, onExpand }) => {
     }
   }, [patientId, currentDate, activeTab]);
 
+  // Call GET_MASTER_DATA API on component mount
+  useEffect(() => {
+    console.log('🚀 Calling GET_MASTER_DATA API...');
+    dispatch(getMasterData({ type: 'ActivityData' }));
+  }, [dispatch]);
+
+  // Log master data response
+  useEffect(() => {
+    if (masterDataState.data && Object.keys(masterDataState.data).length > 0) {
+      console.log('✅ GET_MASTER_DATA Response:', masterDataState.data);
+      console.log('📊 Master Data Loading State:', masterDataState.loading);
+      
+      // Log specific master data values
+      const masterData = masterDataState.data.masterData;
+      if (masterData && masterData.values) {
+        console.log('🎯 Activity Data Values:', masterData.values);
+        console.log('📅 Created At:', masterData.createdAt);
+        console.log('🏷️ Type:', masterData.type);
+        console.log('🆔 ID:', masterData._id);
+      }
+    }
+    if (masterDataState.message) {
+      console.log('❌ GET_MASTER_DATA Error:', masterDataState.message);
+    }
+  }, [masterDataState]);
+
+  // Extract master data ID
+  const masterDataId = masterDataState.data?.masterData?._id;
+
   const handleCardExpand = (cardType) => {
     if (expandedCard === cardType) {
       setExpandedCard(null);
@@ -171,7 +204,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
                   marginRight: "15px",
                 }}
               >
-                Activity Data
+                Activity Data 
               </span>
               {/* <div ref={datePickerRef} style={{ position: "relative" }}>
                 <button
@@ -266,6 +299,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
               {(!expandedCard || expandedCard === "steps") && (
                 <StepsCard
                   patientId={patientId}
+                  masterDataId={masterDataId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={activeTab}
@@ -280,6 +314,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
               {(!expandedCard || expandedCard === "activeMins") && (
                 <ActiveMinCard
                   patientId={patientId}
+                  masterDataId={masterDataId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={activeTab}
@@ -294,6 +329,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
               {(!expandedCard || expandedCard === "calories") && (
                 <CaloriesCard
                   patientId={patientId}
+                  masterDataId={masterDataId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={activeTab}
@@ -308,6 +344,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
               {/* {(!expandedCard || expandedCard === "heartRate") && (
                 <HeartRateCard
                   patientId={patientId}
+                  masterDataId={masterDataId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={activeTab}
@@ -322,6 +359,7 @@ const ActivityData = ({ isExpanded, onExpand }) => {
               {(!expandedCard || expandedCard === "distance") && (
                 <DistanceCard
                   patientId={patientId}
+                  masterDataId={masterDataId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={activeTab}

@@ -60,6 +60,7 @@ export const SYNC_DATA = `${baseurl}/patients`;
 // Notes
 export const ADD_NOTES = `${baseurl}/notes/create`;
 export const GET_NOTES = `${baseurl}/notes/patient`;
+export const GET_MASTER_DATA = `${baseurl}/masterdata/type`;
 export const UPDATE_NOTES = `${baseurl}/notes`;
 export const DELETE_NOTES = `${baseurl}/notes`;
 export const GET_ALERTS = `${baseurl}/alerts/patient`;

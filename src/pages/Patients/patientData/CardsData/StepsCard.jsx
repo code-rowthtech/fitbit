@@ -5,9 +5,13 @@ import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { Bar } from "react-chartjs-2";
 import { useDispatch, useSelector } from "react-redux";
 import { getFilterData } from "../../../../redux/patientsDashboard/action";
+import { getNotes } from "../../../../redux/notes/action";
+import { TbNotes } from "react-icons/tb";
+import NotesModal from "../../../../components/NotesModal";
 
 const StepsCard = ({
   patientId,
+  masterDataId,
   expandedCard,
   onCardExpand,
   activeTab,
@@ -19,6 +23,8 @@ const StepsCard = ({
   const dispatch = useDispatch();
   const [isNavigating, setIsNavigating] = useState(false);
   const [isTabSwitching, setIsTabSwitching] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showNotesModal, setShowNotesModal] = useState(false);
   const FilterData = useSelector(
     (state) => state?.getFilterData?.data?.response?.data
   );
@@ -29,6 +35,10 @@ const StepsCard = ({
     (state) => state?.getFilterData?.data?.response
   );
   const Loading = useSelector((state) => state?.getFilterData?.loading);
+  
+  const fieldKey = "ActivityData_steps";
+  const notesData = useSelector((state) => state?.getNotesReducer?.data?.[fieldKey]?.notes || []);
+  const notesLoading = useSelector((state) => state?.getNotesReducer?.loading?.[fieldKey] || false);
 
   // Reset loading states when data loading completes
   useEffect(() => {
@@ -38,7 +48,26 @@ const StepsCard = ({
     }
   }, [Loading]);
 
+  // Handle clicking outside dropdown to close it
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showDropdown && !event.target.closest('.dropdown-container')) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showDropdown]);
+
   // console.log(AverageData, "AverageData");
+
+  // Fetch notes data
+  useEffect(() => {
+    if (patientId) {
+      const params = { patientId, page: 1, limit: 4, type: "ActivityData", value: "Steps" };
+      dispatch(getNotes(params, fieldKey));
+    }
+  }, [dispatch, patientId, fieldKey]);
 
   // Fetch initial data when component mounts
   useEffect(() => {
@@ -389,6 +418,16 @@ const StepsCard = ({
           </span>
         </div>
         <div className="d-flex">
+          <TbNotes
+            title="Notes"
+            style={{
+              fontSize: "16px",
+              color: "#003465",
+              marginLeft: "6px",
+              cursor: "pointer",
+            }}
+            onClick={() => setShowNotesModal(true)}
+          />
           <IoIosExpand
             style={{
               fontSize: "16px",
@@ -547,18 +586,18 @@ const StepsCard = ({
                             afterBody:
                               activeTab === "Week" && StepsStatsData
                                 ? () => [
-                                    `Min: ${parseInt(StepsStatsData.min)}`,
-                                    `Max: ${parseInt(StepsStatsData.max)}`,
-                                  ]
+                                  `Min: ${parseInt(StepsStatsData.min)}`,
+                                  `Max: ${parseInt(StepsStatsData.max)}`,
+                                ]
                                 : activeTab === "Month" && FilterData
-                                ? (context) => {
+                                  ? (context) => {
                                     const dataIndex = context[0]?.dataIndex;
                                     return dataIndex !== undefined &&
                                       FilterData[dataIndex]
                                       ? [`Date: ${FilterData[dataIndex].date}`]
                                       : [];
                                   }
-                                : undefined,
+                                  : undefined,
                           },
                         },
                       },
@@ -576,9 +615,9 @@ const StepsCard = ({
                           max:
                             activeTab === "Week" && StepsStatsData
                               ? Math.max(
-                                  ...chartData.data,
-                                  parseInt(StepsStatsData.max) + 500
-                                )
+                                ...chartData.data,
+                                parseInt(StepsStatsData.max) + 500
+                              )
                               : undefined,
                           grid: { color: "#f0f0f0" },
                           ticks: { color: "#666", fontSize: 10 },
@@ -588,43 +627,43 @@ const StepsCard = ({
                       onHover:
                         activeTab === "Week" && StepsStatsData
                           ? (event, elements, chart) => {
-                              const ctx = chart.ctx;
-                              const chartArea = chart.chartArea;
+                            const ctx = chart.ctx;
+                            const chartArea = chart.chartArea;
 
-                              if (chartArea) {
-                                const yScale = chart.scales.y;
-                                const minY = yScale.getPixelForValue(
-                                  parseInt(StepsStatsData.min)
-                                );
-                                const maxY = yScale.getPixelForValue(
-                                  parseInt(StepsStatsData.max)
-                                );
+                            if (chartArea) {
+                              const yScale = chart.scales.y;
+                              const minY = yScale.getPixelForValue(
+                                parseInt(StepsStatsData.min)
+                              );
+                              const maxY = yScale.getPixelForValue(
+                                parseInt(StepsStatsData.max)
+                              );
 
-                                // Draw min line
-                                ctx.save();
-                                ctx.strokeStyle = "#ff6b6b";
-                                ctx.lineWidth = 1;
-                                ctx.setLineDash([5, 5]);
-                                ctx.beginPath();
-                                ctx.moveTo(chartArea.left, minY);
-                                ctx.lineTo(chartArea.right, minY);
-                                ctx.stroke();
+                              // Draw min line
+                              ctx.save();
+                              ctx.strokeStyle = "#ff6b6b";
+                              ctx.lineWidth = 1;
+                              ctx.setLineDash([5, 5]);
+                              ctx.beginPath();
+                              ctx.moveTo(chartArea.left, minY);
+                              ctx.lineTo(chartArea.right, minY);
+                              ctx.stroke();
 
-                                // Draw max line
-                                ctx.strokeStyle = "#51cf66";
-                                ctx.beginPath();
-                                ctx.moveTo(chartArea.left, maxY);
-                                ctx.lineTo(chartArea.right, maxY);
-                                ctx.stroke();
-                                ctx.restore();
-                              }
+                              // Draw max line
+                              ctx.strokeStyle = "#51cf66";
+                              ctx.beginPath();
+                              ctx.moveTo(chartArea.left, maxY);
+                              ctx.lineTo(chartArea.right, maxY);
+                              ctx.stroke();
+                              ctx.restore();
                             }
+                          }
                           : activeTab === "Year" || activeTab === "Month"
-                          ? (event, elements, chart) => {
+                            ? (event, elements, chart) => {
                               chart.canvas.style.cursor =
                                 elements.length > 0 ? "pointer" : "default";
                             }
-                          : undefined,
+                            : undefined,
                     }}
                   />
                 )}
@@ -734,9 +773,8 @@ const StepsCard = ({
                     height: "24px",
                     backgroundColor:
                       isNextDisabled() || isNavigating ? "#f5f5f5" : "white",
-                    border: `1px solid ${
-                      isNextDisabled() || isNavigating ? "#ccc" : "#003465"
-                    }`,
+                    border: `1px solid ${isNextDisabled() || isNavigating ? "#ccc" : "#003465"
+                      }`,
                     borderRadius: "4px",
                     color:
                       isNextDisabled() || isNavigating ? "#ccc" : "#003465",
@@ -864,17 +902,17 @@ const StepsCard = ({
                       onClick={
                         activeTab === "Year"
                           ? () => {
-                              const monthIndex = index;
-                              const newDate = new Date(
-                                currentDate.getFullYear(),
-                                monthIndex,
-                                1
-                              );
-                              onDateChange(newDate);
-                              handleTabChange("Month", newDate);
-                            }
+                            const monthIndex = index;
+                            const newDate = new Date(
+                              currentDate.getFullYear(),
+                              monthIndex,
+                              1
+                            );
+                            onDateChange(newDate);
+                            handleTabChange("Month", newDate);
+                          }
                           : activeTab === "Month"
-                          ? () => {
+                            ? () => {
                               const dayNumber = index + 1;
                               const newDate = new Date(
                                 currentDate.getFullYear(),
@@ -884,20 +922,20 @@ const StepsCard = ({
                               onDateChange(newDate);
                               handleTabChange("Day", newDate);
                             }
-                          : undefined
+                            : undefined
                       }
                       onMouseEnter={
                         activeTab === "Year" || activeTab === "Month"
                           ? (e) => {
-                              e.target.style.backgroundColor = "#F0F7FF";
-                            }
+                            e.target.style.backgroundColor = "#F0F7FF";
+                          }
                           : undefined
                       }
                       onMouseLeave={
                         activeTab === "Year" || activeTab === "Month"
                           ? (e) => {
-                              e.target.style.backgroundColor = "white";
-                            }
+                            e.target.style.backgroundColor = "white";
+                          }
                           : undefined
                       }
                     >
@@ -917,148 +955,231 @@ const StepsCard = ({
             </div>
           </div>
         ) : (
-          <div
-            className={`rounded-3 px-2 mt-1 d-flex flex-column ${
-              Loading ? "placeholder-glow" : ""
-            }`}
-            style={{ backgroundColor: "#F8FBFF", height: "200px" }}
-          >
-            <div className="d-flex justify-content-center mb-2">
+          <div className="row g-2 mt-0">
+            {/* Current Section - col-8 */}
+            <div className="col-8 mt-1">
               <div
-                className="position-relative"
-                style={{ width: "120px", height: "120px" }}
+                className={`rounded-3 px-2 d-flex flex-column ${Loading ? "placeholder-glow" : ""
+                  }`}
+                style={{ backgroundColor: "#F8FBFF", height: "200px" }}
               >
-                <svg width="120" height="120" className="position-absolute">
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="48"
-                    fill="none"
-                    stroke="#E8F2FF"
-                    strokeWidth="6"
-                  />
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="48"
-                    fill="none"
-                    stroke="#003465"
-                    strokeWidth="4"
-                    strokeDasharray="301"
-                    strokeDashoffset={
-                      301 -
-                      ((AverageData?.todayData?.value || 0) /
-                        (AverageData?.goals?.steps || 1)) *
-                        301
-                    }
-                    strokeLinecap="round"
-                    transform="rotate(-90 60 60)"
-                  />
-                </svg>
-                <div className="position-absolute top-50 start-50 translate-middle text-center">
+                <div className="d-flex justify-content-center my-2">
                   <div
-                    className={`fw-bold ${
-                      Loading ? "placeholder rounded-1" : ""
-                    }`}
-                    style={{ fontSize: "16px", color: "#003465" }}
+                    className="position-relative"
+                    style={{ width: "110px", height: "110px" }}
                   >
-                    {AverageData?.goals?.steps > 0
-                      ? Math.round(
+                    <svg width="110" height="110" className="position-absolute">
+                      <circle
+                        cx="55"
+                        cy="55"
+                        r="44"
+                        fill="none"
+                        stroke="#E8F2FF"
+                        strokeWidth="5"
+                      />
+                      <circle
+                        cx="55"
+                        cy="55"
+                        r="44"
+                        fill="none"
+                        stroke="#003465"
+                        strokeWidth="3"
+                        strokeDasharray="276"
+                        strokeDashoffset={
+                          276 -
                           ((AverageData?.todayData?.value || 0) /
-                            AverageData.goals.steps) *
+                            (AverageData?.goals?.steps || 1)) *
+                          276
+                        }
+                        strokeLinecap="round"
+                        transform="rotate(-90 55 55)"
+                      />
+                    </svg>
+                    <div className="position-absolute top-50 start-50 translate-middle text-center">
+                      <div
+                        className={`fw-bold ${Loading ? "placeholder rounded-1" : ""
+                          }`}
+                        style={{ fontSize: "14px", color: "#003465" }}
+                      >
+                        {AverageData?.goals?.steps > 0
+                          ? Math.round(
+                            ((AverageData?.todayData?.value || 0) /
+                              AverageData.goals.steps) *
                             100
-                        )
-                      : 0}
-                    %
+                          )
+                          : 0}
+                        %
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "8px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Complete
+                      </div>
+                    </div>
                   </div>
-                  <div
-                    style={{
-                      fontSize: "9px",
-                      color: "#666",
-                      fontWeight: "500",
-                    }}
+                </div>
+
+                <div className="text-center mb-2">
+                  <p
+                    className={`mb-0 ${Loading ? "placeholder rounded-1" : ""}`}
+                    style={{ fontSize: "9px", color: "#666", fontWeight: "500" }}
                   >
-                    Complete
+                    {AverageData?.goals?.steps &&
+                      AverageData?.todayData?.value !== undefined
+                      ? Math.max(
+                        0,
+                        AverageData.goals.steps - AverageData.todayData.value
+                      )
+                      : 0}{" "}
+                    steps to reach daily goal
+                  </p>
+                </div>
+
+                <div className="row g-1">
+                  <div className="col-6">
+                    <div
+                      className="text-center py-1 px-2 rounded-2"
+                      style={{
+                        backgroundColor: "white",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <div
+                        className={`fw-bold ${Loading ? "placeholder rounded-1" : ""
+                          }`}
+                        style={{ fontSize: "12px", color: "#003465" }}
+                      >
+                        {AverageData?.todayData?.value || "-"}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "8px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Today
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-6">
+                    <div
+                      className="text-center py-1 px-2 rounded-2"
+                      style={{
+                        backgroundColor: "white",
+                        border: "1px solid #E8F2FF",
+                      }}
+                    >
+                      <div
+                        className={`fw-bold ${Loading ? "placeholder rounded-1" : ""
+                          }`}
+                        style={{ fontSize: "12px", color: "#003465" }}
+                      >
+                        {AverageData?.goals?.steps || "-"}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "8px",
+                          color: "#666",
+                          fontWeight: "500",
+                        }}
+                      >
+                        Goal
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="text-center mb-2">
-              <p
-                className={`mb-0 ${Loading ? "placeholder rounded-1" : ""}`}
-                style={{ fontSize: "10px", color: "#666", fontWeight: "500" }}
+            {/* Notes Section - col-4 */}
+            <div className="col-4 ps-0 mt-1">
+              <div
+                className="rounded-3 px-1 py-2"
+                style={{ backgroundColor: "#F8FBFF", height: "200px" }}
               >
-                {AverageData?.goals?.steps &&
-                AverageData?.todayData?.value !== undefined
-                  ? Math.max(
-                      0,
-                      AverageData.goals.steps - AverageData.todayData.value
-                    )
-                  : 0}{" "}
-                steps to reach daily goal
-              </p>
-            </div>
-
-            <div className="row g-1 ">
-              <div className="col-6">
                 <div
-                  className="text-center py-1 px-2 rounded-2"
-                  style={{
-                    backgroundColor: "white",
-                    border: "1px solid #E8F2FF",
-                  }}
+                  className="mb-2 d-flex justify-content-between align-items-center position-relative"
+                  style={{ fontSize: "12px", color: "#003465", fontWeight: "600" }}
                 >
-                  <div
-                    className={`fw-bold ${
-                      Loading ? "placeholder rounded-1" : ""
-                    }`}
-                    style={{ fontSize: "14px", color: "#003465" }}
-                  >
-                    {AverageData?.todayData?.value || "-"}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "9px",
-                      color: "#666",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Today
-                  </div>
+                  <span>Notes</span>
+                  {/* <FaEye style={{ fontSize: "10px", color: "#003465" }} /> */}
                 </div>
-              </div>
-              <div className="col-6">
-                <div
-                  className="text-center py-1 px-2 rounded-2"
-                  style={{
-                    backgroundColor: "white",
-                    border: "1px solid #E8F2FF",
-                  }}
-                >
-                  <div
-                    className={`fw-bold ${
-                      Loading ? "placeholder rounded-1" : ""
-                    }`}
-                    style={{ fontSize: "14px", color: "#003465" }}
-                  >
-                    {AverageData?.goals?.steps || "-"}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "9px",
-                      color: "#666",
-                      fontWeight: "500",
-                    }}
-                  >
-                    Goal
-                  </div>
+                <div className="d-flex flex-column gap-1" style={{ maxHeight: "140px", overflowY: "auto" }}>
+                  {notesLoading ? (
+                    [...Array(3)].map((_, index) => (
+                      <div
+                        key={`skeleton-${index}`}
+                        className="px-1 py-0 placeholder-glow"
+                        style={{
+                          borderBottom: "1px solid #E8F2FF",
+                          fontSize: "9px",
+                        }}
+                      >
+                        <span className="placeholder rounded-1" style={{ width: "80%", height: "8px" }}></span>
+                      </div>
+                    ))
+                  ) : notesData.length > 0 ? (
+                    notesData.slice(0, 4).map((note, index) => (
+                      <div
+                        key={note._id || index}
+                        className="px-1 py-0"
+                        style={{
+                          borderBottom: "1px solid #E8F2FF",
+                          fontSize: "9px",
+                          color: "#666",
+                        }}
+                        title={note.title}
+                      >
+                        • {note.title.length > 30 ? `${note.title.substring(0, 30)}...` : note.title}
+                      </div>
+                    ))
+                  ) : (
+                    <div
+                      className="px-1 py-2 text-center"
+                      style={{
+                        fontSize: "9px",
+                        color: "#999",
+                      }}
+                    >
+                      No notes available
+                    </div>
+                  )}
                 </div>
+                {notesData.length > 0 && (
+                  <div className="text-end px-1 mt-1">
+                    <span
+                      style={{
+                        fontSize: "9px",
+                        color: "#003465",
+                        cursor: "pointer",
+                        textDecoration: "underline"
+                      }}
+                      onClick={() => setShowNotesModal(true)}
+                    >
+                      View All ({notesData.length})
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         )}
       </div>
+      
+      <NotesModal
+        show={showNotesModal}
+        onHide={() => setShowNotesModal(false)}
+        patientId={patientId}
+        masterDataId={masterDataId}
+        title="Steps Notes"
+        type="ActivityData"
+        value="Steps"
+      />
     </div>
   );
 };
