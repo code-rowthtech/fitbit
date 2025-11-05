@@ -1,7 +1,6 @@
 import DOCTOR_TYPES from "./constant";
 
 export const getAllDoctors = (data) => (
-  console.log("action data", data),
   {
     type: DOCTOR_TYPES.GET_ALL_DOCTORS,
     payload: data,

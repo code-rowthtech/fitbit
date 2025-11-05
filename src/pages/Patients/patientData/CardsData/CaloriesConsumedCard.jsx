@@ -63,7 +63,6 @@ const CaloriesConsumedCard = ({
     }
   }, [dispatch, patientId, fieldKey, addNotesResponse, updateNotesResponse, deleteNotesResponse]);
 
-  // console.log(Loading, "Loading CaloriesConsumedCard");
 
   // Fetch calories data on component mount and when dependencies change
   useEffect(() => {

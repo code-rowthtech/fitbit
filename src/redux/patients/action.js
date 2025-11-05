@@ -11,7 +11,6 @@ export const getPatientById = (data) => ({
 });
 
 export const createPatient = (data) => {
-  // console.log("Action - Creating patient with data:", data);
   return {
     type: PATIENT_TYPES.CREATE_PATIENT,
     payload: data,

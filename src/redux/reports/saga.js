@@ -108,7 +108,6 @@ function* updateReportFunction(data) {
       payload: {},
     });
     const response = yield call(updateReportApi, data);
-    console.log("update response", response);
     if (response.data.report.status === 200) {
       yield put({
         type: REPORT_TYPES.UPDATE_REPORT_SUCCESS,
@@ -121,7 +120,6 @@ function* updateReportFunction(data) {
       });
     }
   } catch (error) {
-    console.log("error", error);
     const errorMessage =
       error?.response?.data?.message || error?.message || "An error occurred";
     toast.error(errorMessage);

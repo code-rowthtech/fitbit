@@ -45,7 +45,7 @@ const SleepJourneyChart = ({
       // Past data - use selected session index
       const sleepSessions = FilterData.data[0].sleepData;
 
-      console.log(sleepSessions, "sleepSessions");
+
 
       if (sleepSessions[selectedSessionIndex]?.levels?.data) {
         sleepDataSource = sleepSessions[selectedSessionIndex];
@@ -547,7 +547,7 @@ const EfficiencyCard = ({
     (state) => state?.getPatientSleepStages?.data?.response
   );
 
-  console.log(SleepStagesData, "SleepStagesData");
+
 
   const totalEfficiency = useSelector(
     (state) =>
@@ -758,7 +758,7 @@ const EfficiencyCard = ({
     [FilterData, SleepStagesData, activeTab, expandedCard, selectedSessionIndex]
   );
 
-  console.log(chartData, "chartData");
+
 
   // Get navigation label based on active tab
   const getNavigationLabel = () => {
@@ -877,7 +877,6 @@ const EfficiencyCard = ({
           end: formatDate(end),
           field: "sleepEfficiency",
         };
-        // if (activeTab === "Month") payload.period = "month";
         if (activeTab === "Year") payload.period = "year";
         dispatch(getPatientSleepEfficiency(payload));
 

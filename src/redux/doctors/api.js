@@ -3,7 +3,6 @@ import { APICore } from "../../helpers/api/apiCore";
 const api = new APICore();
 
 export function getAllDoctorsApi(data) {
-  // console.log("API Data:", data);
   const params = new URLSearchParams();
   if (data.payload?.page) params.append("page", data.payload.page);
   if (data.payload?.limit) params.append("limit", data.payload.limit);

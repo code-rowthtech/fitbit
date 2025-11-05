@@ -16,7 +16,6 @@
 //   const [showPassword, setShowPassword] = useState(false);
 //   const dispatch = useDispatch();
 //   const { loading, error, userLoggedIn, user } = useSelector(getAuthData);
-//   console.log(error,'errorerror')
 
 //   useEffect(() => {
 //     dispatch(resetAuth());
@@ -148,7 +147,6 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const { loading, error, userLoggedIn, user } = useSelector(getAuthData);
-  console.log(error, "errorerror");
 
   useEffect(() => {
     dispatch(resetAuth());

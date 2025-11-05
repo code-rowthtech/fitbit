@@ -4,10 +4,7 @@ import { IoIosExpand } from "react-icons/io";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { Bar } from "react-chartjs-2";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getPatientSleep,
-  getPatientSleepStages,
-} from "../../../../redux/patientsDashboard/action";
+import { getPatientSleepStages } from "../../../../redux/patientsDashboard/action";
 import { getNotes } from "../../../../redux/notes/action";
 import { TbNotes } from "react-icons/tb";
 import NotesModal from "../../../../components/NotesModal";
@@ -49,14 +46,7 @@ const SleepJourneyChart = ({
       }
     }
 
-    // If still no data, return null
     if (!levelsData || levelsData.length === 0) {
-      // console.log("No sleep levels data found for timeline", {
-      //   FilterData,
-      //   currentDate,
-      //   isToday,
-      //   sleepSessions: FilterData?.data?.[0]?.sleepData?.length || 0,
-      // });
       return null;
     }
 
@@ -546,7 +536,6 @@ const DurationCard = ({
     (state) =>
       state?.getPatientSleepStages?.data?.response?.todayData?.sleepData
   );
-  console.log(durationData, "durationData");
   const AverageData = useSelector(
     (state) => state?.getPatientSleepStages?.data?.response
   );
@@ -575,8 +564,6 @@ const DurationCard = ({
       dispatch(getNotes(params, fieldKey));
     }
   }, [dispatch, patientId, fieldKey, addNotesResponse, updateNotesResponse, deleteNotesResponse]);
-
-  // console.log(AverageData, "AverageData");
 
   // Initial API call when component mounts
   useEffect(() => {
@@ -610,7 +597,6 @@ const DurationCard = ({
         end: formatDate(end),
         field: "sleep",
       };
-      // if (activeTab === "Month")  // payload.period = "month";
       if (activeTab === "Year") {
         payload.period = "year";
         payload.type = "sleep";
@@ -822,7 +808,6 @@ const DurationCard = ({
           end: formatDate(end),
           field: "sleep",
         };
-        // if (activeTab === "Month")  // payload.period = "month";
         if (activeTab === "Year") {
           payload.period = "year";
           payload.type = "sleep";
@@ -871,7 +856,6 @@ const DurationCard = ({
           end: formatDate(end),
           field: "sleep",
         };
-        // if (tab === "Month")  // payload.period = "month";
         if (tab === "Year") {
           payload.period = "year";
           payload.type = "sleep";

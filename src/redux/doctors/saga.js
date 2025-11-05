@@ -86,7 +86,6 @@ export function* createDoctorFunction(data) {
     });
 
     const response = yield call(createDoctorApi, data);
-    // console.log("Create doctor response:", response);
 
     // ✅ Success case (check HTTP status)
     if (response.status === 201 || response?.data?.doctor?.status === 201) {
@@ -136,7 +135,6 @@ function* updateDoctorFunction(data) {
     });
 
     const response = yield call(updateDoctorApi, data);
-    // console.log("Update doctor response:", response?.data);
 
     // ✅ Corrected condition
     if (response?.data?.status === 200) {
@@ -340,7 +338,6 @@ function* createSpecializationsFunction(data) {
       payload: {},
     });
     const response = yield call(createSpecializationsApi, data);
-    // console.log("Create specialization response:", response);
     if (response?.data?.status === 201) {
       yield put({
         type: DOCTOR_TYPES.CREATE_SPECIALIZATIONS_SUCCESS,
@@ -351,7 +348,6 @@ function* createSpecializationsFunction(data) {
         response?.data?.message ||
         "Failed to create specialization. Please check the details.";
 
-      // console.log(errorMessage, "errorMessageerrorMessage");
 
       toast.error(errorMessage, {
         position: "top-right",
@@ -364,7 +360,6 @@ function* createSpecializationsFunction(data) {
       });
     }
   } catch (error) {
-    // console.log("Error creating specialization:", error);
 
     toast.error(error, {
       position: "top-right",

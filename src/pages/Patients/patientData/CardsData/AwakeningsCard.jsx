@@ -32,8 +32,6 @@ const SleepJourneyChart = ({
     selectedDate.setHours(0, 0, 0, 0);
     const isToday = selectedDate.getTime() === today.getTime();
 
-    // console.log("Processing data for date:", currentDate, "Is today:", isToday);
-
     if (isToday && FilterData?.todayData?.sleepData?.[0]?.levels?.data) {
       // Today's data
       sleepDataSource = FilterData.todayData.sleepData[0];
@@ -50,12 +48,6 @@ const SleepJourneyChart = ({
 
     // If still no data, return null
     if (!levelsData || levelsData.length === 0) {
-      // console.log("No sleep levels data found for timeline", {
-      //   FilterData,
-      //   currentDate,
-      //   isToday,
-      //   sleepSessions: FilterData?.data?.[0]?.sleepData?.length || 0,
-      // });
       return null;
     }
 
@@ -573,7 +565,6 @@ const AwakeningsCard = ({
       dispatch(getNotes(params, fieldKey));
     }
   }, [dispatch, patientId, fieldKey, addNotesResponse, updateNotesResponse, deleteNotesResponse]);
-  // console.log(awakeningsData, "awakeningsData");
 
   // Initial API call when component mounts
   useEffect(() => {
@@ -607,7 +598,6 @@ const AwakeningsCard = ({
         end: formatDate(end),
         field: "sleep",
       };
-      // if (activeTab === "Month")  // payload.period = "month";
       if (activeTab === "Year") {
         payload.period = "year";
         payload.type = "awakenings";
@@ -840,7 +830,6 @@ const AwakeningsCard = ({
           end: formatDate(end),
           field: "sleep",
         };
-        // if (activeTab === "Month")  // payload.period = "month";
         if (activeTab === "Year") {
           payload.period = "year";
           payload.type = "awakenings";
@@ -889,7 +878,6 @@ const AwakeningsCard = ({
           end: formatDate(end),
           field: "sleep",
         };
-        // if (tab === "Month")  // payload.period = "month";
         if (tab === "Year") {
           payload.period = "year";
           payload.type = "awakenings";

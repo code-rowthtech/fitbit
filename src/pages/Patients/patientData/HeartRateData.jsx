@@ -1,31 +1,10 @@
-import React, { useState, useRef, useEffect } from "react";
-import "react-date-range/dist/styles.css";
-import "react-date-range/dist/theme/default.css";
+import React, { useState, useEffect } from "react";
 import { IoChevronDown, IoChevronUp } from "react-icons/io5";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
 import { getMasterData } from "../../../redux/notes/action";
 import RestingHeartRateCard from "./CardsData/RestingHeartRateCard";
-import ContinuousHeartRateCard from "./CardsData/ContinuousHeartRateCard";
 import WeightCard from "./CardsData/WeightCard";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
 
 const HeartRateData = ({ isExpanded, onExpand }) => {
   const dispatch = useDispatch();
@@ -35,15 +14,12 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
     pathId || searchParams.get("id") || searchParams.get("patientId");
   const [isOpen, setIsOpen] = useState(true);
   
-  // Get master data from Redux store
   const masterDataState = useSelector((state) => state.getMasterDataReducer);
   const fieldKey = 'HeartRateBodyMetrics';
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [expandedCard, setExpandedCard] = useState(null);
   const [heartRateActiveTab, setHeartRateActiveTab] = useState("Week");
   const [weightActiveTab, setWeightActiveTab] = useState("Week");
   const [currentDate, setCurrentDate] = useState(new Date());
-  const datePickerRef = useRef(null);
 
   const formatDate = (date) => {
     if (!date) return "";
@@ -53,12 +29,10 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
     return `${year}-${month}-${day}`;
   };
 
-  // Call GET_MASTER_DATA API on component mount
   useEffect(() => {
     dispatch(getMasterData({ type: 'HeartRateBodyMetrics' }, fieldKey));
   }, [dispatch]);
 
-  // Extract master data ID
   const masterDataId = masterDataState?.data?.[fieldKey]?.masterData?._id;
 
   const handleCardExpand = (cardType) => {
@@ -70,19 +44,6 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
       onExpand();
     }
   };
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        datePickerRef.current &&
-        !datePickerRef.current.contains(event.target)
-      ) {
-        setShowDatePicker(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   return (
     <div
@@ -163,20 +124,6 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
                 />
               )}
 
-              {/* Continuous Heart Rate Card */}
-              {/* {(!expandedCard || expandedCard === "continuousHeartRate") && (
-                <ContinuousHeartRateCard
-                  patientId={patientId}
-                  expandedCard={expandedCard}
-                  onCardExpand={handleCardExpand}
-                  activeTab={activeTab}
-                  onTabChange={setActiveTab}
-                  currentDate={currentDate}
-                  onDateChange={setCurrentDate}
-                  formatDate={formatDate}
-                />
-              )} */}
-              {/* Empty card to maintain width */}
               {!expandedCard && <div style={{ flex: 1 }}></div>}
             </div>
           </div>

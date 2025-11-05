@@ -186,7 +186,6 @@ const CaloriesCard = ({
         end: formatDate(end),
         field: "calories",
       };
-      // if (activeTab === 'Month') payload.period = 'month'
       if (activeTab === "Year") payload.period = "year";
       dispatch(getPatientCaloriesBurned(payload));
     }
@@ -308,7 +307,6 @@ const CaloriesCard = ({
           end: formatDate(end),
           field: "calories",
         };
-        // if (activeTab === 'Month') payload.period = 'month'
         if (activeTab === "Year") payload.period = "year";
         dispatch(getPatientCaloriesBurned(payload));
       }
@@ -644,9 +642,7 @@ const CaloriesCard = ({
                                     const dataIndex = context[0]?.dataIndex;
                                     return dataIndex !== undefined &&
                                       CaloriesData[dataIndex]
-                                      ? [
-                                          // `Days: ${CaloriesData[dataIndex].dayRange}`,
-                                        ]
+                                      ? []
                                       : [];
                                   }
                                 : activeTab === "Year"

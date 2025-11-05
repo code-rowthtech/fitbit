@@ -25,7 +25,6 @@ const Patients = () => {
   const Store = useSelector((state) => state);
   const PatientCount = Store?.getAllPatients?.message;
   const PatientData = Store?.getAllPatients?.message?.patients;
-  // console.log(PatientData, 'PatientData')
   const DoctorData = Store?.getAllDoctors?.data?.doctors || [];
   const loading = Store?.getAllPatients?.loading || false;
   const CreateResponse = useSelector(

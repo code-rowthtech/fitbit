@@ -33,7 +33,7 @@ const SleepJourneyChart = ({
     selectedDate.setHours(0, 0, 0, 0);
     const isToday = selectedDate.getTime() === today.getTime();
 
-    // console.log("Processing data for date:", currentDate, "Is today:", isToday);
+
 
     if (isToday && FilterData?.todayData?.sleepData?.[0]?.levels?.data) {
       // Today's data
@@ -49,29 +49,13 @@ const SleepJourneyChart = ({
       }
     }
 
-    // console.log("Selected sleep session index:", selectedSessionIndex);
-    // console.log("Sleep data source:", sleepDataSource);
-    // console.log("Levels data length:", levelsData.length);
 
-    // If still no data, return null
+
     if (!levelsData || levelsData.length === 0) {
-      // console.log("No sleep levels data found for timeline", {
-      //   FilterData,
-      //   currentDate,
-      //   isToday,
-      //   sleepSessions: FilterData?.data?.[0]?.sleepData?.length || 0,
-      // });
       return null;
     }
 
-    // console.log(
-    //   "Processing sleep data for date:",
-    //   currentDate,
-    //   "Data length:",
-    //   levelsData.length,
-    //   "Is today:",
-    //   isToday
-    // );
+
 
     // Calculate total sleep duration and start/end times
     // Use the actual startTime and endTime from the sleep session data
@@ -195,7 +179,6 @@ const SleepJourneyChart = ({
     () => processApiData(),
     [FilterData, currentDate, selectedSessionIndex]
   );
-  // console.log("Sleep data:", sleepData);
 
   // If no detailed sleep data, show message
   if (!sleepData) {
@@ -830,7 +813,6 @@ const SleepStagesCard = ({
           end: formatDate(end),
           field: "sleep",
         };
-        // if (activeTab === "Month")  // payload.period = "month";
         if (activeTab === "Year") {
           payload.period = "year";
           payload.type = "sleep";
@@ -879,7 +861,6 @@ const SleepStagesCard = ({
           end: formatDate(end),
           field: "sleep",
         };
-        // if (tab === "Month")  // payload.period = "month";
         if (tab === "Year") {
           payload.period = "year";
           payload.type = "sleep";

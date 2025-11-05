@@ -23,7 +23,6 @@ const StepsCard = ({
   const dispatch = useDispatch();
   const [isNavigating, setIsNavigating] = useState(false);
   const [isTabSwitching, setIsTabSwitching] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
   const [showNotesModal, setShowNotesModal] = useState(false);
   const FilterData = useSelector(
     (state) => state?.getFilterData?.data?.response?.data
@@ -43,26 +42,12 @@ const StepsCard = ({
   const updateNotesResponse = useSelector((state) => state?.updateNotesReducer?.data?.status);
   const deleteNotesResponse = useSelector((state) => state?.deleteNotesReducer?.data?.status);
 
-  // Reset loading states when data loading completes
   useEffect(() => {
     if (!Loading) {
       setIsNavigating(false);
       setIsTabSwitching(false);
     }
   }, [Loading]);
-
-  // Handle clicking outside dropdown to close it
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (showDropdown && !event.target.closest('.dropdown-container')) {
-        setShowDropdown(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showDropdown]);
-
-  // console.log(AverageData, "AverageData");
 
   // Fetch notes data
   useEffect(() => {

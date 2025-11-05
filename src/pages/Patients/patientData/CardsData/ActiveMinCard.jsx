@@ -104,16 +104,9 @@ const ActiveMinCard = ({
         start: formatDate(start),
         end: formatDate(end),
         field: "activeZoneMinutes",
-        // period: "year", // Default period
       };
-      // if (activeTab === "Month")
-      if (activeTab === "Year")
-        // payload.period = "month";
-        payload.period = "year";
-      // console.log("Dispatching getPatientActiveMin with payload:", payload);
+      if (activeTab === "Year") payload.period = "year";
       dispatch(getPatientActiveMin(payload));
-    } else {
-      // console.log("patientId is missing, API call skipped");
     }
   }, [patientId, currentDate, activeTab, dispatch, formatDate]);
 
@@ -311,7 +304,6 @@ const ActiveMinCard = ({
           start: formatDate(start),
           end: formatDate(end),
           field: "activeZoneMinutes",
-          // period: "year", // Default period
         };
         if (activeTab === "Year") payload.period = "year";
         dispatch(getPatientActiveMin(payload));
@@ -357,10 +349,7 @@ const ActiveMinCard = ({
           end: formatDate(end),
           field: "activeZoneMinutes",
         };
-        // if (tab === "Month")
-        if (tab === "Year")
-          // payload.period = "month";
-          payload.period = "year";
+        if (tab === "Year") payload.period = "year";
         dispatch(getPatientActiveMin(payload));
       }
     }, 0);
@@ -579,9 +568,7 @@ const ActiveMinCard = ({
                                     const dataIndex = context[0]?.dataIndex;
                                     return dataIndex !== undefined &&
                                       ActiveMinData[dataIndex]
-                                      ? [
-                                          // `Days: ${ActiveMinData[dataIndex].dayRange}`,
-                                        ]
+                                      ? []
                                       : [];
                                   }
                                 : undefined,
