@@ -8,7 +8,7 @@ const FitbitSuccess = () => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          window.open("", "_self").close();
+          window.close() || (window.location.href = "about:blank");
           return 0;
         }
         return prev - 1;
@@ -80,12 +80,27 @@ const FitbitSuccess = () => {
     },
   };
 
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get("autoClose") === "true") {
+    setTimeout(() => {
+      window.close();
+      if (!window.closed) {
+        if (window.history.length > 1) {
+          window.history.back();
+        }
+      }
+    }, 2000);
+  }
+
   return (
     <>
       <style>{`
         @keyframes scaleIn {
           from { transform: scale(0.9); opacity: 0; }
           to { transform: scale(1); opacity: 1; }
+        }
+        @media (max-width: 1024px) {
+          .close-button { display: none; }
         }
       `}</style>
       <div style={styles.container}>
@@ -114,9 +129,10 @@ const FitbitSuccess = () => {
             insights.
           </p>
           <button
+            className="close-button"
             style={styles.button}
             onClick={() => {
-              window.open("", "_self").close();
+              window.close() || (window.location.href = "about:blank");
             }}
             onMouseOver={(e) => (e.target.style.backgroundColor = "#374151")}
             onMouseOut={(e) => (e.target.style.backgroundColor = "#4b5563")}

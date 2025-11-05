@@ -57,6 +57,8 @@ const WeightCard = ({
   const AverageData = useSelector(
     (state) => state?.getPatientWeight?.data?.response
   );
+
+  console.log(AverageData, "AverageData");
   const Loading = useSelector((state) => state?.getPatientWeight?.loading);
 
   const fieldKey = "HeartRateBodyMetrics_Weight";
@@ -1165,7 +1167,9 @@ const WeightCard = ({
                       fontWeight: "500",
                     }}
                   >
-                    Weight is in healthy range
+                    {AverageData?.todayData?.lastDataDate
+                      ? `Last Updated date ${AverageData.todayData.lastDataDate}`
+                      : "Weight is in healthy range"}
                   </p>
                 </div>
 
