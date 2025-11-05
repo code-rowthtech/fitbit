@@ -91,7 +91,6 @@ export const getPatientCaloriesConsumed = (data) => ({
 });
 
 export const getPatientSleepStages = (data) => {
-  console.log("Action Payload:", data);
   return {
     type: PATIENT_DASHBOARD_TYPES.GET_PATIENT_SLEEP_STAGES,
     payload: data,

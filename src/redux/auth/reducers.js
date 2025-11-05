@@ -76,7 +76,6 @@ const Auth = (state = INIT_STATE, action) => {
     case AuthActionTypes.API_RESPONSE_ERROR:
       switch (action.payload.actionType) {
         case AuthActionTypes.LOGIN_USER: {
-          // console.log('Login error:', action.payload.error);
           return {
             ...state,
             error: action.payload.error,

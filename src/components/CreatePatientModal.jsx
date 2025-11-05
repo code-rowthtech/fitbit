@@ -241,7 +241,6 @@ const CreatePatientModal = ({ show, onHide }) => {
       fitbitConsent: data.fitbitConsent || false,
     };
 
-    // console.log("Patient Data to be submitted:", patientData);
 
     dispatch(createPatient(patientData));
   };

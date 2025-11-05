@@ -4,7 +4,6 @@ import { useParams, useSearchParams } from "react-router-dom";
 import PatientDetails from "./patientData/PatientDetails";
 import ActivityData from "./patientData/ActivityData";
 import HeartRateData from "./patientData/HeartRateData";
-import WeightBodyMetrics from "./patientData/WeightBodyMetrics";
 import ExerciseData from "./patientData/ExerciseData";
 import NutritionData from "./patientData/NutritionData";
 import SleepData from "./patientData/SleepData";
@@ -178,17 +177,7 @@ const PatientDashboard = () => {
                     </div>
                   </div>
                 )}
-              {/* {activeTab === "Weight & Body Metrics" &&
-                (!expandedCard || expandedCard === "weight") && (
-                  <div className="row justify-content-center">
-                    <div className="col-lg-12 col-md-12 mb-1">
-                      <WeightBodyMetrics
-                        isExpanded={expandedCard === "weight"}
-                        onExpand={() => handleCardExpand("weight")}
-                      />
-                    </div>
-                  </div>
-                )} */}
+             
               {activeTab === "Exercise Data" &&
                 (!expandedCard || expandedCard === "exercise") && (
                   <div className="row justify-content-center">
@@ -246,17 +235,7 @@ const PatientDashboard = () => {
                     </div>
                   </div>
                 )}
-              {/* {activeTab !== "Weight & Body Metrics" &&
-                (!expandedCard || expandedCard === "weight") && (
-                  <div className="row justify-content-center">
-                    <div className="col-lg-12 col-md-12 mb-1">
-                      <WeightBodyMetrics
-                        isExpanded={expandedCard === "weight"}
-                        onExpand={() => handleCardExpand("weight")}
-                      />
-                    </div>
-                  </div>
-                )} */}
+              
               {activeTab !== "Exercise Data" &&
                 (!expandedCard || expandedCard === "exercise") && (
                   <div className="row justify-content-center">

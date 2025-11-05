@@ -50,7 +50,6 @@ const WeightCard = ({
   const FilterData = useSelector(
     (state) => state?.getPatientWeight?.data?.response?.data
   );
-  // console.log(FilterData, "FilterData");
   const WeightStatsData = useSelector(
     (state) => state?.getPatientWeight?.data?.response?.targetRange
   );
@@ -58,7 +57,6 @@ const WeightCard = ({
     (state) => state?.getPatientWeight?.data?.response
   );
 
-  console.log(AverageData, "AverageData");
   const Loading = useSelector((state) => state?.getPatientWeight?.loading);
 
   const fieldKey = "HeartRateBodyMetrics_Weight";

@@ -47,8 +47,7 @@ const PatientDetails = ({
   const SyncDataMessage = useSelector(
     (state) => state?.syncData?.data?.message
   );
-  console.log(SyncDataMessage, 'SyncDataMessage')
-  // console.log("PatientDetails PatientData", PatientData);
+  
   const isLoading = useSelector(
     (state) => state?.getPatientByIdReducer?.loading
   );

@@ -16,7 +16,6 @@ import {
   createAllergiesApi,
 } from "./api";
 import { toast } from "react-toastify";
-import { data } from "react-router-dom";
 
 function* getAllPatientsFunction({ payload }) {
   try {
@@ -76,7 +75,6 @@ export function* createPatientFunction(data) {
     yield put({ type: PATIENT_TYPES.CREATE_PATIENT_LOADING });
 
     const response = yield call(createPatientApi, data);
-    // console.log("Create Patient API response:", response);
     const status = response?.status || response?.data?.patient?.status || null;
     const message = response?.data?.message;
     if (status === 201) {
@@ -147,11 +145,8 @@ function* updatePatientFunction(data) {
     });
 
     const response = yield call(updatePatientApi, data);
-    // console.log("Update Patient API response:", response);
     const status = response?.status || response?.data?.patient?.status;
     const message = response?.data?.message;
-
-    // console.log("status:", status);
 
     if (status === 200) {
       toast.success(message, {

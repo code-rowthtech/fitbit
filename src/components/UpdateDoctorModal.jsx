@@ -29,7 +29,6 @@ const customRadioStyle = `
 `;
 
 const UpdateDoctorModal = ({ show, onHide, doctor }) => {
-  // console.log(doctor, "doctordoctordoctor");
   const dispatch = useDispatch();
   const [currentStep, setCurrentStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);

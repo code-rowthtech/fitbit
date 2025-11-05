@@ -27,7 +27,6 @@ const WaterIntakeCard = ({
   const WaterData = useSelector(
     (state) => state?.getPatientWater?.data?.response?.data
   );
-  // console.log(WaterData, "WaterData");
   const WaterStatsData = useSelector(
     (state) => state?.getPatientWater?.data?.response?.targetRange
   );
@@ -578,12 +577,6 @@ const WaterIntakeCard = ({
                               const selectedDate = new Date(
                                 WaterData[dataIndex].date
                               );
-                              console.log(
-                                "Chart click - Original date:",
-                                WaterData[dataIndex].date,
-                                "Parsed date:",
-                                selectedDate
-                              );
                               onDateChange(selectedDate);
                               handleTabChange("Day", selectedDate);
                             }
@@ -940,12 +933,6 @@ const WaterIntakeCard = ({
                           } else if (activeTab === "Month") {
                             const selectedDate = new Date(
                               WaterData[index].date
-                            );
-                            console.log(
-                              "Month click - Original date:",
-                              WaterData[index].date,
-                              "Parsed date:",
-                              selectedDate
                             );
                             onDateChange(selectedDate);
                             handleTabChange("Day", selectedDate);
