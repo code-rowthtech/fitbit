@@ -34,7 +34,8 @@ const CaloriesCard = ({
     (state) => state?.getPatientCaloriesBurned?.data?.response
   );
   const IntradayData = useSelector(
-    (state) => state?.getPatientCaloriesBurned?.data?.response?.todayData?.intradayData
+    (state) =>
+      state?.getPatientCaloriesBurned?.data?.response?.todayData?.intradayData
   );
   const Loading = useSelector(
     (state) => state?.getPatientCaloriesBurned?.loading
@@ -43,6 +44,9 @@ const CaloriesCard = ({
   const fieldKey = "ActivityData_CaloriesBurned";
   const notesData = useSelector((state) => state?.getNotesReducer?.data?.[fieldKey]?.notes || []);
   const notesLoading = useSelector((state) => state?.getNotesReducer?.loading?.[fieldKey] || false);
+  const addNotesResponse = useSelector((state) => state?.addNotesReducer?.data?.status);
+  const updateNotesResponse = useSelector((state) => state?.updateNotesReducer?.data?.status);
+  const deleteNotesResponse = useSelector((state) => state?.deleteNotesReducer?.data?.status);
 
   // Reset loading states when data loading completes
   useEffect(() => {
@@ -55,10 +59,16 @@ const CaloriesCard = ({
   // Fetch notes data
   useEffect(() => {
     if (patientId) {
-      const params = { patientId, page: 1, limit: 4, type: "ActivityData", value: "CaloriesBurned" };
+      const params = {
+        patientId,
+        page: 1,
+        limit: 4,
+        type: "ActivityData",
+        value: "CaloriesBurned",
+      };
       dispatch(getNotes(params, fieldKey));
     }
-  }, [dispatch, patientId, fieldKey]);
+  }, [dispatch, patientId, fieldKey, addNotesResponse, updateNotesResponse, deleteNotesResponse]);
 
   // Get chart data based on active tab and API response
   const getChartData = () => {
@@ -534,39 +544,39 @@ const CaloriesCard = ({
                       onClick:
                         activeTab === "Year"
                           ? (event, elements) => {
-                            if (elements.length > 0) {
-                              const clickedIndex = elements[0].index;
-                              const clickedMonth = CaloriesData[clickedIndex];
-                              if (clickedMonth) {
-                                // Parse date more carefully to avoid timezone issues
-                                const dateStr = clickedMonth.date;
-                                let monthDate;
+                              if (elements.length > 0) {
+                                const clickedIndex = elements[0].index;
+                                const clickedMonth = CaloriesData[clickedIndex];
+                                if (clickedMonth) {
+                                  // Parse date more carefully to avoid timezone issues
+                                  const dateStr = clickedMonth.date;
+                                  let monthDate;
 
-                                if (dateStr.includes("-")) {
-                                  // Handle YYYY-MM-DD format
-                                  const [year, month] = dateStr
-                                    .split("-")
-                                    .map(Number);
-                                  monthDate = new Date(year, month - 1, 1); // month is 0-indexed
-                                } else {
-                                  // Fallback to original parsing
-                                  const originalDate = new Date(dateStr);
-                                  monthDate = new Date(
-                                    originalDate.getFullYear(),
-                                    originalDate.getMonth(),
-                                    1
-                                  );
+                                  if (dateStr.includes("-")) {
+                                    // Handle YYYY-MM-DD format
+                                    const [year, month] = dateStr
+                                      .split("-")
+                                      .map(Number);
+                                    monthDate = new Date(year, month - 1, 1); // month is 0-indexed
+                                  } else {
+                                    // Fallback to original parsing
+                                    const originalDate = new Date(dateStr);
+                                    monthDate = new Date(
+                                      originalDate.getFullYear(),
+                                      originalDate.getMonth(),
+                                      1
+                                    );
+                                  }
+                                  onDateChange(monthDate);
+                                  // Use setTimeout to ensure date change takes effect
+                                  setTimeout(() => {
+                                    handleTabChange("Month");
+                                  }, 0);
                                 }
-                                onDateChange(monthDate);
-                                // Use setTimeout to ensure date change takes effect
-                                setTimeout(() => {
-                                  handleTabChange("Month");
-                                }, 0);
                               }
                             }
-                          }
                           : activeTab === "Month"
-                            ? (event, elements) => {
+                          ? (event, elements) => {
                               if (elements.length > 0) {
                                 const clickedIndex = elements[0].index;
                                 const clickedDay = CaloriesData[clickedIndex];
@@ -594,7 +604,7 @@ const CaloriesCard = ({
                                 }
                               }
                             }
-                            : undefined,
+                          : undefined,
                       plugins: {
                         legend: { display: false },
                         tooltip: {
@@ -602,48 +612,48 @@ const CaloriesCard = ({
                             afterBody:
                               activeTab === "Week" && CaloriesData
                                 ? (context) => {
-                                  const dataIndex = context[0]?.dataIndex;
-                                  return dataIndex !== undefined &&
-                                    CaloriesData[dataIndex]?.calories
-                                    ? [
-                                      `BMR: ${parseInt(
-                                        CaloriesData[dataIndex].calories.bmr
-                                      )}`,
-                                      `Total: ${parseInt(
-                                        CaloriesData[dataIndex].calories
-                                          .total
-                                      )}`,
-                                      `Out: ${parseInt(
-                                        CaloriesData[dataIndex].calories.out
-                                      )}`,
-                                    ]
-                                    : [];
-                                }
+                                    const dataIndex = context[0]?.dataIndex;
+                                    return dataIndex !== undefined &&
+                                      CaloriesData[dataIndex]?.calories
+                                      ? [
+                                          `BMR: ${parseInt(
+                                            CaloriesData[dataIndex].calories.bmr
+                                          )}`,
+                                          `Total: ${parseInt(
+                                            CaloriesData[dataIndex].calories
+                                              .total
+                                          )}`,
+                                          `Out: ${parseInt(
+                                            CaloriesData[dataIndex].calories.out
+                                          )}`,
+                                        ]
+                                      : [];
+                                  }
                                 : activeTab === "Day" && IntradayData
-                                  ? (context) => {
+                                ? (context) => {
                                     const dataIndex = context[0]?.dataIndex;
                                     return dataIndex !== undefined &&
                                       IntradayData[dataIndex]
                                       ? [
-                                        `Time: ${IntradayData[dataIndex].timeRange}`,
-                                      ]
+                                          `Time: ${IntradayData[dataIndex].timeRange}`,
+                                        ]
                                       : [];
                                   }
-                                  : activeTab === "Month" && CaloriesData
-                                    ? (context) => {
-                                      const dataIndex = context[0]?.dataIndex;
-                                      return dataIndex !== undefined &&
-                                        CaloriesData[dataIndex]
-                                        ? [
+                                : activeTab === "Month" && CaloriesData
+                                ? (context) => {
+                                    const dataIndex = context[0]?.dataIndex;
+                                    return dataIndex !== undefined &&
+                                      CaloriesData[dataIndex]
+                                      ? [
                                           // `Days: ${CaloriesData[dataIndex].dayRange}`,
                                         ]
-                                        : [];
-                                    }
-                                    : activeTab === "Year"
-                                      ? () => ["Click to view month details"]
-                                      : activeTab === "Month"
-                                        ? () => ["Click to view day details"]
-                                        : undefined,
+                                      : [];
+                                  }
+                                : activeTab === "Year"
+                                ? () => ["Click to view month details"]
+                                : activeTab === "Month"
+                                ? () => ["Click to view day details"]
+                                : undefined,
                           },
                         },
                       },
@@ -654,7 +664,7 @@ const CaloriesCard = ({
                             color: "#666",
                             fontSize: 10,
                             maxRotation: activeTab === "Day" ? 45 : 0,
-                            minRotation: activeTab === "Day" ? 45 : 0
+                            minRotation: activeTab === "Day" ? 45 : 0,
                           },
                         },
                         y: {
@@ -662,16 +672,16 @@ const CaloriesCard = ({
                           min:
                             activeTab === "Week" && CaloriesStatsData
                               ? Math.min(
-                                0,
-                                parseInt(CaloriesStatsData.min) - 100
-                              )
+                                  0,
+                                  parseInt(CaloriesStatsData.min) - 100
+                                )
                               : 0,
                           max:
                             activeTab === "Week" && CaloriesStatsData
                               ? Math.max(
-                                ...chartData.data,
-                                parseInt(CaloriesStatsData.max) + 100
-                              )
+                                  ...chartData.data,
+                                  parseInt(CaloriesStatsData.max) + 100
+                                )
                               : undefined,
                           grid: { color: "#f0f0f0" },
                           ticks: { color: "#666", fontSize: 10 },
@@ -681,43 +691,43 @@ const CaloriesCard = ({
                       onHover:
                         activeTab === "Week" && CaloriesStatsData
                           ? (event, elements, chart) => {
-                            const ctx = chart.ctx;
-                            const chartArea = chart.chartArea;
+                              const ctx = chart.ctx;
+                              const chartArea = chart.chartArea;
 
-                            if (chartArea) {
-                              const yScale = chart.scales.y;
-                              const minY = yScale.getPixelForValue(
-                                parseInt(CaloriesStatsData.min)
-                              );
-                              const maxY = yScale.getPixelForValue(
-                                parseInt(CaloriesStatsData.max)
-                              );
+                              if (chartArea) {
+                                const yScale = chart.scales.y;
+                                const minY = yScale.getPixelForValue(
+                                  parseInt(CaloriesStatsData.min)
+                                );
+                                const maxY = yScale.getPixelForValue(
+                                  parseInt(CaloriesStatsData.max)
+                                );
 
-                              // Draw min line
-                              ctx.save();
-                              ctx.strokeStyle = "#ff6b6b";
-                              ctx.lineWidth = 1;
-                              ctx.setLineDash([5, 5]);
-                              ctx.beginPath();
-                              ctx.moveTo(chartArea.left, minY);
-                              ctx.lineTo(chartArea.right, minY);
-                              ctx.stroke();
+                                // Draw min line
+                                ctx.save();
+                                ctx.strokeStyle = "#ff6b6b";
+                                ctx.lineWidth = 1;
+                                ctx.setLineDash([5, 5]);
+                                ctx.beginPath();
+                                ctx.moveTo(chartArea.left, minY);
+                                ctx.lineTo(chartArea.right, minY);
+                                ctx.stroke();
 
-                              // Draw max line
-                              ctx.strokeStyle = "#51cf66";
-                              ctx.beginPath();
-                              ctx.moveTo(chartArea.left, maxY);
-                              ctx.lineTo(chartArea.right, maxY);
-                              ctx.stroke();
-                              ctx.restore();
+                                // Draw max line
+                                ctx.strokeStyle = "#51cf66";
+                                ctx.beginPath();
+                                ctx.moveTo(chartArea.left, maxY);
+                                ctx.lineTo(chartArea.right, maxY);
+                                ctx.stroke();
+                                ctx.restore();
+                              }
                             }
-                          }
                           : activeTab === "Year" || activeTab === "Month"
-                            ? (event, elements, chart) => {
+                          ? (event, elements, chart) => {
                               chart.canvas.style.cursor =
                                 elements.length > 0 ? "pointer" : "default";
                             }
-                            : undefined,
+                          : undefined,
                     }}
                   />
                 )}
@@ -827,8 +837,9 @@ const CaloriesCard = ({
                     height: "24px",
                     backgroundColor:
                       isNextDisabled() || isNavigating ? "#f5f5f5" : "white",
-                    border: `1px solid ${isNextDisabled() || isNavigating ? "#ccc" : "#003465"
-                      }`,
+                    border: `1px solid ${
+                      isNextDisabled() || isNavigating ? "#ccc" : "#003465"
+                    }`,
                     borderRadius: "4px",
                     color:
                       isNextDisabled() || isNavigating ? "#ccc" : "#003465",
@@ -954,36 +965,36 @@ const CaloriesCard = ({
                       onClick={
                         activeTab === "Year"
                           ? () => {
-                            const clickedMonth = CaloriesData[index];
-                            if (clickedMonth) {
-                              // Parse date more carefully to avoid timezone issues
-                              const dateStr = clickedMonth.date;
-                              let monthDate;
+                              const clickedMonth = CaloriesData[index];
+                              if (clickedMonth) {
+                                // Parse date more carefully to avoid timezone issues
+                                const dateStr = clickedMonth.date;
+                                let monthDate;
 
-                              if (dateStr.includes("-")) {
-                                // Handle YYYY-MM-DD format
-                                const [year, month] = dateStr
-                                  .split("-")
-                                  .map(Number);
-                                monthDate = new Date(year, month - 1, 1); // month is 0-indexed
-                              } else {
-                                // Fallback to original parsing
-                                const originalDate = new Date(dateStr);
-                                monthDate = new Date(
-                                  originalDate.getFullYear(),
-                                  originalDate.getMonth(),
-                                  1
-                                );
+                                if (dateStr.includes("-")) {
+                                  // Handle YYYY-MM-DD format
+                                  const [year, month] = dateStr
+                                    .split("-")
+                                    .map(Number);
+                                  monthDate = new Date(year, month - 1, 1); // month is 0-indexed
+                                } else {
+                                  // Fallback to original parsing
+                                  const originalDate = new Date(dateStr);
+                                  monthDate = new Date(
+                                    originalDate.getFullYear(),
+                                    originalDate.getMonth(),
+                                    1
+                                  );
+                                }
+                                onDateChange(monthDate);
+                                // Use setTimeout to ensure date change takes effect
+                                setTimeout(() => {
+                                  handleTabChange("Month");
+                                }, 0);
                               }
-                              onDateChange(monthDate);
-                              // Use setTimeout to ensure date change takes effect
-                              setTimeout(() => {
-                                handleTabChange("Month");
-                              }, 0);
                             }
-                          }
                           : activeTab === "Month"
-                            ? () => {
+                          ? () => {
                               const clickedDay = CaloriesData[index];
                               if (clickedDay) {
                                 // Parse date more carefully to avoid timezone issues
@@ -1008,20 +1019,20 @@ const CaloriesCard = ({
                                 }, 0);
                               }
                             }
-                            : undefined
+                          : undefined
                       }
                       onMouseEnter={
                         activeTab === "Year" || activeTab === "Month"
                           ? (e) => {
-                            e.target.style.backgroundColor = "#F0F7FF";
-                          }
+                              e.target.style.backgroundColor = "#F0F7FF";
+                            }
                           : undefined
                       }
                       onMouseLeave={
                         activeTab === "Year" || activeTab === "Month"
                           ? (e) => {
-                            e.target.style.backgroundColor = "white";
-                          }
+                              e.target.style.backgroundColor = "white";
+                            }
                           : undefined
                       }
                     >
@@ -1045,8 +1056,9 @@ const CaloriesCard = ({
             {/* Current Section - col-8 */}
             <div className="col-8 mt-1">
               <div
-                className={`rounded-3 px-2 d-flex flex-column ${Loading ? "placeholder-glow" : ""
-                  }`}
+                className={`rounded-3 px-2 d-flex flex-column ${
+                  Loading ? "placeholder-glow" : ""
+                }`}
                 style={{ backgroundColor: "#F8FBFF", height: "200px" }}
               >
                 <div className="d-flex justify-content-center my-2">
@@ -1075,7 +1087,7 @@ const CaloriesCard = ({
                           276 -
                           ((AverageData?.todayData?.value || 0) /
                             (AverageData?.goals?.calories || 1)) *
-                          276
+                            276
                         }
                         strokeLinecap="round"
                         transform="rotate(-90 55 55)"
@@ -1083,16 +1095,17 @@ const CaloriesCard = ({
                     </svg>
                     <div className="position-absolute top-50 start-50 translate-middle text-center">
                       <div
-                        className={`fw-bold ${Loading ? "placeholder rounded-1" : ""
-                          }`}
+                        className={`fw-bold ${
+                          Loading ? "placeholder rounded-1" : ""
+                        }`}
                         style={{ fontSize: "14px", color: "#003465" }}
                       >
                         {AverageData?.goals?.calories > 0
                           ? Math.round(
-                            ((AverageData?.todayData?.value || 0) /
-                              AverageData.goals.calories) *
-                            100
-                          )
+                              ((AverageData?.todayData?.value || 0) /
+                                AverageData.goals.calories) *
+                                100
+                            )
                           : 0}
                         %
                       </div>
@@ -1112,14 +1125,19 @@ const CaloriesCard = ({
                 <div className="text-center mb-2">
                   <p
                     className={`mb-0 ${Loading ? "placeholder rounded-1" : ""}`}
-                    style={{ fontSize: "9px", color: "#666", fontWeight: "500" }}
+                    style={{
+                      fontSize: "9px",
+                      color: "#666",
+                      fontWeight: "500",
+                    }}
                   >
                     {AverageData?.goals?.calories &&
-                      AverageData?.todayData?.value !== undefined
+                    AverageData?.todayData?.value !== undefined
                       ? Math.max(
-                        0,
-                        AverageData.goals.calories - AverageData.todayData.value
-                      )
+                          0,
+                          AverageData.goals.calories -
+                            AverageData.todayData.value
+                        )
                       : 0}{" "}
                     calories to reach daily goal
                   </p>
@@ -1135,8 +1153,9 @@ const CaloriesCard = ({
                       }}
                     >
                       <div
-                        className={`fw-bold ${Loading ? "placeholder rounded-1" : ""
-                          }`}
+                        className={`fw-bold ${
+                          Loading ? "placeholder rounded-1" : ""
+                        }`}
                         style={{ fontSize: "12px", color: "#003465" }}
                       >
                         {AverageData?.todayData?.value || "-"}
@@ -1161,8 +1180,9 @@ const CaloriesCard = ({
                       }}
                     >
                       <div
-                        className={`fw-bold ${Loading ? "placeholder rounded-1" : ""
-                          }`}
+                        className={`fw-bold ${
+                          Loading ? "placeholder rounded-1" : ""
+                        }`}
                         style={{ fontSize: "12px", color: "#003465" }}
                       >
                         {AverageData?.goals?.calories || "-"}
@@ -1190,11 +1210,18 @@ const CaloriesCard = ({
               >
                 <div
                   className="mb-2 d-flex justify-content-between align-items-center position-relative"
-                  style={{ fontSize: "12px", color: "#003465", fontWeight: "600" }}
+                  style={{
+                    fontSize: "12px",
+                    color: "#003465",
+                    fontWeight: "600",
+                  }}
                 >
                   <span>Notes</span>
                 </div>
-                <div className="d-flex flex-column gap-1" style={{ maxHeight: "140px", overflowY: "auto" }}>
+                <div
+                  className="d-flex flex-column gap-1"
+                  style={{ maxHeight: "140px", overflowY: "auto" }}
+                >
                   {notesLoading ? (
                     [...Array(3)].map((_, index) => (
                       <div
@@ -1205,7 +1232,10 @@ const CaloriesCard = ({
                           fontSize: "9px",
                         }}
                       >
-                        <span className="placeholder rounded-1" style={{ width: "80%", height: "8px" }}></span>
+                        <span
+                          className="placeholder rounded-1"
+                          style={{ width: "80%", height: "8px" }}
+                        ></span>
                       </div>
                     ))
                   ) : notesData.length > 0 ? (
@@ -1220,7 +1250,10 @@ const CaloriesCard = ({
                         }}
                         title={note.title}
                       >
-                        • {note.title.length > 30 ? `${note.title.substring(0, 30)}...` : note.title}
+                        •{" "}
+                        {note.title.length > 30
+                          ? `${note.title.substring(0, 30)}...`
+                          : note.title}
                       </div>
                     ))
                   ) : (
@@ -1242,19 +1275,18 @@ const CaloriesCard = ({
                         fontSize: "9px",
                         color: "#003465",
                         cursor: "pointer",
-                        textDecoration: "underline"
+                        textDecoration: "underline",
                       }}
                       onClick={() => setShowNotesModal(true)}
                     >
-                      View All ({notesData.length})
+                      View All  
                     </span>
                   </div>
                 )}
               </div>
             </div>
           </div>
-        )
-        }
+        )}
         {showNotesModal && (
           <NotesModal
             show={showNotesModal}

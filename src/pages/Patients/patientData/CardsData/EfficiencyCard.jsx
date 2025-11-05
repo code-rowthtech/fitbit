@@ -560,6 +560,9 @@ const EfficiencyCard = ({
   const fieldKey = "SleepData_SleepEfficiency";
   const notesData = useSelector((state) => state?.getNotesReducer?.data?.[fieldKey]?.notes || []);
   const notesLoading = useSelector((state) => state?.getNotesReducer?.loading?.[fieldKey] || false);
+  const addNotesResponse = useSelector((state) => state?.addNotesReducer?.data?.status);
+  const updateNotesResponse = useSelector((state) => state?.updateNotesReducer?.data?.status);
+  const deleteNotesResponse = useSelector((state) => state?.deleteNotesReducer?.data?.status);
 
   // Fetch notes data
   useEffect(() => {
@@ -567,7 +570,7 @@ const EfficiencyCard = ({
       const params = { patientId, page: 1, limit: 4, type: "SleepData", value: "SleepEfficiency" };
       dispatch(getNotes(params, fieldKey));
     }
-  }, [dispatch, patientId, fieldKey]);
+  }, [dispatch, patientId, fieldKey, addNotesResponse, updateNotesResponse, deleteNotesResponse]);
 
   useEffect(() => {
     if (patientId) {
@@ -1705,7 +1708,7 @@ const EfficiencyCard = ({
                       }}
                       onClick={() => setShowNotesModal(true)}
                     >
-                      View All ({notesData.length})
+                      View All  
                     </span>
                   </div>
                 )}

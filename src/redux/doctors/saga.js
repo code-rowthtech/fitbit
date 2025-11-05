@@ -116,13 +116,7 @@ export function* createDoctorFunction(data) {
       });
     }
   } catch (error) {
-    // console.error("Error creating doctor:", error);
-
-    // ✅ Extract a proper error message from response or fallback
-    const errorMessage =
-      error ||
-      error?.message ||
-      "Error creating doctor.";
+    const errorMessage = error || error?.message || "Error creating doctor.";
     toast.error(errorMessage, {
       position: "top-right",
       autoClose: 4000,

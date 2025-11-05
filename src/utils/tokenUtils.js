@@ -19,7 +19,10 @@ export const isTokenExpired = (token) => {
 export const clearAuthData = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
+  localStorage.removeItem("authToken");
+  localStorage.removeItem("userData");
   sessionStorage.removeItem(AUTH_SESSION_KEY);
+  sessionStorage.clear();
 };
 
 export const handleTokenExpiration = () => {

@@ -43,6 +43,9 @@ const CaloriesConsumedCard = ({
   const fieldKey = "NutritionData_CaloriesConsumed";
   const notesData = useSelector((state) => state?.getNotesReducer?.data?.[fieldKey]?.notes || []);
   const notesLoading = useSelector((state) => state?.getNotesReducer?.loading?.[fieldKey] || false);
+  const addNotesResponse = useSelector((state) => state?.addNotesReducer?.data?.status);
+  const updateNotesResponse = useSelector((state) => state?.updateNotesReducer?.data?.status);
+  const deleteNotesResponse = useSelector((state) => state?.deleteNotesReducer?.data?.status);
 
   // Reset loading states when data loading completes
   useEffect(() => {
@@ -58,7 +61,7 @@ const CaloriesConsumedCard = ({
       const params = { patientId, page: 1, limit: 4, type: "NutritionData", value: "CaloriesConsumed" };
       dispatch(getNotes(params, fieldKey));
     }
-  }, [dispatch, patientId, fieldKey]);
+  }, [dispatch, patientId, fieldKey, addNotesResponse, updateNotesResponse, deleteNotesResponse]);
 
   // console.log(Loading, "Loading CaloriesConsumedCard");
 
@@ -1617,7 +1620,7 @@ const CaloriesConsumedCard = ({
                       }}
                       onClick={() => setShowNotesModal(true)}
                     >
-                      View All ({notesData.length})
+                      View All  
                     </span>
                   </div>
                 )}
