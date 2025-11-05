@@ -26,6 +26,20 @@ const NotesModal = ({ show, onHide, patientId, title = "Notes", type, value, mas
   const Store = useSelector((state) => state);
   const fieldKey = `${type}_${value}`;
 
+  // Add thin scrollbar styles
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .modal-body::-webkit-scrollbar { width: 6px; }
+      .modal-body::-webkit-scrollbar-track { background: #f0f0f0; border-radius: 3px; }
+      .modal-body::-webkit-scrollbar-thumb { background: #003465; border-radius: 3px; }
+      .modal-body::-webkit-scrollbar-thumb:hover { background: #002244; }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
+
+
   const notesCount = Store?.getNotesReducer?.data?.[fieldKey];
   const notesData = Store?.getNotesReducer?.data?.[fieldKey]?.notes || [];
   const notesLoading = Store?.getNotesReducer?.loading?.[fieldKey] || false;
@@ -40,6 +54,7 @@ const NotesModal = ({ show, onHide, patientId, title = "Notes", type, value, mas
   const [noteToDelete, setNoteToDelete] = useState(null);
   const [noteText, setNoteText] = useState("");
   const [noteTitle, setNoteTitle] = useState("");
+  const [wordCount, setWordCount] = useState(0);
 
   const decodeHtmlEntities = (text) => {
     const textarea = document.createElement("textarea");
@@ -91,13 +106,17 @@ const NotesModal = ({ show, onHide, patientId, title = "Notes", type, value, mas
     setEditingNote(null);
     setNoteTitle("");
     setNoteText("");
+    setWordCount(0);
     setShowAddModal(true);
   };
 
   const handleEditNote = (note) => {
     setEditingNote(note);
     setNoteTitle(note.title);
-    setNoteText(decodeHtmlEntities(note.content));
+    const decodedContent = decodeHtmlEntities(note.content);
+    setNoteText(decodedContent);
+    const textContent = decodedContent.replace(/<[^>]*>/g, "").trim();
+    setWordCount(textContent ? textContent.split(/\s+/).length : 0);
     setShowAddModal(true);
   };
 
@@ -141,6 +160,7 @@ const NotesModal = ({ show, onHide, patientId, title = "Notes", type, value, mas
     setShowAddModal(false);
     setNoteTitle("");
     setNoteText("");
+    setWordCount(0);
     setEditingNote(null);
   };
 
@@ -180,7 +200,7 @@ const NotesModal = ({ show, onHide, patientId, title = "Notes", type, value, mas
             </button>
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body className="p-2" style={{ height: "520px", overflowY: "auto" }}>
+        <Modal.Body className="p-2" style={{ height: "520px", overflowY: "auto", scrollbarWidth: "thin", scrollbarColor: "#003465 #f0f0f0" }}>
 
           {notesLoading ? (
             <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "150px" }}>
@@ -313,10 +333,15 @@ const NotesModal = ({ show, onHide, patientId, title = "Notes", type, value, mas
       </Modal>
 
       {/* Add/Edit Note Modal */}
-      <Modal show={showAddModal} onHide={() => setShowAddModal(false)} size="lg" centered>
-        <Modal.Header closeButton className="border-0 pb-0">
-          <Modal.Title style={{ fontSize: "18px", color: "#003465" }}>
-            {editingNote ? "Edit Note" : "Add New Note"}
+      <Modal show={showAddModal} onHide={() => setShowAddModal(false)} size="lg" centered scrollable>
+        <Modal.Header closeButton className="border-0 py-2" style={{ background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)", borderRadius: "0.5rem 0.5rem 0 0" }}>
+          <Modal.Title className="d-flex align-items-center gap-2">
+            <div className="d-flex align-items-center justify-content-center" style={{ width: "32px", height: "32px", backgroundColor: "#003465", borderRadius: "8px" }}>
+              <span style={{ color: "white", fontSize: "14px", fontWeight: "bold" }}>📝</span>
+            </div>
+            <h5 className="mb-0" style={{ fontSize: "16px", color: "#003465", fontWeight: "700" }}>
+              {editingNote ? "Edit Note" : "Add New Note"}
+            </h5>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="pt-2">
@@ -342,15 +367,26 @@ const NotesModal = ({ show, onHide, patientId, title = "Notes", type, value, mas
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label
-                className="fw-semibold"
-                style={{ fontSize: "14px", color: "#16213DB2" }}
-              >
-                Note Content <span className="text-danger">*</span>
-              </Form.Label>
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <Form.Label
+                  className="fw-semibold mb-0"
+                  style={{ fontSize: "14px", color: "#16213DB2" }}
+                >
+                  Note Content <span className="text-danger">*</span>
+                </Form.Label>
+                <span
+                  style={{
+                    fontSize: "12px",
+                    color: wordCount > 500 ? "#dc3545" : "#6c757d",
+                    fontWeight: wordCount > 500 ? "600" : "normal",
+                  }}
+                >
+                  {wordCount}/500 words
+                </span>
+              </div>
               <div
                 style={{
-                  border: "1px solid #e9ecef",
+                  border: wordCount > 500 ? "1px solid #dc3545" : "1px solid #e9ecef",
                   borderRadius: "6px",
                   backgroundColor: "#F9FAFB",
                 }}
@@ -360,6 +396,9 @@ const NotesModal = ({ show, onHide, patientId, title = "Notes", type, value, mas
                   data={noteText}
                   onChange={(event, editor) => {
                     const data = editor.getData();
+                    const textContent = data.replace(/<[^>]*>/g, "").trim();
+                    const count = textContent ? textContent.split(/\s+/).length : 0;
+                    setWordCount(count);
                     setNoteText(data);
                   }}
                   config={{
@@ -386,6 +425,11 @@ const NotesModal = ({ show, onHide, patientId, title = "Notes", type, value, mas
                   }}
                 />
               </div>
+              {wordCount > 500 && (
+                <small className="text-danger mt-1 d-block" style={{ fontSize: "11px" }}>
+                  Content exceeds maximum word limit of 500 words
+                </small>
+              )}
             </Form.Group>
           </Form>
         </Modal.Body>
@@ -402,7 +446,7 @@ const NotesModal = ({ show, onHide, patientId, title = "Notes", type, value, mas
             size="sm"
             onClick={handleSaveNote}
             disabled={
-              !noteTitle.trim() || !noteText.replace(/<[^>]*>/g, "").trim()
+              !noteTitle.trim() || !noteText.replace(/<[^>]*>/g, "").trim() || wordCount > 500
             }
             style={{
               backgroundColor: "#003465",

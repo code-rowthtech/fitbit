@@ -1433,12 +1433,13 @@ const CaloriesConsumedCard = ({
                         stroke="#003465"
                         strokeWidth="4"
                         strokeDasharray="301"
-                        strokeDashoffset={
+                        strokeDashoffset={Math.max(
+                          0,
                           301 -
-                          ((AverageData?.todayData?.value || 0) /
-                            (AverageData?.goals?.caloriesInGoals || 1)) *
-                          301
-                        }
+                            ((AverageData?.todayData?.value || 0) /
+                              (AverageData?.goals?.caloriesInGoals || 1)) *
+                              301
+                        )}
                         strokeLinecap="round"
                         transform="rotate(-90 60 60)"
                       />
