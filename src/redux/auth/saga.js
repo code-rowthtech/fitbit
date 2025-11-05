@@ -45,7 +45,6 @@ function* login({ payload: { username, password } }) {
       sessionStorage.setItem("fitbit_user", JSON.stringify(userData));
       setAuthorization(newToken);
 
-      // If token changed and user is already logged in, redirect to login
       if (currentToken && currentToken !== newToken) {
         window.location.href = "/login";
         return;
@@ -58,9 +57,6 @@ function* login({ payload: { username, password } }) {
     }
   } catch (error) {
     const errorMessage = error;
-    // error?.response?.data?.error ||
-    // error?.message ||
-    // "Network error occurred";
 
     yield put(authApiResponseError(AuthActionTypes.LOGIN_USER, errorMessage));
   }
@@ -84,7 +80,6 @@ function* logout() {
     // Clear authorization header
     setAuthorization(null);
   } catch (error) {
-    // Use utility function to clear auth data even on error
     clearAuthData();
     yield put(
       authApiResponseError(
