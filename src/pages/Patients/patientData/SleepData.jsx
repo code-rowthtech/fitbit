@@ -18,6 +18,8 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { getMasterData } from "../../../redux/notes/action";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
 import DurationCard from "./CardsData/DurationCard";
 import EfficiencyCard from "./CardsData/EfficiencyCard";
@@ -34,11 +36,16 @@ ChartJS.register(
 );
 
 const SleepData = ({ isExpanded, onExpand }) => {
+  const dispatch = useDispatch();
   const { id: pathId } = useParams();
   const [searchParams] = useSearchParams();
   const patientId =
     pathId || searchParams.get("id") || searchParams.get("patientId");
   const [isOpen, setIsOpen] = useState(true);
+  
+  // Get master data from Redux store
+  const masterDataState = useSelector((state) => state.getMasterDataReducer);
+  const fieldKey = 'SleepData';
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [expandedCard, setExpandedCard] = useState(null);
   const [activeTab, setActiveTab] = useState("Week");
@@ -51,6 +58,14 @@ const SleepData = ({ isExpanded, onExpand }) => {
     },
   ]);
   const datePickerRef = useRef(null);
+
+  // Call GET_MASTER_DATA API on component mount
+  useEffect(() => {
+    dispatch(getMasterData({ type: 'SleepData' }, fieldKey));
+  }, [dispatch]);
+
+  // Extract master data ID
+  const masterDataId = masterDataState?.data?.[fieldKey]?.masterData?._id;
 
   const formatDate = (date) => {
     if (!date) return null;
@@ -155,6 +170,7 @@ const SleepData = ({ isExpanded, onExpand }) => {
               {(!expandedCard || expandedCard === "sleepStages") && (
                 <SleepStagesCard
                   patientId={patientId}
+                  masterDataId={masterDataId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={activeTab}
@@ -169,6 +185,7 @@ const SleepData = ({ isExpanded, onExpand }) => {
               {(!expandedCard || expandedCard === "duration") && (
                 <DurationCard
                   patientId={patientId}
+                  masterDataId={masterDataId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={activeTab}
@@ -183,6 +200,7 @@ const SleepData = ({ isExpanded, onExpand }) => {
               {(!expandedCard || expandedCard === "efficiency") && (
                 <EfficiencyCard
                   patientId={patientId}
+                  masterDataId={masterDataId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={activeTab}
@@ -197,6 +215,7 @@ const SleepData = ({ isExpanded, onExpand }) => {
               {(!expandedCard || expandedCard === "awakenings") && (
                 <AwakeningsCard
                   patientId={patientId}
+                  masterDataId={masterDataId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={activeTab}

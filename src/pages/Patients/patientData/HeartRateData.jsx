@@ -11,8 +11,9 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams, useSearchParams } from "react-router-dom";
+import { getMasterData } from "../../../redux/notes/action";
 import RestingHeartRateCard from "./CardsData/RestingHeartRateCard";
 import ContinuousHeartRateCard from "./CardsData/ContinuousHeartRateCard";
 import WeightCard from "./CardsData/WeightCard";
@@ -33,6 +34,10 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
   const patientId =
     pathId || searchParams.get("id") || searchParams.get("patientId");
   const [isOpen, setIsOpen] = useState(true);
+  
+  // Get master data from Redux store
+  const masterDataState = useSelector((state) => state.getMasterDataReducer);
+  const fieldKey = 'HeartRateBodyMetrics';
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [expandedCard, setExpandedCard] = useState(null);
   const [heartRateActiveTab, setHeartRateActiveTab] = useState("Week");
@@ -47,6 +52,14 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
+
+  // Call GET_MASTER_DATA API on component mount
+  useEffect(() => {
+    dispatch(getMasterData({ type: 'HeartRateBodyMetrics' }, fieldKey));
+  }, [dispatch]);
+
+  // Extract master data ID
+  const masterDataId = masterDataState?.data?.[fieldKey]?.masterData?._id;
 
   const handleCardExpand = (cardType) => {
     if (expandedCard === cardType) {
@@ -124,6 +137,7 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
               {(!expandedCard || expandedCard === "restingHeartRate") && (
                 <RestingHeartRateCard
                   patientId={patientId}
+                  masterDataId={masterDataId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={heartRateActiveTab}
@@ -138,6 +152,7 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
               {(!expandedCard || expandedCard === "weight") && (
                 <WeightCard
                   patientId={patientId}
+                  masterDataId={masterDataId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={weightActiveTab}

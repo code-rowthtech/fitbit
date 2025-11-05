@@ -3,6 +3,8 @@ import CaloriesConsumed_Icon from "../../../assets/images/PatientDashboard/Calor
 import WaterIntake_Icon from "../../../assets/images/PatientDashboard/water intake.png";
 import WaterIntakeCard from "./CardsData/WaterIntakeCard";
 import { useParams, useSearchParams } from "react-router-dom";
+import { getMasterData } from "../../../redux/notes/action";
+import { useDispatch, useSelector } from "react-redux";
 import { IoCalendarClearOutline } from "react-icons/io5";
 import { Table } from "react-bootstrap";
 import { DateRangePicker } from "react-date-range";
@@ -32,11 +34,16 @@ ChartJS.register(
 );
 
 const NutritionData = ({ isExpanded, onExpand }) => {
+  const dispatch = useDispatch();
   const { id: pathId } = useParams();
   const [searchParams] = useSearchParams();
   const patientId =
     pathId || searchParams.get("id") || searchParams.get("patientId");
   const [isOpen, setIsOpen] = useState(true);
+  
+  // Get master data from Redux store
+  const masterDataState = useSelector((state) => state.getMasterDataReducer);
+  const fieldKey = 'NutritionData';
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [expandedCard, setExpandedCard] = useState(null);
   const [activeTab, setActiveTab] = useState("Week");
@@ -56,6 +63,14 @@ const NutritionData = ({ isExpanded, onExpand }) => {
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   };
+
+  // Call GET_MASTER_DATA API on component mount
+  useEffect(() => {
+    dispatch(getMasterData({ type: 'NutritionData' }, fieldKey));
+  }, [dispatch]);
+
+  // Extract master data ID
+  const masterDataId = masterDataState?.data?.[fieldKey]?.masterData?._id;
 
   const handleCardExpand = (cardType) => {
     if (expandedCard === cardType) {
@@ -152,6 +167,7 @@ const NutritionData = ({ isExpanded, onExpand }) => {
               {(!expandedCard || expandedCard === "calories") && (
                 <CaloriesConsumedCard
                   patientId={patientId}
+                  masterDataId={masterDataId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={activeTab}
@@ -166,6 +182,7 @@ const NutritionData = ({ isExpanded, onExpand }) => {
               {(!expandedCard || expandedCard === "water") && (
                 <WaterIntakeCard
                   patientId={patientId}
+                  masterDataId={masterDataId}
                   expandedCard={expandedCard}
                   onCardExpand={handleCardExpand}
                   activeTab={activeTab}

@@ -5,6 +5,9 @@ import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import { Line } from "react-chartjs-2";
 import { useDispatch, useSelector } from "react-redux";
 import { getPatientWeight } from "../../../../redux/patientsDashboard/action";
+import { getNotes } from "../../../../redux/notes/action";
+import { TbNotes } from "react-icons/tb";
+import NotesModal from "../../../../components/NotesModal";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -30,6 +33,7 @@ ChartJS.register(
 
 const WeightCard = ({
   patientId,
+  masterDataId,
   expandedCard,
   onCardExpand,
   activeTab,
@@ -42,6 +46,7 @@ const WeightCard = ({
   const [chartType, setChartType] = useState("weight");
   const [isNavigating, setIsNavigating] = useState(false);
   const [isTabSwitching, setIsTabSwitching] = useState(false);
+  const [showNotesModal, setShowNotesModal] = useState(false);
   const FilterData = useSelector(
     (state) => state?.getPatientWeight?.data?.response?.data
   );
@@ -55,6 +60,18 @@ const WeightCard = ({
 
   console.log(AverageData, "AverageData");
   const Loading = useSelector((state) => state?.getPatientWeight?.loading);
+
+  const fieldKey = "HeartRateBodyMetrics_Weight";
+  const notesData = useSelector((state) => state?.getNotesReducer?.data?.[fieldKey]?.notes || []);
+  const notesLoading = useSelector((state) => state?.getNotesReducer?.loading?.[fieldKey] || false);
+
+  // Fetch notes data
+  useEffect(() => {
+    if (patientId) {
+      const params = { patientId, page: 1, limit: 4, type: "HeartRateBodyMetrics", value: "Weight" };
+      dispatch(getNotes(params, fieldKey));
+    }
+  }, [dispatch, patientId, fieldKey]);
 
   // Reset loading states when data loading completes
   useEffect(() => {
@@ -524,6 +541,16 @@ const WeightCard = ({
           </span>
         </div>
         <div className="d-flex">
+          <TbNotes
+            title="Notes"
+            style={{
+              fontSize: "16px",
+              color: "#003465",
+              marginLeft: "6px",
+              cursor: "pointer",
+            }}
+            onClick={() => setShowNotesModal(true)}
+          />
           <IoIosExpand
             style={{
               fontSize: "16px",
@@ -701,8 +728,8 @@ const WeightCard = ({
                             chartType === "weight"
                               ? "Weight"
                               : chartType === "bmi"
-                              ? "BMI"
-                              : "Body Fat",
+                                ? "BMI"
+                                : "Body Fat",
                           data: chartData.data,
                           borderColor: "#003465",
                           backgroundColor: "rgba(0, 52, 101, 0.1)",
@@ -720,18 +747,18 @@ const WeightCard = ({
                       onClick:
                         activeTab === "Year"
                           ? (event, elements) => {
-                              if (elements.length > 0) {
-                                const dataIndex = elements[0].index;
-                                const monthIndex = dataIndex;
-                                const newDate = new Date(
-                                  currentDate.getFullYear(),
-                                  monthIndex,
-                                  1
-                                );
-                                onDateChange(newDate);
-                                handleTabChange("Month", newDate);
-                              }
+                            if (elements.length > 0) {
+                              const dataIndex = elements[0].index;
+                              const monthIndex = dataIndex;
+                              const newDate = new Date(
+                                currentDate.getFullYear(),
+                                monthIndex,
+                                1
+                              );
+                              onDateChange(newDate);
+                              handleTabChange("Month", newDate);
                             }
+                          }
                           : undefined,
                       plugins: {
                         legend: { display: false },
@@ -742,29 +769,29 @@ const WeightCard = ({
                                 chartType === "weight"
                                   ? "kg"
                                   : chartType === "bodyFat"
-                                  ? "%"
-                                  : "";
+                                    ? "%"
+                                    : "";
                               return `${context.parsed.y} ${unit}`;
                             },
                             afterBody:
                               activeTab === "Week" && WeightStatsData
                                 ? () => [
-                                    `Min: ${parseFloat(
-                                      WeightStatsData.min
-                                    ).toFixed(1)} kg`,
-                                    `Max: ${parseFloat(
-                                      WeightStatsData.max
-                                    ).toFixed(1)} kg`,
-                                  ]
+                                  `Min: ${parseFloat(
+                                    WeightStatsData.min
+                                  ).toFixed(1)} kg`,
+                                  `Max: ${parseFloat(
+                                    WeightStatsData.max
+                                  ).toFixed(1)} kg`,
+                                ]
                                 : activeTab === "Month" && FilterData
-                                ? (context) => {
+                                  ? (context) => {
                                     const dataIndex = context[0]?.dataIndex;
                                     return dataIndex !== undefined &&
                                       FilterData[dataIndex]
                                       ? [`Date: ${FilterData[dataIndex].date}`]
                                       : [];
                                   }
-                                : undefined,
+                                  : undefined,
                           },
                         },
                       },
@@ -779,17 +806,17 @@ const WeightCard = ({
                             activeTab === "Week" && WeightStatsData
                               ? Math.min(0, parseFloat(WeightStatsData.min) - 1)
                               : chartData.data.length > 0
-                              ? Math.min(...chartData.data) - 1
-                              : 0,
+                                ? Math.min(...chartData.data) - 1
+                                : 0,
                           max:
                             activeTab === "Week" && WeightStatsData
                               ? Math.max(
-                                  ...chartData.data,
-                                  parseFloat(WeightStatsData.max) + 1
-                                )
+                                ...chartData.data,
+                                parseFloat(WeightStatsData.max) + 1
+                              )
                               : chartData.data.length > 0
-                              ? Math.max(...chartData.data) + 1
-                              : 100,
+                                ? Math.max(...chartData.data) + 1
+                                : 100,
                           grid: { color: "#f0f0f0" },
                           ticks: { color: "#666", fontSize: 10 },
                         },
@@ -903,9 +930,8 @@ const WeightCard = ({
                     height: "24px",
                     backgroundColor:
                       isNextDisabled() || isNavigating ? "#f5f5f5" : "white",
-                    border: `1px solid ${
-                      isNextDisabled() || isNavigating ? "#ccc" : "#003465"
-                    }`,
+                    border: `1px solid ${isNextDisabled() || isNavigating ? "#ccc" : "#003465"
+                      }`,
                     borderRadius: "4px",
                     color:
                       isNextDisabled() || isNavigating ? "#ccc" : "#003465",
@@ -1071,14 +1097,13 @@ const WeightCard = ({
             </div>
           </div>
         ) : (
-          <div
-            className={`rounded-3 px-2 mt-1 pb-2 ${
-              Loading ? "placeholder-glow" : ""
-            }`}
-            style={{ backgroundColor: "#F8FBFF" }}
-          >
-            <div className="row">
-              <div className="col-8">
+          <div className="row g-2 mt-0">
+            <div className="col-6 mt-1">
+              <div
+                className={`rounded-3 px-2 pb-2 ${Loading ? "placeholder-glow" : ""
+                  }`}
+                style={{ backgroundColor: "#F8FBFF" }}
+              >
                 <div className="d-flex justify-content-center mb-2">
                   <div
                     className="position-relative"
@@ -1111,9 +1136,8 @@ const WeightCard = ({
                     </svg>
                     <div className="position-absolute top-50 start-50 translate-middle text-center">
                       <div
-                        className={`fw-bold ${
-                          Loading ? "placeholder rounded-1" : ""
-                        }`}
+                        className={`fw-bold ${Loading ? "placeholder rounded-1" : ""
+                          }`}
                         style={{ fontSize: "16px", color: "#003465" }}
                       >
                         {AverageData?.todayData?.value || 0}
@@ -1156,10 +1180,9 @@ const WeightCard = ({
                       }}
                     >
                       <div
-                        className={`fw-bold ${
-                          Loading ? "placeholder rounded-1" : ""
-                        }`}
-                        style={{ fontSize: "14px", color: "#003465" }}
+                        className={`fw-bold ${Loading ? "placeholder rounded-1" : ""
+                          }`}
+                        style={{ fontSize: "10px", color: "#003465" }}
                       >
                         {AverageData?.todayData?.value || "-"}kg
                       </div>
@@ -1183,10 +1206,9 @@ const WeightCard = ({
                       }}
                     >
                       <div
-                        className={`fw-bold ${
-                          Loading ? "placeholder rounded-1" : ""
-                        }`}
-                        style={{ fontSize: "14px", color: "#003465" }}
+                        className={`fw-bold ${Loading ? "placeholder rounded-1" : ""
+                          }`}
+                        style={{ fontSize: "10px", color: "#003465" }}
                       >
                         {AverageData?.goals?.weightGoal?.weight || "-"}kg
                       </div>
@@ -1210,10 +1232,9 @@ const WeightCard = ({
                       }}
                     >
                       <div
-                        className={`fw-bold ${
-                          Loading ? "placeholder rounded-1" : ""
-                        }`}
-                        style={{ fontSize: "14px", color: "#003465" }}
+                        className={`fw-bold ${Loading ? "placeholder rounded-1" : ""
+                          }`}
+                        style={{ fontSize: "10px", color: "#003465" }}
                       >
                         {AverageData?.todayData?.weightData?.bmi || "-"}
                       </div>
@@ -1237,10 +1258,9 @@ const WeightCard = ({
                       }}
                     >
                       <div
-                        className={`fw-bold ${
-                          Loading ? "placeholder rounded-1" : ""
-                        }`}
-                        style={{ fontSize: "14px", color: "#003465" }}
+                        className={`fw-bold ${Loading ? "placeholder rounded-1" : ""
+                          }`}
+                        style={{ fontSize: "10px", color: "#003465" }}
                       >
                         {AverageData?.todayData?.weightData?.bodyFat || "-"}%
                       </div>
@@ -1251,21 +1271,92 @@ const WeightCard = ({
                           fontWeight: "500",
                         }}
                       >
-                        Body Fat
+                        Fat
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
 
+            <div className="col-3 ps-0 mt-1">
               <div
-                className="col-4 px-1 pt-1"
-                style={{ borderLeft: "1px solid #ddd" }}
+                className="rounded-3 px-1 py-2"
+                style={{ backgroundColor: "#F8FBFF", height: "200px" }}
               >
                 <div
-                  className="mb-2 text-start"
+                  className="mb-2 d-flex justify-content-between align-items-center position-relative"
+                  style={{ fontSize: "12px", color: "#003465", fontWeight: "600" }}
+                >
+                  <span>Notes</span>
+                </div>
+                <div className="d-flex flex-column gap-1" style={{ maxHeight: "140px", overflowY: "auto" }}>
+                  {notesLoading ? (
+                    [...Array(3)].map((_, index) => (
+                      <div
+                        key={`skeleton-${index}`}
+                        className="px-1 py-0 placeholder-glow"
+                        style={{
+                          borderBottom: "1px solid #E8F2FF",
+                          fontSize: "9px",
+                        }}
+                      >
+                        <span className="placeholder rounded-1" style={{ width: "80%", height: "8px" }}></span>
+                      </div>
+                    ))
+                  ) : notesData.length > 0 ? (
+                    notesData.slice(0, 4).map((note, index) => (
+                      <div
+                        key={note._id || index}
+                        className="px-1 py-0"
+                        style={{
+                          borderBottom: "1px solid #E8F2FF",
+                          fontSize: "9px",
+                          color: "#666",
+                        }}
+                        title={note.title}
+                      >
+                        • {note.title.length > 30 ? `${note.title.substring(0, 30)}...` : note.title}
+                      </div>
+                    ))
+                  ) : (
+                    <div
+                      className="px-1 py-2 text-center"
+                      style={{
+                        fontSize: "9px",
+                        color: "#999",
+                      }}
+                    >
+                      No notes available
+                    </div>
+                  )}
+                </div>
+                {notesData.length > 0 && (
+                  <div className="text-end px-1 mt-1">
+                    <span
+                      style={{
+                        fontSize: "9px",
+                        color: "#003465",
+                        cursor: "pointer",
+                        textDecoration: "underline"
+                      }}
+                      onClick={() => setShowNotesModal(true)}
+                    >
+                      View All ({notesData.length})
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="col-3 ps-0 mt-1">
+              <div
+                className="rounded-3 px-1 py-2"
+                style={{ backgroundColor: "#F8FBFF", height: "200px" }}
+              >
+                <div
+                  className="mb-1 text-start"
                   style={{
-                    fontSize: "12px",
+                    fontSize: "11px",
                     fontWeight: "700",
                     color: "#003465",
                     letterSpacing: "0.5px",
@@ -1275,7 +1366,7 @@ const WeightCard = ({
                 </div>
 
                 <div
-                  className="p-3 mb-2 rounded-3 shadow-sm position-relative"
+                  className="p-2 mb-1 rounded-3 shadow-sm position-relative"
                   style={{
                     backgroundColor: "white",
                     border: "2px solid #E8F2FF",
@@ -1287,16 +1378,16 @@ const WeightCard = ({
                   ></div>
                   <div className="d-flex align-items-center mb-1">
                     <div
-                      className="rounded-circle me-2"
+                      className="rounded-circle me-1"
                       style={{
-                        width: "8px",
-                        height: "8px",
+                        width: "6px",
+                        height: "6px",
                         backgroundColor: "#003465",
                       }}
                     ></div>
                     <div
                       style={{
-                        fontSize: "11px",
+                        fontSize: "10px",
                         color: "#003465",
                         fontWeight: "600",
                       }}
@@ -1306,20 +1397,19 @@ const WeightCard = ({
                   </div>
                   <div
                     style={{
-                      fontSize: "10px",
+                      fontSize: "9px",
                       color: "#003465",
                       fontWeight: "500",
-                      lineHeight: "1.3",
+                      lineHeight: "1.2",
                     }}
                   >
-                    {" "}
                     <span className="fw-bold">
                       {AverageData?.todayData?.value &&
-                      AverageData?.goals?.weightGoal?.startWeight
+                        AverageData?.goals?.weightGoal?.startWeight
                         ? Math.abs(
-                            AverageData.todayData.value -
-                              AverageData.goals.weightGoal.startWeight
-                          ).toFixed(1)
+                          AverageData.todayData.value -
+                          AverageData.goals.weightGoal.startWeight
+                        ).toFixed(1)
                         : 0}
                       kg
                     </span>{" "}
@@ -1327,18 +1417,18 @@ const WeightCard = ({
                     <span>
                       {AverageData?.goals?.weightGoal?.startDate
                         ? new Date(
-                            AverageData.goals.weightGoal.startDate
-                          ).toLocaleDateString("en-GB", {
-                            day: "2-digit",
-                            month: "2-digit",
-                          })
+                          AverageData.goals.weightGoal.startDate
+                        ).toLocaleDateString("en-GB", {
+                          day: "2-digit",
+                          month: "2-digit",
+                        })
                         : "-"}
                     </span>
                   </div>
                 </div>
 
                 <div
-                  className="p-3 rounded-3 shadow-sm position-relative"
+                  className="p-2 rounded-3 shadow-sm position-relative"
                   style={{
                     backgroundColor: "white",
                     border: "2px solid #E8F2FF",
@@ -1350,16 +1440,16 @@ const WeightCard = ({
                   ></div>
                   <div className="d-flex align-items-center mb-1">
                     <div
-                      className="rounded-circle me-2"
+                      className="rounded-circle me-1"
                       style={{
-                        width: "8px",
-                        height: "8px",
+                        width: "6px",
+                        height: "6px",
                         backgroundColor: "#003465",
                       }}
                     ></div>
                     <div
                       style={{
-                        fontSize: "11px",
+                        fontSize: "10px",
                         color: "#003465",
                         fontWeight: "600",
                       }}
@@ -1369,19 +1459,19 @@ const WeightCard = ({
                   </div>
                   <div
                     style={{
-                      fontSize: "10px",
+                      fontSize: "9px",
                       color: "#003465",
                       fontWeight: "500",
-                      lineHeight: "1.3",
+                      lineHeight: "1.2",
                     }}
                   >
                     <span className="fw-bold">
                       {AverageData?.todayData?.value &&
-                      AverageData?.goals?.weightGoal?.weight
+                        AverageData?.goals?.weightGoal?.weight
                         ? Math.abs(
-                            AverageData.goals.weightGoal.weight -
-                              AverageData.todayData.value
-                          ).toFixed(1)
+                          AverageData.goals.weightGoal.weight -
+                          AverageData.todayData.value
+                        ).toFixed(1)
                         : 0}
                       kg
                     </span>{" "}
@@ -1393,6 +1483,16 @@ const WeightCard = ({
           </div>
         )}
       </div>
+
+      <NotesModal
+        show={showNotesModal}
+        onHide={() => setShowNotesModal(false)}
+        patientId={patientId}
+        masterDataId={masterDataId}
+        title="Weight Notes"
+        type="HeartRateBodyMetrics"
+        value="Weight"
+      />
     </div>
   );
 };
