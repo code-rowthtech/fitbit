@@ -82,6 +82,9 @@ const NotesModal = ({ show, onHide, patientId, title = "Notes", type, value, mas
     dispatch,
     patientId,
     currentPage,
+    type,
+    value,
+    fieldKey,
   ]);
 
   const handleAddNote = () => {

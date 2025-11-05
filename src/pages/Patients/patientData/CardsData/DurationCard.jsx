@@ -556,6 +556,9 @@ const DurationCard = ({
   const fieldKey = "SleepData_SleepDuration";
   const notesData = useSelector((state) => state?.getNotesReducer?.data?.[fieldKey]?.notes || []);
   const notesLoading = useSelector((state) => state?.getNotesReducer?.loading?.[fieldKey] || false);
+  const addNotesResponse = useSelector((state) => state?.addNotesReducer?.data?.status);
+  const updateNotesResponse = useSelector((state) => state?.updateNotesReducer?.data?.status);
+  const deleteNotesResponse = useSelector((state) => state?.deleteNotesReducer?.data?.status);
 
   // Reset loading states when data loading completes
   useEffect(() => {
@@ -571,7 +574,7 @@ const DurationCard = ({
       const params = { patientId, page: 1, limit: 4, type: "SleepData", value: "SleepDuration" };
       dispatch(getNotes(params, fieldKey));
     }
-  }, [dispatch, patientId, fieldKey]);
+  }, [dispatch, patientId, fieldKey, addNotesResponse, updateNotesResponse, deleteNotesResponse]);
 
   // console.log(AverageData, "AverageData");
 
@@ -1692,7 +1695,7 @@ const DurationCard = ({
                       }}
                       onClick={() => setShowNotesModal(true)}
                     >
-                      View All ({notesData.length})
+                      View All  
                     </span>
                   </div>
                 )}
