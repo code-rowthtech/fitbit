@@ -61,17 +61,7 @@ const PatientDashboard = () => {
       window.removeEventListener("createPatient", handleCreatePatientEvent);
   }, []);
 
-  const patientData = {
-    profileImage: "https://via.placeholder.com/80x80/52C3BF/ffffff?text=JP",
-    fullName: "John Peterson",
-    age: 32,
-    dateOfBirth: "1992-03-15",
-    gender: "Male",
-    height: "5'10\"",
-    weight: "75 kg",
-    memberSince: "Jan 2023",
-    timeZone: "EST (UTC-5)",
-  };
+ 
 
   if (patientId === "undefined") {
     return (
@@ -115,7 +105,6 @@ const PatientDashboard = () => {
         <div className="row justify-content-center">
           <div className="col-lg-12 col-md-12 mb-1">
             <PatientReport
-              patientData={patientData}
               isExpanded={expandedReport}
               onExpand={handleReportExpand}
             />
