@@ -1027,7 +1027,7 @@ const DurationCard = ({
                       labels: chartData.labels,
                       datasets: [
                         {
-                          data: chartData.data,
+                          data: chartData.data.map(minutes => minutes / 60),
                           backgroundColor: "#003465",
                           borderRadius: 3,
                           barThickness: 15,
@@ -1046,7 +1046,7 @@ const DurationCard = ({
                         },
                         y: {
                           beginAtZero: true,
-                          max: 5,
+                          max: 10,
                           grid: { color: "#f0f0f0" },
                           ticks: { color: "#666", fontSize: 10 },
                         },
@@ -1679,7 +1679,7 @@ const DurationCard = ({
                       }}
                       onClick={() => setShowNotesModal(true)}
                     >
-                      View All  
+                      View All
                     </span>
                   </div>
                 )}
@@ -1688,7 +1688,7 @@ const DurationCard = ({
           </div>
         )}
       </div>
-      
+
       <NotesModal
         show={showNotesModal}
         onHide={() => setShowNotesModal(false)}
@@ -1700,8 +1700,8 @@ const DurationCard = ({
       />
     </div>
   );
-        
+
 };
 
 
-        export default DurationCard;
+export default DurationCard;

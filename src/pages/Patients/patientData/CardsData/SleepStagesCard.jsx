@@ -1036,7 +1036,7 @@ const SleepStagesCard = ({
                       labels: chartData.labels,
                       datasets: [
                         {
-                          data: chartData.data,
+                          data: chartData.data.map(minutes => minutes / 60),
                           backgroundColor: "#003465",
                           borderRadius: 3,
                           barThickness: 15,
@@ -1055,7 +1055,7 @@ const SleepStagesCard = ({
                         },
                         y: {
                           beginAtZero: true,
-                          max: 5,
+                          max: 10,
                           grid: { color: "#f0f0f0" },
                           ticks: { color: "#666", fontSize: 10 },
                         },

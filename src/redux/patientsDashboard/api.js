@@ -1,5 +1,6 @@
 import * as URL from "../../constants/endpoint";
 import { APICore } from "../../helpers/api/apiCore";
+import axios from "axios";
 const api = new APICore();
 
 export function getPatientProfileApi(data) {
@@ -79,9 +80,8 @@ export function getPatientDevicesApi(data) {
 }
 
 export function getPatientGpsTrackingApi(data) {
-  return api.get(
-    URL.PATIENT_GPS_TRACKING.replace(":logId", data.payload.logId)
-  );
+  const url = `${URL.PATIENT_GPS_TRACKING}/${data.payload.logId}?userId=${data.payload.userId}`;
+  return api.get(url);
 }
 
 export function connectToFitbitApi(data) {
