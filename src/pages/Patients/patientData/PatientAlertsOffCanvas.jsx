@@ -137,6 +137,8 @@ const PatientAlertsOffCanvas = ({ show, onHide }) => {
         return <FaInfoCircle className="text-info" />;
       case "low":
         return <FaCheckCircle className="text-success" />;
+         case "info":
+        return <FaCheckCircle className="text-success" />;
       default:
         return <FaBell className="text-secondary" />;
     }
@@ -157,7 +159,7 @@ const PatientAlertsOffCanvas = ({ show, onHide }) => {
     }
   };
 
-  const displayAlerts = alerts.length > 0 ? alerts : mockAlerts;
+  const displayAlerts = alerts.length > 0 ? alerts : [];
 
   return (
     <>
@@ -194,11 +196,13 @@ const PatientAlertsOffCanvas = ({ show, onHide }) => {
             >
               <FaBell size={18} />
               {PatientData?.firstName} {PatientData?.lastName}
-              {alertsData?.data?.total && (
+              {alertsData?.data?.total > 0 && (
                 <span
                   style={{ fontSize: "12px", fontWeight: "400", color: "#666" }}
                 >
-                  ({alertsData.data.total})
+                  
+                  ({alertsData?.data?.total})
+
                 </span>
               )}
             </Offcanvas.Title>
@@ -293,7 +297,7 @@ const PatientAlertsOffCanvas = ({ show, onHide }) => {
                   >
                     Filter by Severity
                   </div>
-                  {["critical", "high", "medium", "low"].map((severity) => {
+                  {["critical", "high", "medium", "low","info"].map((severity) => {
                     const colors = getSeverityColor(severity);
                     const isSelected = severityFilter.includes(severity);
                     return (
