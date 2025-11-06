@@ -128,7 +128,7 @@ const FitbitSuccess = () => {
             We can now view your daily health data and receive personalized
             insights.
           </p>
-          <button
+          {/* <button
             className="close-button"
             style={styles.button}
             onClick={() => {
@@ -142,7 +142,7 @@ const FitbitSuccess = () => {
           <p style={styles.countdown}>
             This window will automatically close in <span>{countdown}</span>{" "}
             seconds
-          </p>
+          </p> */}
         </div>
       </div>
     </>
