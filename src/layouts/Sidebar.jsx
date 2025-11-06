@@ -195,23 +195,39 @@ const Sidebar = () => {
                   <span className="visually-hidden">Loading...</span>
                 </div>
               </div>
-            ) : PatientData?.length === 0 ? (
-              <div className="text-center p-3">
-                <span className="text-white" style={{ fontSize: "12px" }}>
-                  No patients found
-                </span>
-              </div>
-            ) : (
-              PatientData?.filter((patient) => {
-                const fullName =
-                  `${patient.firstName} ${patient.lastName}`.toLowerCase();
-                return (
-                  fullName.includes(searchTerm.toLowerCase()) ||
-                  patient.email
-                    ?.toLowerCase()
-                    .includes(searchTerm.toLowerCase())
-                );
-              }).map((patient) => (
+            ) : (() => {
+                const filteredPatients = PatientData?.filter((patient) => {
+                  const fullName =
+                    `${patient.firstName} ${patient.lastName}`.toLowerCase();
+                  return (
+                    fullName.includes(searchTerm.toLowerCase()) ||
+                    patient.email
+                      ?.toLowerCase()
+                      .includes(searchTerm.toLowerCase())
+                  );
+                });
+
+                if (PatientData?.length === 0) {
+                  return (
+                    <div className="text-center p-3">
+                      <span className="text-white" style={{ fontSize: "12px" }}>
+                        No patients found
+                      </span>
+                    </div>
+                  );
+                }
+
+                if (searchTerm && filteredPatients?.length === 0) {
+                  return (
+                    <div className="text-center p-3">
+                      <span className="text-white" style={{ fontSize: "12px" }}>
+                        No patient found for "{searchTerm}"
+                      </span>
+                    </div>
+                  );
+                }
+
+                return filteredPatients?.map((patient) => (
                 <div
                   key={patient._id}
                   className={`d-flex align-items-center p-2 patient-item ${
@@ -276,8 +292,8 @@ const Sidebar = () => {
                     </p>
                   </div>
                 </div>
-              ))
-            )}
+                ))
+              })()}
           </div>
         </div>
       </div>

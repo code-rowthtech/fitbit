@@ -897,6 +897,7 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                         validFormat: (value) => {
                           const digits = value?.replace(/[^0-9]/g, "") || "";
                           const phoneDigits = digits.substring(2);
+                          if (phoneDigits.length === 0) return true;
                           if (phoneDigits.length !== 10) {
                             return "Phone number must be exactly 10 digits";
                           }
