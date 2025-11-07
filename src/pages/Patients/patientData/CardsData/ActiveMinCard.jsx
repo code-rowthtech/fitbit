@@ -34,7 +34,7 @@ const ActiveMinCard = ({
     (state) => state?.getPatientActiveMin?.data?.response
   );
   const Loading = useSelector((state) => state?.getPatientActiveMin?.loading);
-  
+
   const fieldKey = "ActivityData_ActiveZoneMinutes";
   const notesData = useSelector((state) => state?.getNotesReducer?.data?.[fieldKey]?.notes || []);
   const notesLoading = useSelector((state) => state?.getNotesReducer?.loading?.[fieldKey] || false);
@@ -101,16 +101,11 @@ const ActiveMinCard = ({
         start: formatDate(start),
         end: formatDate(end),
         field: "activeZoneMinutes",
-        // period: "year", // Default period
       };
-      // if (activeTab === "Month")
       if (activeTab === "Year")
-        // payload.period = "month";
         payload.period = "year";
-      // console.log("Dispatching getPatientActiveMin with payload:", payload);
       dispatch(getPatientActiveMin(payload));
     } else {
-      // console.log("patientId is missing, API call skipped");
     }
   }, [patientId, currentDate, activeTab, dispatch, formatDate]);
 
@@ -274,7 +269,7 @@ const ActiveMinCard = ({
           newDate.getFullYear() + (direction === "next" ? 1 : -1)
         );
         break;
-    } 
+    }
 
     onDateChange(newDate);
 
@@ -308,7 +303,6 @@ const ActiveMinCard = ({
           start: formatDate(start),
           end: formatDate(end),
           field: "activeZoneMinutes",
-          // period: "year", // Default period
         };
         if (activeTab === "Year") payload.period = "year";
         dispatch(getPatientActiveMin(payload));
@@ -564,24 +558,24 @@ const ActiveMinCard = ({
                             afterBody:
                               activeTab === "Week" && ActiveMinStatsData
                                 ? () => [
-                                    `Min: ${parseInt(
-                                      ActiveMinStatsData.min
-                                    )} mins`,
-                                    `Max: ${parseInt(
-                                      ActiveMinStatsData.max
-                                    )} mins`,
-                                  ]
+                                  `Min: ${parseInt(
+                                    ActiveMinStatsData.min
+                                  )} mins`,
+                                  `Max: ${parseInt(
+                                    ActiveMinStatsData.max
+                                  )} mins`,
+                                ]
                                 : activeTab === "Month" && ActiveMinData
-                                ? (context) => {
+                                  ? (context) => {
                                     const dataIndex = context[0]?.dataIndex;
                                     return dataIndex !== undefined &&
                                       ActiveMinData[dataIndex]
                                       ? [
-                                          // `Days: ${ActiveMinData[dataIndex].dayRange}`,
-                                        ]
+                                        // `Days: ${ActiveMinData[dataIndex].dayRange}`,
+                                      ]
                                       : [];
                                   }
-                                : undefined,
+                                  : undefined,
                           },
                         },
                       },
@@ -595,16 +589,16 @@ const ActiveMinCard = ({
                           min:
                             activeTab === "Week" && ActiveMinStatsData
                               ? Math.min(
-                                  0,
-                                  parseInt(ActiveMinStatsData.min) - 5
-                                )
+                                0,
+                                parseInt(ActiveMinStatsData.min) - 5
+                              )
                               : 0,
                           max:
                             activeTab === "Week" && ActiveMinStatsData
                               ? Math.max(
-                                  ...chartData.data,
-                                  parseInt(ActiveMinStatsData.max) + 5
-                                )
+                                ...chartData.data,
+                                parseInt(ActiveMinStatsData.max) + 5
+                              )
                               : undefined,
                           grid: { color: "#f0f0f0" },
                           ticks: { color: "#666", fontSize: 10 },
@@ -614,43 +608,43 @@ const ActiveMinCard = ({
                       onHover:
                         activeTab === "Week" && ActiveMinStatsData
                           ? (event, elements, chart) => {
-                              const ctx = chart.ctx;
-                              const chartArea = chart.chartArea;
+                            const ctx = chart.ctx;
+                            const chartArea = chart.chartArea;
 
-                              if (chartArea) {
-                                const yScale = chart.scales.y;
-                                const minY = yScale.getPixelForValue(
-                                  parseInt(ActiveMinStatsData.min)
-                                );
-                                const maxY = yScale.getPixelForValue(
-                                  parseInt(ActiveMinStatsData.max)
-                                );
+                            if (chartArea) {
+                              const yScale = chart.scales.y;
+                              const minY = yScale.getPixelForValue(
+                                parseInt(ActiveMinStatsData.min)
+                              );
+                              const maxY = yScale.getPixelForValue(
+                                parseInt(ActiveMinStatsData.max)
+                              );
 
-                                // Draw min line
-                                ctx.save();
-                                ctx.strokeStyle = "#ff6b6b";
-                                ctx.lineWidth = 1;
-                                ctx.setLineDash([5, 5]);
-                                ctx.beginPath();
-                                ctx.moveTo(chartArea.left, minY);
-                                ctx.lineTo(chartArea.right, minY);
-                                ctx.stroke();
+                              // Draw min line
+                              ctx.save();
+                              ctx.strokeStyle = "#ff6b6b";
+                              ctx.lineWidth = 1;
+                              ctx.setLineDash([5, 5]);
+                              ctx.beginPath();
+                              ctx.moveTo(chartArea.left, minY);
+                              ctx.lineTo(chartArea.right, minY);
+                              ctx.stroke();
 
-                                // Draw max line
-                                ctx.strokeStyle = "#51cf66";
-                                ctx.beginPath();
-                                ctx.moveTo(chartArea.left, maxY);
-                                ctx.lineTo(chartArea.right, maxY);
-                                ctx.stroke();
-                                ctx.restore();
-                              }
+                              // Draw max line
+                              ctx.strokeStyle = "#51cf66";
+                              ctx.beginPath();
+                              ctx.moveTo(chartArea.left, maxY);
+                              ctx.lineTo(chartArea.right, maxY);
+                              ctx.stroke();
+                              ctx.restore();
                             }
+                          }
                           : activeTab === "Year" || activeTab === "Month"
-                          ? (event, elements, chart) => {
+                            ? (event, elements, chart) => {
                               chart.canvas.style.cursor =
                                 elements.length > 0 ? "pointer" : "default";
                             }
-                          : undefined,
+                            : undefined,
                     }}
                   />
                 )}
@@ -760,9 +754,8 @@ const ActiveMinCard = ({
                     height: "24px",
                     backgroundColor:
                       isNextDisabled() || isNavigating ? "#f5f5f5" : "white",
-                    border: `1px solid ${
-                      isNextDisabled() || isNavigating ? "#ccc" : "#003465"
-                    }`,
+                    border: `1px solid ${isNextDisabled() || isNavigating ? "#ccc" : "#003465"
+                      }`,
                     borderRadius: "4px",
                     color:
                       isNextDisabled() || isNavigating ? "#ccc" : "#003465",
@@ -888,17 +881,17 @@ const ActiveMinCard = ({
                       onClick={
                         activeTab === "Year"
                           ? () => {
-                              const monthIndex = index;
-                              const newDate = new Date(
-                                currentDate.getFullYear(),
-                                monthIndex,
-                                1
-                              );
-                              onDateChange(newDate);
-                              handleTabChange("Month", newDate);
-                            }
+                            const monthIndex = index;
+                            const newDate = new Date(
+                              currentDate.getFullYear(),
+                              monthIndex,
+                              1
+                            );
+                            onDateChange(newDate);
+                            handleTabChange("Month", newDate);
+                          }
                           : activeTab === "Month"
-                          ? () => {
+                            ? () => {
                               const dayNumber = index + 1;
                               const newDate = new Date(
                                 currentDate.getFullYear(),
@@ -908,20 +901,20 @@ const ActiveMinCard = ({
                               onDateChange(newDate);
                               handleTabChange("Day", newDate);
                             }
-                          : undefined
+                            : undefined
                       }
                       onMouseEnter={
                         activeTab === "Year" || activeTab === "Month"
                           ? (e) => {
-                              e.target.style.backgroundColor = "#F0F7FF";
-                            }
+                            e.target.style.backgroundColor = "#F0F7FF";
+                          }
                           : undefined
                       }
                       onMouseLeave={
                         activeTab === "Year" || activeTab === "Month"
                           ? (e) => {
-                              e.target.style.backgroundColor = "white";
-                            }
+                            e.target.style.backgroundColor = "white";
+                          }
                           : undefined
                       }
                     >
@@ -945,9 +938,8 @@ const ActiveMinCard = ({
             {/* Current Section - col-8 */}
             <div className="col-8 mt-1">
               <div
-                className={`rounded-3 px-2 d-flex flex-column ${
-                  Loading ? "placeholder-glow" : ""
-                }`}
+                className={`rounded-3 px-2 d-flex flex-column ${Loading ? "placeholder-glow" : ""
+                  }`}
                 style={{ backgroundColor: "#F8FBFF", height: "200px" }}
               >
                 <div className="d-flex justify-content-center my-2">
@@ -986,20 +978,19 @@ const ActiveMinCard = ({
                     </svg>
                     <div className="position-absolute top-50 start-50 translate-middle text-center">
                       <div
-                        className={`fw-bold ${
-                          Loading ? "placeholder rounded-1" : ""
-                        }`}
+                        className={`fw-bold ${Loading ? "placeholder rounded-1" : ""
+                          }`}
                         style={{ fontSize: "14px", color: "#003465" }}
                       >
                         {AverageData?.goals?.activeMinutes > 0
                           ? Math.min(
-                              Math.round(
-                                ((AverageData?.todayData?.value || 0) /
-                                  AverageData.goals.activeMinutes) *
-                                100
-                              ),
+                            Math.round(
+                              ((AverageData?.todayData?.value || 0) /
+                                AverageData.goals.activeMinutes) *
                               100
-                            )
+                            ),
+                            100
+                          )
                           : 0}
                         %
                       </div>
@@ -1024,9 +1015,9 @@ const ActiveMinCard = ({
                     {AverageData?.goals?.activeMinutes &&
                       AverageData?.todayData?.value !== undefined
                       ? Math.max(
-                          0,
-                          AverageData.goals.activeMinutes - AverageData.todayData.value
-                        )
+                        0,
+                        AverageData.goals.activeMinutes - AverageData.todayData.value
+                      )
                       : 0}{" "}
                     mins to reach daily goal
                   </p>
@@ -1042,9 +1033,8 @@ const ActiveMinCard = ({
                       }}
                     >
                       <div
-                        className={`fw-bold ${
-                          Loading ? "placeholder rounded-1" : ""
-                        }`}
+                        className={`fw-bold ${Loading ? "placeholder rounded-1" : ""
+                          }`}
                         style={{ fontSize: "12px", color: "#003465" }}
                       >
                         {AverageData?.todayData?.value || "-"}
@@ -1069,9 +1059,8 @@ const ActiveMinCard = ({
                       }}
                     >
                       <div
-                        className={`fw-bold ${
-                          Loading ? "placeholder rounded-1" : ""
-                        }`}
+                        className={`fw-bold ${Loading ? "placeholder rounded-1" : ""
+                          }`}
                         style={{ fontSize: "12px", color: "#003465" }}
                       >
                         {AverageData?.goals?.activeMinutes || "-"}

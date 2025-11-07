@@ -8,7 +8,6 @@ import {
   IoChevronDown,
   IoChevronUp,
 } from "react-icons/io5";
-import { TbMapUp } from "react-icons/tb";
 import { Bar } from "react-chartjs-2";
 import GPSMapView from "../../../../components/GPSMapView";
 import { useDispatch, useSelector } from "react-redux";
@@ -46,7 +45,6 @@ const GPSTrackingCard = ({
     (state) => state?.getExerciseSessions?.data?.response?.currentWeekData
 
   );
-  console.log(TodayExerciseData, 'TodayExerciseData')
   const ExerciseLoading = useSelector((state) => state?.getExerciseSessions?.loading);
 
   const fieldKey = "ExerciseData_Gps-Tracking";

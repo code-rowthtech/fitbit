@@ -101,10 +101,6 @@ const Patients = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleCreatePatient = () => {
-    setShowCreateModal(true);
-  };
-
   useEffect(() => {
     if (CreateResponse === 201 || UpdateResponse === 200) {
       const params = { page: currentPage, limit: 20 };
@@ -141,12 +137,6 @@ const Patients = () => {
 
   const handlePaginationChange = (page) => {
     setCurrentPage(page);
-  };
-
-  const getStatusBadge = (isActive) => {
-    return isActive
-      ? "badge badge-active"
-      : "badge bg-secondary-subtle text-secondary";
   };
 
   const handleStatusToggle = (patient) => {

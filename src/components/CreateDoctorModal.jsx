@@ -151,22 +151,6 @@ const CreateDoctorModal = ({ show, onHide }) => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validate file type
-      // const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-      // if (!allowedTypes.includes(file.type)) {
-      //   toast.error('Only image files (.png, .jpg, .jpeg, .gif, .webp) are allowed');
-      //   e.target.value = '';
-      //   return;
-      // }
-
-      // Validate file size (5MB limit)
-      // const maxSize = 5 * 1024 * 1024; // 5MB
-      // if (file.size > maxSize) {
-      //   toast.error('File size must be less than 5MB');
-      //   e.target.value = '';
-      //   return;
-      // }
-
       setSelectedImage(file);
     } else {
       setSelectedImage(null);
@@ -921,7 +905,6 @@ const CreateDoctorModal = ({ show, onHide }) => {
                       {...register("gender")}
                     />
                   </div>
-                  {/* {errors.gender && <span className="text-danger" style={{ fontSize: '10px' }}>{errors.gender.message}</span>} */}
                 </Form.Group>
               </Col>
             </Row>
@@ -1131,19 +1114,6 @@ const CreateDoctorModal = ({ show, onHide }) => {
                   />
                 </Form.Group>
               </Col>
-              {/* <Col md={6}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Fees</Form.Label>
-                                    <Form.Control
-                                        style={{ fontSize: '12px', backgroundColor: '#F9FAFB' }}
-                                        className='py-3'
-                                        type="text"
-                                        placeholder="Enter Consultation Fees"
-                                        autoComplete="off"
-                                        {...register('fees')}
-                                    />
-                                </Form.Group>
-                            </Col> */}
               <Col md={12}>
                 <h4
                   className="fw-bold mb-3 mt-2"
@@ -1338,19 +1308,6 @@ const CreateDoctorModal = ({ show, onHide }) => {
                   />
                 </Form.Group>
               </Col>
-              {/* <Col md={6}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Fitbit ID</Form.Label>
-                                    <Form.Control
-                                        style={{ fontSize: '12px', backgroundColor: '#F9FAFB' }}
-                                        className='py-3'
-                                        type="text"
-                                        placeholder="Enter ID"
-                                        autoComplete="off"
-                                        {...register('fitbitId')}
-                                    />
-                                </Form.Group>
-                            </Col> */}
               <Col md={6}>
                 <Form.Group className="mb-3">
                   <Form.Label

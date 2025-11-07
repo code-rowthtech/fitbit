@@ -4,7 +4,6 @@ import { getMenuItems } from '../components/Routes';
 import { IoLogOutOutline, IoPersonOutline } from 'react-icons/io5';
 import fitbit_logo from '../assets/images/fitbit logo 2.png'
 import { useDispatch, useSelector } from 'react-redux';
-import { logoutUser } from '../redux/auth/actions';
 import { LuCirclePlus } from "react-icons/lu";
 import { useEffect, useState } from 'react';
 import { getAllPatients, getSingleDoctor } from '../redux/actions';
@@ -30,9 +29,7 @@ const TopBar = () => {
   const [showUpdateDoctorModal, setShowUpdateDoctorModal] = useState(false)
 
   const handleCreatePatient = () => {
-    // This will be handled by the parent component or context
-    // const event = new CustomEvent('createPatient');
-    // window.dispatchEvent(event);
+  
     setShowCreateModal(true)
   };
 
@@ -46,8 +43,9 @@ const TopBar = () => {
   };
 
   const confirmLogout = () => {
-    dispatch(logoutUser());
     setShowLogoutModal(false);
+    localStorage.clear();
+    navigate('/login');
   };
 
   const handleProfileClick = () => {

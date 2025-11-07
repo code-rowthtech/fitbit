@@ -10,7 +10,6 @@ import { FiPhone } from "react-icons/fi";
 import { MdOutlineMailOutline } from "react-icons/md";
 import { GrLocation } from "react-icons/gr";
 import { TbUserEdit, TbRefresh } from "react-icons/tb";
-import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import UpdatePatientModal from "../../../components/UpdatePatientModal";
 import stepsIcon from "../../../assets/images/PatientDashboard/Steps.png";
 import heartRateIcon from "../../../assets/images/PatientDashboard/heart rate.png";
@@ -93,16 +92,6 @@ const PatientDetails = ({
     }
   }, [UpdateResponse]);
 
-  // useEffect(() => {
-  //   dispatch(getPatientProfile())
-  // }, [dispatch]);
-
-  // useEffect(() => {
-  //   if (id) {
-  //     dispatch(getPatientProfile({ id: id }))
-  //   }
-  // }, [id]);
-
   useEffect(() => {
     if (ConnectionStatus === true) {
       dispatch(getPatientById(id));
@@ -125,8 +114,6 @@ const PatientDetails = ({
       className="pb-1"
       style={{
         backgroundColor: "white",
-        // border: '1px solid #e9ecef',
-        // borderBottom: 'none',
         borderTopLeftRadius: "10px",
         borderTopRightRadius: "10px",
       }}
@@ -154,7 +141,6 @@ const PatientDetails = ({
                     }`}
                 >
                   {tab}
-                  {/* <span className="patient-tab-arrow"><FaChevronDown /></span> */}
                 </div>
               </div>
             ))}
@@ -308,9 +294,6 @@ const PatientDetails = ({
                       transition: "all 0.2s ease",
                       pointerEvents: "auto",
                     }}
-                    // onMouseEnter={(e) => {
-                    //   e.target.style.backgroundColor = "#E0ECF8";
-                    // }}
                     onMouseLeave={(e) => {
                       e.target.style.backgroundColor = "transparent";
                     }}

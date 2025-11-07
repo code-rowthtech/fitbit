@@ -1205,7 +1205,7 @@ const DistanceCard = ({
                       }}
                       onClick={() => setShowNotesModal(true)}
                     >
-                      View All  
+                      View All
                     </span>
                   </div>
                 )}

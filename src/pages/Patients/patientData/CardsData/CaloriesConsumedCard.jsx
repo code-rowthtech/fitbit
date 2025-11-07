@@ -35,11 +35,9 @@ const CaloriesConsumedCard = ({
   const AverageData = useSelector(
     (state) => state?.getPatientCaloriesConsumed?.data?.response
   );
-
   const Loading = useSelector(
     (state) => state?.getPatientCaloriesConsumed?.loading
   );
-
   const fieldKey = "NutritionData_CaloriesConsumed";
   const notesData = useSelector((state) => state?.getNotesReducer?.data?.[fieldKey]?.notes || []);
   const notesLoading = useSelector((state) => state?.getNotesReducer?.loading?.[fieldKey] || false);
@@ -110,11 +108,6 @@ const CaloriesConsumedCard = ({
       return parseFloat(value.replace(" cal", ""));
     }
     return value;
-  };
-
-  // Get daily goal
-  const getDailyGoal = () => {
-    return 2200; // Use 2200 cal as default goal
   };
 
   // Get chart data based on API response
