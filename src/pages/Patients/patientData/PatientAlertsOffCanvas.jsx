@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Offcanvas, Form } from "react-bootstrap";
+import { Offcanvas } from "react-bootstrap";
 import {
   FaBell,
   FaExclamationTriangle,
@@ -21,7 +21,6 @@ const PatientAlertsOffCanvas = ({ show, onHide }) => {
   const [searchParams] = useSearchParams();
   const patientId =
     pathId || searchParams.get("id") || searchParams.get("patientId");
-  const Store = useSelector((state) => state);
 
   const PatientData = useSelector(
     (state) => state?.getPatientByIdReducer?.data?.data?.patient
@@ -29,37 +28,6 @@ const PatientAlertsOffCanvas = ({ show, onHide }) => {
 
   const alertsData = useSelector((state) => state?.getAlertsReducer);
   const alerts = alertsData?.data?.data || [];
-
-  const [mockAlerts] = useState([
-    {
-      _id: "1",
-      title: "High Heart Rate Alert",
-      message: "Patient's heart rate exceeded 120 BPM during exercise session",
-      severity: "High",
-      isRead: false,
-      createdAt: new Date().toISOString(),
-      createdBy: { firstName: "Dr. John", lastName: "Smith" },
-    },
-    {
-      _id: "2",
-      title: "Low Sleep Duration",
-      message:
-        "Patient slept only 4 hours last night, below recommended 7-8 hours",
-      severity: "Medium",
-      isRead: true,
-      createdAt: new Date(Date.now() - 86400000).toISOString(),
-      createdBy: { firstName: "Dr. Sarah", lastName: "Johnson" },
-    },
-    {
-      _id: "3",
-      title: "Medication Reminder",
-      message: "Patient missed morning medication dose",
-      severity: "Critical",
-      isRead: false,
-      createdAt: new Date(Date.now() - 172800000).toISOString(),
-      createdBy: { firstName: "Nurse", lastName: "Wilson" },
-    },
-  ]);
 
   const [dateFilter, setDateFilter] = useState([
     {
@@ -137,7 +105,7 @@ const PatientAlertsOffCanvas = ({ show, onHide }) => {
         return <FaInfoCircle className="text-info" />;
       case "low":
         return <FaCheckCircle className="text-success" />;
-         case "info":
+      case "info":
         return <FaCheckCircle className="text-success" />;
       default:
         return <FaBell className="text-secondary" />;
@@ -154,7 +122,7 @@ const PatientAlertsOffCanvas = ({ show, onHide }) => {
         return { bg: "#e3f2fd", border: "#2196f3", text: "#1976d2" };
       case "low":
         return { bg: "#e8f5e8", border: "#4caf50", text: "#388e3c" };
-        case "info":
+      case "info":
         return { bg: "#e8f5e8", border: "#4caf50", text: "#388e3c" };
       default:
         return { bg: "#f5f5f5", border: "#9e9e9e", text: "#616161" };
@@ -202,7 +170,7 @@ const PatientAlertsOffCanvas = ({ show, onHide }) => {
                 <span
                   style={{ fontSize: "12px", fontWeight: "400", color: "#666" }}
                 >
-                  
+
                   ({alertsData?.data?.total})
 
                 </span>
@@ -299,7 +267,7 @@ const PatientAlertsOffCanvas = ({ show, onHide }) => {
                   >
                     Filter by Severity
                   </div>
-                  {["critical", "high", "medium", "low","info"].map((severity) => {
+                  {["critical", "high", "medium", "low", "info"].map((severity) => {
                     const colors = getSeverityColor(severity);
                     const isSelected = severityFilter.includes(severity);
                     return (
@@ -322,9 +290,8 @@ const PatientAlertsOffCanvas = ({ show, onHide }) => {
                           backgroundColor: isSelected
                             ? colors.bg
                             : "transparent",
-                          border: `1px solid ${
-                            isSelected ? colors.border : "transparent"
-                          }`,
+                          border: `1px solid ${isSelected ? colors.border : "transparent"
+                            }`,
                           marginBottom: "4px",
                           fontSize: "11px",
                         }}
@@ -332,7 +299,7 @@ const PatientAlertsOffCanvas = ({ show, onHide }) => {
                         <input
                           type="checkbox"
                           checked={isSelected}
-                          onChange={() => {}}
+                          onChange={() => { }}
                           style={{ margin: 0, accentColor: colors.border }}
                         />
                         <span

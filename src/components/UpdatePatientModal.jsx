@@ -1202,32 +1202,6 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                   </Form.Select>
                 </Form.Group>
               </Col>
-              {/* <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label
-                    className="mb-1 fw-semibold opacity-75"
-                    style={{ fontSize: "14px", color: "#16213DB2" }}
-                  >
-                    Fitbit Consent
-                  </Form.Label>
-                  <div className="d-flex gap-4 mt-2">
-                    <Form.Check
-                      type="radio"
-                      label="Yes"
-                      value="yes"
-                      className="custom-radio-label"
-                      {...register("fitbitConsent")}
-                    />
-                    <Form.Check
-                      type="radio"
-                      label="No"
-                      value="no"
-                      className="custom-radio-label"
-                      {...register("fitbitConsent")}
-                    />
-                  </div>
-                </Form.Group>
-              </Col> */}
               <Col md={12}>
                 <Form.Group className="mb-3">
                   <Form.Label

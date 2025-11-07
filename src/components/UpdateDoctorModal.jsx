@@ -582,10 +582,6 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
 
     const filteredPayload = cleanPayload(payload);
 
-    // Allow submission even if no changes detected (like UpdatePatientModal)
-    // This ensures the update button works from any step
-
-    // If image selected, send as FormData
     if (selectedImage) {
       const formData = new FormData();
       if (filteredPayload && Object.keys(filteredPayload).length > 0) {
@@ -979,27 +975,6 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                   )}
                 </Form.Group>
               </Col>
-              {/* <Col md={6}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Password</Form.Label>
-                                    <InputGroup>
-                                        <Form.Control
-                                            style={{ fontSize: '12px', backgroundColor: '#F9FAFB', borderRight: '0px' }}
-                                            className='py-3'
-                                            type={showPassword ? "text" : "password"}
-                                            placeholder="Enter New Password (optional)"
-                                            autoComplete="off"
-                                            {...register('password')}
-                                        />
-                                        <InputGroup.Text
-                                            onClick={() => setShowPassword(!showPassword)}
-                                            style={{ cursor: 'pointer', backgroundColor: '#F9FAFB' }}
-                                        >
-                                            {showPassword ? <FaEyeSlash /> : <FaEye />}
-                                        </InputGroup.Text>
-                                    </InputGroup>
-                                </Form.Group>
-                            </Col> */}
               <Col md={6}>
                 <Form.Group className="mb-3">
                   <Form.Label
@@ -1260,19 +1235,6 @@ const UpdateDoctorModal = ({ show, onHide, doctor }) => {
                   />
                 </Form.Group>
               </Col>
-              {/* <Col md={6}>
-                                <Form.Group className="mb-3">
-                                    <Form.Label className='mb-1 fw-semibold opacity-75' style={{ fontSize: '14px', color: '#16213DB2' }}>Fees</Form.Label>
-                                    <Form.Control
-                                        style={{ fontSize: '12px', backgroundColor: '#F9FAFB' }}
-                                        className='py-3'
-                                        type="text"
-                                        placeholder="Enter Consultation Fees"
-                                        autoComplete="off"
-                                        {...register('fees')}
-                                    />
-                                </Form.Group>
-                            </Col> */}
               <Col md={12}>
                 <h4
                   className="fw-bold mb-3 mt-2"

@@ -8,6 +8,7 @@ import { getPatientSleepStages } from "../../../../redux/patientsDashboard/actio
 import { getNotes } from "../../../../redux/notes/action";
 import { TbNotes } from "react-icons/tb";
 import NotesModal from "../../../../components/NotesModal";
+
 const SleepJourneyChart = ({
   FilterData,
   currentDate,

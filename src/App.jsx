@@ -1,7 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
-// import { Provider } from 'react-redux';
-// import store from './redux/store';
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./layouts/Layout";
 import Login from "./pages/Login";
@@ -9,12 +7,10 @@ import SignUp from "./pages/ForgotPassword/SignUp";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import VerifyOTP from "./pages/ForgotPassword/VerifyOTP";
 import ChangePassword from "./pages/ForgotPassword/ChangePassword";
-import Dashboard from "./pages/Dashboard";
 import Doctors from "./pages/Doctors/Doctors";
 import Patients from "./pages/Patients/Patients";
 import PatientDashboard from "./pages/Patients/PatientDashboard";
 import FitbitSuccess from "./pages/FitbitSuccess";
-// import Notes from './pages/Notes/Notes';
 import NotFound from "./pages/NotFound";
 import { SidebarProvider } from "./contexts/SidebarContext";
 import { checkTokenAndRedirect } from "./utils/tokenUtils";
@@ -40,16 +36,6 @@ function App() {
           <Route path="/verify-otp" element={<VerifyOTP />} />
           <Route path="/change-password" element={<ChangePassword />} />
           <Route path="/fitbit-success" element={<FitbitSuccess />} />
-          {/* <Route 
-            path="/" 
-            element={
-              <ProtectedRoute>
-                <Layout pageName="Dashboard">
-                  <Dashboard />
-                </Layout>
-              </ProtectedRoute>
-            } 
-          /> */}
           <Route
             path="/doctors"
             element={
@@ -80,16 +66,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {/* <Route 
-            path="/notes" 
-            element={
-              <ProtectedRoute>
-                <Layout pageName="Notes">
-                  <Notes />
-                </Layout>
-              </ProtectedRoute>
-            } 
-          /> */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </SidebarProvider>
