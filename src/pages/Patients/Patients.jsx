@@ -305,7 +305,18 @@ const Patients = () => {
                         ? `${dateRange[0].startDate.toLocaleDateString()} - ${dateRange[0].endDate.toLocaleDateString()}`
                         : "Select Date Range"}
                     </span>
-                    <MdOutlineCalendarMonth />
+                    <div className="d-flex align-items-center gap-2">
+                      {dateRange[0].startDate && dateRange[0].endDate && (
+                        <FiX
+                          style={{ cursor: "pointer", fontSize: "16px" }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDateRange([{ startDate: null, endDate: null, key: "selection" }]);
+                          }}
+                        />
+                      )}
+                      <MdOutlineCalendarMonth />
+                    </div>
                   </button>
                   {showDatePicker && (
                     <div
