@@ -154,6 +154,8 @@ const PatientAlertsOffCanvas = ({ show, onHide }) => {
         return { bg: "#e3f2fd", border: "#2196f3", text: "#1976d2" };
       case "low":
         return { bg: "#e8f5e8", border: "#4caf50", text: "#388e3c" };
+        case "info":
+        return { bg: "#e8f5e8", border: "#4caf50", text: "#388e3c" };
       default:
         return { bg: "#f5f5f5", border: "#9e9e9e", text: "#616161" };
     }
