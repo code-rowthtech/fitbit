@@ -33,7 +33,7 @@ ChartJS.register(
   Legend
 );
 
-const NutritionData = ({ isExpanded, onExpand }) => {
+const NutritionData = ({ isExpanded, onExpand, initialExpandedCard }) => {
   const dispatch = useDispatch();
   const { id: pathId } = useParams();
   const [searchParams] = useSearchParams();
@@ -46,6 +46,12 @@ const NutritionData = ({ isExpanded, onExpand }) => {
   const fieldKey = 'NutritionData';
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [expandedCard, setExpandedCard] = useState(null);
+
+  useEffect(() => {
+    if (initialExpandedCard && !expandedCard) {
+      setExpandedCard(initialExpandedCard);
+    }
+  }, [initialExpandedCard]);
   const [activeTab, setActiveTab] = useState("Week");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [dateRange, setDateRange] = useState([
@@ -75,10 +81,10 @@ const NutritionData = ({ isExpanded, onExpand }) => {
   const handleCardExpand = (cardType) => {
     if (expandedCard === cardType) {
       setExpandedCard(null);
-      onExpand();
+      onExpand(null);
     } else {
       setExpandedCard(cardType);
-      onExpand();
+      onExpand(cardType);
     }
   };
 
@@ -108,7 +114,7 @@ const NutritionData = ({ isExpanded, onExpand }) => {
             // style={{ backgroundColor: "#f8f9fa", padding: "16px 20px" }}
             style={{ backgroundColor: "white", padding: "16px 20px" }}
           >
-            <div className="d-flex align-items-center">
+            <div className="d-flex align-items-center flex-grow-1">
               <span
                 style={{
                   fontSize: "16px",
@@ -118,6 +124,32 @@ const NutritionData = ({ isExpanded, onExpand }) => {
               >
                 Nutrition Data
               </span>
+              {expandedCard && (
+                <div className="d-flex gap-2 ms-3">
+                  {[
+                    { key: "calories", label: "Calories Consumed" },
+                    { key: "water", label: "Water Intake" },
+                  ].map((tab) => (
+                    <button
+                      key={tab.key}
+                      className="btn btn-sm"
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: "500",
+                        padding: "4px 12px",
+                        backgroundColor: expandedCard === tab.key ? "#003465" : "#E8F2FF",
+                        color: expandedCard === tab.key ? "white" : "#003465",
+                        border: "none",
+                        borderRadius: "4px",
+                        transition: "all 0.2s ease",
+                      }}
+                      onClick={() => setExpandedCard(tab.key)}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              )}
               {/* <div ref={datePickerRef} style={{ position: 'relative' }}>
                                 <button
                                     className="form-control rounded-3 border-0 text-start d-flex justify-content-between align-items-center"

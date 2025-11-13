@@ -6,7 +6,7 @@ import { getMasterData } from "../../../redux/notes/action";
 import RestingHeartRateCard from "./CardsData/RestingHeartRateCard";
 import WeightCard from "./CardsData/WeightCard";
 
-const HeartRateData = ({ isExpanded, onExpand }) => {
+const HeartRateData = ({ isExpanded, onExpand, initialExpandedCard }) => {
   const dispatch = useDispatch();
   const { id: pathId } = useParams();
   const [searchParams] = useSearchParams();
@@ -17,6 +17,12 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
   const masterDataState = useSelector((state) => state.getMasterDataReducer);
   const fieldKey = 'HeartRateBodyMetrics';
   const [expandedCard, setExpandedCard] = useState(null);
+
+  useEffect(() => {
+    if (initialExpandedCard && !expandedCard) {
+      setExpandedCard(initialExpandedCard);
+    }
+  }, [initialExpandedCard]);
   const [heartRateActiveTab, setHeartRateActiveTab] = useState("Week");
   const [weightActiveTab, setWeightActiveTab] = useState("Week");
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -38,10 +44,10 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
   const handleCardExpand = (cardType) => {
     if (expandedCard === cardType) {
       setExpandedCard(null);
-      onExpand();
+      onExpand(null);
     } else {
       setExpandedCard(cardType);
-      onExpand();
+      onExpand(cardType);
     }
   };
 
@@ -57,7 +63,7 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
             className="pt-2 pb-0 d-flex align-items-center justify-content-between"
             style={{ backgroundColor: "white", padding: "16px 20px" }}
           >
-            <div className="d-flex align-items-center">
+            <div className="d-flex align-items-center flex-grow-1">
               <span
                 style={{
                   fontSize: "16px",
@@ -67,6 +73,32 @@ const HeartRateData = ({ isExpanded, onExpand }) => {
               >
                 Heart Rate And Body Metrics
               </span>
+              {expandedCard && (
+                <div className="d-flex gap-2 ms-3">
+                  {[
+                    { key: "restingHeartRate", label: "Resting Heart Rate" },
+                    { key: "weight", label: "Weight" },
+                  ].map((tab) => (
+                    <button
+                      key={tab.key}
+                      className="btn btn-sm"
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: "500",
+                        padding: "4px 12px",
+                        backgroundColor: expandedCard === tab.key ? "#003465" : "#E8F2FF",
+                        color: expandedCard === tab.key ? "white" : "#003465",
+                        border: "none",
+                        borderRadius: "4px",
+                        transition: "all 0.2s ease",
+                      }}
+                      onClick={() => setExpandedCard(tab.key)}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <div
               onClick={() => setIsOpen(!isOpen)}

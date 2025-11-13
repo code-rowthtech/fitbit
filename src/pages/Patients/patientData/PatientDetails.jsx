@@ -76,8 +76,7 @@ const PatientDetails = ({
   const tabs = [
     "Activity Data",
     "Sleep Data",
-    "Heart Rate",
-    "Weight & Body Metrics",
+    "Heart Rate And Body Metrics",
     "Exercise Data",
     "Nutrition",
   ];
@@ -118,7 +117,7 @@ const PatientDetails = ({
         borderTopRightRadius: "10px",
       }}
     >
-      {!showReports && !isAccordionOpen && (
+      {!showReports && (
         <div>
           {/* tab section */}
           <div className="d-flex patient-tabs">
