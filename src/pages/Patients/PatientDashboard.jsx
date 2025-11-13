@@ -28,12 +28,47 @@ const PatientDashboard = () => {
   const [showReports, setShowReports] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [expandedCard, setExpandedCard] = useState(null);
+  const [expandedSubCard, setExpandedSubCard] = useState(null);
   const [expandedReport, setExpandedReport] = useState(false);
   const [activeTab, setActiveTab] = useState("Activity Data");
   const id = patientId;
 
-  const handleCardExpand = (cardName) => {
-    setExpandedCard(expandedCard === cardName ? null : cardName);
+  const handleCardExpand = (cardName, subCardName = null) => {
+    if (expandedCard === cardName) {
+      setExpandedCard(null);
+      setExpandedSubCard(null);
+    } else {
+      setExpandedCard(cardName);
+      setExpandedSubCard(subCardName);
+      const cardToTabMap = {
+        "activity": "Activity Data",
+        "sleep": "Sleep Data",
+        "heartrate": "Heart Rate And Body Metrics",
+        "exercise": "Exercise Data",
+        "nutrition": "Nutrition"
+      };
+      setActiveTab(cardToTabMap[cardName] || activeTab);
+    }
+  };
+
+  const handleExpandedCardSwitch = (cardName) => {
+    setExpandedCard(cardName);
+  };
+
+  const handleTabChange = (newTab) => {
+    const wasExpanded = !!expandedCard;
+    setActiveTab(newTab);
+    if (wasExpanded) {
+      const tabToCardMap = {
+        "Activity Data": "activity",
+        "Sleep Data": "sleep",
+        "Heart Rate And Body Metrics": "heartrate",
+        "Exercise Data": "exercise",
+        "Nutrition": "nutrition"
+      };
+      setExpandedCard(tabToCardMap[newTab] || null);
+      setExpandedSubCard(null);
+    }
   };
 
   const handleReportExpand = () => {
@@ -94,7 +129,7 @@ const PatientDashboard = () => {
               onShowNotes={() => setShowNotes(!showNotes)}
               showNotes={showNotes}
               activeTab={activeTab}
-              setActiveTab={setActiveTab}
+              setActiveTab={handleTabChange}
               accordionOpen={!!expandedCard}
             />
           </div>
@@ -139,7 +174,8 @@ const PatientDashboard = () => {
                     <div className="col-lg-12 col-md-12 mb-1">
                       <ActivityData
                         isExpanded={expandedCard === "activity"}
-                        onExpand={() => handleCardExpand("activity")}
+                        onExpand={(subCard) => handleCardExpand("activity", subCard)}
+                        initialExpandedCard={expandedCard === "activity" ? (expandedSubCard || "steps") : null}
                       />
                     </div>
                   </div>
@@ -150,18 +186,20 @@ const PatientDashboard = () => {
                     <div className="col-lg-12 col-md-12 mb-1">
                       <SleepData
                         isExpanded={expandedCard === "sleep"}
-                        onExpand={() => handleCardExpand("sleep")}
+                        onExpand={(subCard) => handleCardExpand("sleep", subCard)}
+                        initialExpandedCard={expandedCard === "sleep" ? (expandedSubCard || "sleepStages") : null}
                       />
                     </div>
                   </div>
                 )}
-              {activeTab === "Heart Rate" &&
+              {activeTab === "Heart Rate And Body Metrics" &&
                 (!expandedCard || expandedCard === "heartrate") && (
                   <div className="row justify-content-center">
                     <div className="col-lg-12 col-md-12 mb-1">
                       <HeartRateData
                         isExpanded={expandedCard === "heartrate"}
-                        onExpand={() => handleCardExpand("heartrate")}
+                        onExpand={(subCard) => handleCardExpand("heartrate", subCard)}
+                        initialExpandedCard={expandedCard === "heartrate" ? (expandedSubCard || "restingHeartRate") : null}
                       />
                     </div>
                   </div>
@@ -173,7 +211,8 @@ const PatientDashboard = () => {
                     <div className="col-lg-12 col-md-12 mb-1">
                       <ExerciseData
                         isExpanded={expandedCard === "exercise"}
-                        onExpand={() => handleCardExpand("exercise")}
+                        onExpand={(subCard) => handleCardExpand("exercise", subCard)}
+                        initialExpandedCard={expandedCard === "exercise" ? (expandedSubCard || "sessions") : null}
                       />
                     </div>
                   </div>
@@ -184,7 +223,8 @@ const PatientDashboard = () => {
                     <div className="col-lg-12 col-md-12 mb-1">
                       <NutritionData
                         isExpanded={expandedCard === "nutrition"}
-                        onExpand={() => handleCardExpand("nutrition")}
+                        onExpand={(subCard) => handleCardExpand("nutrition", subCard)}
+                        initialExpandedCard={expandedCard === "nutrition" ? (expandedSubCard || "calories") : null}
                       />
                     </div>
                   </div>
@@ -197,7 +237,8 @@ const PatientDashboard = () => {
                     <div className="col-lg-12 col-md-12 mb-1">
                       <ActivityData
                         isExpanded={expandedCard === "activity"}
-                        onExpand={() => handleCardExpand("activity")}
+                        onExpand={(subCard) => handleCardExpand("activity", subCard)}
+                        initialExpandedCard={null}
                       />
                     </div>
                   </div>
@@ -208,18 +249,20 @@ const PatientDashboard = () => {
                     <div className="col-lg-12 col-md-12 mb-1">
                       <SleepData
                         isExpanded={expandedCard === "sleep"}
-                        onExpand={() => handleCardExpand("sleep")}
+                        onExpand={(subCard) => handleCardExpand("sleep", subCard)}
+                        initialExpandedCard={null}
                       />
                     </div>
                   </div>
                 )}
-              {activeTab !== "Heart Rate" &&
+              {activeTab !== "Heart Rate And Body Metrics" &&
                 (!expandedCard || expandedCard === "heartrate") && (
                   <div className="row justify-content-center">
                     <div className="col-lg-12 col-md-12 mb-1">
                       <HeartRateData
                         isExpanded={expandedCard === "heartrate"}
-                        onExpand={() => handleCardExpand("heartrate")}
+                        onExpand={(subCard) => handleCardExpand("heartrate", subCard)}
+                        initialExpandedCard={null}
                       />
                     </div>
                   </div>
@@ -231,7 +274,8 @@ const PatientDashboard = () => {
                     <div className="col-lg-12 col-md-12 mb-1">
                       <ExerciseData
                         isExpanded={expandedCard === "exercise"}
-                        onExpand={() => handleCardExpand("exercise")}
+                        onExpand={(subCard) => handleCardExpand("exercise", subCard)}
+                        initialExpandedCard={null}
                       />
                     </div>
                   </div>
@@ -242,7 +286,8 @@ const PatientDashboard = () => {
                     <div className="col-lg-12 col-md-12">
                       <NutritionData
                         isExpanded={expandedCard === "nutrition"}
-                        onExpand={() => handleCardExpand("nutrition")}
+                        onExpand={(subCard) => handleCardExpand("nutrition", subCard)}
+                        initialExpandedCard={null}
                       />
                     </div>
                   </div>
