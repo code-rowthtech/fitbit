@@ -117,6 +117,18 @@ const ActiveMinCard = ({
 
     const apiData = ActiveMinData;
 
+    // For Day tab, use intradayData
+    if (activeTab === "Day" && apiData[0]?.intradayData) {
+      const intradayData = apiData[0].intradayData;
+      const labels = intradayData.map((item) => item.timeRange);
+      const data = intradayData.map((item) => item.totalActiveZoneMinutes);
+      const tableData = intradayData.map((item) => ({
+        period: item.timeRange,
+        value: `${item.totalActiveZoneMinutes} mins`,
+      }));
+      return { labels, data, tableData };
+    }
+
     const labels = apiData.map((item) => {
       if (activeTab === "Month" && item.date.includes("Week")) {
         const weekMatch = item.date.match(/Week (\\d+)/);
