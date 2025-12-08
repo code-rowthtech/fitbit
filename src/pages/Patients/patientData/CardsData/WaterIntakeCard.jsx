@@ -69,9 +69,6 @@ const WaterIntakeCard = ({
       let start, end;
 
       switch (activeTab) {
-        case "Day":
-          start = end = new Date(date);
-          break;
         case "Week":
           start = new Date(date);
           start.setDate(date.getDate() - date.getDay());
@@ -133,12 +130,6 @@ const WaterIntakeCard = ({
 
         const date = new Date(item.date);
         switch (activeTab) {
-          case "Day":
-            return date.toLocaleDateString("en-US", {
-              weekday: "short",
-              month: "short",
-              day: "numeric",
-            });
           case "Week":
             return date.toLocaleDateString("en-US", { weekday: "short" });
           case "Month":
@@ -161,13 +152,6 @@ const WaterIntakeCard = ({
         } else {
           const date = new Date(item.date);
           switch (activeTab) {
-            case "Day":
-              period = date.toLocaleDateString("en-US", {
-                weekday: "long",
-                month: "long",
-                day: "numeric",
-              });
-              break;
             case "Week":
               period = date.toLocaleDateString("en-US", { weekday: "long" });
               break;
@@ -210,12 +194,6 @@ const WaterIntakeCard = ({
     const date = new Date(currentDate);
 
     switch (activeTab) {
-      case "Day":
-        return date.toLocaleDateString("en-US", {
-          weekday: "long",
-          month: "short",
-          day: "numeric",
-        });
       case "Week":
         const startOfWeek = new Date(date);
         startOfWeek.setDate(date.getDate() - date.getDay());
@@ -246,9 +224,6 @@ const WaterIntakeCard = ({
     const testDate = new Date(currentDate);
 
     switch (activeTab) {
-      case "Day":
-        testDate.setDate(testDate.getDate() + 1);
-        return testDate > today;
       case "Week":
         testDate.setDate(testDate.getDate() + 7);
         return testDate > today;
@@ -272,9 +247,6 @@ const WaterIntakeCard = ({
     const newDate = new Date(currentDate);
 
     switch (activeTab) {
-      case "Day":
-        newDate.setDate(newDate.getDate() + (direction === "next" ? 1 : -1));
-        break;
       case "Week":
         newDate.setDate(newDate.getDate() + (direction === "next" ? 7 : -7));
         break;
@@ -293,9 +265,6 @@ const WaterIntakeCard = ({
     // Calculate new date range based on the new current date
     let start, end;
     switch (activeTab) {
-      case "Day":
-        start = end = new Date(newDate);
-        break;
       case "Week":
         start = new Date(newDate);
         start.setDate(newDate.getDate() - newDate.getDay());
@@ -352,9 +321,6 @@ const WaterIntakeCard = ({
           let start, end;
 
           switch (tab) {
-            case "Day":
-              start = end = new Date(date);
-              break;
             case "Week":
               start = new Date(date);
               start.setDate(date.getDate() - date.getDay());
@@ -573,12 +539,6 @@ const WaterIntakeCard = ({
                               );
                               onDateChange(newDate);
                               handleTabChange("Month", newDate);
-                            } else if (activeTab === "Month") {
-                              const selectedDate = new Date(
-                                WaterData[dataIndex].date
-                              );
-                              onDateChange(selectedDate);
-                              handleTabChange("Day", selectedDate);
                             }
                           }
                         }
@@ -597,17 +557,6 @@ const WaterIntakeCard = ({
                                       WaterStatsData.max
                                     ).toFixed(1)}L`,
                                   ]
-                                : activeTab === "Month" && WaterData
-                                ? (context) => {
-                                    const dataIndex = context[0]?.dataIndex;
-                                    return dataIndex !== undefined &&
-                                      WaterData[dataIndex]
-                                      ? [
-                                          `Days: ${WaterData[dataIndex].dayRange}`,
-                                          "Click to view day details",
-                                        ]
-                                      : [];
-                                  }
                                 : activeTab === "Year"
                                 ? () => ["Click to view month details"]
                                 : undefined,
@@ -695,7 +644,7 @@ const WaterIntakeCard = ({
                 className="d-flex justify-content-center my-3 p-0 rounded-pill"
                 style={{ backgroundColor: "#F0F7FF", gap: "4px" }}
               >
-                {["Day", "Week", "Month", "Year"].map((tab, index) => (
+                {["Week", "Month", "Year"].map((tab, index) => (
                   <div
                     key={index}
                     className="px-3 py-2 rounded-pill text-center flex-fill d-flex align-items-center justify-content-center"
@@ -915,7 +864,7 @@ const WaterIntakeCard = ({
                         borderRadius: "2px",
                         border: "1px solid #E8F2FF",
                         cursor:
-                          activeTab === "Month" || activeTab === "Year"
+                          activeTab === "Year"
                             ? "pointer"
                             : "default",
                       }}
@@ -930,12 +879,6 @@ const WaterIntakeCard = ({
                             );
                             onDateChange(newDate);
                             handleTabChange("Month", newDate);
-                          } else if (activeTab === "Month") {
-                            const selectedDate = new Date(
-                              WaterData[index].date
-                            );
-                            onDateChange(selectedDate);
-                            handleTabChange("Day", selectedDate);
                           }
                         }
                       }}
