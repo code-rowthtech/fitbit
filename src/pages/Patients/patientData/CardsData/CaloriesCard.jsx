@@ -33,10 +33,6 @@ const CaloriesCard = ({
   const AverageData = useSelector(
     (state) => state?.getPatientCaloriesBurned?.data?.response
   );
-  const IntradayData = useSelector(
-    (state) =>
-      state?.getPatientCaloriesBurned?.data?.response?.todayData?.intradayData
-  );
   const Loading = useSelector(
     (state) => state?.getPatientCaloriesBurned?.loading
   );
@@ -72,18 +68,15 @@ const CaloriesCard = ({
 
   // Get chart data based on active tab and API response
   const getChartData = () => {
-    // For Day tab, use intraday data if available
-    if (activeTab === "Day" && IntradayData && IntradayData.length > 0) {
-      const labels = IntradayData.map((item) => {
-        // Convert "12 AM to 1 AM" to "12 AM"
-        return item.timeRange.split(" to ")[0];
-      });
-
-      const data = IntradayData.map((item) => item.calories);
-
-      const tableData = IntradayData.map((item) => ({
+    // For Day tab, use intraday data from AverageData
+    if (activeTab === "Day" && AverageData?.data?.[0]?.intradayData) {
+      const intradayData = AverageData.data[0].intradayData;
+      
+      const labels = intradayData.map((item) => item.timeRange.split(" to ")[0]);
+      const data = intradayData.map((item) => item.calories);
+      const tableData = intradayData.map((item) => ({
         period: item.timeRange,
-        value: item.calories.toString(),
+        value: item.calories.toFixed(2),
       }));
 
       return { labels, data, tableData };
@@ -602,6 +595,31 @@ const CaloriesCard = ({
                                 }
                               }
                             }
+                          : activeTab === "Week"
+                          ? (event, elements) => {
+                              if (elements.length > 0) {
+                                const clickedIndex = elements[0].index;
+                                const clickedDay = CaloriesData[clickedIndex];
+                                if (clickedDay) {
+                                  const dateStr = clickedDay.date;
+                                  let dayDate;
+
+                                  if (dateStr.includes("-")) {
+                                    const [year, month, day] = dateStr
+                                      .split("-")
+                                      .map(Number);
+                                    dayDate = new Date(year, month - 1, day);
+                                  } else {
+                                    dayDate = new Date(dateStr);
+                                  }
+
+                                  onDateChange(dayDate);
+                                  setTimeout(() => {
+                                    handleTabChange("Day");
+                                  }, 0);
+                                }
+                              }
+                            }
                           : undefined,
                       plugins: {
                         legend: { display: false },
@@ -627,13 +645,14 @@ const CaloriesCard = ({
                                         ]
                                       : [];
                                   }
-                                : activeTab === "Day" && IntradayData
+                                : activeTab === "Day" && AverageData?.data?.[0]?.intradayData
                                 ? (context) => {
                                     const dataIndex = context[0]?.dataIndex;
+                                    const intradayData = AverageData.data[0].intradayData;
                                     return dataIndex !== undefined &&
-                                      IntradayData[dataIndex]
+                                      intradayData[dataIndex]
                                       ? [
-                                          `Time: ${IntradayData[dataIndex].timeRange}`,
+                                          `Time: ${intradayData[dataIndex].timeRange}`,
                                         ]
                                       : [];
                                   }
@@ -719,6 +738,11 @@ const CaloriesCard = ({
                               }
                             }
                           : activeTab === "Year" || activeTab === "Month"
+                          ? (event, elements, chart) => {
+                              chart.canvas.style.cursor =
+                                elements.length > 0 ? "pointer" : "default";
+                            }
+                          : activeTab === "Week"
                           ? (event, elements, chart) => {
                               chart.canvas.style.cursor =
                                 elements.length > 0 ? "pointer" : "default";
@@ -954,7 +978,7 @@ const CaloriesCard = ({
                         borderRadius: "2px",
                         border: "1px solid #E8F2FF",
                         cursor:
-                          activeTab === "Year" || activeTab === "Month"
+                          activeTab === "Year" || activeTab === "Month" || activeTab === "Week"
                             ? "pointer"
                             : "default",
                       }}
@@ -1015,17 +1039,39 @@ const CaloriesCard = ({
                                 }, 0);
                               }
                             }
+                          : activeTab === "Week"
+                          ? () => {
+                              const clickedDay = CaloriesData[index];
+                              if (clickedDay) {
+                                const dateStr = clickedDay.date;
+                                let dayDate;
+
+                                if (dateStr.includes("-")) {
+                                  const [year, month, day] = dateStr
+                                    .split("-")
+                                    .map(Number);
+                                  dayDate = new Date(year, month - 1, day);
+                                } else {
+                                  dayDate = new Date(dateStr);
+                                }
+
+                                onDateChange(dayDate);
+                                setTimeout(() => {
+                                  handleTabChange("Day");
+                                }, 0);
+                              }
+                            }
                           : undefined
                       }
                       onMouseEnter={
-                        activeTab === "Year" || activeTab === "Month"
+                        activeTab === "Year" || activeTab === "Month" || activeTab === "Week"
                           ? (e) => {
                               e.target.style.backgroundColor = "#F0F7FF";
                             }
                           : undefined
                       }
                       onMouseLeave={
-                        activeTab === "Year" || activeTab === "Month"
+                        activeTab === "Year" || activeTab === "Month" || activeTab === "Week"
                           ? (e) => {
                               e.target.style.backgroundColor = "white";
                             }
