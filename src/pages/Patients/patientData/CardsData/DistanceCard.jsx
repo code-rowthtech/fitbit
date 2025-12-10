@@ -594,6 +594,31 @@ const DistanceCard = ({
                                 }
                               }
                             }
+                            : activeTab === "Week"
+                            ? (event, elements) => {
+                              if (elements.length > 0) {
+                                const clickedIndex = elements[0].index;
+                                const clickedDay = DistanceData[clickedIndex];
+                                if (clickedDay) {
+                                  const dateStr = clickedDay.date;
+                                  let dayDate;
+
+                                  if (dateStr.includes("-")) {
+                                    const [year, month, day] = dateStr
+                                      .split("-")
+                                      .map(Number);
+                                    dayDate = new Date(year, month - 1, day);
+                                  } else {
+                                    dayDate = new Date(dateStr);
+                                  }
+
+                                  onDateChange(dayDate);
+                                  setTimeout(() => {
+                                    handleTabChange("Day");
+                                  }, 0);
+                                }
+                              }
+                            }
                             : undefined,
                       plugins: {
                         legend: { display: false },
@@ -666,6 +691,11 @@ const DistanceCard = ({
                       categoryPercentage: 0.6,
                       onHover:
                         activeTab === "Year" || activeTab === "Month"
+                          ? (event, elements, chart) => {
+                            chart.canvas.style.cursor =
+                              elements.length > 0 ? "pointer" : "default";
+                          }
+                          : activeTab === "Week"
                           ? (event, elements, chart) => {
                             chart.canvas.style.cursor =
                               elements.length > 0 ? "pointer" : "default";
@@ -902,7 +932,7 @@ const DistanceCard = ({
                         borderRadius: "2px",
                         border: "1px solid #E8F2FF",
                         cursor:
-                          activeTab === "Year" || activeTab === "Month"
+                          activeTab === "Year" || activeTab === "Month" || activeTab === "Week"
                             ? "pointer"
                             : "default",
                       }}
@@ -963,17 +993,39 @@ const DistanceCard = ({
                                 }, 0);
                               }
                             }
+                            : activeTab === "Week"
+                            ? () => {
+                              const clickedDay = DistanceData[index];
+                              if (clickedDay) {
+                                const dateStr = clickedDay.date;
+                                let dayDate;
+
+                                if (dateStr.includes("-")) {
+                                  const [year, month, day] = dateStr
+                                    .split("-")
+                                    .map(Number);
+                                  dayDate = new Date(year, month - 1, day);
+                                } else {
+                                  dayDate = new Date(dateStr);
+                                }
+
+                                onDateChange(dayDate);
+                                setTimeout(() => {
+                                  handleTabChange("Day");
+                                }, 0);
+                              }
+                            }
                             : undefined
                       }
                       onMouseEnter={
-                        activeTab === "Year" || activeTab === "Month"
+                        activeTab === "Year" || activeTab === "Month" || activeTab === "Week"
                           ? (e) => {
                             e.target.style.backgroundColor = "#F0F7FF";
                           }
                           : undefined
                       }
                       onMouseLeave={
-                        activeTab === "Year" || activeTab === "Month"
+                        activeTab === "Year" || activeTab === "Month" || activeTab === "Week"
                           ? (e) => {
                             e.target.style.backgroundColor = "white";
                           }

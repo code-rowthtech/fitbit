@@ -564,6 +564,10 @@ const StepsCard = ({
                             );
                             onDateChange(newDate);
                             handleTabChange("Day", newDate);
+                          } else if (activeTab === "Week") {
+                            const clickedDate = new Date(FilterData[elementIndex].date);
+                            onDateChange(clickedDate);
+                            handleTabChange("Day", clickedDate);
                           }
                         }
                       },
@@ -651,7 +655,12 @@ const StepsCard = ({
                               chart.canvas.style.cursor =
                                 elements.length > 0 ? "pointer" : "default";
                             }
-                            : undefined,
+                            : activeTab === "Week"
+                              ? (event, elements, chart) => {
+                                chart.canvas.style.cursor =
+                                  elements.length > 0 ? "pointer" : "default";
+                              }
+                              : undefined,
                     }}
                   />
                 )}
@@ -883,7 +892,7 @@ const StepsCard = ({
                         borderRadius: "2px",
                         border: "1px solid #E8F2FF",
                         cursor:
-                          activeTab === "Year" || activeTab === "Month"
+                          activeTab === "Year" || activeTab === "Month" || activeTab === "Week"
                             ? "pointer"
                             : "default",
                       }}
@@ -910,17 +919,23 @@ const StepsCard = ({
                               onDateChange(newDate);
                               handleTabChange("Day", newDate);
                             }
-                            : undefined
+                            : activeTab === "Week"
+                              ? () => {
+                                const clickedDate = new Date(FilterData[index].date);
+                                onDateChange(clickedDate);
+                                handleTabChange("Day", clickedDate);
+                              }
+                              : undefined
                       }
                       onMouseEnter={
-                        activeTab === "Year" || activeTab === "Month"
+                        activeTab === "Year" || activeTab === "Month" || activeTab === "Week"
                           ? (e) => {
                             e.target.style.backgroundColor = "#F0F7FF";
                           }
                           : undefined
                       }
                       onMouseLeave={
-                        activeTab === "Year" || activeTab === "Month"
+                        activeTab === "Year" || activeTab === "Month" || activeTab === "Week"
                           ? (e) => {
                             e.target.style.backgroundColor = "white";
                           }
