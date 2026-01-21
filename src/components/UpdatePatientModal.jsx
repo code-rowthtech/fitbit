@@ -107,6 +107,7 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
   };
 
   const watchedDateOfBirth = watch("dateOfBirth");
+  const watchedSyncStartDate = watch("syncStartDate");
 
   const calculateAge = (dateOfBirth) => {
     if (!dateOfBirth) return "";
@@ -257,6 +258,18 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
       setValue("PatientCategory", PatientData.PatientDataCategory || "");
       setValue("fitbitConsent", PatientData.fitbitConsent || "");
       setValue("notes", PatientData.notes || "");
+      setValue(
+        "syncStartDate",
+        PatientData.syncStartDate
+          ? new Date(PatientData.syncStartDate).toISOString().split("T")[0]
+          : ""
+      );
+      setValue(
+        "syncEndDate",
+        PatientData.syncEndDate
+          ? new Date(PatientData.syncEndDate).toISOString().split("T")[0]
+          : ""
+      );
 
       const doctorId =
         typeof PatientData.doctorId === "object" &&
@@ -382,6 +395,8 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
         patientCategory: data.patientCategory || undefined,
         fitbitConsent: data.fitbitConsent || undefined,
         notes: data.notes || undefined,
+        syncStartDate: data.syncStartDate || undefined,
+        syncEndDate: data.syncEndDate || undefined,
       },
       patientId: id,
     };
@@ -1200,6 +1215,52 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                     <option value="premium">Premium</option>
                     <option value="vip">VIP</option>
                   </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label
+                    className="mb-1 fw-semibold opacity-75"
+                    style={{ fontSize: "14px", color: "#16213DB2" }}
+                  >
+                    Start Date
+                  </Form.Label>
+                  <Form.Control
+                    style={{ fontSize: "12px", backgroundColor: "#F9FAFB" }}
+                    className="py-3"
+                    type="date"
+                    autoComplete="off"
+                    {...register("syncStartDate")}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label
+                    className="mb-1 fw-semibold opacity-75"
+                    style={{ fontSize: "14px", color: "#16213DB2" }}
+                  >
+                    End Date
+                  </Form.Label>
+                  <Form.Control
+                    style={{ fontSize: "12px", backgroundColor: "#F9FAFB" }}
+                    className="py-3"
+                    type="date"
+                    autoComplete="off"
+                    {...register("syncEndDate", {
+                      validate: {
+                        notBeforeStartDate: (value) => {
+                          if (!value || !watchedSyncStartDate) return true;
+                          return new Date(value) >= new Date(watchedSyncStartDate) || "End date cannot be before start date";
+                        }
+                      }
+                    })}
+                  />
+                  {errors.syncEndDate && (
+                    <span className="text-danger" style={{ fontSize: "10px" }}>
+                      {errors.syncEndDate.message}
+                    </span>
+                  )}
                 </Form.Group>
               </Col>
               <Col md={12}>

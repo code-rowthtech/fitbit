@@ -110,6 +110,7 @@ const CreatePatientModal = ({ show, onHide }) => {
   };
 
   const watchedDateOfBirth = watch("dateOfBirth");
+  const watchedSyncStartDate = watch("syncStartDate");
 
   const calculateAge = (dateOfBirth) => {
     if (!dateOfBirth) return "";
@@ -209,26 +210,26 @@ const CreatePatientModal = ({ show, onHide }) => {
       dateOfBirth: data.dateOfBirth || undefined,
       ...(data.street || data.city || data.state || data.country || data.pincode
         ? {
-            address: {
-              street: data.street || "",
-              city: data.city?.value || data.city || null,
-              state: selectedState?.data?._id,
-              country: "India",
-              zip: data.pincode || "",
-            },
-          }
+          address: {
+            street: data.street || "",
+            city: data.city?.value || data.city || null,
+            state: selectedState?.data?._id,
+            country: "India",
+            zip: data.pincode || "",
+          },
+        }
         : {}),
       fullAddress: data.fullAddress || "",
       allergies: Array.isArray(data.allergies)
         ? data.allergies.map((allergy) => allergy.value)
         : data.allergies
-        ? [data.allergies.value]
-        : [],
+          ? [data.allergies.value]
+          : [],
       currentMedications: Array.isArray(data.currentMedications)
         ? data.currentMedications
         : data.currentMedications
-        ? [{ name: data.currentMedications }]
-        : [],
+          ? [{ name: data.currentMedications }]
+          : [],
       medicalHistory: data.medicalHistory
         ? { name: data.medicalHistory }
         : undefined,
@@ -239,6 +240,8 @@ const CreatePatientModal = ({ show, onHide }) => {
       gender: data.gender || "prefer-not-to-say",
       doctorId: data.doctorId || undefined,
       fitbitConsent: data.fitbitConsent || false,
+      syncStartDate: data.syncStartDate || undefined,
+      syncEndDate: data.syncEndDate || undefined,
     };
 
 
@@ -1079,6 +1082,52 @@ const CreatePatientModal = ({ show, onHide }) => {
                   </div>
                 </Form.Group>
               </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label
+                    className="mb-1 fw-semibold opacity-75"
+                    style={{ fontSize: "14px", color: "#16213DB2" }}
+                  >
+                    Start Date
+                  </Form.Label>
+                  <Form.Control
+                    style={{ fontSize: "12px", backgroundColor: "#F9FAFB" }}
+                    className="py-3"
+                    type="date"
+                    autoComplete="off"
+                    {...register("syncStartDate")}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label
+                    className="mb-1 fw-semibold opacity-75"
+                    style={{ fontSize: "14px", color: "#16213DB2" }}
+                  >
+                    End Date
+                  </Form.Label>
+                  <Form.Control
+                    style={{ fontSize: "12px", backgroundColor: "#F9FAFB" }}
+                    className="py-3"
+                    type="date"
+                    autoComplete="off"
+                    {...register("syncEndDate", {
+                      validate: {
+                        notBeforeStartDate: (value) => {
+                          if (!value || !watchedSyncStartDate) return true;
+                          return new Date(value) >= new Date(watchedSyncStartDate) || "End date cannot be before start date";
+                        }
+                      }
+                    })}
+                  />
+                  {errors.syncEndDate && (
+                    <span className="text-danger" style={{ fontSize: "10px" }}>
+                      {errors.syncEndDate.message}
+                    </span>
+                  )}
+                </Form.Group>
+              </Col>
               <Col md={12}>
                 <Form.Group className="mb-3">
                   <Form.Label
@@ -1157,11 +1206,10 @@ const CreatePatientModal = ({ show, onHide }) => {
                   <div key={step.id} className="position-relative mb-5 pb-2">
                     <div className="d-flex align-items-center">
                       <div
-                        className={`rounded-circle d-flex align-items-center justify-content-center me-3 ${
-                          step.completed || currentStep === step.id
+                        className={`rounded-circle d-flex align-items-center justify-content-center me-3 ${step.completed || currentStep === step.id
                             ? "text-white"
                             : "bg-light text-muted"
-                        }`}
+                          }`}
                         style={{
                           width: "40px",
                           height: "40px",
