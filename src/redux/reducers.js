@@ -33,6 +33,9 @@ import {
   downloadReportReducer,
   getYearlyReports,
   downloadYearlyReportReducer,
+  createNoDataReasonReducer,
+  getNoDataReasonReducer,
+  updateNoDataReasonReducer,
 } from "./reports/reducer";
 import {
   connectToFitbit,
@@ -102,6 +105,9 @@ export default combineReducers({
   downloadReportReducer,
   getYearlyReports,
   downloadYearlyReportReducer,
+  createNoDataReasonReducer,
+  getNoDataReasonReducer,
+  updateNoDataReasonReducer,
 
   // Patient-Dashboard
   getPatientProfile,

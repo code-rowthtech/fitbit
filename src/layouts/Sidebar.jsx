@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Form } from "react-bootstrap";
+import { Form, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { FiSearch } from "react-icons/fi";
 import { LuLayoutList } from "react-icons/lu";
+import { AiOutlineInfoCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllPatients, getAllDoctors } from "../redux/actions";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -242,26 +243,46 @@ const Sidebar = () => {
                     handleViewPatient(patient);
                   }}
                 >
-                  <div
-                    className="rounded-circle d-flex align-items-center justify-content-center text-uppercase me-2"
-                    style={{
-                      width: "36px",
-                      height: "36px",
-                      fontSize: "12px",
-                      color: "#16213D",
-                      backgroundColor: "#E0ECF8",
-                    }}
-                  >
-                    {patient.firstName?.charAt(0)}
-                    {patient.lastName?.charAt(0)}
+                  <div className="position-relative">
+                    <div
+                      className="rounded-circle d-flex align-items-center justify-content-center text-uppercase me-2"
+                      style={{
+                        width: "36px",
+                        height: "36px",
+                        fontSize: "12px",
+                        color: "#16213D",
+                        backgroundColor: "#E0ECF8",
+                      }}
+                    >
+                      {patient.firstName?.charAt(0)}
+                      {patient.lastName?.charAt(0)}
+                    </div>
+                   
                   </div>
                   <div className="flex-grow-1">
-                    <div
-                      className="fw-semibold text-white text-capitalize"
-                      style={{ fontSize: "12px" }}
-                    >
-                      {patient.firstName} {patient.lastName}
+                    <div className="d-flex align-items-center">
+                      <div
+                        className="fw-semibold text-white text-capitalize"
+                        style={{ fontSize: "12px" }}
+                      >
+                        {patient.firstName} {patient.lastName}
+                      </div>
+                      {patient.noDataAlert && (
+                        <OverlayTrigger
+                          placement="top"
+                          overlay={<Tooltip>{patient.noDataMessage}</Tooltip>}
+                        >
+                          <AiOutlineInfoCircle
+                            className="ms-2"
+                            style={{
+                              fontSize: "12px",
+                              color: "#dc3545",
+                            }}
+                          />
+                        </OverlayTrigger>
+                      )}
                     </div>
+                    
                     <div
                       className="text-white mt-1"
                       style={{ fontSize: "8px" }}

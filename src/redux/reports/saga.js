@@ -15,6 +15,9 @@ import {
   downloadReportApi,
   getYearlyReportsApi,
   downloadYearlyReportApi,
+  createNoDataReasonApi,
+  getNoDataReasonApi,
+  updateNoDataReasonApi,
 } from "./api";
 import { toast } from "react-toastify";
 
@@ -253,6 +256,103 @@ export function* downloadYearlyReportSaga() {
   );
 }
 
+function* createNoDataReasonFunction(data) {
+  try {
+    yield put({
+      type: REPORT_TYPES.CREATE_NO_DATA_REASON_LOADING,
+      payload: {},
+    });
+    const response = yield call(createNoDataReasonApi, data);
+    if (response.data.status === 201) {
+      yield put({
+        type: REPORT_TYPES.CREATE_NO_DATA_REASON_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      yield put({
+        type: REPORT_TYPES.CREATE_NO_DATA_REASON_ERROR,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message || error || "An error occurred";
+    toast.error(errorMessage);
+    yield put({
+      type: REPORT_TYPES.CREATE_NO_DATA_REASON_ERROR,
+      payload: error,
+    });
+  }
+}
+
+function* getNoDataReasonFunction({ payload }) {
+  try {
+    yield put({
+      type: REPORT_TYPES.GET_NO_DATA_REASON_LOADING,
+      payload: {},
+    });
+    const response = yield call(getNoDataReasonApi, { payload });
+
+    if (response?.data && response?.data?.status === 200) {
+      yield put({
+        type: REPORT_TYPES.GET_NO_DATA_REASON_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      yield put({
+        type: REPORT_TYPES.GET_NO_DATA_REASON_ERROR,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: REPORT_TYPES.GET_NO_DATA_REASON_ERROR,
+      payload: { message: error?.message },
+    });
+  }
+}
+
+function* updateNoDataReasonFunction(data) {
+  try {
+    yield put({
+      type: REPORT_TYPES.UPDATE_NO_DATA_REASON_LOADING,
+      payload: {},
+    });
+    const response = yield call(updateNoDataReasonApi, data);
+    if (response.data.status === 200) {
+      yield put({
+        type: REPORT_TYPES.UPDATE_NO_DATA_REASON_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      yield put({
+        type: REPORT_TYPES.UPDATE_NO_DATA_REASON_ERROR,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message || error?.message || "An error occurred";
+    toast.error(errorMessage);
+    yield put({
+      type: REPORT_TYPES.UPDATE_NO_DATA_REASON_ERROR,
+      payload: error,
+    });
+  }
+}
+
+export function* createNoDataReasonSaga() {
+  yield takeEvery(REPORT_TYPES.CREATE_NO_DATA_REASON, createNoDataReasonFunction);
+}
+
+export function* getNoDataReasonSaga() {
+  yield takeEvery(REPORT_TYPES.GET_NO_DATA_REASON, getNoDataReasonFunction);
+}
+
+export function* updateNoDataReasonSaga() {
+  yield takeLatest(REPORT_TYPES.UPDATE_NO_DATA_REASON, updateNoDataReasonFunction);
+}
+
 function* ReportSaga() {
   yield all([
     fork(getAllReportsSaga),
@@ -262,6 +362,9 @@ function* ReportSaga() {
     fork(downloadReportSaga),
     fork(getYearlyReportsSaga),
     fork(downloadYearlyReportSaga),
+    fork(createNoDataReasonSaga),
+    fork(getNoDataReasonSaga),
+    fork(updateNoDataReasonSaga),
   ]);
 }
 
