@@ -29,3 +29,15 @@ export function getYearlyReportsApi(data) {
 export function downloadYearlyReportApi(data) {
     return api.getFile(`${URL.DOWNLOAD_YEARLY_REPORT}/${data.payload.id}/yearly/${data.payload.year}/csv`);
 }
+
+export function createNoDataReasonApi(data) {
+    return api.create(URL.CREATE_NO_DATA_REASON, data.payload)
+}
+
+export function getNoDataReasonApi(data) {
+    return api.get(`${URL.GET_NO_DATA_REASON}/${data.payload.userId}?date=${data.payload.date}`);
+}
+
+export function updateNoDataReasonApi(data) {
+    return api.update(`${URL.UPDATE_NO_DATA_REASON}/${data.payload.id}`, data.payload.body)
+}

@@ -5,7 +5,7 @@ import { MdSimCardDownload } from "react-icons/md";
 import { FcDownload } from "react-icons/fc";
 import moment from 'moment';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllReports, createReport, resetCreateReport, downloadReport, resetDownloadReport, getYearlyReports, downloadYearlyReport, resetDownloadYearlyReport } from '../../../redux/reports/action';
+import { getAllReports, createReport, resetCreateReport, downloadReport, resetDownloadReport, getYearlyReports, downloadYearlyReport, resetDownloadYearlyReport, createNoDataReason, getNoDataReason, updateNoDataReason } from '../../../redux/reports/action';
 import '../PatientDashboard.css';
 import { IoCalendarClearOutline } from "react-icons/io5";
 
@@ -43,6 +43,11 @@ const PatientReport = ({ isExpanded, onExpand }) => {
   const [showYearlyDownloadModal, setShowYearlyDownloadModal] = useState(false);
   const [viewType, setViewType] = useState('Monthly');
   const [currentYear, setCurrentYear] = useState(moment());
+  const [showReasonModal, setShowReasonModal] = useState(false);
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [reason, setReason] = useState('');
+  const [isUpdateMode, setIsUpdateMode] = useState(false);
+  const [existingReasonData, setExistingReasonData] = useState(null);
   const daysInMonth = currentMonth.daysInMonth();
   const daysArray = Array.from({ length: daysInMonth }, (_, i) => i + 1);
   const monthsArray = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -59,6 +64,9 @@ const PatientReport = ({ isExpanded, onExpand }) => {
   const downloadError = useSelector(state => state?.downloadReportReducer?.message)
   const yearlyDownloadLoading = useSelector(state => state?.downloadYearlyReportReducer?.loading)
   const yearlyDownloadResponse = useSelector(state => state?.downloadYearlyReportReducer?.data)
+  const getNoDataReasonResponse = useSelector(state => state?.getNoDataReasonReducer?.message?.data)
+  const getNoDataReasonLoading = useSelector(state => state?.getNoDataReasonReducer?.loading)
+  const updateNoDataReasonResponse = useSelector(state => state?.updateNoDataReasonReducer?.data?.status)
   const metricsEnum = [
     'steps', 'Continuous Heart Rate', 'BMI', 'sleep', 'calories burned', 'distance',
     'activeMinutes', 'Awakenings', 'Weight', 'Calories Consumed',
@@ -127,6 +135,20 @@ const PatientReport = ({ isExpanded, onExpand }) => {
       dispatch(resetDownloadYearlyReport());
     }
   }, [yearlyDownloadResponse, dispatch]);
+
+  useEffect(() => {
+    if (getNoDataReasonResponse?.length > 0) {
+      const reasonData = getNoDataReasonResponse[0];
+      setExistingReasonData(reasonData);
+      setReason(reasonData.reason || '');
+    }
+  }, [getNoDataReasonResponse]);
+
+  useEffect(() => {
+    if (updateNoDataReasonResponse === 200 && id) {
+      dispatch(getAllReports({ id, month: currentMonth.format('YYYY-MM') }));
+    }
+  }, [updateNoDataReasonResponse, dispatch, id, currentMonth]);
 
 
   const handleCreateReport = (label, min, max) => {
@@ -203,7 +225,7 @@ const PatientReport = ({ isExpanded, onExpand }) => {
     // Find the month data that matches the current year and month index
     const targetMonth = `${currentYear.format('YYYY')}-${String(monthIndex + 1).padStart(2, '0')}`;
     const monthData = reportData.monthlyData.find(data => data.month === targetMonth);
-    
+
     if (!monthData) return '-';
 
     return monthData.value || '-';
@@ -216,7 +238,7 @@ const PatientReport = ({ isExpanded, onExpand }) => {
     // Find the month data that matches the current year and month index
     const targetMonth = `${currentYear.format('YYYY')}-${String(monthIndex + 1).padStart(2, '0')}`;
     const monthData = reportData.monthlyData.find(data => data.month === targetMonth);
-    
+
     return monthData?.color || '#000';
   };
 
@@ -250,6 +272,79 @@ const PatientReport = ({ isExpanded, onExpand }) => {
     });
 
     return dayData?.color || '#000';
+  };
+
+  const hasReasonForDay = (day) => {
+    const stepsData = DailyData?.find(report => report.label === 'steps');
+    if (!stepsData?.dailyData) return false;
+    
+    const dayData = stepsData.dailyData.find(data => {
+      const dataDay = new Date(data.date).getDate();
+      return dataDay === day;
+    });
+    
+    return dayData?.reason === true;
+  };
+
+  const getCellBackgroundColor = (day) => {
+    // Check if steps are 0 or - for this day to highlight entire column
+    const stepsValue = getDataForDay('steps', day);
+    if (stepsValue === '-' || stepsValue === '0steps' || stepsValue === 0 || stepsValue === '' || !stepsValue) {
+      return '#ffebee';
+    }
+    return 'transparent';
+  };
+
+  const handleDayClick = (day) => {
+    const stepsValue = getDataForDay('steps', day);
+    if (stepsValue === '-' || stepsValue === '0steps' || stepsValue === 0 || stepsValue === '' || !stepsValue) {
+      setSelectedDay(day);
+      if (hasReasonForDay(day)) {
+        const selectedDate = `${currentMonth.format('YYYY-MM')}-${String(day).padStart(2, '0')}`;
+        dispatch(getNoDataReason({ userId: id, date: selectedDate }));
+        setIsUpdateMode(true);
+      } else {
+        setIsUpdateMode(false);
+        setReason('');
+      }
+      setShowReasonModal(true);
+    }
+  };
+
+  const handleReasonSubmit = () => {
+    const selectedDate = `${currentMonth.format('YYYY-MM')}-${String(selectedDay).padStart(2, '0')}`;
+    
+    if (isUpdateMode && existingReasonData) {
+      const payload = {
+        id: existingReasonData._id,
+        body: { reason: reason.trim() }
+      };
+      console.log('Update payload:', payload);
+      dispatch(updateNoDataReason(payload));
+    } else {
+      const payload = {
+        date: selectedDate,
+        userId: id,
+        reason: reason.trim()
+      };
+      console.log('Create payload:', payload);
+      dispatch(createNoDataReason(payload));
+    }
+    
+    setShowReasonModal(false);
+    setSelectedDay(null);
+    setReason('');
+    setIsUpdateMode(false);
+    setExistingReasonData(null);
+  };
+
+  const getMonthCellBackgroundColor = (monthIndex) => {
+    // Check if steps are 0 or - for this month to highlight entire column
+    const stepsValue = getDataForMonth('steps', monthIndex);
+    if (stepsValue === '-' || stepsValue === '0steps' || stepsValue === 0 || stepsValue === '' || !stepsValue) {
+      return '#ffebee';
+    }
+    return 'transparent';
   };
 
   const renderNormalRangeCell = (label) => {
@@ -316,8 +411,8 @@ const PatientReport = ({ isExpanded, onExpand }) => {
       <div className="d-flex justify-content-between align-items-center px-4 py-2  month-navigation">
         <div></div>
         <div className="d-flex align-items-center gap-3">
-          <button 
-            onClick={viewType === 'Monthly' ? handlePreviousMonth : handlePreviousYear} 
+          <button
+            onClick={viewType === 'Monthly' ? handlePreviousMonth : handlePreviousYear}
             className="btn btn-sm d-flex align-items-center justify-content-center"
             style={{ width: '24px', height: '24px', backgroundColor: '#003465', color: 'white', border: 'none' }}
           >
@@ -329,8 +424,8 @@ const PatientReport = ({ isExpanded, onExpand }) => {
               <IoCalendarClearOutline className='mb-1' style={{ fontSize: '18px', marginLeft: '8px', color: '#003465' }} />
             </span>
           </h6>
-          <button 
-            onClick={viewType === 'Monthly' ? handleNextMonth : handleNextYear} 
+          <button
+            onClick={viewType === 'Monthly' ? handleNextMonth : handleNextYear}
             className="btn btn-sm d-flex align-items-center justify-content-center"
             style={{ width: '24px', height: '24px', backgroundColor: '#003465', color: 'white', border: 'none' }}
           >
@@ -416,9 +511,28 @@ const PatientReport = ({ isExpanded, onExpand }) => {
                   <th className='fw-bold text-center sticky-metrics' style={{ width: viewType === 'Yearly' ? '150px' : 'auto' }}>Metrics</th>
                   <th className='fw-bold text-center sticky-normal-range' style={{ width: viewType === 'Yearly' ? '200px' : 'auto' }}>Normal Range</th>
                   {viewType === 'Monthly' ? (
-                    daysArray.map(day => (
-                      <th className='fw-bold day-header' key={day}>{day}</th>
-                    ))
+                    daysArray.map(day => {
+                      const bgColor = getCellBackgroundColor(day);
+                      const isClickable = bgColor === '#ffebee';
+                      return (
+                        <th className='fw-bold day-header position-relative' key={day}
+                          style={{ cursor: isClickable ? 'pointer' : 'default' }}
+                          onClick={() => isClickable && handleDayClick(day)}>
+                          {day}
+                          {isClickable && hasReasonForDay(day) && (
+                            <div style={{
+                              position: 'absolute',
+                              top: '-10px',
+                              right: '-8px',
+                              width: '6px',
+                              height: '6px',
+                              backgroundColor: '#003465',
+                              transform: 'rotate(45deg)',
+                            }}></div>
+                          )}
+                        </th>
+                      );
+                    })
                   ) : (
                     monthsArray.map((month, index) => (
                       <th className='fw-bold day-header' key={index} style={{ width: 'auto' }}>{month}</th>
@@ -437,14 +551,21 @@ const PatientReport = ({ isExpanded, onExpand }) => {
                     {viewType === 'Monthly' ? (
                       daysArray.map(day => (
                         <td key={day} className="text-center day-data-cell"
-                          style={{ color: getCellColor(metric.label, day) }}>
+                          style={{
+                            color: getCellColor(metric.label, day),
+                            backgroundColor: getCellBackgroundColor(day)
+                          }}>
                           {getDataForDay(metric.label, day)}
                         </td>
                       ))
                     ) : (
                       monthsArray.map((month, monthIndex) => (
                         <td key={monthIndex} className="text-center day-data-cell"
-                          style={{ color: getMonthCellColor(metric.label, monthIndex), width: 'auto' }}>
+                          style={{
+                            color: getMonthCellColor(metric.label, monthIndex),
+                            width: 'auto',
+                            backgroundColor: getMonthCellBackgroundColor(monthIndex)
+                          }}>
                           {getDataForMonth(metric.label, monthIndex)}
                         </td>
                       ))
@@ -470,10 +591,10 @@ const PatientReport = ({ isExpanded, onExpand }) => {
           <Button variant="secondary" className='fw-bold' onClick={() => setShowDownloadModal(false)} disabled={downloadLoading}>
             Cancel
           </Button>
-          <Button 
-            variant="primary" 
-            className='fw-bold' 
-            onClick={confirmDownload} 
+          <Button
+            variant="primary"
+            className='fw-bold'
+            onClick={confirmDownload}
             disabled={downloadLoading}
             style={{ backgroundColor: '#003465', borderColor: '#003465' }}
           >
@@ -495,14 +616,55 @@ const PatientReport = ({ isExpanded, onExpand }) => {
           <Button variant="secondary" className='fw-bold' onClick={() => setShowYearlyDownloadModal(false)} disabled={yearlyDownloadLoading}>
             Cancel
           </Button>
-          <Button 
-            variant="primary" 
-            className='fw-bold' 
-            onClick={confirmYearlyDownload} 
+          <Button
+            variant="primary"
+            className='fw-bold'
+            onClick={confirmYearlyDownload}
             disabled={yearlyDownloadLoading}
             style={{ backgroundColor: '#003465', borderColor: '#003465' }}
           >
             {yearlyDownloadLoading ? 'Downloading...' : 'Download'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Reason Modal */}
+      <Modal show={showReasonModal} onHide={() => setShowReasonModal(false)}>
+        <Modal.Header closeButton className='border-0'>
+          <Modal.Title className='fs-6 fw-bold'>
+            {isUpdateMode ? `Update Reason for Day ${selectedDay}` : `Add Reason for Day ${selectedDay}`}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className='py-3'>
+          {isUpdateMode && existingReasonData && (
+            <div className='mb-3 p-2' style={{ backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
+              <small className='text-muted'>Created: {new Date(existingReasonData.createdAt).toLocaleDateString()}</small>
+            </div>
+          )}
+          <Form.Group>
+            <Form.Label className='fw-bold mb-2'>Reason:</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Enter reason for this day..."
+              disabled={getNoDataReasonLoading}
+            />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer className='border-0'>
+          <Button variant="secondary" className='fw-bold' onClick={() => setShowReasonModal(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            className='fw-bold'
+            onClick={handleReasonSubmit}
+            disabled={!reason.trim() || getNoDataReasonLoading}
+            style={{ backgroundColor: '#003465', borderColor: '#003465' }}
+          >
+            {isUpdateMode ? 'Update' : 'Save'}
           </Button>
         </Modal.Footer>
       </Modal>

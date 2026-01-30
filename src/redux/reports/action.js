@@ -54,3 +54,26 @@ export const downloadYearlyReport = (data) => ({
 export const resetDownloadYearlyReport = () => ({
     type: REPORT_TYPES.DOWNLOAD_YEARLY_REPORT_RESET
 })
+
+export const createNoDataReason = (data) => ({
+    type: REPORT_TYPES.CREATE_NO_DATA_REASON,
+    payload: data
+})
+
+export const getNoDataReason = (data) => ({
+    type: REPORT_TYPES.GET_NO_DATA_REASON,
+    payload: data
+})
+
+export const updateNoDataReason = (data) => ({
+    type: REPORT_TYPES.UPDATE_NO_DATA_REASON,
+    payload: data
+})
+
+export const resetCreateNoDataReason = () => ({
+    type: REPORT_TYPES.CREATE_NO_DATA_REASON_RESET
+})
+
+export const resetUpdateNoDataReason = () => ({
+    type: REPORT_TYPES.UPDATE_NO_DATA_REASON_RESET
+})
