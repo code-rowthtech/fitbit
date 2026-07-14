@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Form, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { Form, OverlayTrigger, Tooltip, Button } from "react-bootstrap";
 import { FiSearch } from "react-icons/fi";
 import { LuLayoutList } from "react-icons/lu";
 import { AiOutlineInfoCircle } from "react-icons/ai";
+import { FaCheckCircle } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllPatients, getAllDoctors } from "../redux/actions";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -19,6 +20,7 @@ const Sidebar = () => {
   const [activePatient, setActivePatient] = useState(null);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("new");
   const location = useLocation();
   const userInfo = JSON.parse(localStorage.getItem("user"));
   const UserRole = userInfo?.role;
@@ -34,13 +36,13 @@ const Sidebar = () => {
   useEffect(() => {
     const payload =
       selectedDoctor?.value && selectedDoctor.value !== "all"
-        ? { doctorId: selectedDoctor.value, paginate: false }
-        : { paginate: false };
+        ? { doctorId: selectedDoctor.value, patientType: activeTab, paginate: false }
+        : { patientType: activeTab, paginate: false };
     dispatch(getAllPatients(payload));
     if (UserRole !== "doctor") {
       dispatch(getAllDoctors({ paginate: false }));
     }
-  }, [dispatch, selectedDoctor]);
+  }, [dispatch, selectedDoctor, activeTab]);
 
   useEffect(() => {
     const pathMatch = location.pathname.match(/\/patient-dashboard\/(.+)/);
@@ -53,11 +55,11 @@ const Sidebar = () => {
     if (CreateResponse === 201) {
       const payload =
         selectedDoctor?.value && selectedDoctor.value !== "all"
-          ? { doctorId: selectedDoctor.value, paginate: false }
-          : { paginate: false };
+          ? { doctorId: selectedDoctor.value, patientType: activeTab, paginate: false }
+          : { patientType: activeTab, paginate: false };
       dispatch(getAllPatients(payload));
     }
-  }, [CreateResponse, selectedDoctor]);
+  }, [CreateResponse, selectedDoctor, activeTab]);
 
   useEffect(() => {
     if (CreateDoctorResponse === 201) {
@@ -69,11 +71,11 @@ const Sidebar = () => {
     if (UpdateResponse === 200) {
       const payload =
         selectedDoctor?.value && selectedDoctor.value !== "all"
-          ? { doctorId: selectedDoctor.value, paginate: false }
-          : { paginate: false };
+          ? { doctorId: selectedDoctor.value, patientType: activeTab, paginate: false }
+          : { patientType: activeTab, paginate: false };
       dispatch(getAllPatients(payload));
     }
-  }, [UpdateResponse, selectedDoctor]);
+  }, [UpdateResponse, selectedDoctor, activeTab]);
 
   const styles = `
     .patient-item:hover {
@@ -151,6 +153,35 @@ const Sidebar = () => {
         </div>
 
         <div>
+          <div className="d-flex px-2 pt-2 pb-1">
+            <Button
+              className="w-50 text-center"
+              style={{
+                fontSize: '12px',
+                borderRadius: '4px 0 0 4px',
+                backgroundColor: activeTab === 'new' ? '#003465' : '#f8f9fa',
+                color: activeTab === 'new' ? '#fff' : '#000',
+                border: '1px solid #ced4da'
+              }}
+              onClick={() => setActiveTab('new')}
+            >
+              New
+            </Button>
+            <Button
+              className="w-50 text-center"
+              style={{
+                fontSize: '12px',
+                borderRadius: '0 4px 4px 0',
+                backgroundColor: activeTab === 'old' ? '#003465' : '#f8f9fa',
+                color: activeTab === 'old' ? '#fff' : '#000',
+                border: '1px solid #ced4da',
+                borderLeft: 'none'
+              }}
+              onClick={() => setActiveTab('old')}
+            >
+              Old
+            </Button>
+          </div>
           {UserRole !== "doctor" && (
             <div className="p-2 pb-2">
               <Select
@@ -267,6 +298,16 @@ const Sidebar = () => {
                       >
                         {patient.firstName} {patient.lastName}
                       </div>
+                      {patient.fitbitUserId && (
+                        <FaCheckCircle
+                          className="ms-1"
+                          style={{
+                            fontSize: "12px",
+                            color: "#28a745",
+                          }}
+                          title="Connected"
+                        />
+                      )}
                       {patient.noDataAlert && (
                         <OverlayTrigger
                           placement="top"

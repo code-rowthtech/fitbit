@@ -29,6 +29,9 @@ export function getAllPatientsApi(data) {
     if (data?.payload?.isActive !== undefined) {
         params.append('isActive', data.payload.isActive);
     }
+    if (data?.payload?.patientType) {
+        params.append('patientType', data.payload.patientType);
+    }
     
     const url = params.toString() ? `${URL.GET_PATIENTS}?${params.toString()}` : URL.GET_PATIENTS;
     return api.get(url);

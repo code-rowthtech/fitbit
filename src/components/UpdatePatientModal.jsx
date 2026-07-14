@@ -108,6 +108,9 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
 
   const watchedDateOfBirth = watch("dateOfBirth");
   const watchedSyncStartDate = watch("syncStartDate");
+  const watchedPatientType = watch("patientType") || "new";
+  const watchedRegistrationDate = watch("registrationDate") || new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0];
 
   const calculateAge = (dateOfBirth) => {
     if (!dateOfBirth) return "";
@@ -257,6 +260,7 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
       );
       setValue("PatientCategory", PatientData.PatientDataCategory || "");
       setValue("fitbitConsent", PatientData.fitbitConsent || "");
+      setValue("patientType", PatientData.patientType || "new");
       setValue("notes", PatientData.notes || "");
       setValue(
         "syncStartDate",
@@ -397,6 +401,7 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
         notes: data.notes || undefined,
         syncStartDate: data.syncStartDate || undefined,
         syncEndDate: data.syncEndDate || undefined,
+        patientType: data.patientType || undefined,
       },
       patientId: id,
     };
@@ -1223,6 +1228,25 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                     className="mb-1 fw-semibold opacity-75"
                     style={{ fontSize: "14px", color: "#16213DB2" }}
                   >
+                    Patient Type
+                  </Form.Label>
+                  <Form.Select
+                    style={{ fontSize: "12px", backgroundColor: "#F9FAFB", cursor: "pointer" }}
+                    className="py-3"
+                    {...register("patientType")}
+                    defaultValue="new"
+                  >
+                    <option value="new">New User</option>
+                    <option value="old">Old User</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label
+                    className="mb-1 fw-semibold opacity-75"
+                    style={{ fontSize: "14px", color: "#16213DB2" }}
+                  >
                     Start Date
                   </Form.Label>
                   <Form.Control
@@ -1230,6 +1254,7 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                     className="py-3"
                     type="date"
                     autoComplete="off"
+                    min={watchedPatientType === 'new' ? watchedRegistrationDate : undefined}
                     {...register("syncStartDate")}
                   />
                 </Form.Group>
@@ -1247,6 +1272,7 @@ const UpdatePatientModal = ({ show, onHide, patient, patientId }) => {
                     className="py-3"
                     type="date"
                     autoComplete="off"
+                    max={watchedPatientType === 'old' ? (watchedRegistrationDate < today ? watchedRegistrationDate : today) : undefined}
                     {...register("syncEndDate", {
                       validate: {
                         notBeforeStartDate: (value) => {
