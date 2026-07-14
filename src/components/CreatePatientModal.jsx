@@ -111,6 +111,9 @@ const CreatePatientModal = ({ show, onHide }) => {
 
   const watchedDateOfBirth = watch("dateOfBirth");
   const watchedSyncStartDate = watch("syncStartDate");
+  const watchedPatientType = watch("patientType") || "new";
+  const watchedRegistrationDate = watch("registrationDate") || new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0];
 
   const calculateAge = (dateOfBirth) => {
     if (!dateOfBirth) return "";
@@ -240,6 +243,7 @@ const CreatePatientModal = ({ show, onHide }) => {
       gender: data.gender || "prefer-not-to-say",
       doctorId: data.doctorId || undefined,
       fitbitConsent: data.fitbitConsent || false,
+      patientType: data.patientType || 'new',
       syncStartDate: data.syncStartDate || undefined,
       syncEndDate: data.syncEndDate || undefined,
     };
@@ -1043,6 +1047,25 @@ const CreatePatientModal = ({ show, onHide }) => {
               <Col md={6}>
                 <Form.Group className="mb-3">
                   <Form.Label
+                    className="mb-1 fw-semibold opacity-75"
+                    style={{ fontSize: "14px", color: "#16213DB2" }}
+                  >
+                    Patient Type
+                  </Form.Label>
+                  <Form.Select
+                    style={{ fontSize: "12px", backgroundColor: "#F9FAFB", cursor: "pointer" }}
+                    className="py-3"
+                    {...register("patientType")}
+                    defaultValue="new"
+                  >
+                    <option value="new">New User</option>
+                    <option value="old">Old User</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label
                     className="mb-1 fw-semibold opacity-75 d-flex align-items-center gap-2"
                     style={{ fontSize: "14px", color: "#16213DB2" }}
                   >
@@ -1095,6 +1118,7 @@ const CreatePatientModal = ({ show, onHide }) => {
                     className="py-3"
                     type="date"
                     autoComplete="off"
+                    min={watchedPatientType === 'new' ? watchedRegistrationDate : undefined}
                     {...register("syncStartDate")}
                   />
                 </Form.Group>
@@ -1112,6 +1136,7 @@ const CreatePatientModal = ({ show, onHide }) => {
                     className="py-3"
                     type="date"
                     autoComplete="off"
+                    max={watchedPatientType === 'old' ? (watchedRegistrationDate < today ? watchedRegistrationDate : today) : undefined}
                     {...register("syncEndDate", {
                       validate: {
                         notBeforeStartDate: (value) => {
