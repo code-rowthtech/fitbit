@@ -153,8 +153,10 @@ const Login = () => {
   }, [dispatch]);
 
   if (userLoggedIn && user) {
-    return <Navigate to={`/patient-dashboard/${user?.patientId}`} replace />;
+    const redirectId = user?.role === "patient" ? user?.patientId : "undefined";
+    return <Navigate to={`/patient-dashboard/${redirectId}`} replace />;
   }
+
 
   const handleInputChange = (e, callback) => {
     callback(e);

@@ -46,10 +46,19 @@ const Sidebar = () => {
 
   useEffect(() => {
     const pathMatch = location.pathname.match(/\/patient-dashboard\/(.+)/);
-    if (pathMatch) {
-      setActivePatient(pathMatch[1]);
+    const extractedId = pathMatch ? pathMatch[1] : null;
+
+    if (extractedId && extractedId !== "undefined") {
+      setActivePatient(extractedId);
+    } else if (
+      PatientData?.length > 0 &&
+      (!activePatient || activePatient === "undefined" || extractedId === "undefined")
+    ) {
+      const firstPatient = PatientData[0];
+      setActivePatient(firstPatient._id);
+      navigate(`/patient-dashboard/${firstPatient._id}`, { replace: true });
     }
-  }, [location.pathname]);
+  }, [location.pathname, PatientData, activePatient, navigate]);
 
   useEffect(() => {
     if (CreateResponse === 201) {
@@ -105,9 +114,9 @@ const Sidebar = () => {
     <>
       <style>{styles}</style>
       <div
-        className="sidebar"
+        className="sidebar d-flex flex-column"
         style={{
-          height: "100vh",
+          height: "100%",
           width: "253px",
           borderRight: "1px solid #e9ecef",
         }}
@@ -152,7 +161,7 @@ const Sidebar = () => {
           />
         </div>
 
-        <div>
+        <div className="d-flex flex-column flex-grow-1 overflow-hidden">
           <div className="d-flex px-2 pt-2 pb-1">
             <Button
               className="w-50 text-center"
@@ -163,7 +172,10 @@ const Sidebar = () => {
                 color: activeTab === 'new' ? '#fff' : '#000',
                 border: '1px solid #ced4da'
               }}
-              onClick={() => setActiveTab('new')}
+              onClick={() => {
+                setActiveTab('new');
+                navigate('/patient-dashboard/undefined', { replace: true });
+              }}
             >
               New
             </Button>
@@ -177,7 +189,10 @@ const Sidebar = () => {
                 border: '1px solid #ced4da',
                 borderLeft: 'none'
               }}
-              onClick={() => setActiveTab('old')}
+              onClick={() => {
+                setActiveTab('old');
+                navigate('/patient-dashboard/undefined', { replace: true });
+              }}
             >
               Old
             </Button>
@@ -186,7 +201,10 @@ const Sidebar = () => {
             <div className="p-2 pb-2">
               <Select
                 value={selectedDoctor}
-                onChange={setSelectedDoctor}
+                onChange={(option) => {
+                  setSelectedDoctor(option);
+                  navigate('/patient-dashboard/undefined', { replace: true });
+                }}
                 placeholder="Search Doctor"
                 options={[
                   // { value: '', label: 'Search Doctor' },
@@ -215,8 +233,7 @@ const Sidebar = () => {
             </div>
           )}
           <div
-            className="patient-list pb-4"
-            style={{ maxHeight: "calc(100vh - 140px)" }}
+            className="patient-list pb-4 flex-grow-1"
           >
             {loading ? (
               <div className="d-flex justify-content-center align-items-center p-3">
@@ -290,42 +307,38 @@ const Sidebar = () => {
                     </div>
                    
                   </div>
-                  <div className="flex-grow-1">
-                    <div className="d-flex align-items-center">
+                  <div className="flex-grow-1 d-flex flex-column justify-content-center px-2" style={{ minWidth: 0 }}>
+                    <div className="d-flex align-items-center w-100">
                       <div
-                        className="fw-semibold text-white text-capitalize"
-                        style={{ fontSize: "12px" }}
+                        className="fw-semibold text-white text-capitalize text-truncate"
+                        style={{ fontSize: "12px", marginRight: "4px" }}
+                        title={`${patient.firstName} ${patient.lastName}`}
                       >
                         {patient.firstName} {patient.lastName}
                       </div>
-                      {patient.fitbitUserId && (
-                        <FaCheckCircle
-                          className="ms-1"
-                          style={{
-                            fontSize: "12px",
-                            color: "#28a745",
-                          }}
-                          title="Connected"
-                        />
-                      )}
-                      {patient.noDataAlert && (
-                        <OverlayTrigger
-                          placement="top"
-                          overlay={<Tooltip>{patient.noDataMessage}</Tooltip>}
-                        >
-                          <AiOutlineInfoCircle
-                            className="ms-2"
-                            style={{
-                              fontSize: "12px",
-                              color: "#dc3545",
-                            }}
+                      <div className="d-flex align-items-center flex-shrink-0">
+                        {patient.fitbitUserId && (
+                          <FaCheckCircle
+                            style={{ fontSize: "12px", color: "#28a745" }}
+                            title="Connected"
                           />
-                        </OverlayTrigger>
-                      )}
+                        )}
+                        {patient.noDataAlert && (
+                          <OverlayTrigger
+                            placement="top"
+                            overlay={<Tooltip>{patient.noDataMessage}</Tooltip>}
+                          >
+                            <AiOutlineInfoCircle
+                              className="ms-1"
+                              style={{ fontSize: "12px", color: "#dc3545" }}
+                            />
+                          </OverlayTrigger>
+                        )}
+                      </div>
                     </div>
                     
                     <div
-                      className="text-white mt-1"
+                      className="text-white mt-1 text-truncate"
                       style={{ fontSize: "8px" }}
                     >
                       {(typeof patient?.address?.city === "string"
@@ -337,9 +350,9 @@ const Sidebar = () => {
                         "N/A"}
                     </div>
                   </div>
-                  <div className="">
+                  <div className="text-end flex-shrink-0 d-flex flex-column justify-content-center ms-1">
                     <span
-                      className="text-white me-2 mb-0"
+                      className="text-white mb-1"
                       style={{ fontSize: "8px" }}
                     >
                       {patient?.createdAt
