@@ -8,7 +8,28 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-/.env
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+service-account*.json
+
+# Private integrations and local data (never store patient exports here)
+private/
+backups/
+exports/
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+.aws/
+.codex/
+.agents/
 
 dist
 dist-ssr

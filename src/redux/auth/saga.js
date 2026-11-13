@@ -11,7 +11,6 @@ import { authApiResponseSuccess, authApiResponseError } from "./actions";
 import { AuthActionTypes } from "./constants";
 import { setAuthorization } from "../../helpers/api/apiCore";
 import { clearAuthData } from "../../utils/tokenUtils";
-import api from "../../services/api";
 
 /**
  * Login the user

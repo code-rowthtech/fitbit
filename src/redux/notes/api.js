@@ -1,66 +1,9 @@
-import * as URL from "../../constants/endpoint"
-import { APICore } from "../../helpers/api/apiCore"
-const api = new APICore()
+// Backend implementations are excluded from the public showcase.
+import { unavailable } from "../../services/showcase";
 
-export function addNotesApi(data) {
-    return api.create(URL.ADD_NOTES, data.payload)
-}
-
-export function getNotesApi(data) {
-    const params = new URLSearchParams();
-    
-    if (data?.payload?.page) {
-        params.append('page', data.payload.page);
-    }
-    if (data?.payload?.limit) {
-        params.append('limit', data.payload.limit);
-    }
-    if (data?.payload?.type) {
-        params.append('type', data.payload.type);
-    }
-    if (data?.payload?.value) {
-        params.append('value', data.payload.value);
-    }
-    
-    const baseUrl = `${URL.GET_NOTES}/${data.payload.patientId}`;
-    const url = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
-    return api.get(url);
-}
-
-export function updateNotesApi(data) {
-    return api.update(`${URL.UPDATE_NOTES}/${data.payload.noteId}`, data.payload.body)
-}
-
-export function deleteNotesApi(data) {
-    return api.delete(`${URL.DELETE_NOTES}/${data.payload}`)
-}
-
-export function getAlertsApi(data) {
-    const params = new URLSearchParams();
-    
-    if (data?.payload?.page) {
-        params.append('page', data.payload.page);
-    }
-    if (data?.payload?.limit) {
-        params.append('limit', data.payload.limit);
-    }
-    if (data?.payload?.startDate) {
-        params.append('startDate', data.payload.startDate);
-    }
-    if (data?.payload?.endDate) {
-        params.append('endDate', data.payload.endDate);
-    }
-    if (data?.payload?.severity) {
-        params.append('severity', data.payload.severity);
-    }
-    
-    const baseUrl = `${URL.GET_ALERTS}/${data.payload.patientId}`;
-    const url = params.toString() ? `${baseUrl}?${params.toString()}` : baseUrl;
-    return api.get(url);
-}
-
-export function getMasterDataApi(data) {
-    const type = data?.payload?.type || '';
-    const url = type ? `${URL.GET_MASTER_DATA}/${type}` : URL.GET_MASTER_DATA;
-    return api.get(url);
-}
+export const addNotesApi = unavailable;
+export const getNotesApi = unavailable;
+export const updateNotesApi = unavailable;
+export const deleteNotesApi = unavailable;
+export const getAlertsApi = unavailable;
+export const getMasterDataApi = unavailable;

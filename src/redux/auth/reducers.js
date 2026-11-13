@@ -1,25 +1,7 @@
 import { AuthActionTypes } from "./constants";
-import { APICore } from "../../helpers/api/apiCore";
 
-const api = new APICore();
-
-// Check localStorage for user data on initialization
-const getInitialUser = () => {
-  const token = localStorage.getItem("token");
-  const user = localStorage.getItem("user");
-  if (token && user) {
-    try {
-      return JSON.parse(user);
-    } catch (e) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      return null;
-    }
-  }
-  return api.getLoggedInUser();
-};
-
-const initialUser = getInitialUser();
+// The public showcase never restores a production session.
+const initialUser = null;
 
 const INIT_STATE = {
   user: initialUser,

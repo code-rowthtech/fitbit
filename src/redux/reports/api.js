@@ -1,43 +1,13 @@
-import * as URL from "../../constants/endpoint"
-import { APICore } from "../../helpers/api/apiCore"
-const api = new APICore()
+// Backend implementations are excluded from the public showcase.
+import { unavailable } from "../../services/showcase";
 
-export function getAllReportsApi(data) {
-    return api.get(`${URL.GET_REPORTS}/${data.payload.id}/monthly/${data.payload.month}`);
-}
-
-export function getReportByIdApi(data) {
-    return api.get(`${URL.GET_REPORT}/${data.payload.reportId}`);
-}
-
-export function createReportApi(data) {
-    return api.create(URL.REPORTS, data.payload)
-}
-
-export function updateReportApi(data) {
-    return api.update(`${URL.UPDATE_REPORT}/${data.payload.reportId}`, data.payload.body)
-}
-
-export function downloadReportApi(data) {
-    return api.getFile(`${URL.DOWNLOAD_REPORT}/${data.payload.id}/monthly/${data.payload.month}/csv`);
-}
-
-export function getYearlyReportsApi(data) {
-    return api.get(`${URL.GET_YEARLY_REPORTS}/${data.payload.id}/yearly/${data.payload.year}`);
-}
-
-export function downloadYearlyReportApi(data) {
-    return api.getFile(`${URL.DOWNLOAD_YEARLY_REPORT}/${data.payload.id}/yearly/${data.payload.year}/csv`);
-}
-
-export function createNoDataReasonApi(data) {
-    return api.create(URL.CREATE_NO_DATA_REASON, data.payload)
-}
-
-export function getNoDataReasonApi(data) {
-    return api.get(`${URL.GET_NO_DATA_REASON}/${data.payload.userId}?date=${data.payload.date}`);
-}
-
-export function updateNoDataReasonApi(data) {
-    return api.update(`${URL.UPDATE_NO_DATA_REASON}/${data.payload.id}`, data.payload.body)
-}
+export const getAllReportsApi = unavailable;
+export const getReportByIdApi = unavailable;
+export const createReportApi = unavailable;
+export const updateReportApi = unavailable;
+export const downloadReportApi = unavailable;
+export const getYearlyReportsApi = unavailable;
+export const downloadYearlyReportApi = unavailable;
+export const createNoDataReasonApi = unavailable;
+export const getNoDataReasonApi = unavailable;
+export const updateNoDataReasonApi = unavailable;
